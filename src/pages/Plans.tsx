@@ -1,0 +1,653 @@
+import { useState } from 'react'
+import Nav from '@/components/Nav'
+import Footer from '@/components/Footer'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { useReveal } from '@/hooks/useReveal'
+
+// ── data ───────────────────────────────────────────────────────────────────
+const plans = [
+  {
+    name: 'Mini',
+    tagline: 'Test the waters.',
+    monthlyPrice: 14,
+    annualPrice: 11,
+    bg: '#F5F1EB',
+    textColor: '#001B21',
+    accentColor: '#5DDB9C',
+    ctaBg: '#001B21',
+    ctaText: '#F5F1EB',
+    perks: [
+      { label: '120–180 premium ABS bricks', included: true },
+      { label: '1 exclusive minifig', included: true },
+      { label: 'Build card + 8 vinyl stickers', included: true },
+      { label: 'Free standard shipping', included: true },
+      { label: 'Trade-club access', included: false },
+      { label: 'Early access drops', included: false },
+      { label: 'Annual surprise box', included: false },
+    ],
+    colSpan: 'lg:col-span-3',
+    featured: false,
+  },
+  {
+    name: 'Standard',
+    tagline: 'Most builders live here.',
+    monthlyPrice: 24,
+    annualPrice: 19,
+    bg: '#FFD731',
+    textColor: '#001B21',
+    accentColor: '#001B21',
+    ctaBg: '#001B21',
+    ctaText: '#F5F1EB',
+    perks: [
+      { label: '240–320 premium ABS bricks', included: true },
+      { label: '2 exclusive minifigs', included: true },
+      { label: 'Build card + 16 vinyl stickers', included: true },
+      { label: 'Free expedited shipping', included: true },
+      { label: 'Trade-club access', included: true },
+      { label: 'Early access drops', included: false },
+      { label: 'Annual surprise box', included: false },
+    ],
+    colSpan: 'lg:col-span-6',
+    featured: true,
+  },
+  {
+    name: 'Mega',
+    tagline: 'Go all-in.',
+    monthlyPrice: 42,
+    annualPrice: 34,
+    bg: '#FB4903',
+    textColor: '#F5F1EB',
+    accentColor: '#FFD731',
+    ctaBg: '#F5F1EB',
+    ctaText: '#001B21',
+    perks: [
+      { label: '400–520 premium ABS bricks', included: true },
+      { label: '3 exclusive minifigs + rare variant', included: true },
+      { label: 'Hardcover build book', included: true },
+      { label: 'Free expedited shipping', included: true },
+      { label: 'Trade-club access', included: true },
+      { label: 'Early access drops', included: true },
+      { label: 'Annual surprise box', included: true },
+    ],
+    colSpan: 'lg:col-span-3',
+    featured: false,
+  },
+]
+
+const trustTiles = [
+  { label: 'Cancel any time', body: 'No fees, no friction. One click in your account dashboard.', bg: '#5DDB9C', num: '01' },
+  { label: 'Skip any month', body: 'Going on holiday? Skip up to 3 months per year, billing pauses.', bg: '#FFAEE7', num: '02' },
+  { label: '30-day guarantee', body: "Don't love your first box — we'll refund it, no questions asked.", bg: '#4DA2FF', num: '03' },
+  { label: 'Free worldwide shipping', body: 'Standard on all plans. Expedited on Standard and Mega.', bg: '#FFD731', num: '04' },
+]
+
+const faqs = [
+  { q: 'When does my first box ship?', a: "Orders placed before the 15th of the month ship with the current month's drop. After the 15th, you'll get the following month's drop." },
+  { q: 'Can I switch plans mid-subscription?', a: 'Yes — upgrade or downgrade at any time from your dashboard. Changes take effect from the next billing cycle.' },
+  { q: 'What payment methods do you accept?', a: 'We accept all major credit and debit cards (Visa, Mastercard, Amex), PayPal, and Apple Pay.' },
+  { q: 'How does the annual billing discount work?', a: 'Annual billing charges you for 10 months upfront and gives you 12 months of drops — effectively 2 months free. The rate shown is the per-month equivalent.' },
+  { q: 'Are the minifigs compatible with standard bricks?', a: 'Every BRICKTIME piece is 100 % compatible with all major brick systems you already own.' },
+  { q: 'Do you ship internationally?', a: 'We ship to 42 countries. Standard shipping is free everywhere. Delivery times range from 3–5 days (EU) to 7–14 days (rest of world).' },
+]
+
+const comparisonRows = [
+  { feature: 'Bricks per drop', mini: '120–180', standard: '240–320', mega: '400–520' },
+  { feature: 'Exclusive minifigs', mini: '1', standard: '2', mega: '3 + variant' },
+  { feature: 'Build card', mini: '✓', standard: '✓', mega: 'Hardcover book' },
+  { feature: 'Vinyl stickers', mini: '8 stickers', standard: '16 stickers', mega: '24 stickers' },
+  { feature: 'Shipping', mini: 'Standard (free)', standard: 'Expedited (free)', mega: 'Expedited (free)' },
+  { feature: 'Trade-club access', mini: '—', standard: '✓', mega: '✓' },
+  { feature: 'Early-access drops', mini: '—', standard: '—', mega: '✓' },
+  { feature: 'Annual surprise box', mini: '—', standard: '—', mega: '✓' },
+]
+
+// ── sub-components ─────────────────────────────────────────────────────────
+function BillingToggle({ value, onChange }: { value: 'monthly' | 'annual'; onChange: (v: 'monthly' | 'annual') => void }) {
+  return (
+    <div className="inline-flex items-center gap-1 rounded-full border-2 border-ink bg-paper p-1">
+      {(['monthly', 'annual'] as const).map((v) => (
+        <button
+          key={v}
+          onClick={() => onChange(v)}
+          className={[
+            'rounded-full px-5 py-2 font-mono text-[12px] tracking-[.08em] uppercase transition-all',
+            value === v ? 'bg-ink text-paper' : 'text-ink/60 hover:text-ink',
+          ].join(' ')}
+        >
+          {v === 'monthly' ? 'Monthly' : 'Annual — save 2 months'}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function FAQItem({ q, a, open, onToggle }: { q: string; a: string; open: boolean; onToggle: () => void }) {
+  return (
+    <div className="border-b-2 border-dashed border-ink/20 last:border-b-0">
+      <button
+        onClick={onToggle}
+        className="flex w-full items-start justify-between gap-4 py-5 text-left"
+      >
+        <span className="text-[16px] font-semibold text-ink leading-[1.4]">{q}</span>
+        <span
+          className="mt-0.5 shrink-0 size-7 grid place-items-center rounded-full border-2 border-ink text-ink transition-transform"
+          style={{ transform: open ? 'rotate(45deg)' : 'rotate(0deg)' }}
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M6 1v10M1 6h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </span>
+      </button>
+      <div
+        className="overflow-hidden transition-all"
+        style={{ maxHeight: open ? 200 : 0, opacity: open ? 1 : 0 }}
+      >
+        <p className="pb-5 text-[15px] leading-[1.65] text-ink/65">{a}</p>
+      </div>
+    </div>
+  )
+}
+
+// ── page ───────────────────────────────────────────────────────────────────
+export default function PlansPage() {
+  const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly')
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
+
+  const heroRef = useReveal<HTMLDivElement>()
+  const plansRef = useReveal<HTMLDivElement>()
+  const compareRef = useReveal<HTMLDivElement>()
+  const trustRef = useReveal<HTMLDivElement>()
+  const faqRef = useReveal<HTMLDivElement>()
+
+  return (
+    <div className="min-h-screen bg-paper">
+      <Nav />
+
+      {/* ── Hero ─────────────────────────────────────────────────────── */}
+      <section className="bg-paper py-20">
+        <div className="mx-auto max-w-[1320px] px-7">
+          <div ref={heroRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+
+            {/* Main copy — col-7 */}
+            <div
+              className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-9 shadow-[6px_6px_0_#001B21] lg:col-span-7"
+              style={{ background: '#001B21', minHeight: 340 }}
+            >
+              <div>
+                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Plans & pricing</p>
+                <h1
+                  className="mt-5 uppercase text-paper"
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: 'clamp(42px, 4.5vw, 76px)',
+                    lineHeight: '.88',
+                    letterSpacing: '-.015em',
+                  }}
+                >
+                  Bricks every
+                  <br />
+                  month.{' '}
+                  <span
+                    className="inline-block bg-brand-yellow px-[.1em] text-ink"
+                    style={{ transform: 'rotate(-1.5deg)' }}
+                  >
+                    Pick
+                  </span>
+                  <br />
+                  your tier.
+                </h1>
+                <p className="mt-6 max-w-[48ch] text-[17px] leading-[1.65] text-paper/70">
+                  No lock-ins. Cancel, skip, or swap any month. Your first box ships within 5 days of signing up.
+                </p>
+              </div>
+              <div className="mt-8">
+                <BillingToggle value={billing} onChange={setBilling} />
+                {billing === 'annual' && (
+                  <p className="mt-3 font-mono text-[11px] tracking-[.12em] uppercase text-brand-mint">
+                    ✓ 2 months free — billed as one annual payment
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Stats tile — col-5, row-span-2 */}
+            <div
+              className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] lg:col-span-5 lg:row-span-2"
+              style={{ background: '#5DDB9C', minHeight: 340 }}
+            >
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">Community</p>
+
+              <div className="flex flex-col gap-8">
+                {[
+                  { num: '12,400+', label: 'Active subscribers' },
+                  { num: '4.9 / 5', label: 'Average rating' },
+                  { num: '26', label: 'Drops shipped' },
+                  { num: '42', label: 'Countries reached' },
+                ].map((s) => (
+                  <div key={s.label}>
+                    <div
+                      className="uppercase text-ink"
+                      style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,3.5vw,56px)', lineHeight: '.88' }}
+                    >
+                      {s.num}
+                    </div>
+                    <div className="mt-1 font-mono text-[12px] tracking-[.1em] uppercase text-ink/55">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <div className="flex">
+                  {['#FB4903', '#FFAEE7', '#4DA2FF', '#FFD731'].map((c, i) => (
+                    <span
+                      key={c}
+                      className="size-7 rounded-full border-2 border-ink"
+                      style={{ background: c, marginLeft: i === 0 ? 0 : -6 }}
+                    />
+                  ))}
+                </div>
+                <p className="text-[13px] font-semibold text-ink">Builders worldwide</p>
+              </div>
+            </div>
+
+            {/* Guarantee pill — col-7 */}
+            <div
+              className="reveal flex items-center gap-6 rounded-3xl border-2 border-ink p-7 shadow-[6px_6px_0_#001B21] lg:col-span-7"
+              style={{ background: '#FFD731' }}
+            >
+              <div
+                className="shrink-0 text-ink/20 select-none"
+                style={{ fontFamily: 'var(--font-display)', fontSize: 64, lineHeight: 1 }}
+              >
+                ▩
+              </div>
+              <div>
+                <p
+                  className="uppercase text-ink"
+                  style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(20px,2vw,30px)', lineHeight: '.92' }}
+                >
+                  30-day money-back guarantee
+                </p>
+                <p className="mt-2 text-[14px] leading-[1.6] text-ink/65">
+                  Not happy with your first box? We'll refund the full amount — no questions, no forms.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── Plan cards ───────────────────────────────────────────────── */}
+      <section className="bg-ink py-20">
+        <div className="mx-auto max-w-[1320px] px-7">
+          <div ref={plansRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+
+            {/* Tagline row */}
+            <div
+              className="reveal flex items-center justify-between rounded-3xl border-2 border-paper/20 p-8 lg:col-span-12"
+              style={{ background: '#FB4903' }}
+            >
+              <h2
+                className="uppercase text-paper"
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 'clamp(32px,3.5vw,60px)',
+                  lineHeight: '.88',
+                  letterSpacing: '-.015em',
+                }}
+              >
+                Three plans.
+                <br />
+                One universe.
+              </h2>
+              <div className="hidden lg:block">
+                <BillingToggle value={billing} onChange={setBilling} />
+              </div>
+            </div>
+
+            {/* Plan cards */}
+            {plans.map((plan, i) => (
+              <div
+                key={plan.name}
+                className={[
+                  'reveal relative flex flex-col justify-between rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_rgba(245,241,235,.2)]',
+                  plan.colSpan,
+                ].join(' ')}
+                style={{ background: plan.bg, transitionDelay: `${i * 80}ms`, minHeight: 480 }}
+              >
+                {plan.featured && (
+                  <Badge
+                    className="absolute -top-4 right-6 rotate-2 rounded border-2 border-ink px-3 py-1 font-mono text-[11px] tracking-[.08em] uppercase"
+                    style={{ background: '#001B21', color: '#F5F1EB' }}
+                  >
+                    Most popular
+                  </Badge>
+                )}
+
+                {/* Name + price */}
+                <div>
+                  <p
+                    className="font-mono text-[11px] tracking-[.16em] uppercase"
+                    style={{ color: `${plan.textColor}80` }}
+                  >
+                    {plan.tagline}
+                  </p>
+                  <div
+                    className="mt-2 uppercase"
+                    style={{
+                      fontFamily: 'var(--font-display)',
+                      fontSize: plan.featured ? 44 : 36,
+                      lineHeight: '.88',
+                      color: plan.textColor,
+                    }}
+                  >
+                    {plan.name}
+                  </div>
+                  <div className="mt-3 flex items-baseline gap-1">
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-display)',
+                        fontSize: plan.featured ? 80 : 60,
+                        lineHeight: '.88',
+                        color: plan.textColor,
+                      }}
+                    >
+                      ${billing === 'monthly' ? plan.monthlyPrice : plan.annualPrice}
+                    </span>
+                    <span
+                      className="font-mono text-[12px] tracking-[.06em] uppercase"
+                      style={{ color: `${plan.textColor}80` }}
+                    >
+                      /mo
+                    </span>
+                  </div>
+                  {billing === 'annual' && (
+                    <p
+                      className="mt-1.5 font-mono text-[11px] tracking-[.06em] uppercase"
+                      style={{ color: `${plan.textColor}70` }}
+                    >
+                      billed ${plan.annualPrice * 10}/yr — save ${(plan.monthlyPrice - plan.annualPrice) * 12}
+                    </p>
+                  )}
+                </div>
+
+                {/* Perks */}
+                <ul className="mt-6 flex flex-col gap-2.5">
+                  {plan.perks.map((perk) => (
+                    <li
+                      key={perk.label}
+                      className="flex items-start gap-2.5 text-[14px]"
+                      style={{ opacity: perk.included ? 1 : 0.35 }}
+                    >
+                      <span
+                        className="mt-[3px] shrink-0 size-3 rounded-full border-2"
+                        style={{
+                          background: perk.included ? plan.accentColor : 'transparent',
+                          borderColor: plan.textColor,
+                        }}
+                      />
+                      <span style={{ color: `${plan.textColor}cc` }}>{perk.label}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* CTA */}
+                <Button
+                  className="mt-7 w-full rounded-full border-2 border-ink font-bold text-[14px] tracking-[.02em] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] transition-all"
+                  style={{ background: plan.ctaBg, color: plan.ctaText }}
+                >
+                  <a href="#">Start with {plan.name} →</a>
+                </Button>
+              </div>
+            ))}
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── Comparison table ─────────────────────────────────────────── */}
+      <section className="bg-paper py-20">
+        <div className="mx-auto max-w-[1320px] px-7">
+          <div ref={compareRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+
+            {/* Header */}
+            <div className="reveal lg:col-span-12">
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ Side by side</p>
+              <h2
+                className="mt-3 uppercase text-ink"
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 'clamp(36px,4vw,68px)',
+                  lineHeight: '.88',
+                  letterSpacing: '-.015em',
+                }}
+              >
+                Everything, compared.
+              </h2>
+            </div>
+
+            {/* Table tile */}
+            <div
+              className="reveal rounded-3xl border-2 border-ink shadow-[6px_6px_0_#001B21] overflow-hidden lg:col-span-12"
+              style={{ background: '#F5F1EB' }}
+            >
+              {/* Column headers */}
+              <div className="grid grid-cols-4 border-b-2 border-ink">
+                <div className="p-5 font-mono text-[11px] tracking-[.18em] uppercase text-ink/40">Feature</div>
+                {plans.map((p) => (
+                  <div
+                    key={p.name}
+                    className="flex items-center justify-between border-l-2 border-ink p-5"
+                    style={{ background: p.bg }}
+                  >
+                    <span
+                      className="uppercase"
+                      style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: p.textColor, lineHeight: 1 }}
+                    >
+                      {p.name}
+                    </span>
+                    {p.featured && (
+                      <span className="font-mono text-[9px] tracking-[.1em] uppercase text-ink/50">Popular</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {comparisonRows.map((row, i) => (
+                <div
+                  key={row.feature}
+                  className="grid grid-cols-4 border-b-2 border-dashed border-ink/20 last:border-b-0 hover:bg-ink/[.03] transition-colors"
+                >
+                  <div className="p-5 text-[14px] font-semibold text-ink/70">{row.feature}</div>
+                  {[row.mini, row.standard, row.mega].map((val, j) => (
+                    <div
+                      key={j}
+                      className="flex items-center border-l-2 border-dashed border-ink/20 p-5 text-[14px] text-ink"
+                      style={{ transitionDelay: `${i * 30 + j * 10}ms` }}
+                    >
+                      {val === '—' ? (
+                        <span className="text-ink/25">—</span>
+                      ) : val === '✓' ? (
+                        <span
+                          className="size-5 grid place-items-center rounded-full border-2 border-ink bg-brand-mint text-ink text-[11px] font-bold"
+                        >
+                          ✓
+                        </span>
+                      ) : (
+                        val
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── Trust signals ────────────────────────────────────────────── */}
+      <section className="bg-ink py-20">
+        <div className="mx-auto max-w-[1320px] px-7">
+          <div ref={trustRef} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {trustTiles.map((t, i) => (
+              <div
+                key={t.num}
+                className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_rgba(245,241,235,.12)] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_rgba(245,241,235,.2)]"
+                style={{ background: t.bg, transitionDelay: `${i * 70}ms`, minHeight: 220 }}
+              >
+                <span
+                  className="text-ink/20 select-none"
+                  style={{ fontFamily: 'var(--font-display)', fontSize: 52, lineHeight: .85 }}
+                >
+                  {t.num}
+                </span>
+                <div>
+                  <h3
+                    className="uppercase text-ink"
+                    style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(18px,1.8vw,26px)', lineHeight: '.92' }}
+                  >
+                    {t.label}
+                  </h3>
+                  <p className="mt-3 text-[14px] leading-[1.6] text-ink/65">{t.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ──────────────────────────────────────────────────────── */}
+      <section className="bg-paper py-20">
+        <div className="mx-auto max-w-[1320px] px-7">
+          <div ref={faqRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+
+            {/* Header tile */}
+            <div
+              className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-9 shadow-[6px_6px_0_#001B21] lg:col-span-4 lg:row-span-1"
+              style={{ background: '#5C4ADE', minHeight: 280 }}
+            >
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Questions</p>
+              <div>
+                <h2
+                  className="uppercase text-paper"
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: 'clamp(32px,3vw,52px)',
+                    lineHeight: '.88',
+                    letterSpacing: '-.015em',
+                  }}
+                >
+                  The things
+                  <br />
+                  people
+                  <br />
+                  ask us.
+                </h2>
+                <p className="mt-5 text-[14px] leading-[1.65] text-paper/65">
+                  Still stuck? Drop us a line at{' '}
+                  <a href="mailto:hi@bricktime.co" className="text-brand-yellow underline underline-offset-2">
+                    hi@bricktime.co
+                  </a>
+                </p>
+              </div>
+            </div>
+
+            {/* Accordion tile */}
+            <div
+              className="reveal rounded-3xl border-2 border-ink p-9 shadow-[6px_6px_0_#001B21] lg:col-span-8"
+              style={{ background: '#F5F1EB' }}
+            >
+              {faqs.map((faq, i) => (
+                <FAQItem
+                  key={i}
+                  q={faq.q}
+                  a={faq.a}
+                  open={openFaq === i}
+                  onToggle={() => setOpenFaq(openFaq === i ? null : i)}
+                />
+              ))}
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── Bottom CTA ───────────────────────────────────────────────── */}
+      <section className="bg-ink py-20">
+        <div className="mx-auto max-w-[1320px] px-7">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+
+            {/* Big CTA tile */}
+            <div
+              className="flex flex-col justify-between rounded-3xl border-2 border-paper/20 p-10 lg:col-span-8"
+              style={{ background: '#FB4903', minHeight: 300 }}
+            >
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/60">⬢ Drop № 26 — shipping May 5</p>
+              <div>
+                <h2
+                  className="uppercase text-paper"
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: 'clamp(38px,4vw,68px)',
+                    lineHeight: '.88',
+                    letterSpacing: '-.015em',
+                  }}
+                >
+                  Order before
+                  <br />
+                  May 15 — get
+                  <br />
+                  Mailbox Row.
+                </h2>
+                <p className="mt-5 max-w-[44ch] text-[16px] leading-[1.6] text-paper/75">
+                  Drop № 26 is Mailbox Row + Postman Otto. 312 bricks, 2 minifigs, one very satisfying build.
+                </p>
+              </div>
+            </div>
+
+            {/* Action tile */}
+            <div
+              className="flex flex-col justify-between rounded-3xl border-2 border-paper/15 p-9 lg:col-span-4"
+              style={{ background: '#001B21', minHeight: 300 }}
+            >
+              <div>
+                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">Starting from</p>
+                <div
+                  className="mt-1 uppercase text-paper"
+                  style={{ fontFamily: 'var(--font-display)', fontSize: 72, lineHeight: '.88' }}
+                >
+                  ${billing === 'monthly' ? 14 : 11}
+                </div>
+                <p className="mt-1 font-mono text-[11px] tracking-[.08em] uppercase text-paper/50">
+                  per month{billing === 'annual' ? ' (annual)' : ''}
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3 mt-6">
+                <Button
+                  className="w-full rounded-full border-2 border-paper/40 bg-brand-yellow text-ink font-bold text-[15px] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_rgba(245,241,235,.3)] transition-all"
+                  asChild
+                >
+                  <a href="#">Start subscription →</a>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full rounded-full border-2 border-paper/30 bg-transparent text-paper font-bold text-[15px] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_rgba(245,241,235,.2)] transition-all"
+                  asChild
+                >
+                  <a href="/drop/26">Preview this drop →</a>
+                </Button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <Footer />
+    </div>
+  )
+}

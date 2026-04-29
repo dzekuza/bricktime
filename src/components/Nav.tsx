@@ -5,7 +5,7 @@ const links = [
   { label: 'Home', to: '/' },
   { label: 'Archive', to: '/archive' },
   { label: 'This Month', to: '/drop' },
-  { label: 'Plans', to: '/#plans' },
+  { label: 'Plans', to: '/plans' },
   { label: 'FAQ', to: '/#faq' },
 ]
 
