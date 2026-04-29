@@ -204,7 +204,7 @@ export default function Archive() {
               <div className="flex-1 flex flex-col justify-center">
                 <h1
                   className="max-w-[14ch] uppercase text-paper"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(72px,11vw,160px)', lineHeight: '.86', letterSpacing: '-.015em' }}
+                  style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px,5.5vw,84px)', lineHeight: '.88', letterSpacing: '-.015em' }}
                 >
                   Every{' '}
                   <span className="inline-block text-brand-orange" style={{ fontStyle: 'italic', transform: 'skew(-8deg)' }}>
@@ -213,7 +213,7 @@ export default function Archive() {
                   <br />every month.
                 </h1>
 
-                <p className="mt-10 max-w-[52ch] text-[18px] leading-[1.65] text-paper/70">
+                <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-paper/70">
                   Twenty-six monthly drops since launch in March 2024 — every one a piece of the BRICKTIME universe. Browse the back catalogue, see what subscribers built, and pick up missing months.
                 </p>
               </div>
@@ -223,7 +223,7 @@ export default function Archive() {
             <div className="flex flex-col justify-around rounded-3xl border-2 border-ink bg-brand-orange p-9 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-4" style={{ minHeight: 420 }}>
               {[['26', 'Drops shipped'], ['7,840', 'Bricks total'], ['54', 'Minifigs released']].map(([val, label]) => (
                 <div key={label} className="flex flex-col gap-2 border-b border-paper/20 pb-8 last:border-b-0 last:pb-0">
-                  <b style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(64px,8vw,96px)', lineHeight: '.88', color: '#F5F1EB' }}>{val}</b>
+                  <b style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,4vw,60px)', lineHeight: '.88', color: '#F5F1EB' }}>{val}</b>
                   <small className="font-mono text-[11px] tracking-[.16em] uppercase text-paper/70">{label}</small>
                 </div>
               ))}

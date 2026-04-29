@@ -177,9 +177,9 @@ export default function Drop() {
 
               <h1
                 className="mt-3.5 uppercase text-ink"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px,6vw,96px)', lineHeight: '.86', letterSpacing: '-.01em' }}
+                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,4vw,68px)', lineHeight: '.88', letterSpacing: '-.01em' }}
               >
-                Mailbox<br />row<br />+{' '}
+                Mailbox Row<br />+{' '}
                 <span className="inline-block text-brand-indigo" style={{ fontStyle: 'italic', transform: 'skew(-8deg)' }}>
                   Postman
                 </span>{' '}Otto.
