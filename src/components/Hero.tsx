@@ -100,51 +100,56 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Tile C — bag + social proof (col-span-5, row 2) */}
+          {/* Tile C — lifestyle photo + social proof (col-span-5, row 2) */}
           <div
-            className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] lg:col-span-5 relative overflow-hidden"
-            style={{
-              background: '#4DA2FF',
-              backgroundImage:
-                'radial-gradient(circle at 14px 14px, rgba(255,255,255,.18) 3px, transparent 4px)',
-              backgroundSize: '34px 34px',
-              minHeight: 240,
-            }}
+            className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink shadow-[6px_6px_0_#001B21] lg:col-span-5 relative overflow-hidden"
+            style={{ minHeight: 240 }}
           >
-            <div className="flex items-start justify-between">
+            {/* Photo background */}
+            <img
+              src="/images/build-castle.jpg"
+              alt="Builder assembling a BRICKTIME drop"
+              className="absolute inset-0 h-full w-full object-cover"
+              style={{ objectPosition: 'center 30%' }}
+            />
+            {/* Gradient overlay for readability */}
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,27,33,.18) 0%, rgba(0,27,33,.72) 100%)' }} />
+
+            {/* Content */}
+            <div className="relative z-10 flex h-full flex-col justify-between p-8">
+              <div className="flex items-start justify-between">
+                <span className="rounded-full border border-paper/40 bg-paper/10 px-3 py-1.5 font-mono text-[10px] tracking-[.16em] uppercase text-paper backdrop-blur-sm">
+                  Drop № 26 · 312 pcs
+                </span>
+                <span className="rounded-full border border-paper/40 bg-ink/60 px-3 py-1.5 font-mono text-[10px] tracking-[.14em] uppercase text-paper backdrop-blur-sm">
+                  Mailbox Row
+                </span>
+              </div>
+
               <div>
-                <div className="h-[12px] w-[56px] rounded bg-ink mb-1.5" />
-                <div className="h-[8px] w-[38px] rounded bg-ink/30" />
-              </div>
-              <span className="font-mono text-[9px] tracking-[.14em] uppercase text-paper">
-                № 26 · 280 pcs
-              </span>
-            </div>
-
-            <div>
-              <h3
-                className="uppercase text-paper"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 60, lineHeight: '.85' }}
-              >
-                BRICK
-                <br />
-                TIME
-              </h3>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex">
-                {avatarColors.map((color, i) => (
-                  <span
-                    key={i}
-                    className="size-[30px] rounded-full border-2 border-ink"
-                    style={{ background: color, marginLeft: i === 0 ? 0 : -8 }}
-                  />
-                ))}
-              </div>
-              <div className="text-[13px] text-paper">
-                <div className="font-bold">★★★★★ 4.9</div>
-                <div className="opacity-75 text-[11px]">12,400+ builders</div>
+                <h3
+                  className="uppercase text-paper"
+                  style={{ fontFamily: 'var(--font-display)', fontSize: 52, lineHeight: '.85', textShadow: '0 2px 12px rgba(0,0,0,.4)' }}
+                >
+                  BRICK
+                  <br />
+                  TIME
+                </h3>
+                <div className="mt-4 flex items-center gap-3">
+                  <div className="flex">
+                    {avatarColors.map((color, i) => (
+                      <span
+                        key={i}
+                        className="size-[28px] rounded-full border-2 border-paper/60"
+                        style={{ background: color, marginLeft: i === 0 ? 0 : -8 }}
+                      />
+                    ))}
+                  </div>
+                  <div className="text-[13px] text-paper" style={{ textShadow: '0 1px 6px rgba(0,0,0,.5)' }}>
+                    <div className="font-bold">★★★★★ 4.9</div>
+                    <div className="opacity-80 text-[11px]">12,400+ builders</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

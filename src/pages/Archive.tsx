@@ -24,6 +24,7 @@ interface Drop {
   brickColors: string[]
   brickHeights: number[]
   requiredTier: Tier
+  image?: string
 }
 
 // ── tier config ────────────────────────────────────────────────────────────
@@ -37,11 +38,11 @@ const tierConfig: Record<Tier, { label: string; bg: string; textColor: string; l
 
 // ── data ───────────────────────────────────────────────────────────────────
 const drops: Drop[] = [
-  { num: 26, title: 'Mailbox row', subtitle: '+ Postman Otto', date: 'May 2026 · ships May 5', category: 'Cityscape', year: 2026, bricks: 312, minifigs: '2 minifigs', rating: undefined, bg: '#5C4ADE', stamp: 'this-month', stampLabel: 'This month', featured: true, brickColors: ['#FB4903','#F5F1EB','#FFD731','#5DDB9C','#FFAEE7','#4DA2FF','#FB4903'], brickHeights: [46,130,80,170,60,96,48], requiredTier: 'standard' },
-  { num: 25, title: 'The greenhouse', subtitle: '+ Botanist Iris', date: 'April 2026', category: 'Nature', year: 2026, bricks: 268, minifigs: '1 minifig', rating: '★★★★★ 4.92', bg: '#5DDB9C', brickColors: ['#F5F1EB','#5DDB9C','#FB4903','#FFAEE7'], brickHeights: [60,42,28,36], requiredTier: 'mini' },
+  { num: 26, title: 'Mailbox row', subtitle: '+ Postman Otto', date: 'May 2026 · ships May 5', category: 'Cityscape', year: 2026, bricks: 312, minifigs: '2 minifigs', rating: undefined, bg: '#5C4ADE', stamp: 'this-month', stampLabel: 'This month', featured: true, brickColors: ['#FB4903','#F5F1EB','#FFD731','#5DDB9C','#FFAEE7','#4DA2FF','#FB4903'], brickHeights: [46,130,80,170,60,96,48], requiredTier: 'standard', image: '/images/build-castle.jpg' },
+  { num: 25, title: 'The greenhouse', subtitle: '+ Botanist Iris', date: 'April 2026', category: 'Nature', year: 2026, bricks: 268, minifigs: '1 minifig', rating: '★★★★★ 4.92', bg: '#5DDB9C', brickColors: ['#F5F1EB','#5DDB9C','#FB4903','#FFAEE7'], brickHeights: [60,42,28,36], requiredTier: 'mini', image: '/images/build-cactus.jpg' },
   { num: 24, title: 'Donut diner', subtitle: '+ Chef Margo', date: 'March 2026', category: 'Cityscape', year: 2026, bricks: 295, minifigs: '2 minifigs', rating: '★★★★★ 4.89', bg: '#FFAEE7', stamp: 'sold-out', stampLabel: 'Sold out', brickColors: ['#FB4903','#F5F1EB','#FFD731','#001B21'], brickHeights: [46,36,50,28], requiredTier: 'standard' },
-  { num: 23, title: 'Pocket sub', subtitle: '+ Captain Reef', date: 'February 2026', category: 'Vehicles', year: 2026, bricks: 248, minifigs: '1 minifig + variant', rating: '★★★★★ 4.78', bg: '#FFD731', brickColors: ['#4DA2FF','#001B21','#FB4903','#F5F1EB','#5C4ADE'], brickHeights: [40,32,36,24,48], requiredTier: 'mini' },
-  { num: 22, title: 'Lander №7', subtitle: '+ Astronaut Kai', date: 'January 2026', category: 'Sci-fi', year: 2026, bricks: 274, minifigs: '1 minifig', rating: '★★★★★ 4.84', bg: '#FB4903', brickColors: ['#F5F1EB','#001B21','#FFD731','#5DDB9C'], brickHeights: [52,30,38,46], requiredTier: 'pro' },
+  { num: 23, title: 'Pocket sub', subtitle: '+ Captain Reef', date: 'February 2026', category: 'Vehicles', year: 2026, bricks: 248, minifigs: '1 minifig + variant', rating: '★★★★★ 4.78', bg: '#FFD731', brickColors: ['#4DA2FF','#001B21','#FB4903','#F5F1EB','#5C4ADE'], brickHeights: [40,32,36,24,48], requiredTier: 'mini', image: '/images/build-sailboat.jpg' },
+  { num: 22, title: 'Lander №7', subtitle: '+ Astronaut Kai', date: 'January 2026', category: 'Sci-fi', year: 2026, bricks: 274, minifigs: '1 minifig', rating: '★★★★★ 4.84', bg: '#FB4903', brickColors: ['#F5F1EB','#001B21','#FFD731','#5DDB9C'], brickHeights: [52,30,38,46], requiredTier: 'pro', image: '/images/build-spaceship.jpg' },
   { num: 21, title: 'Lighthouse', subtitle: '+ Keeper Anya', date: 'December 2025', category: 'Cityscape', year: 2025, bricks: 292, minifigs: '2 minifigs', rating: '★★★★★ 4.96', bg: '#4DA2FF', brickColors: ['#F5F1EB','#FB4903','#001B21','#FFD731'], brickHeights: [80,24,36,40], requiredTier: 'standard' },
   { num: 20, title: 'The big wheel', subtitle: '+ Ringmaster Max', date: 'November 2025', category: 'Cityscape', year: 2025, bricks: 412, minifigs: '3 minifigs', rating: '★★★★★ 4.99', bg: '#001B21', stamp: 'anniv', stampLabel: 'Anniv. edition', brickColors: ['#FB4903','#5DDB9C','#FFAEE7','#FFD731','#4DA2FF'], brickHeights: [44,64,36,50,30], requiredTier: 'mega' },
   { num: 19, title: 'Field tractor', subtitle: '+ Farmer Lou', date: 'October 2025', category: 'Vehicles', year: 2025, bricks: 222, minifigs: '1 minifig', rating: '★★★★ 4.61', bg: '#5DDB9C', brickColors: ['#FB4903','#001B21','#F5F1EB'], brickHeights: [38,34,24], requiredTier: 'nano' },
@@ -94,16 +95,22 @@ function MockModel({ colors, heights }: { colors: string[]; heights: number[] })
   )
 }
 
-function StudBg({ color, children, className = '' }: { color: string; children: React.ReactNode; className?: string }) {
+function StudBg({ color, image, children, className = '' }: { color: string; image?: string; children: React.ReactNode; className?: string }) {
   return (
     <div
       className={`relative overflow-hidden ${className}`}
-      style={{
+      style={image ? { background: color } : {
         background: color,
         backgroundImage: 'radial-gradient(circle at 14px 14px, rgba(255,255,255,.16) 4px, transparent 5px)',
         backgroundSize: '36px 36px',
       }}
     >
+      {image && (
+        <>
+          <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <div className="absolute inset-0" style={{ background: `${color}55` }} />
+        </>
+      )}
       {children}
     </div>
   )
@@ -139,7 +146,7 @@ function DropCard({ drop, featured = false }: { drop: Drop; featured?: boolean }
       ].join(' ')}
     >
       {/* Visual */}
-      <StudBg color={drop.bg} className={`relative border-b-2 border-ink ${featured ? 'h-[380px]' : 'h-[280px]'}`}>
+      <StudBg color={drop.bg} image={drop.image} className={`relative border-b-2 border-ink ${featured ? 'h-[380px]' : 'h-[280px]'}`}>
         {/* Drop number corner */}
         <div
           className="absolute left-[18px] top-[18px] rounded-[8px] border-2 border-ink px-3.5 py-2.5 z-10"
@@ -156,9 +163,11 @@ function DropCard({ drop, featured = false }: { drop: Drop; featured?: boolean }
             {drop.stampLabel?.split(' ').map((w, i) => <span key={i} className="block">{w}</span>)}
           </div>
         )}
-        <div className="absolute bottom-0 left-0 right-0 flex items-end justify-center">
-          <MockModel colors={drop.brickColors} heights={drop.brickHeights} />
-        </div>
+        {!drop.image && (
+          <div className="absolute bottom-0 left-0 right-0 flex items-end justify-center">
+            <MockModel colors={drop.brickColors} heights={drop.brickHeights} />
+          </div>
+        )}
       </StudBg>
 
       {/* Body */}

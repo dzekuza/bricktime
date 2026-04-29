@@ -69,18 +69,12 @@ const tiers = [
 ]
 
 const thumbs = [
-  { label: '[ Front ]', bg: '#5C4ADE', color: 'rgba(245,241,235,.55)' },
-  { label: '[ Top-down ]', bg: '#5DDB9C', color: 'rgba(0,0,0,.4)' },
-  { label: '[ Mailbox detail ]', bg: '#FFAEE7', color: 'rgba(0,0,0,.4)' },
-  { label: '[ Postman Otto ]', bg: '#FFD731', color: 'rgba(0,0,0,.4)' },
+  { label: '[ Front ]',        bg: '#5C4ADE', color: 'rgba(245,241,235,.55)', image: '/images/build-castle.jpg' },
+  { label: '[ Detail ]',       bg: '#5DDB9C', color: 'rgba(0,0,0,.4)',        image: '/images/build-cactus.jpg' },
+  { label: '[ Build spread ]', bg: '#FFAEE7', color: 'rgba(0,0,0,.4)',        image: '/images/build-sailboat.jpg' },
+  { label: '[ Scale view ]',   bg: '#FFD731', color: 'rgba(0,0,0,.4)',        image: '/images/build-spaceship.jpg' },
 ]
 
-const modelBricks = [
-  { color: '#FB4903', w: 54, h: 46 }, { color: '#F5F1EB', w: 80, h: 130 },
-  { color: '#FFD731', w: 48, h: 80 }, { color: '#5DDB9C', w: 72, h: 170 },
-  { color: '#FFAEE7', w: 46, h: 60 }, { color: '#4DA2FF', w: 54, h: 96 },
-  { color: '#FB4903', w: 44, h: 48 },
-]
 
 // ── page ───────────────────────────────────────────────────────────────────
 export default function Drop() {
@@ -110,13 +104,18 @@ export default function Drop() {
               <div className="flex flex-col gap-4">
                 {/* Main image */}
                 <div
-                  className="relative grid h-[520px] place-items-center overflow-hidden rounded-[24px] border-2 border-ink"
-                  style={{
-                    background: thumbs[activeThumb].bg,
-                    backgroundImage: 'radial-gradient(circle at 18px 18px, rgba(255,255,255,.14) 5px, transparent 6px)',
-                    backgroundSize: '48px 48px',
-                  }}
+                  className="relative h-[520px] overflow-hidden rounded-[24px] border-2 border-ink"
+                  style={{ background: thumbs[activeThumb].bg }}
                 >
+                  <img
+                    key={activeThumb}
+                    src={thumbs[activeThumb].image}
+                    alt={thumbs[activeThumb].label}
+                    className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300"
+                    style={{ objectPosition: 'center 20%' }}
+                  />
+                  {/* Overlay badges */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
                   <div
                     className="absolute left-6 top-6 rounded-[8px] border-2 border-ink bg-brand-yellow px-4 py-2.5 text-ink"
                     style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1, transform: 'rotate(-3deg)', boxShadow: '4px 4px 0 #001B21' }}
@@ -129,18 +128,9 @@ export default function Drop() {
                   >
                     Drop № 26
                   </div>
-                  <div className="absolute inset-16 grid place-items-center rounded-3xl border-2 border-dashed border-paper/35 font-mono text-[11px] tracking-[.18em] uppercase text-paper/55 text-center">
+                  <div className="absolute bottom-5 left-6 font-mono text-[10px] tracking-[.18em] uppercase text-paper/70">
                     {thumbs[activeThumb].label}
                   </div>
-                  {activeThumb === 0 && (
-                    <div className="absolute bottom-0 left-0 right-0 flex items-end justify-center gap-2 px-10 pb-0">
-                      {modelBricks.map((b, i) => (
-                        <div key={i} className="relative rounded border-[3px] border-ink" style={{ background: b.color, width: b.w, height: b.h, boxShadow: 'inset 0 -10px 0 rgba(0,0,0,.18)' }}>
-                          <span className="absolute -top-3 left-1/2 size-5 -translate-x-1/2 rounded-full border-[3px] border-ink" style={{ background: b.color }} />
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
                 {/* Thumbnails */}
@@ -150,12 +140,16 @@ export default function Drop() {
                       key={i}
                       onClick={() => setActiveThumb(i)}
                       className={[
-                        'grid h-[90px] place-items-center overflow-hidden rounded-2xl border-2 border-ink font-mono text-[9px] tracking-[.16em] uppercase transition-all',
+                        'relative h-[90px] overflow-hidden rounded-2xl border-2 border-ink transition-all',
                         activeThumb === i ? 'outline outline-[3px] outline-offset-2 outline-brand-yellow' : 'hover:opacity-80',
                       ].join(' ')}
-                      style={{ background: t.bg, color: t.color }}
+                      style={{ background: t.bg }}
                     >
-                      {t.label}
+                      <img src={t.image} alt={t.label} className="absolute inset-0 h-full w-full object-cover" style={{ objectPosition: 'center 20%' }} />
+                      <div className="absolute inset-0 bg-ink/30" />
+                      <span className="absolute bottom-1.5 left-0 right-0 text-center font-mono text-[8px] tracking-[.12em] uppercase text-paper/80">
+                        {t.label.replace(/\[|\]/g, '').trim()}
+                      </span>
                     </button>
                   ))}
                 </div>

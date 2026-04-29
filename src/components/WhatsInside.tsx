@@ -61,6 +61,16 @@ export default function WhatsInside() {
             >
               Start subscription →
             </a>
+
+            {/* Lifestyle photo */}
+            <div className="mt-8 overflow-hidden rounded-3xl border-2 border-ink shadow-[6px_6px_0_#001B21]" style={{ height: 260 }}>
+              <img
+                src="/images/build-cactus.jpg"
+                alt="Builder placing the final piece on a BRICKTIME drop"
+                className="h-full w-full object-cover"
+                style={{ objectPosition: 'center 35%' }}
+              />
+            </div>
             </div>
           </div>
 
