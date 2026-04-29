@@ -1,3 +1,5 @@
+import { useRef } from 'react'
+import gsap from 'gsap'
 import {
   Accordion,
   AccordionContent,
@@ -38,6 +40,16 @@ const stats = [
 
 export default function FAQ() {
   const ref = useReveal<HTMLDivElement>()
+  const zeroRiskRef = useRef<HTMLSpanElement>(null)
+
+  function onCtaEnter() {
+    gsap.killTweensOf(zeroRiskRef.current)
+    gsap.to(zeroRiskRef.current, { rotate: 3, scale: 1.1, duration: 0.2, ease: 'back.out(2.5)' })
+  }
+  function onCtaLeave() {
+    gsap.killTweensOf(zeroRiskRef.current)
+    gsap.to(zeroRiskRef.current, { rotate: -1.5, scale: 1, duration: 0.28, ease: 'elastic.out(1, 0.55)' })
+  }
 
   return (
     <section id="faq" className="bg-paper py-20">
@@ -63,7 +75,12 @@ export default function FAQ() {
                 letterSpacing: '-.01em',
               }}
             >
-              Quick
+              <span
+                className="inline-block border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
+                style={{ transform: 'rotate(-1.5deg)' }}
+              >
+                Quick
+              </span>
               <br />
               questions.
             </h2>
@@ -115,6 +132,8 @@ export default function FAQ() {
           <div
             className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] lg:col-span-5"
             style={{ background: '#5C4ADE' }}
+            onMouseEnter={onCtaEnter}
+            onMouseLeave={onCtaLeave}
           >
             <div>
               <p className="font-mono text-[10px] tracking-[.22em] uppercase text-paper/60">Still on the fence?</p>
@@ -124,7 +143,13 @@ export default function FAQ() {
               >
                 First drop,
                 <br />
-                zero risk.
+                <span
+                  ref={zeroRiskRef}
+                  className="inline-block border-[3px] border-paper/40 bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(245,241,235,.2)]"
+                  style={{ transform: 'rotate(-1.5deg)', transformOrigin: 'center' }}
+                >
+                  zero risk
+                </span>.
               </h3>
               <p className="mt-3 text-[15px] leading-[1.6] text-paper/70">
                 Cancel before your first billing date and pay nothing. We'll still send you a tracking link.

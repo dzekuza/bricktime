@@ -1,3 +1,4 @@
+import gsap from 'gsap'
 import { useReveal } from '@/hooks/useReveal'
 
 const steps = [
@@ -24,10 +25,21 @@ const steps = [
   },
 ]
 
+function onCardEnter(e: React.MouseEvent<HTMLDivElement>) {
+  const bricks = e.currentTarget.querySelectorAll('.brick-el')
+  gsap.killTweensOf(bricks)
+  gsap.to(bricks, { y: -7, rotate: (_i) => (_i === 0 ? -10 : 10), duration: 0.22, ease: 'back.out(2.5)', stagger: 0.05 })
+}
+function onCardLeave(e: React.MouseEvent<HTMLDivElement>) {
+  const bricks = e.currentTarget.querySelectorAll('.brick-el')
+  gsap.killTweensOf(bricks)
+  gsap.to(bricks, { y: 0, rotate: 0, duration: 0.35, ease: 'elastic.out(1, 0.5)', stagger: 0.04 })
+}
+
 function Brick({ color }: { color: string }) {
   return (
     <div
-      className="relative rounded border-[3px] border-ink"
+      className="brick-el relative rounded border-[3px] border-ink"
       style={{ width: 54, height: 38, background: color, boxShadow: 'inset 0 -6px 0 rgba(0,0,0,.18)' }}
     >
       <span
@@ -59,6 +71,8 @@ export default function HowItWorks() {
           <div
             className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-5 lg:row-span-2"
             style={{ background: steps[0].bg, minHeight: 420 }}
+            onMouseEnter={onCardEnter}
+            onMouseLeave={onCardLeave}
           >
             <div>
               <div className="font-mono text-[10px] tracking-[.24em] uppercase text-ink/60 mb-1">Step</div>
@@ -109,7 +123,13 @@ export default function HowItWorks() {
             >
               Pick a plan,
               <br />
-              build the world.
+              <span
+                className="inline-block border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
+                style={{ transform: 'rotate(-1.5deg)' }}
+              >
+                build
+              </span>{' '}
+              the world.
             </h2>
             <p className="mt-5 max-w-[50ch] text-[16px] leading-[1.65] text-ink/65">
               Three simple steps. No glue, no instructions behind a paywall, no long-term lock-in.
@@ -121,6 +141,8 @@ export default function HowItWorks() {
           <div
             className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-7 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-4"
             style={{ background: steps[1].bg, transitionDelay: '100ms', minHeight: 260 }}
+            onMouseEnter={onCardEnter}
+            onMouseLeave={onCardLeave}
           >
             <div>
               <div
@@ -153,6 +175,8 @@ export default function HowItWorks() {
           <div
             className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-7 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-3"
             style={{ background: steps[2].bg, transitionDelay: '200ms', minHeight: 260 }}
+            onMouseEnter={onCardEnter}
+            onMouseLeave={onCardLeave}
           >
             <div>
               <div

@@ -1,3 +1,4 @@
+import gsap from 'gsap'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useReveal } from '@/hooks/useReveal'
@@ -71,6 +72,19 @@ const plans: Plan[] = [
 
 const colSpans = ['lg:col-span-3', 'lg:col-span-6', 'lg:col-span-3']
 
+function onCardEnter(e: React.MouseEvent<HTMLDivElement>) {
+  gsap.killTweensOf(e.currentTarget.querySelector('.plan-price'))
+  gsap.to(e.currentTarget.querySelector('.plan-price'), {
+    scale: 1.1, rotate: -3, duration: 0.22, ease: 'back.out(2.5)',
+  })
+}
+function onCardLeave(e: React.MouseEvent<HTMLDivElement>) {
+  gsap.killTweensOf(e.currentTarget.querySelector('.plan-price'))
+  gsap.to(e.currentTarget.querySelector('.plan-price'), {
+    scale: 1, rotate: 0, duration: 0.32, ease: 'elastic.out(1, 0.5)',
+  })
+}
+
 export default function Plans() {
   const ref = useReveal<HTMLDivElement>()
 
@@ -100,7 +114,13 @@ export default function Plans() {
             >
               Plans for every
               <br />
-              desk-shelf situation.
+              <span
+                className="inline-block border-[3px] border-ink bg-[#FB4903] px-[.12em] text-paper shadow-[5px_5px_0_rgba(0,27,33,.15)]"
+                style={{ transform: 'rotate(-1.5deg)' }}
+              >
+                desk-shelf
+              </span>{' '}
+              situation.
             </h2>
             <div
               className="hidden shrink-0 text-ink/20 lg:block select-none"
@@ -119,6 +139,8 @@ export default function Plans() {
                 colSpans[i],
               ].join(' ')}
               style={{ background: plan.bg, transitionDelay: `${i * 100}ms`, minHeight: 360 }}
+              onMouseEnter={onCardEnter}
+              onMouseLeave={onCardLeave}
             >
               {plan.featured && (
                 <Badge
@@ -144,6 +166,7 @@ export default function Plans() {
                 </div>
                 <div className="mt-2 flex items-baseline gap-1">
                   <span
+                    className="plan-price inline-block"
                     style={{
                       fontFamily: 'var(--font-display)',
                       fontSize: plan.featured ? 76 : 60,

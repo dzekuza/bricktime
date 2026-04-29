@@ -1,3 +1,4 @@
+import gsap from 'gsap'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { useReveal } from '@/hooks/useReveal'
 
@@ -37,6 +38,19 @@ const testimonials = [
   },
 ]
 
+function onCardEnter(e: React.MouseEvent<HTMLDivElement>) {
+  gsap.killTweensOf(e.currentTarget.querySelector('.stars'))
+  gsap.to(e.currentTarget.querySelector('.stars'), {
+    scale: 1.3, y: -4, duration: 0.2, ease: 'back.out(2.5)',
+  })
+}
+function onCardLeave(e: React.MouseEvent<HTMLDivElement>) {
+  gsap.killTweensOf(e.currentTarget.querySelector('.stars'))
+  gsap.to(e.currentTarget.querySelector('.stars'), {
+    scale: 1, y: 0, duration: 0.3, ease: 'elastic.out(1, 0.55)',
+  })
+}
+
 export default function Testimonials() {
   const ref = useReveal<HTMLDivElement>()
 
@@ -57,8 +71,10 @@ export default function Testimonials() {
               testimonials[0].colSpan,
             ].join(' ')}
             style={{ background: testimonials[0].bg, minHeight: 280 }}
+            onMouseEnter={onCardEnter}
+            onMouseLeave={onCardLeave}
           >
-            <div className="text-ink tracking-[3px] text-lg">★★★★★</div>
+            <div className="stars text-ink tracking-[3px] text-lg">★★★★★</div>
             <p
               className="mt-4 uppercase text-ink"
               style={{
@@ -95,8 +111,10 @@ export default function Testimonials() {
               testimonials[1].colSpan,
             ].join(' ')}
             style={{ background: testimonials[1].bg, transitionDelay: '100ms', minHeight: 280 }}
+            onMouseEnter={onCardEnter}
+            onMouseLeave={onCardLeave}
           >
-            <div className="text-ink tracking-[3px]">★★★★★</div>
+            <div className="stars text-ink tracking-[3px]">★★★★★</div>
             <p
               className="mt-4 uppercase text-ink"
               style={{
@@ -141,7 +159,12 @@ export default function Testimonials() {
                 letterSpacing: '-.01em',
               }}
             >
-              12,400
+              <span
+                className="inline-block border-[3px] border-paper/40 bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(245,241,235,.2)]"
+                style={{ transform: 'rotate(-1.5deg)' }}
+              >
+                12,400
+              </span>
               <br />
               builders
               <br />
@@ -156,8 +179,10 @@ export default function Testimonials() {
               testimonials[2].colSpan,
             ].join(' ')}
             style={{ background: testimonials[2].bg, transitionDelay: '160ms', minHeight: 220 }}
+            onMouseEnter={onCardEnter}
+            onMouseLeave={onCardLeave}
           >
-            <div className="text-ink tracking-[3px]">★★★★★</div>
+            <div className="stars text-ink tracking-[3px]">★★★★★</div>
             <p
               className="mt-4 uppercase text-ink"
               style={{

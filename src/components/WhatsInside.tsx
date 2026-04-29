@@ -1,3 +1,4 @@
+import gsap from 'gsap'
 import { useReveal } from '@/hooks/useReveal'
 
 const features = [
@@ -27,6 +28,19 @@ const features = [
   },
 ]
 
+function onCardEnter(e: React.MouseEvent<HTMLDivElement>) {
+  gsap.killTweensOf(e.currentTarget.querySelector('.card-num'))
+  gsap.to(e.currentTarget.querySelector('.card-num'), {
+    rotate: 14, scale: 1.18, duration: 0.22, ease: 'back.out(2.5)',
+  })
+}
+function onCardLeave(e: React.MouseEvent<HTMLDivElement>) {
+  gsap.killTweensOf(e.currentTarget.querySelector('.card-num'))
+  gsap.to(e.currentTarget.querySelector('.card-num'), {
+    rotate: 0, scale: 1, duration: 0.32, ease: 'elastic.out(1, 0.55)',
+  })
+}
+
 export default function WhatsInside() {
   const ref = useReveal<HTMLDivElement>()
 
@@ -50,7 +64,12 @@ export default function WhatsInside() {
             >
               A pack worth
               <br />
-              tearing open.
+              <span
+                className="inline-block border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
+                style={{ transform: 'rotate(-1.5deg)' }}
+              >
+                tearing open
+              </span>.
             </h2>
             <p className="mt-6 max-w-[40ch] text-[17px] leading-[1.65] text-ink/65">
               Every drop is built for builders, sized for the mailbox, and designed to connect — month after month.
@@ -81,9 +100,11 @@ export default function WhatsInside() {
                 key={f.num}
                 className="flex gap-6 rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21]"
                 style={{ background: f.bg, transitionDelay: `${i * 60}ms` }}
+                onMouseEnter={onCardEnter}
+                onMouseLeave={onCardLeave}
               >
                 <div
-                  className="shrink-0 select-none leading-none text-ink/20"
+                  className="card-num shrink-0 select-none leading-none text-ink/20"
                   style={{ fontFamily: 'var(--font-display)', fontSize: 52, lineHeight: .85 }}
                 >
                   {f.num}
