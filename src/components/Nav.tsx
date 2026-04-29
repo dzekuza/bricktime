@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 
 const links = [
   { label: 'Home', to: '/' },
-  { label: 'Archive', to: '/archive' },
+  { label: 'Products', to: '/archive' },
   { label: 'This Month', to: '/drop' },
   { label: 'Plans', to: '/plans' },
   { label: 'FAQ', to: '/#faq' },

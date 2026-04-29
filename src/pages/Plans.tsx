@@ -8,13 +8,37 @@ import { useReveal } from '@/hooks/useReveal'
 // ── data ───────────────────────────────────────────────────────────────────
 const plans = [
   {
-    name: 'Mini',
-    tagline: 'Test the waters.',
-    monthlyPrice: 14,
-    annualPrice: 11,
+    name: 'Nano',
+    tagline: 'Try one drop.',
+    monthlyPrice: 9,
+    annualPrice: 7,
     bg: '#F5F1EB',
     textColor: '#001B21',
     accentColor: '#5DDB9C',
+    ctaBg: '#001B21',
+    ctaText: '#F5F1EB',
+    perks: [
+      { label: '60–90 premium ABS bricks', included: true },
+      { label: 'Build card', included: true },
+      { label: '4 vinyl stickers', included: true },
+      { label: 'Free standard shipping', included: true },
+      { label: 'Exclusive minifig', included: false },
+      { label: 'Trade-club access', included: false },
+      { label: 'Early access drops', included: false },
+      { label: 'Annual surprise box', included: false },
+    ],
+    // 2-row layout: top-left row 1
+    gridClass: 'lg:col-span-3',
+    featured: false,
+  },
+  {
+    name: 'Mini',
+    tagline: 'The full experience.',
+    monthlyPrice: 14,
+    annualPrice: 11,
+    bg: '#FFAEE7',
+    textColor: '#001B21',
+    accentColor: '#001B21',
     ctaBg: '#001B21',
     ctaText: '#F5F1EB',
     perks: [
@@ -26,7 +50,8 @@ const plans = [
       { label: 'Early access drops', included: false },
       { label: 'Annual surprise box', included: false },
     ],
-    colSpan: 'lg:col-span-3',
+    // top-left row 1 (next to Nano)
+    gridClass: 'lg:col-span-3',
     featured: false,
   },
   {
@@ -48,21 +73,45 @@ const plans = [
       { label: 'Early access drops', included: false },
       { label: 'Annual surprise box', included: false },
     ],
-    colSpan: 'lg:col-span-6',
+    // right col, spans both rows
+    gridClass: 'lg:col-span-6 lg:row-span-2',
     featured: true,
+  },
+  {
+    name: 'Pro',
+    tagline: 'Step it up.',
+    monthlyPrice: 35,
+    annualPrice: 28,
+    bg: '#4DA2FF',
+    textColor: '#001B21',
+    accentColor: '#001B21',
+    ctaBg: '#001B21',
+    ctaText: '#F5F1EB',
+    perks: [
+      { label: '340–400 premium ABS bricks', included: true },
+      { label: '2 exclusive minifigs + alt colourway', included: true },
+      { label: 'Build card + 20 vinyl stickers', included: true },
+      { label: 'Free expedited shipping', included: true },
+      { label: 'Trade-club access', included: true },
+      { label: 'Early access drops', included: true },
+      { label: 'Annual surprise box', included: false },
+    ],
+    // bottom-left row 2
+    gridClass: 'lg:col-span-3',
+    featured: false,
   },
   {
     name: 'Mega',
     tagline: 'Go all-in.',
-    monthlyPrice: 42,
-    annualPrice: 34,
+    monthlyPrice: 55,
+    annualPrice: 44,
     bg: '#FB4903',
     textColor: '#F5F1EB',
     accentColor: '#FFD731',
     ctaBg: '#F5F1EB',
     ctaText: '#001B21',
     perks: [
-      { label: '400–520 premium ABS bricks', included: true },
+      { label: '420–520 premium ABS bricks', included: true },
       { label: '3 exclusive minifigs + rare variant', included: true },
       { label: 'Hardcover build book', included: true },
       { label: 'Free expedited shipping', included: true },
@@ -70,7 +119,8 @@ const plans = [
       { label: 'Early access drops', included: true },
       { label: 'Annual surprise box', included: true },
     ],
-    colSpan: 'lg:col-span-3',
+    // bottom-right row 2 (fills col-3 gap)
+    gridClass: 'lg:col-span-3',
     featured: false,
   },
 ]
@@ -79,7 +129,7 @@ const trustTiles = [
   { label: 'Cancel any time', body: 'No fees, no friction. One click in your account dashboard.', bg: '#5DDB9C', num: '01' },
   { label: 'Skip any month', body: 'Going on holiday? Skip up to 3 months per year, billing pauses.', bg: '#FFAEE7', num: '02' },
   { label: '30-day guarantee', body: "Don't love your first box — we'll refund it, no questions asked.", bg: '#4DA2FF', num: '03' },
-  { label: 'Free worldwide shipping', body: 'Standard on all plans. Expedited on Standard and Mega.', bg: '#FFD731', num: '04' },
+  { label: 'Free worldwide shipping', body: 'Standard on all plans. Expedited on Standard, Pro and Mega.', bg: '#FFD731', num: '04' },
 ]
 
 const faqs = [
@@ -92,14 +142,14 @@ const faqs = [
 ]
 
 const comparisonRows = [
-  { feature: 'Bricks per drop', mini: '120–180', standard: '240–320', mega: '400–520' },
-  { feature: 'Exclusive minifigs', mini: '1', standard: '2', mega: '3 + variant' },
-  { feature: 'Build card', mini: '✓', standard: '✓', mega: 'Hardcover book' },
-  { feature: 'Vinyl stickers', mini: '8 stickers', standard: '16 stickers', mega: '24 stickers' },
-  { feature: 'Shipping', mini: 'Standard (free)', standard: 'Expedited (free)', mega: 'Expedited (free)' },
-  { feature: 'Trade-club access', mini: '—', standard: '✓', mega: '✓' },
-  { feature: 'Early-access drops', mini: '—', standard: '—', mega: '✓' },
-  { feature: 'Annual surprise box', mini: '—', standard: '—', mega: '✓' },
+  { feature: 'Bricks per drop',     nano: '60–90',    mini: '120–180', standard: '240–320', pro: '340–400',   mega: '420–520' },
+  { feature: 'Exclusive minifigs',  nano: '—',        mini: '1',       standard: '2',       pro: '2 + alt',  mega: '3 + variant' },
+  { feature: 'Build card',          nano: '✓',        mini: '✓',       standard: '✓',       pro: '✓',        mega: 'Hardcover book' },
+  { feature: 'Vinyl stickers',      nano: '4',        mini: '8',       standard: '16',      pro: '20',       mega: '24' },
+  { feature: 'Shipping',            nano: 'Standard', mini: 'Standard',standard: 'Expedited',pro: 'Expedited',mega: 'Expedited' },
+  { feature: 'Trade-club access',   nano: '—',        mini: '—',       standard: '✓',       pro: '✓',        mega: '✓' },
+  { feature: 'Early-access drops',  nano: '—',        mini: '—',       standard: '—',       pro: '✓',        mega: '✓' },
+  { feature: 'Annual surprise box', nano: '—',        mini: '—',       standard: '—',       pro: '—',        mega: '✓' },
 ]
 
 // ── sub-components ─────────────────────────────────────────────────────────
@@ -131,8 +181,8 @@ function FAQItem({ q, a, open, onToggle }: { q: string; a: string; open: boolean
       >
         <span className="text-[16px] font-semibold text-ink leading-[1.4]">{q}</span>
         <span
-          className="mt-0.5 shrink-0 size-7 grid place-items-center rounded-full border-2 border-ink text-ink transition-transform"
-          style={{ transform: open ? 'rotate(45deg)' : 'rotate(0deg)' }}
+          className="mt-0.5 shrink-0 size-7 grid place-items-center rounded-full border-2 border-ink text-ink"
+          style={{ transition: 'transform .2s', transform: open ? 'rotate(45deg)' : 'rotate(0deg)' }}
         >
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
             <path d="M6 1v10M1 6h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -140,8 +190,8 @@ function FAQItem({ q, a, open, onToggle }: { q: string; a: string; open: boolean
         </span>
       </button>
       <div
-        className="overflow-hidden transition-all"
-        style={{ maxHeight: open ? 200 : 0, opacity: open ? 1 : 0 }}
+        className="overflow-hidden"
+        style={{ transition: 'max-height .25s, opacity .2s', maxHeight: open ? 200 : 0, opacity: open ? 1 : 0 }}
       >
         <p className="pb-5 text-[15px] leading-[1.65] text-ink/65">{a}</p>
       </div>
@@ -198,7 +248,7 @@ export default function PlansPage() {
                   your tier.
                 </h1>
                 <p className="mt-6 max-w-[48ch] text-[17px] leading-[1.65] text-paper/70">
-                  No lock-ins. Cancel, skip, or swap any month. Your first box ships within 5 days of signing up.
+                  Five plans from first-timer to collector. No lock-ins — cancel, skip, or swap any month.
                 </p>
               </div>
               <div className="mt-8">
@@ -218,7 +268,7 @@ export default function PlansPage() {
             >
               <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">Community</p>
 
-              <div className="flex flex-col gap-8">
+              <div className="flex flex-col gap-7">
                 {[
                   { num: '12,400+', label: 'Active subscribers' },
                   { num: '4.9 / 5', label: 'Average rating' },
@@ -228,7 +278,7 @@ export default function PlansPage() {
                   <div key={s.label}>
                     <div
                       className="uppercase text-ink"
-                      style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,3.5vw,56px)', lineHeight: '.88' }}
+                      style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,3.2vw,52px)', lineHeight: '.88' }}
                     >
                       {s.num}
                     </div>
@@ -298,7 +348,7 @@ export default function PlansPage() {
                   letterSpacing: '-.015em',
                 }}
               >
-                Three plans.
+                Five plans.
                 <br />
                 One universe.
               </h2>
@@ -307,15 +357,21 @@ export default function PlansPage() {
               </div>
             </div>
 
-            {/* Plan cards */}
+            {/*
+              2-row bento:
+              Row 1 → Nano(col-3) Mini(col-3) Standard(col-6, row-span-2)
+              Row 2 → Pro(col-3)  Mega(col-3)  ↑ continued ↑
+            */}
             {plans.map((plan, i) => (
               <div
                 key={plan.name}
                 className={[
-                  'reveal relative flex flex-col justify-between rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_rgba(245,241,235,.2)]',
-                  plan.colSpan,
+                  'reveal relative flex flex-col justify-between rounded-3xl border-2 border-ink p-8',
+                  'shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all',
+                  'hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_rgba(245,241,235,.2)]',
+                  plan.gridClass,
                 ].join(' ')}
-                style={{ background: plan.bg, transitionDelay: `${i * 80}ms`, minHeight: 480 }}
+                style={{ background: plan.bg, transitionDelay: `${i * 70}ms`, minHeight: plan.featured ? 520 : 380 }}
               >
                 {plan.featured && (
                   <Badge
@@ -338,7 +394,7 @@ export default function PlansPage() {
                     className="mt-2 uppercase"
                     style={{
                       fontFamily: 'var(--font-display)',
-                      fontSize: plan.featured ? 44 : 36,
+                      fontSize: plan.featured ? 48 : 34,
                       lineHeight: '.88',
                       color: plan.textColor,
                     }}
@@ -349,7 +405,7 @@ export default function PlansPage() {
                     <span
                       style={{
                         fontFamily: 'var(--font-display)',
-                        fontSize: plan.featured ? 80 : 60,
+                        fontSize: plan.featured ? 84 : 56,
                         lineHeight: '.88',
                         color: plan.textColor,
                       }}
@@ -379,7 +435,7 @@ export default function PlansPage() {
                     <li
                       key={perk.label}
                       className="flex items-start gap-2.5 text-[14px]"
-                      style={{ opacity: perk.included ? 1 : 0.35 }}
+                      style={{ opacity: perk.included ? 1 : 0.3 }}
                     >
                       <span
                         className="mt-[3px] shrink-0 size-3 rounded-full border-2"
@@ -397,6 +453,7 @@ export default function PlansPage() {
                 <Button
                   className="mt-7 w-full rounded-full border-2 border-ink font-bold text-[14px] tracking-[.02em] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] transition-all"
                   style={{ background: plan.ctaBg, color: plan.ctaText }}
+                  asChild
                 >
                   <a href="#">Start with {plan.name} →</a>
                 </Button>
@@ -412,7 +469,6 @@ export default function PlansPage() {
         <div className="mx-auto max-w-[1320px] px-7">
           <div ref={compareRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
-            {/* Header */}
             <div className="reveal lg:col-span-12">
               <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ Side by side</p>
               <h2
@@ -428,60 +484,61 @@ export default function PlansPage() {
               </h2>
             </div>
 
-            {/* Table tile */}
             <div
-              className="reveal rounded-3xl border-2 border-ink shadow-[6px_6px_0_#001B21] overflow-hidden lg:col-span-12"
+              className="reveal rounded-3xl border-2 border-ink shadow-[6px_6px_0_#001B21] overflow-x-auto lg:col-span-12"
               style={{ background: '#F5F1EB' }}
             >
-              {/* Column headers */}
-              <div className="grid grid-cols-4 border-b-2 border-ink">
-                <div className="p-5 font-mono text-[11px] tracking-[.18em] uppercase text-ink/40">Feature</div>
-                {plans.map((p) => (
-                  <div
-                    key={p.name}
-                    className="flex items-center justify-between border-l-2 border-ink p-5"
-                    style={{ background: p.bg }}
-                  >
-                    <span
-                      className="uppercase"
-                      style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: p.textColor, lineHeight: 1 }}
-                    >
-                      {p.name}
-                    </span>
-                    {p.featured && (
-                      <span className="font-mono text-[9px] tracking-[.1em] uppercase text-ink/50">Popular</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {comparisonRows.map((row, i) => (
-                <div
-                  key={row.feature}
-                  className="grid grid-cols-4 border-b-2 border-dashed border-ink/20 last:border-b-0 hover:bg-ink/[.03] transition-colors"
-                >
-                  <div className="p-5 text-[14px] font-semibold text-ink/70">{row.feature}</div>
-                  {[row.mini, row.standard, row.mega].map((val, j) => (
+              <div className="min-w-[720px]">
+                {/* Column headers */}
+                <div className="grid border-b-2 border-ink" style={{ gridTemplateColumns: '2fr 1fr 1fr 1.4fr 1fr 1fr' }}>
+                  <div className="p-5 font-mono text-[11px] tracking-[.18em] uppercase text-ink/40">Feature</div>
+                  {plans.map((p) => (
                     <div
-                      key={j}
-                      className="flex items-center border-l-2 border-dashed border-ink/20 p-5 text-[14px] text-ink"
-                      style={{ transitionDelay: `${i * 30 + j * 10}ms` }}
+                      key={p.name}
+                      className="flex items-center justify-between border-l-2 border-ink p-4"
+                      style={{ background: p.bg }}
                     >
-                      {val === '—' ? (
-                        <span className="text-ink/25">—</span>
-                      ) : val === '✓' ? (
-                        <span
-                          className="size-5 grid place-items-center rounded-full border-2 border-ink bg-brand-mint text-ink text-[11px] font-bold"
-                        >
-                          ✓
+                      <span
+                        className="uppercase"
+                        style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: p.textColor, lineHeight: 1 }}
+                      >
+                        {p.name}
+                      </span>
+                      {p.featured && (
+                        <span className="font-mono text-[9px] tracking-[.1em] uppercase" style={{ color: `${p.textColor}60` }}>
+                          Popular
                         </span>
-                      ) : (
-                        val
                       )}
                     </div>
                   ))}
                 </div>
-              ))}
+
+                {comparisonRows.map((row) => (
+                  <div
+                    key={row.feature}
+                    className="grid border-b-2 border-dashed border-ink/20 last:border-b-0 hover:bg-ink/[.03] transition-colors"
+                    style={{ gridTemplateColumns: '2fr 1fr 1fr 1.4fr 1fr 1fr' }}
+                  >
+                    <div className="p-4 text-[13px] font-semibold text-ink/70">{row.feature}</div>
+                    {[row.nano, row.mini, row.standard, row.pro, row.mega].map((val, j) => (
+                      <div
+                        key={j}
+                        className="flex items-center border-l-2 border-dashed border-ink/20 p-4 text-[13px] text-ink"
+                      >
+                        {val === '—' ? (
+                          <span className="text-ink/25">—</span>
+                        ) : val === '✓' ? (
+                          <span className="size-5 grid place-items-center rounded-full border-2 border-ink bg-brand-mint text-[11px] font-bold text-ink">
+                            ✓
+                          </span>
+                        ) : (
+                          val
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
 
           </div>
@@ -524,9 +581,8 @@ export default function PlansPage() {
         <div className="mx-auto max-w-[1320px] px-7">
           <div ref={faqRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
-            {/* Header tile */}
             <div
-              className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-9 shadow-[6px_6px_0_#001B21] lg:col-span-4 lg:row-span-1"
+              className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-9 shadow-[6px_6px_0_#001B21] lg:col-span-4"
               style={{ background: '#5C4ADE', minHeight: 280 }}
             >
               <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Questions</p>
@@ -555,7 +611,6 @@ export default function PlansPage() {
               </div>
             </div>
 
-            {/* Accordion tile */}
             <div
               className="reveal rounded-3xl border-2 border-ink p-9 shadow-[6px_6px_0_#001B21] lg:col-span-8"
               style={{ background: '#F5F1EB' }}
@@ -580,7 +635,6 @@ export default function PlansPage() {
         <div className="mx-auto max-w-[1320px] px-7">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
-            {/* Big CTA tile */}
             <div
               className="flex flex-col justify-between rounded-3xl border-2 border-paper/20 p-10 lg:col-span-8"
               style={{ background: '#FB4903', minHeight: 300 }}
@@ -608,7 +662,6 @@ export default function PlansPage() {
               </div>
             </div>
 
-            {/* Action tile */}
             <div
               className="flex flex-col justify-between rounded-3xl border-2 border-paper/15 p-9 lg:col-span-4"
               style={{ background: '#001B21', minHeight: 300 }}
@@ -619,7 +672,7 @@ export default function PlansPage() {
                   className="mt-1 uppercase text-paper"
                   style={{ fontFamily: 'var(--font-display)', fontSize: 72, lineHeight: '.88' }}
                 >
-                  ${billing === 'monthly' ? 14 : 11}
+                  ${billing === 'monthly' ? 9 : 7}
                 </div>
                 <p className="mt-1 font-mono text-[11px] tracking-[.08em] uppercase text-paper/50">
                   per month{billing === 'annual' ? ' (annual)' : ''}

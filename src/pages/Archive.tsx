@@ -198,7 +198,7 @@ export default function Archive() {
               <div className="mb-6 flex items-center gap-2.5 font-mono text-[11px] tracking-[.18em] uppercase">
                 <Link to="/" className="text-paper/50 hover:text-paper transition-colors">BRICKTIME</Link>
                 <span className="text-paper/30">/</span>
-                <span className="text-paper/50">Archive</span>
+                <span className="text-paper/50">Products</span>
               </div>
 
               <div className="flex-1 flex flex-col justify-center">
@@ -208,7 +208,7 @@ export default function Archive() {
                 >
                   Every{' '}
                   <span className="inline-block text-brand-orange" style={{ fontStyle: 'italic', transform: 'skew(-8deg)' }}>
-                    drop,
+                    product,
                   </span>
                   <br />every month.
                 </h1>
