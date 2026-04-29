@@ -188,46 +188,47 @@ export default function Archive() {
       <Nav />
 
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden border-b-2 border-ink bg-paper pb-14 pt-20">
+      <section className="bg-ink py-20">
         <div className="mx-auto max-w-[1320px] px-7">
-          {/* Breadcrumb */}
-          <div className="mb-6 flex items-center gap-2.5 font-mono text-[11px] tracking-[.18em] uppercase">
-            <Link to="/" className="text-ink/55 hover:text-ink transition-colors">BRICKTIME</Link>
-            <span className="text-ink/30">/</span>
-            <span className="text-ink">Archive</span>
-          </div>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
-          <h1
-            className="max-w-[14ch] uppercase text-ink"
-            style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(72px,11vw,160px)', lineHeight: '.86', letterSpacing: '-.015em' }}
-          >
-            Every{' '}
-            <span className="inline-block text-brand-indigo" style={{ fontStyle: 'italic', transform: 'skew(-8deg)' }}>
-              drop,
-            </span>
-            <br />every month.
-          </h1>
+            {/* Left tile — breadcrumb + heading + description */}
+            <div className="flex flex-col justify-between rounded-3xl border-2 border-ink bg-ink p-9 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-8" style={{ minHeight: 420 }}>
+              {/* Breadcrumb */}
+              <div className="mb-6 flex items-center gap-2.5 font-mono text-[11px] tracking-[.18em] uppercase">
+                <Link to="/" className="text-paper/50 hover:text-paper transition-colors">BRICKTIME</Link>
+                <span className="text-paper/30">/</span>
+                <span className="text-paper/50">Archive</span>
+              </div>
 
-          <div className="mt-12 flex flex-wrap items-end justify-between gap-8">
-            <p className="max-w-[52ch] text-[18px] leading-[1.65] text-ink/80">
-              Twenty-six monthly drops since launch in March 2024 — every one a piece of the BRICKTIME universe. Browse the back catalogue, see what subscribers built, and pick up missing months.
-            </p>
-            <div className="flex gap-8 flex-wrap">
+              <div className="flex-1 flex flex-col justify-center">
+                <h1
+                  className="max-w-[14ch] uppercase text-paper"
+                  style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(72px,11vw,160px)', lineHeight: '.86', letterSpacing: '-.015em' }}
+                >
+                  Every{' '}
+                  <span className="inline-block text-brand-orange" style={{ fontStyle: 'italic', transform: 'skew(-8deg)' }}>
+                    drop,
+                  </span>
+                  <br />every month.
+                </h1>
+
+                <p className="mt-10 max-w-[52ch] text-[18px] leading-[1.65] text-paper/70">
+                  Twenty-six monthly drops since launch in March 2024 — every one a piece of the BRICKTIME universe. Browse the back catalogue, see what subscribers built, and pick up missing months.
+                </p>
+              </div>
+            </div>
+
+            {/* Right tile — stats */}
+            <div className="flex flex-col justify-around rounded-3xl border-2 border-ink bg-brand-orange p-9 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-4" style={{ minHeight: 420 }}>
               {[['26', 'Drops shipped'], ['7,840', 'Bricks total'], ['54', 'Minifigs released']].map(([val, label]) => (
-                <div key={label} className="flex flex-col gap-1">
-                  <b style={{ fontFamily: 'var(--font-display)', fontSize: 64, lineHeight: '.9', color: '#001B21' }}>{val}</b>
-                  <small className="font-mono text-[11px] tracking-[.16em] uppercase text-ink/60">{label}</small>
+                <div key={label} className="flex flex-col gap-2 border-b border-paper/20 pb-8 last:border-b-0 last:pb-0">
+                  <b style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(64px,8vw,96px)', lineHeight: '.88', color: '#F5F1EB' }}>{val}</b>
+                  <small className="font-mono text-[11px] tracking-[.16em] uppercase text-paper/70">{label}</small>
                 </div>
               ))}
             </div>
-          </div>
-        </div>
 
-        {/* Floating bricks */}
-        <div className="absolute right-[8%] top-[60px] -rotate-12">
-          <div className="relative h-[70px] w-[140px] rounded border-[3px] border-ink bg-brand-orange" style={{ boxShadow: 'inset 0 -8px 0 rgba(0,0,0,.18)' }}>
-            <span className="absolute -top-3.5 left-5 size-7 rounded-full border-[3px] border-ink bg-brand-orange" />
-            <span className="absolute -top-3.5 right-5 size-7 rounded-full border-[3px] border-ink bg-brand-orange" />
           </div>
         </div>
       </section>
@@ -264,7 +265,7 @@ export default function Archive() {
       </div>
 
       {/* ── Grid ── */}
-      <section className="pt-16 pb-0">
+      <section className="py-16">
         <div className="mx-auto max-w-[1320px] px-7">
           <div className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3">
             {filteredDrops.map((drop) => (
@@ -289,45 +290,55 @@ export default function Archive() {
       </section>
 
       {/* ── Timeline ── */}
-      <section className="border-t-2 border-ink bg-paper py-[120px]">
+      <section className="bg-paper py-20">
         <div className="mx-auto max-w-[1320px] px-7">
-          <div className="mb-12 flex flex-wrap items-end justify-between gap-12">
-            <div>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+
+            {/* Header tile */}
+            <div className="flex flex-col justify-center rounded-3xl border-2 border-ink bg-paper p-9 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-7">
               <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink">⬢ Universe map</p>
               <h2
-                className="mt-3 uppercase"
+                className="mt-3 uppercase text-ink"
                 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px,6vw,88px)', lineHeight: '.9', letterSpacing: '-.01em' }}
               >
                 26 months,<br />one connected world.
               </h2>
             </div>
-            <p className="max-w-[480px] text-[17px] leading-[1.65] text-ink/75">
-              Every drop locks into the BRICKTIME universe. Yellow dot is the active month — green are shipped, dotted are upcoming.
-            </p>
-          </div>
 
-          {/* Timeline bar */}
-          <div className="overflow-hidden rounded-3xl border-2 border-ink bg-ink" style={{ height: 160 }}>
-            <div className="flex h-full items-center px-6 overflow-x-auto">
-              {timelineMonths.map((m, i) => (
-                <div
-                  key={i}
-                  className="flex flex-1 min-w-[56px] flex-col items-center justify-center gap-2 border-r border-dashed border-paper/15 last:border-r-0 h-full font-mono text-[11px] tracking-[.16em] uppercase text-paper"
-                >
-                  <span
-                    className="rounded-full"
-                    style={{
-                      width: m.status === 'active' ? 20 : 14,
-                      height: m.status === 'active' ? 20 : 14,
-                      background: m.status === 'done' ? '#5DDB9C' : m.status === 'active' ? '#FFD731' : 'transparent',
-                      border: m.status === 'future' ? '2px dashed rgba(245,241,235,.3)' : 'none',
-                    }}
-                  />
-                  <b style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: '.02em' }}>{m.label}</b>
-                  <small className="opacity-50 text-[9px]">{m.year}</small>
-                </div>
-              ))}
+            {/* Blurb tile */}
+            <div className="flex flex-col justify-center rounded-3xl border-2 border-ink p-9 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-5" style={{ background: '#5C4ADE' }}>
+              <p className="text-[17px] leading-[1.65] text-paper">
+                Every drop locks into the BRICKTIME universe. Yellow dot is the active month — green are shipped, dotted are upcoming.
+              </p>
+              <p className="mt-6 font-mono text-[11px] tracking-[.16em] uppercase text-paper/60">
+                Green = shipped · Yellow = active · Dashed = upcoming
+              </p>
             </div>
+
+            {/* Timeline bar */}
+            <div className="overflow-hidden rounded-3xl border-2 border-ink bg-ink shadow-[6px_6px_0_#001B21] lg:col-span-12" style={{ height: 160 }}>
+              <div className="flex h-full items-center px-6 overflow-x-auto">
+                {timelineMonths.map((m, i) => (
+                  <div
+                    key={i}
+                    className="flex flex-1 min-w-[56px] flex-col items-center justify-center gap-2 border-r border-dashed border-paper/15 last:border-r-0 h-full font-mono text-[11px] tracking-[.16em] uppercase text-paper"
+                  >
+                    <span
+                      className="rounded-full"
+                      style={{
+                        width: m.status === 'active' ? 20 : 14,
+                        height: m.status === 'active' ? 20 : 14,
+                        background: m.status === 'done' ? '#5DDB9C' : m.status === 'active' ? '#FFD731' : 'transparent',
+                        border: m.status === 'future' ? '2px dashed rgba(245,241,235,.3)' : 'none',
+                      }}
+                    />
+                    <b style={{ fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: '.02em' }}>{m.label}</b>
+                    <small className="opacity-50 text-[9px]">{m.year}</small>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         </div>
       </section>

@@ -88,7 +88,7 @@ export default function Drop() {
       <Nav />
 
       {/* ── Product Hero ── */}
-      <section className="relative overflow-hidden border-b-2 border-ink bg-paper pb-20 pt-12">
+      <section className="bg-paper py-20">
         <div className="mx-auto max-w-[1320px] px-7">
           {/* Breadcrumb */}
           <div className="mb-8 flex items-center gap-2.5 font-mono text-[11px] tracking-[.18em] uppercase text-ink/55">
@@ -99,64 +99,66 @@ export default function Drop() {
             <span className="font-bold text-ink">Drop №26 — Mailbox Row</span>
           </div>
 
-          <div className="grid grid-cols-1 items-start gap-16 lg:grid-cols-[1.1fr_.9fr]">
-            {/* Gallery */}
-            <div className="flex flex-col gap-4">
-              {/* Main image */}
-              <div
-                className="relative grid h-[560px] place-items-center overflow-hidden rounded-[32px] border-2 border-ink"
-                style={{
-                  background: thumbs[activeThumb].bg,
-                  backgroundImage: 'radial-gradient(circle at 18px 18px, rgba(255,255,255,.14) 5px, transparent 6px)',
-                  backgroundSize: '48px 48px',
-                }}
-              >
+          <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2">
+            {/* Gallery tile */}
+            <div className="rounded-3xl border-2 border-ink p-4 shadow-[6px_6px_0_#001B21]">
+              <div className="flex flex-col gap-4">
+                {/* Main image */}
                 <div
-                  className="absolute left-6 top-6 rounded-[8px] border-2 border-ink bg-brand-yellow px-4 py-2.5 text-ink"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1, transform: 'rotate(-3deg)', boxShadow: '4px 4px 0 #001B21' }}
+                  className="relative grid h-[520px] place-items-center overflow-hidden rounded-[24px] border-2 border-ink"
+                  style={{
+                    background: thumbs[activeThumb].bg,
+                    backgroundImage: 'radial-gradient(circle at 18px 18px, rgba(255,255,255,.14) 5px, transparent 6px)',
+                    backgroundSize: '48px 48px',
+                  }}
                 >
-                  May 2026
-                </div>
-                <div
-                  className="absolute right-6 top-6 rounded-[8px] border-2 border-ink bg-brand-orange px-4 py-2.5 text-paper"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1, transform: 'rotate(3deg)', boxShadow: '4px 4px 0 #001B21' }}
-                >
-                  Drop № 26
-                </div>
-                <div className="absolute inset-16 grid place-items-center rounded-3xl border-2 border-dashed border-paper/35 font-mono text-[11px] tracking-[.18em] uppercase text-paper/55 text-center">
-                  {thumbs[activeThumb].label}
-                </div>
-                {activeThumb === 0 && (
-                  <div className="absolute bottom-0 left-0 right-0 flex items-end justify-center gap-2 px-10 pb-0">
-                    {modelBricks.map((b, i) => (
-                      <div key={i} className="relative rounded border-[3px] border-ink" style={{ background: b.color, width: b.w, height: b.h, boxShadow: 'inset 0 -10px 0 rgba(0,0,0,.18)' }}>
-                        <span className="absolute -top-3 left-1/2 size-5 -translate-x-1/2 rounded-full border-[3px] border-ink" style={{ background: b.color }} />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Thumbnails */}
-              <div className="grid grid-cols-4 gap-3.5">
-                {thumbs.map((t, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveThumb(i)}
-                    className={[
-                      'grid h-[100px] place-items-center overflow-hidden rounded-2xl border-2 border-ink font-mono text-[9px] tracking-[.16em] uppercase transition-all',
-                      activeThumb === i ? 'outline outline-[3px] outline-offset-2 outline-brand-yellow' : 'hover:opacity-80',
-                    ].join(' ')}
-                    style={{ background: t.bg, color: t.color }}
+                  <div
+                    className="absolute left-6 top-6 rounded-[8px] border-2 border-ink bg-brand-yellow px-4 py-2.5 text-ink"
+                    style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1, transform: 'rotate(-3deg)', boxShadow: '4px 4px 0 #001B21' }}
                   >
-                    {t.label}
-                  </button>
-                ))}
+                    May 2026
+                  </div>
+                  <div
+                    className="absolute right-6 top-6 rounded-[8px] border-2 border-ink bg-brand-orange px-4 py-2.5 text-paper"
+                    style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1, transform: 'rotate(3deg)', boxShadow: '4px 4px 0 #001B21' }}
+                  >
+                    Drop № 26
+                  </div>
+                  <div className="absolute inset-16 grid place-items-center rounded-3xl border-2 border-dashed border-paper/35 font-mono text-[11px] tracking-[.18em] uppercase text-paper/55 text-center">
+                    {thumbs[activeThumb].label}
+                  </div>
+                  {activeThumb === 0 && (
+                    <div className="absolute bottom-0 left-0 right-0 flex items-end justify-center gap-2 px-10 pb-0">
+                      {modelBricks.map((b, i) => (
+                        <div key={i} className="relative rounded border-[3px] border-ink" style={{ background: b.color, width: b.w, height: b.h, boxShadow: 'inset 0 -10px 0 rgba(0,0,0,.18)' }}>
+                          <span className="absolute -top-3 left-1/2 size-5 -translate-x-1/2 rounded-full border-[3px] border-ink" style={{ background: b.color }} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Thumbnails */}
+                <div className="grid grid-cols-4 gap-3">
+                  {thumbs.map((t, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActiveThumb(i)}
+                      className={[
+                        'grid h-[90px] place-items-center overflow-hidden rounded-2xl border-2 border-ink font-mono text-[9px] tracking-[.16em] uppercase transition-all',
+                        activeThumb === i ? 'outline outline-[3px] outline-offset-2 outline-brand-yellow' : 'hover:opacity-80',
+                      ].join(' ')}
+                      style={{ background: t.bg, color: t.color }}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Details */}
-            <div>
+            {/* Details tile */}
+            <div className="rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_rgba(0,0,0,.06)] bg-paper">
               <div className="flex flex-wrap items-center gap-3">
                 <span
                   className="rounded-[8px] bg-ink px-3.5 py-2 text-paper"
@@ -262,62 +264,103 @@ export default function Drop() {
       </section>
 
       {/* ── What's in the bag ── */}
-      <section className="border-b-2 border-ink bg-paper py-[120px]">
+      <section className="bg-paper py-20">
         <div className="mx-auto max-w-[1320px] px-7">
-          <div className="mb-14 flex flex-wrap items-end justify-between gap-12">
-            <div>
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase">⬢ What's in the bag</p>
-              <h2 className="mt-3 uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px,6vw,88px)', lineHeight: '.9', letterSpacing: '-.01em' }}>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+
+            {/* Row 1: Header tile */}
+            <div className="flex flex-col justify-center rounded-3xl border-2 border-ink bg-paper p-8 shadow-[6px_6px_0_#001B21] lg:col-span-5">
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ What's in the bag</p>
+              <h2
+                className="mt-3 uppercase text-ink"
+                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,4vw,72px)', lineHeight: '.9', letterSpacing: '-.01em' }}
+              >
                 Four parts.<br />One mailbox row.
               </h2>
+              <p className="mt-5 max-w-[40ch] text-[16px] leading-[1.65] text-ink/65">
+                Tear the seal, scan the QR, and you'll find these four bagged sub-builds — each one a self-contained section of the model.
+              </p>
             </div>
-            <p className="max-w-[48ch] text-[17px] leading-[1.65] text-ink/75">
-              Tear the seal, scan the QR, and you'll find these four bagged sub-builds — each one a self-contained section of the model.
-            </p>
-          </div>
 
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {bagContents.map((bag) => (
-              <Card
-                key={bag.num}
-                className="relative min-h-[260px] rounded-[20px] border-2 border-ink p-6 shadow-[6px_6px_0_#001B21]"
-                style={{ background: bag.bg }}
+            {/* Row 1: Bag 04 — sky wide tile */}
+            <div
+              className="relative flex flex-col justify-end rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-7"
+              style={{ background: bagContents[3].bg, minHeight: 280 }}
+            >
+              <Badge className="absolute right-6 top-6 rounded-full border-[1.5px] border-ink bg-paper px-2.5 py-1 font-mono text-[10px] tracking-[.14em] uppercase text-ink">
+                Bag {bagContents[3].num}
+              </Badge>
+              <div
+                className="absolute left-8 top-6 select-none text-ink/15"
+                style={{ fontFamily: 'var(--font-display)', fontSize: 110, lineHeight: 1 }}
               >
-                <CardContent className="flex flex-col gap-3.5 p-0">
-                  <Badge className="absolute right-4 top-4 rounded-full border-[1.5px] border-ink bg-paper px-2.5 py-1 font-mono text-[10px] tracking-[.14em] uppercase text-ink">
-                    Bag {bag.num}
-                  </Badge>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 54, lineHeight: 1, opacity: .5 }}>{bag.num}</div>
-                  <h4 className="uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: '.95' }}>
-                    {bag.label.split('\n').map((l, i) => <span key={i}>{l}<br /></span>)}
-                  </h4>
-                  <p className="text-[13px] leading-[1.5] text-ink/75">{bag.desc}</p>
-                </CardContent>
-              </Card>
+                {bagContents[3].num}
+              </div>
+              <h4
+                className="uppercase text-ink"
+                style={{ fontFamily: 'var(--font-display)', fontSize: 36, lineHeight: '.95' }}
+              >
+                {bagContents[3].label.split('\n').map((l, i) => <span key={i}>{l}<br /></span>)}
+              </h4>
+              <p className="mt-2 max-w-[40ch] text-[14px] leading-[1.5] text-ink/75">{bagContents[3].desc}</p>
+            </div>
+
+            {/* Row 2: Bags 01, 02, 03 */}
+            {bagContents.slice(0, 3).map((bag) => (
+              <div
+                key={bag.num}
+                className="relative flex flex-col justify-end rounded-3xl border-2 border-ink p-7 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-4"
+                style={{ background: bag.bg, minHeight: 260 }}
+              >
+                <Badge className="absolute right-5 top-5 rounded-full border-[1.5px] border-ink bg-paper px-2.5 py-1 font-mono text-[10px] tracking-[.14em] uppercase text-ink">
+                  Bag {bag.num}
+                </Badge>
+                <div
+                  className="absolute left-7 top-5 select-none text-ink/15"
+                  style={{ fontFamily: 'var(--font-display)', fontSize: 88, lineHeight: 1 }}
+                >
+                  {bag.num}
+                </div>
+                <h4
+                  className="uppercase text-ink"
+                  style={{ fontFamily: 'var(--font-display)', fontSize: 28, lineHeight: '.95' }}
+                >
+                  {bag.label.split('\n').map((l, i) => <span key={i}>{l}<br /></span>)}
+                </h4>
+                <p className="mt-2 text-[13px] leading-[1.5] text-ink/75">{bag.desc}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* ── Story ── */}
-      <section className="border-b-2 border-ink bg-paper py-[120px]">
+      <section className="bg-paper py-20">
         <div className="mx-auto max-w-[1320px] px-7">
-          <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+
+            {/* Art panel tile */}
             <div
-              className="relative h-[520px] overflow-hidden rounded-[32px] border-2 border-ink"
+              className="relative overflow-hidden rounded-3xl border-2 border-ink shadow-[6px_6px_0_#001B21] lg:col-span-5"
               style={{
                 background: '#FB4903',
                 backgroundImage: 'radial-gradient(circle at 18px 18px, rgba(255,255,255,.14) 5px, transparent 6px)',
                 backgroundSize: '48px 48px',
+                minHeight: 480,
               }}
             >
-              <div className="absolute inset-12 grid place-items-center rounded-3xl border-2 border-dashed border-paper/35 text-center font-mono text-[11px] tracking-[.18em] uppercase text-paper/55">
+              <div className="absolute inset-10 grid place-items-center rounded-3xl border-2 border-dashed border-paper/35 text-center font-mono text-[11px] tracking-[.18em] uppercase text-paper/55">
                 Editorial photo<br />Otto sketch + photo of finished build on a desk
               </div>
             </div>
-            <div>
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase">⬢ The story</p>
-              <h2 className="mt-3 uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,5vw,72px)', lineHeight: '.9', letterSpacing: '-.01em' }}>
+
+            {/* Story text tile */}
+            <div className="flex flex-col justify-center rounded-3xl border-2 border-ink bg-paper p-10 shadow-[6px_6px_0_#001B21] lg:col-span-7">
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ The story</p>
+              <h2
+                className="mt-3 uppercase text-ink"
+                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,5vw,72px)', lineHeight: '.9', letterSpacing: '-.01em' }}
+              >
                 Otto has been<br />delivering mail<br />since drop 14.
               </h2>
               <p className="mt-6 text-[17px] leading-[1.6] text-ink/80">
@@ -341,27 +384,32 @@ export default function Drop() {
       </section>
 
       {/* ── Minifig ── */}
-      <section className="border-b-2 border-ink bg-paper py-[120px]">
+      <section className="bg-ink py-20">
         <div className="mx-auto max-w-[1320px] px-7">
-          <div className="mb-12 flex flex-wrap items-end justify-between gap-12">
-            <div>
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase">⬢ Exclusive minifigs</p>
-              <h2 className="mt-3 uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px,6vw,88px)', lineHeight: '.9', letterSpacing: '-.01em' }}>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+
+            {/* Header tile */}
+            <div className="flex flex-col justify-center rounded-3xl border-2 border-ink bg-paper p-8 shadow-[6px_6px_0_#001B21] lg:col-span-5">
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ Exclusive minifigs</p>
+              <h2
+                className="mt-3 uppercase text-ink"
+                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,4.5vw,80px)', lineHeight: '.9', letterSpacing: '-.01em' }}
+              >
                 Two new<br />residents.
               </h2>
+              <p className="mt-5 max-w-[38ch] text-[16px] leading-[1.65] text-ink/75">
+                Numbered, never re-released, tradeable inside the BRICKTIME club. Otto comes with his satchel; Mrs. Petrov with a watering can and a tabby cat.
+              </p>
             </div>
-            <p className="max-w-[44ch] text-[17px] leading-[1.65] text-ink/75">
-              Numbered, never re-released, tradeable inside the BRICKTIME club. Otto comes with his satchel; Mrs. Petrov with a watering can and a tabby cat.
-            </p>
-          </div>
 
-          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1fr_1.2fr]">
-            {/* Figcard */}
+            {/* Figcard tile */}
             <div
-              className="relative grid h-[480px] place-items-center overflow-hidden rounded-3xl border-2 border-ink bg-ink p-12"
+              className="relative grid place-items-center overflow-hidden rounded-3xl border-2 bg-ink p-12 shadow-[6px_6px_0_#001B21] lg:col-span-7"
               style={{
+                borderColor: 'rgba(245,241,235,.2)',
                 backgroundImage: 'linear-gradient(transparent 31px, rgba(245,241,235,.08) 32px), linear-gradient(90deg, transparent 31px, rgba(245,241,235,.08) 32px)',
                 backgroundSize: '32px 32px',
+                minHeight: 480,
               }}
             >
               <div className="absolute left-6 top-6 font-mono text-[11px] tracking-[.18em] uppercase text-paper/70">
@@ -390,13 +438,16 @@ export default function Drop() {
               </div>
             </div>
 
-            {/* Kit list */}
-            <div>
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase">⬢ Otto's kit</p>
-              <h3 className="mt-3 max-w-[14ch] uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 48, lineHeight: '.9', letterSpacing: '-.01em' }}>
-                Mail satchel,<br />folding bike,<br />printed lanyard.
+            {/* Kit list tile — full width second row */}
+            <div className="rounded-3xl border-2 border-ink bg-paper p-8 shadow-[6px_6px_0_#001B21] lg:col-span-12">
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ Otto's kit</p>
+              <h3
+                className="mt-3 uppercase text-ink"
+                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,3.5vw,48px)', lineHeight: '.9', letterSpacing: '-.01em' }}
+              >
+                Mail satchel, folding bike, printed lanyard.
               </h3>
-              <ul className="mt-8 flex flex-col gap-[18px]">
+              <ul className="mt-8 grid grid-cols-1 gap-[18px] md:grid-cols-3">
                 {[
                   { title: 'Removable satchel piece', body: "First time we've used the new fabric-look ABS — the satchel actually flexes when Otto sits down." },
                   { title: 'Folding bicycle (8 pieces)', body: "Designed to fit on the bus from drop 14. Otto can ride to work, or take the bus, or both." },
@@ -417,61 +468,86 @@ export default function Drop() {
       </section>
 
       {/* ── Compatibility ── */}
-      <section className="border-b-2 border-ink bg-ink py-[120px] text-paper">
+      <section className="bg-ink py-20">
         <div className="mx-auto max-w-[1320px] px-7">
-          <div className="mb-12 flex flex-wrap items-end justify-between gap-12">
-            <div>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+
+            {/* Row 1: Header label tile */}
+            <div
+              className="flex flex-col justify-center rounded-3xl border-2 p-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] lg:col-span-5"
+              style={{ borderColor: 'rgba(245,241,235,.2)', background: 'rgba(245,241,235,.05)' }}
+            >
               <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Universe map</p>
-              <h2 className="mt-3 uppercase text-paper" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px,6vw,88px)', lineHeight: '.9', letterSpacing: '-.01em' }}>
+              <h2
+                className="mt-3 uppercase text-paper"
+                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,4vw,72px)', lineHeight: '.9', letterSpacing: '-.01em' }}
+              >
                 Slots into three<br />existing drops.
               </h2>
             </div>
-            <p className="max-w-[44ch] text-[17px] leading-[1.65] text-paper/85">
-              Every BRICKTIME drop is part of one growing universe. Mailbox Row connects directly with these previous drops via shared pins, scale, and color set.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+
+            {/* Row 1: Tagline tile */}
+            <div
+              className="flex flex-col justify-center rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] lg:col-span-7"
+              style={{ background: '#FFD731' }}
+            >
+              <p className="max-w-[44ch] text-[20px] leading-[1.55] text-ink font-medium">
+                Every BRICKTIME drop is part of one growing universe. Mailbox Row connects directly with these previous drops via shared pins, scale, and color set.
+              </p>
+            </div>
+
+            {/* Row 2: 3 compat cards */}
             {compatibility.map((c) => (
-              <Card
+              <div
                 key={c.drop}
-                className="flex flex-col gap-3.5 rounded-[20px] border-2 border-ink p-7 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px]"
+                className="flex flex-col gap-3.5 rounded-3xl border-2 border-ink p-7 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_rgba(245,241,235,.15)] lg:col-span-4"
                 style={{ background: c.bg, color: '#001B21' }}
               >
-                <CardContent className="flex flex-col gap-3.5 p-0">
-                  <p className="font-mono text-[11px] tracking-[.18em] uppercase text-ink/50">{c.drop}</p>
-                  <h4 className="uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 28, lineHeight: '.95' }}>{c.title}</h4>
-                  <p className="text-[14px] leading-[1.5] text-ink/70">{c.desc}</p>
-                  <div className="mt-auto h-[100px] rounded-xl border-2 border-dashed border-black/20 bg-black/5 grid place-items-center font-mono text-[10px] tracking-[.14em] uppercase text-black/40">
-                    [ Connection diagram ]
-                  </div>
-                </CardContent>
-              </Card>
+                <p className="font-mono text-[11px] tracking-[.18em] uppercase text-ink/50">{c.drop}</p>
+                <h4 className="uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 28, lineHeight: '.95' }}>{c.title}</h4>
+                <p className="text-[14px] leading-[1.5] text-ink/70">{c.desc}</p>
+                <div className="mt-auto h-[100px] rounded-xl border-2 border-dashed border-black/20 bg-black/5 grid place-items-center font-mono text-[10px] tracking-[.14em] uppercase text-black/40">
+                  [ Connection diagram ]
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* ── Reviews ── */}
-      <section className="border-b-2 border-ink bg-paper py-[120px]">
+      <section className="bg-paper py-20">
         <div className="mx-auto max-w-[1320px] px-7">
-          <div className="mb-10 flex flex-wrap items-end justify-between gap-12">
-            <div>
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase">⬢ Early access reviews</p>
-              <h2 className="mt-3 uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px,6vw,88px)', lineHeight: '.9', letterSpacing: '-.01em' }}>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+
+            {/* Row 1: Header tile */}
+            <div className="flex flex-col justify-center rounded-3xl border-2 border-ink bg-ink p-8 shadow-[6px_6px_0_#001B21] lg:col-span-5">
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Early access</p>
+              <h2
+                className="mt-3 uppercase text-paper"
+                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,4vw,72px)', lineHeight: '.9', letterSpacing: '-.01em' }}
+              >
                 From the<br />preview build.
               </h2>
             </div>
-            <div className="flex flex-col items-end gap-1.5">
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 64, lineHeight: 1 }}>
-                4.92<span className="text-[24px] opacity-50">/5</span>
-              </div>
-              <small className="font-mono text-[11px] tracking-[.16em] uppercase text-ink/55">Based on 86 Mega-tier preview reviews</small>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {/* Row 1: Rating tile */}
+            <div
+              className="flex flex-col justify-center rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] lg:col-span-7"
+              style={{ background: '#FFD731' }}
+            >
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(64px,7vw,96px)', lineHeight: 1, color: '#001B21' }}>
+                4.92<span style={{ fontSize: '40%', opacity: .5 }}>/5</span>
+              </div>
+              <small className="mt-2 font-mono text-[12px] tracking-[.16em] uppercase text-ink/70">Based on 86 Mega-tier preview reviews</small>
+            </div>
+
+            {/* Row 2+: 4 review cards, 2 per row */}
             {reviews.map((r, i) => (
-              <Card key={i} className="flex flex-col gap-3.5 rounded-[20px] border-2 border-ink bg-paper p-6 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21]">
+              <Card
+                key={i}
+                className="flex flex-col gap-3.5 rounded-3xl border-2 border-ink bg-paper p-6 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-6"
+              >
                 <CardContent className="flex flex-col gap-3.5 p-0">
                   <div className="text-[18px] tracking-[2px]" style={{ color: '#FB4903' }}>{r.stars}</div>
                   <p className="uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 22, lineHeight: 1.05, letterSpacing: '.005em' }}>{r.quote}</p>
@@ -490,7 +566,7 @@ export default function Drop() {
           </div>
 
           {/* Prev / Next */}
-          <div className="mt-12 overflow-hidden rounded-3xl border-2 border-ink">
+          <div className="mt-4 overflow-hidden rounded-3xl border-2 border-ink">
             <div className="grid grid-cols-2">
               <Link to="/drop/25" className="flex flex-col gap-1.5 bg-paper p-8 transition-colors hover:bg-brand-yellow">
                 <small className="font-mono text-[11px] tracking-[.16em] uppercase text-ink/55">← Previous · April 2026</small>
