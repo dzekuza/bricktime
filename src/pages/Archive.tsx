@@ -2,9 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 
 // ── types ──────────────────────────────────────────────────────────────────
 interface Drop {
