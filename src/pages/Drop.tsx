@@ -1,0 +1,512 @@
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import Nav from '@/components/Nav'
+import Footer from '@/components/Footer'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Separator } from '@/components/ui/separator'
+
+// ── Countdown ──────────────────────────────────────────────────────────────
+function useCountdown(targetDays: number) {
+  const [time, setTime] = useState({ days: targetDays, hrs: 4, min: 38, sec: 0 })
+  useEffect(() => {
+    const id = setInterval(() => {
+      setTime((t) => {
+        let { days, hrs, min, sec } = t
+        sec--; if (sec < 0) { sec = 59; min-- }
+        if (min < 0) { min = 59; hrs-- }
+        if (hrs < 0) { hrs = 23; days-- }
+        return { days: Math.max(0, days), hrs: Math.max(0, hrs), min: Math.max(0, min), sec: Math.max(0, sec) }
+      })
+    }, 1000)
+    return () => clearInterval(id)
+  }, [])
+  return time
+}
+
+// ── sub-components ─────────────────────────────────────────────────────────
+function CountBox({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="flex min-w-[56px] flex-col items-center rounded-[10px] border-2 border-paper bg-paper px-3 py-2 text-ink">
+      <span style={{ fontFamily: 'var(--font-display)', fontSize: 32, lineHeight: 1 }}>
+        {String(value).padStart(2, '0')}
+      </span>
+      <small className="mt-0.5 font-mono text-[9px] tracking-[.16em] uppercase text-ink/55">{label}</small>
+    </div>
+  )
+}
+
+const bagContents = [
+  { num: '01', label: 'Foundation\n+ Mailbox', desc: '62 bricks. Working pull-down mailbox door, brass hinge piece, and the building\'s address tile (№ 26).', bg: '#5DDB9C' },
+  { num: '02', label: 'Floors\n1 – 3', desc: '114 bricks. Three storeys with planted balconies, a pigeon, and a window cat.', bg: '#FFAEE7' },
+  { num: '03', label: 'Floors\n4 – 5 + roof', desc: '96 bricks. Skylight, antenna, drying laundry on a printed banner piece.', bg: '#FFD731' },
+  { num: '04', label: 'Otto\n+ Mrs. Petrov', desc: '40 bricks. The two minifigs, Otto\'s satchel, a folding bicycle, and 18 vinyl stickers.', bg: '#4DA2FF' },
+]
+
+const compatibility = [
+  { drop: 'DROP № 14 — JUL 2025', title: 'Otto\'s bus', desc: 'The bus depot from drop 14 docks against Mailbox Row\'s east wall using the same brass hinge.', bg: '#5DDB9C' },
+  { drop: 'DROP № 09 — FEB 2025', title: 'Bakery corner', desc: 'Place the bakery to the north — the awning lines up with Mailbox Row\'s ground-floor entrance.', bg: '#FFAEE7' },
+  { drop: 'DROP № 21 — DEC 2025', title: 'Lighthouse', desc: 'Optional: route Otto\'s bike past the lighthouse using the path tiles included in this drop\'s bag 4.', bg: '#FFD731' },
+]
+
+const reviews = [
+  { stars: '★★★★★', quote: '"The hinge crossover with the bus is genuinely clever. My street has a postal route now."', name: 'Daniel K.', meta: 'Mega · Subscriber since drop 02', avatarColor: '#FB4903', initials: 'DK' },
+  { stars: '★★★★★', quote: '"Otto\'s satchel actually flexes. I can\'t explain how delightful that is until you hold it."', name: 'Priya N.', meta: 'Standard · 11 months', avatarColor: '#5DDB9C', initials: 'PN' },
+  { stars: '★★★★★', quote: '"Finished it in one evening. The mint+cream colour pairing is the best of the year."', name: 'Lucia F.', meta: 'Standard · 6 months', avatarColor: '#FFAEE7', initials: 'LF' },
+  { stars: '★★★★☆', quote: '"Build is great. Sticker sheet is generous. Wish there was a third minifig — that\'s my one nit."', name: 'Theo W.', meta: 'Mega · 22 months', avatarColor: '#4DA2FF', initials: 'TW' },
+]
+
+const tiers = [
+  { name: 'Mini', price: '$14', spec: '120-180 bricks' },
+  { name: 'Standard', price: '$24', spec: '240-320 bricks' },
+  { name: 'Mega', price: '$42', spec: '400-520 bricks' },
+]
+
+const thumbs = [
+  { label: '[ Front ]', bg: '#5C4ADE', color: 'rgba(245,241,235,.55)' },
+  { label: '[ Top-down ]', bg: '#5DDB9C', color: 'rgba(0,0,0,.4)' },
+  { label: '[ Mailbox detail ]', bg: '#FFAEE7', color: 'rgba(0,0,0,.4)' },
+  { label: '[ Postman Otto ]', bg: '#FFD731', color: 'rgba(0,0,0,.4)' },
+]
+
+const modelBricks = [
+  { color: '#FB4903', w: 54, h: 46 }, { color: '#F5F1EB', w: 80, h: 130 },
+  { color: '#FFD731', w: 48, h: 80 }, { color: '#5DDB9C', w: 72, h: 170 },
+  { color: '#FFAEE7', w: 46, h: 60 }, { color: '#4DA2FF', w: 54, h: 96 },
+  { color: '#FB4903', w: 44, h: 48 },
+]
+
+// ── page ───────────────────────────────────────────────────────────────────
+export default function Drop() {
+  const [activeTier, setActiveTier] = useState(1)
+  const [activeThumb, setActiveThumb] = useState(0)
+  const countdown = useCountdown(12)
+
+  return (
+    <>
+      <Nav />
+
+      {/* ── Product Hero ── */}
+      <section className="relative overflow-hidden border-b-2 border-ink bg-paper pb-20 pt-12">
+        <div className="mx-auto max-w-[1320px] px-7">
+          {/* Breadcrumb */}
+          <div className="mb-8 flex items-center gap-2.5 font-mono text-[11px] tracking-[.18em] uppercase text-ink/55">
+            <Link to="/" className="hover:text-ink transition-colors">BRICKTIME</Link>
+            <span className="text-ink/30">/</span>
+            <Link to="/archive" className="hover:text-ink transition-colors">Archive</Link>
+            <span className="text-ink/30">/</span>
+            <span className="font-bold text-ink">Drop №26 — Mailbox Row</span>
+          </div>
+
+          <div className="grid grid-cols-1 items-start gap-16 lg:grid-cols-[1.1fr_.9fr]">
+            {/* Gallery */}
+            <div className="flex flex-col gap-4">
+              {/* Main image */}
+              <div
+                className="relative grid h-[560px] place-items-center overflow-hidden rounded-[32px] border-2 border-ink"
+                style={{
+                  background: thumbs[activeThumb].bg,
+                  backgroundImage: 'radial-gradient(circle at 18px 18px, rgba(255,255,255,.14) 5px, transparent 6px)',
+                  backgroundSize: '48px 48px',
+                }}
+              >
+                <div
+                  className="absolute left-6 top-6 rounded-[8px] border-2 border-ink bg-brand-yellow px-4 py-2.5 text-ink"
+                  style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1, transform: 'rotate(-3deg)', boxShadow: '4px 4px 0 #001B21' }}
+                >
+                  May 2026
+                </div>
+                <div
+                  className="absolute right-6 top-6 rounded-[8px] border-2 border-ink bg-brand-orange px-4 py-2.5 text-paper"
+                  style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1, transform: 'rotate(3deg)', boxShadow: '4px 4px 0 #001B21' }}
+                >
+                  Drop № 26
+                </div>
+                <div className="absolute inset-16 grid place-items-center rounded-3xl border-2 border-dashed border-paper/35 font-mono text-[11px] tracking-[.18em] uppercase text-paper/55 text-center">
+                  {thumbs[activeThumb].label}
+                </div>
+                {activeThumb === 0 && (
+                  <div className="absolute bottom-0 left-0 right-0 flex items-end justify-center gap-2 px-10 pb-0">
+                    {modelBricks.map((b, i) => (
+                      <div key={i} className="relative rounded border-[3px] border-ink" style={{ background: b.color, width: b.w, height: b.h, boxShadow: 'inset 0 -10px 0 rgba(0,0,0,.18)' }}>
+                        <span className="absolute -top-3 left-1/2 size-5 -translate-x-1/2 rounded-full border-[3px] border-ink" style={{ background: b.color }} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Thumbnails */}
+              <div className="grid grid-cols-4 gap-3.5">
+                {thumbs.map((t, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveThumb(i)}
+                    className={[
+                      'grid h-[100px] place-items-center overflow-hidden rounded-2xl border-2 border-ink font-mono text-[9px] tracking-[.16em] uppercase transition-all',
+                      activeThumb === i ? 'outline outline-[3px] outline-offset-2 outline-brand-yellow' : 'hover:opacity-80',
+                    ].join(' ')}
+                    style={{ background: t.bg, color: t.color }}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Details */}
+            <div>
+              <div className="flex flex-wrap items-center gap-3">
+                <span
+                  className="rounded-[8px] bg-ink px-3.5 py-2 text-paper"
+                  style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1, letterSpacing: '.04em' }}
+                >
+                  № 26
+                </span>
+                <Badge className="rounded-full border-2 border-ink bg-brand-mint px-3 py-1 text-ink font-semibold">
+                  <span className="mr-1.5 inline-block size-2 rounded-full bg-ink" />
+                  Ships May 5, 2026
+                </Badge>
+                <Badge variant="outline" className="rounded-full border-2 border-ink px-3 py-1 text-ink font-semibold">
+                  Cityscape
+                </Badge>
+              </div>
+
+              <h1
+                className="mt-3.5 uppercase text-ink"
+                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px,6vw,96px)', lineHeight: '.86', letterSpacing: '-.01em' }}
+              >
+                Mailbox<br />row<br />+{' '}
+                <span className="inline-block text-brand-indigo" style={{ fontStyle: 'italic', transform: 'skew(-8deg)' }}>
+                  Postman
+                </span>{' '}Otto.
+              </h1>
+
+              <p className="mt-6 max-w-[48ch] text-[18px] leading-[1.62] text-ink/80">
+                A five-storey postwar apartment block in mint and cream, complete with a working mailbox door, three planted balconies, and the universe's first scheduled crossover — Otto's bus is the bus from drop №14.
+              </p>
+
+              {/* Spec grid */}
+              <div className="mt-8 overflow-hidden rounded-3xl border-2 border-ink">
+                <div className="grid grid-cols-2 sm:grid-cols-4">
+                  {[['312', 'Bricks'], ['2', 'Minifigs'], ['18', 'Stickers'], ['4–6h', 'Build time']].map(([val, label], i) => (
+                    <div key={i} className={`flex flex-col gap-1 bg-paper p-4 ${i < 3 ? 'border-r-0 sm:border-r-[1.5px] border-ink' : ''} ${i % 2 === 0 ? 'border-b-[1.5px] sm:border-b-0 border-ink' : ''}`} style={{ borderStyle: 'solid', borderColor: '#001B21' }}>
+                      <b style={{ fontFamily: 'var(--font-display)', fontSize: 36, lineHeight: 1 }}>{val}</b>
+                      <small className="font-mono text-[10px] tracking-[.16em] uppercase text-ink/55">{label}</small>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Buy box */}
+              <div id="buy" className="mt-8 rounded-3xl border-2 border-ink bg-ink p-7 text-paper shadow-[6px_6px_0_#001B21]">
+                <p className="font-mono text-[11px] tracking-[.18em] uppercase text-paper/70">⬢ Subscribe to receive</p>
+                <div className="mt-1 flex flex-wrap items-end justify-between gap-6">
+                  <div>
+                    <span style={{ fontFamily: 'var(--font-display)', fontSize: 64, lineHeight: '.9' }}>
+                      ${[14, 24, 42][activeTier]}
+                    </span>
+                    <small className="mt-1.5 block text-[14px] font-medium text-paper/70">per month, free shipping</small>
+                  </div>
+                  <div className="flex gap-2">
+                    <CountBox value={countdown.days} label="days" />
+                    <CountBox value={countdown.hrs} label="hrs" />
+                    <CountBox value={countdown.min} label="min" />
+                  </div>
+                </div>
+
+                {/* Tier picker */}
+                <div className="mt-4 flex gap-2 flex-wrap">
+                  {tiers.map((t, i) => (
+                    <button
+                      key={t.name}
+                      onClick={() => setActiveTier(i)}
+                      className={[
+                        'flex-1 min-w-[110px] rounded-[14px] border-2 p-3.5 text-left transition-all',
+                        activeTier === i
+                          ? 'border-brand-yellow bg-brand-yellow text-ink'
+                          : 'border-paper bg-transparent text-paper hover:bg-paper/10',
+                      ].join(' ')}
+                    >
+                      <b style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1, display: 'block' }}>{t.name}</b>
+                      <small className="mt-1 block font-mono text-[10px] tracking-[.14em] uppercase opacity-70">{t.price} · {t.spec}</small>
+                    </button>
+                  ))}
+                </div>
+
+                <Button
+                  asChild
+                  size="lg"
+                  className="mt-4 w-full justify-center rounded-full border-2 border-brand-yellow bg-brand-yellow text-[17px] font-bold text-ink hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.25)] transition-all"
+                >
+                  <a href="#">Subscribe & lock in drop №26 →</a>
+                </Button>
+
+                <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] tracking-[.16em] uppercase text-paper/85">
+                  {['Free shipping worldwide', 'Skip any month', 'Cancel any time'].map((s) => (
+                    <span key={s} className="flex items-center gap-1.5">
+                      <span className="size-2 rounded-full bg-brand-mint shadow-[0_0_0_2px_rgba(245,241,235,.5)]" />
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <p className="mt-4 text-center font-mono text-[11px] tracking-[.16em] uppercase text-ink/55">
+                Already a subscriber? Drop №26 is included in your May box.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── What's in the bag ── */}
+      <section className="border-b-2 border-ink bg-paper py-[120px]">
+        <div className="mx-auto max-w-[1320px] px-7">
+          <div className="mb-14 flex flex-wrap items-end justify-between gap-12">
+            <div>
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase">⬢ What's in the bag</p>
+              <h2 className="mt-3 uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px,6vw,88px)', lineHeight: '.9', letterSpacing: '-.01em' }}>
+                Four parts.<br />One mailbox row.
+              </h2>
+            </div>
+            <p className="max-w-[48ch] text-[17px] leading-[1.65] text-ink/75">
+              Tear the seal, scan the QR, and you'll find these four bagged sub-builds — each one a self-contained section of the model.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {bagContents.map((bag) => (
+              <Card
+                key={bag.num}
+                className="relative min-h-[260px] rounded-[20px] border-2 border-ink p-6 shadow-[6px_6px_0_#001B21]"
+                style={{ background: bag.bg }}
+              >
+                <CardContent className="flex flex-col gap-3.5 p-0">
+                  <Badge className="absolute right-4 top-4 rounded-full border-[1.5px] border-ink bg-paper px-2.5 py-1 font-mono text-[10px] tracking-[.14em] uppercase text-ink">
+                    Bag {bag.num}
+                  </Badge>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 54, lineHeight: 1, opacity: .5 }}>{bag.num}</div>
+                  <h4 className="uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: '.95' }}>
+                    {bag.label.split('\n').map((l, i) => <span key={i}>{l}<br /></span>)}
+                  </h4>
+                  <p className="text-[13px] leading-[1.5] text-ink/75">{bag.desc}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Story ── */}
+      <section className="border-b-2 border-ink bg-paper py-[120px]">
+        <div className="mx-auto max-w-[1320px] px-7">
+          <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
+            <div
+              className="relative h-[520px] overflow-hidden rounded-[32px] border-2 border-ink"
+              style={{
+                background: '#FB4903',
+                backgroundImage: 'radial-gradient(circle at 18px 18px, rgba(255,255,255,.14) 5px, transparent 6px)',
+                backgroundSize: '48px 48px',
+              }}
+            >
+              <div className="absolute inset-12 grid place-items-center rounded-3xl border-2 border-dashed border-paper/35 text-center font-mono text-[11px] tracking-[.18em] uppercase text-paper/55">
+                Editorial photo<br />Otto sketch + photo of finished build on a desk
+              </div>
+            </div>
+            <div>
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase">⬢ The story</p>
+              <h2 className="mt-3 uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,5vw,72px)', lineHeight: '.9', letterSpacing: '-.01em' }}>
+                Otto has been<br />delivering mail<br />since drop 14.
+              </h2>
+              <p className="mt-6 text-[17px] leading-[1.6] text-ink/80">
+                You may have spotted Otto first as the bus driver in our spring-2025 transit drop. He's been quietly background-fielding bus routes ever since — but in May 2026 we're giving him his own building.
+              </p>
+              <p className="mt-3.5 text-[17px] leading-[1.6] text-ink/80">
+                Mailbox Row is the first BRICKTIME drop with a designed crossover: the fixed brass hinge under the mailbox is the same pin used in Otto's bus from drop 14. Slot them together, and the whole street starts to make sense.
+              </p>
+              <div className="mt-8 flex items-center gap-4 border-t border-dashed border-ink/20 pt-6">
+                <Avatar className="size-[54px] border-2 border-ink">
+                  <AvatarFallback className="bg-brand-mint text-ink font-bold">MP</AvatarFallback>
+                </Avatar>
+                <div>
+                  <b className="text-[15px]">Designed by Marek Polčák</b>
+                  <small className="mt-0.5 block font-mono text-[11px] tracking-[.14em] uppercase text-ink/55">Senior brick designer · Vilnius studio</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Minifig ── */}
+      <section className="border-b-2 border-ink bg-paper py-[120px]">
+        <div className="mx-auto max-w-[1320px] px-7">
+          <div className="mb-12 flex flex-wrap items-end justify-between gap-12">
+            <div>
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase">⬢ Exclusive minifigs</p>
+              <h2 className="mt-3 uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px,6vw,88px)', lineHeight: '.9', letterSpacing: '-.01em' }}>
+                Two new<br />residents.
+              </h2>
+            </div>
+            <p className="max-w-[44ch] text-[17px] leading-[1.65] text-ink/75">
+              Numbered, never re-released, tradeable inside the BRICKTIME club. Otto comes with his satchel; Mrs. Petrov with a watering can and a tabby cat.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1fr_1.2fr]">
+            {/* Figcard */}
+            <div
+              className="relative grid h-[480px] place-items-center overflow-hidden rounded-3xl border-2 border-ink bg-ink p-12"
+              style={{
+                backgroundImage: 'linear-gradient(transparent 31px, rgba(245,241,235,.08) 32px), linear-gradient(90deg, transparent 31px, rgba(245,241,235,.08) 32px)',
+                backgroundSize: '32px 32px',
+              }}
+            >
+              <div className="absolute left-6 top-6 font-mono text-[11px] tracking-[.18em] uppercase text-paper/70">
+                № 26 / 1<br /><b className="text-brand-yellow">3,500 PRESSED</b>
+              </div>
+              <div className="absolute right-6 top-6 grid size-16 place-items-center rounded-full border-2 border-paper text-center font-mono text-[11px] text-ink"
+                style={{ background: 'linear-gradient(135deg,#FFAEE7,#FFD731,#5DDB9C,#4DA2FF)', lineHeight: '.95' }}>
+                EXCL.<br />MINIFIG
+              </div>
+              {/* Generic mail character — NOT a LEGO recreation */}
+              <div className="relative" style={{ width: 160, height: 240 }}>
+                <div className="absolute rounded-t-[8px] border-[3px] border-paper bg-brand-sky" style={{ left: 32, top: 0, width: 96, height: 36 }} />
+                <div className="absolute rounded border-[3px] border-paper bg-ink" style={{ left: 20, top: 32, width: 120, height: 10 }} />
+                <div className="absolute rounded-[10px] border-[3px] border-paper bg-brand-yellow" style={{ left: 40, top: 42, width: 80, height: 62 }} />
+                <div className="absolute size-2.5 rounded-full border-[3px] border-paper bg-paper" style={{ top: 64, left: 60 }} />
+                <div className="absolute size-2.5 rounded-full border-[3px] border-paper bg-paper" style={{ top: 64, left: 88 }} />
+                <div className="absolute rounded-b-[36px] border-[3px] border-t-0 border-paper" style={{ left: 62, top: 82, width: 36, height: 14 }} />
+                <div className="absolute rounded-[8px] border-[3px] border-paper bg-brand-sky" style={{ left: 34, top: 106, width: 92, height: 80 }} />
+                <div className="absolute grid place-items-center rounded border-[3px] border-ink bg-paper text-ink" style={{ left: 60, top: 128, width: 40, height: 24, fontFamily: 'var(--font-display)', fontSize: 14 }}>P</div>
+                <div className="absolute rounded-[6px] border-[3px] border-paper bg-ink" style={{ left: 44, top: 186, width: 36, height: 54 }} />
+                <div className="absolute rounded-[6px] border-[3px] border-paper bg-ink" style={{ left: 80, top: 186, width: 36, height: 54 }} />
+              </div>
+              <div className="absolute bottom-6 left-6 uppercase text-paper" style={{ fontFamily: 'var(--font-display)', fontSize: 32, lineHeight: '.95' }}>
+                <small className="mb-1.5 block font-mono text-[10px] tracking-[.16em] uppercase text-paper/60">Designed by guest artist Hanae Mori</small>
+                Postman Otto
+              </div>
+            </div>
+
+            {/* Kit list */}
+            <div>
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase">⬢ Otto's kit</p>
+              <h3 className="mt-3 max-w-[14ch] uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 48, lineHeight: '.9', letterSpacing: '-.01em' }}>
+                Mail satchel,<br />folding bike,<br />printed lanyard.
+              </h3>
+              <ul className="mt-8 flex flex-col gap-[18px]">
+                {[
+                  { title: 'Removable satchel piece', body: "First time we've used the new fabric-look ABS — the satchel actually flexes when Otto sits down." },
+                  { title: 'Folding bicycle (8 pieces)', body: "Designed to fit on the bus from drop 14. Otto can ride to work, or take the bus, or both." },
+                  { title: 'Hand-numbered base plate', body: "Each base is laser-numbered 1/3,500 to 3,500/3,500. Yours arrives with a random number, registered on the BRICKTIME ledger." },
+                ].map((item) => (
+                  <li key={item.title} className="flex items-start gap-3.5">
+                    <span className="mt-0.5 grid size-8 flex-none place-items-center rounded-full bg-ink font-bold text-paper text-sm">✓</span>
+                    <div>
+                      <b className="block text-[17px]">{item.title}</b>
+                      <span className="mt-1 block text-[14px] leading-[1.5] text-ink/70">{item.body}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Compatibility ── */}
+      <section className="border-b-2 border-ink bg-ink py-[120px] text-paper">
+        <div className="mx-auto max-w-[1320px] px-7">
+          <div className="mb-12 flex flex-wrap items-end justify-between gap-12">
+            <div>
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Universe map</p>
+              <h2 className="mt-3 uppercase text-paper" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px,6vw,88px)', lineHeight: '.9', letterSpacing: '-.01em' }}>
+                Slots into three<br />existing drops.
+              </h2>
+            </div>
+            <p className="max-w-[44ch] text-[17px] leading-[1.65] text-paper/85">
+              Every BRICKTIME drop is part of one growing universe. Mailbox Row connects directly with these previous drops via shared pins, scale, and color set.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            {compatibility.map((c) => (
+              <Card
+                key={c.drop}
+                className="flex flex-col gap-3.5 rounded-[20px] border-2 border-ink p-7 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px]"
+                style={{ background: c.bg, color: '#001B21' }}
+              >
+                <CardContent className="flex flex-col gap-3.5 p-0">
+                  <p className="font-mono text-[11px] tracking-[.18em] uppercase text-ink/50">{c.drop}</p>
+                  <h4 className="uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 28, lineHeight: '.95' }}>{c.title}</h4>
+                  <p className="text-[14px] leading-[1.5] text-ink/70">{c.desc}</p>
+                  <div className="mt-auto h-[100px] rounded-xl border-2 border-dashed border-black/20 bg-black/5 grid place-items-center font-mono text-[10px] tracking-[.14em] uppercase text-black/40">
+                    [ Connection diagram ]
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Reviews ── */}
+      <section className="border-b-2 border-ink bg-paper py-[120px]">
+        <div className="mx-auto max-w-[1320px] px-7">
+          <div className="mb-10 flex flex-wrap items-end justify-between gap-12">
+            <div>
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase">⬢ Early access reviews</p>
+              <h2 className="mt-3 uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px,6vw,88px)', lineHeight: '.9', letterSpacing: '-.01em' }}>
+                From the<br />preview build.
+              </h2>
+            </div>
+            <div className="flex flex-col items-end gap-1.5">
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 64, lineHeight: 1 }}>
+                4.92<span className="text-[24px] opacity-50">/5</span>
+              </div>
+              <small className="font-mono text-[11px] tracking-[.16em] uppercase text-ink/55">Based on 86 Mega-tier preview reviews</small>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {reviews.map((r, i) => (
+              <Card key={i} className="flex flex-col gap-3.5 rounded-[20px] border-2 border-ink bg-paper p-6 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21]">
+                <CardContent className="flex flex-col gap-3.5 p-0">
+                  <div className="text-[18px] tracking-[2px]" style={{ color: '#FB4903' }}>{r.stars}</div>
+                  <p className="uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 22, lineHeight: 1.05, letterSpacing: '.005em' }}>{r.quote}</p>
+                  <div className="mt-auto flex items-center gap-2.5 border-t border-dashed border-ink/18 pt-3">
+                    <Avatar className="size-9 border-2 border-ink">
+                      <AvatarFallback style={{ background: r.avatarColor }} className="text-[12px] font-bold text-ink">{r.initials}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <b className="text-[14px]">{r.name}</b>
+                      <small className="mt-0.5 block font-mono text-[10px] tracking-[.14em] uppercase text-ink/55">{r.meta}</small>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Prev / Next */}
+          <div className="mt-12 overflow-hidden rounded-3xl border-2 border-ink">
+            <div className="grid grid-cols-2">
+              <Link to="/drop/25" className="flex flex-col gap-1.5 bg-paper p-8 transition-colors hover:bg-brand-yellow">
+                <small className="font-mono text-[11px] tracking-[.16em] uppercase text-ink/55">← Previous · April 2026</small>
+                <b className="uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 32, lineHeight: '.95' }}>№ 25 — Greenhouse</b>
+              </Link>
+              <Link to="/drop/27" className="flex flex-col items-end gap-1.5 border-l-2 border-ink bg-paper p-8 text-right transition-colors hover:bg-brand-yellow">
+                <small className="font-mono text-[11px] tracking-[.16em] uppercase text-ink/55">Next · June 2026 →</small>
+                <b className="uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 32, lineHeight: '.95' }}>№ 27 — TBA</b>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
+    </>
+  )
+}

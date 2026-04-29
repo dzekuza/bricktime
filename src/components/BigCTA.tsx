@@ -1,0 +1,108 @@
+import { Button } from '@/components/ui/button'
+import { useReveal } from '@/hooks/useReveal'
+
+export default function BigCTA() {
+  const ref = useReveal<HTMLDivElement>()
+
+  return (
+    <section className="bg-paper py-20">
+      <div className="mx-auto max-w-[1320px] px-7">
+        {/*
+          Bento 12-col, 1 row:
+          [Urgency copy col-7] [CTA actions col-5]
+        */}
+        <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+
+          {/* Urgency copy — col-span-7 */}
+          <div
+            className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-10 shadow-[6px_6px_0_#001B21] lg:col-span-7"
+            style={{ background: '#FB4903', minHeight: 340 }}
+          >
+            <p className="font-mono text-[11px] tracking-[.24em] uppercase text-paper/70">⬢ Last call</p>
+            <div>
+              <h2
+                className="uppercase text-paper"
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 'clamp(52px, 6vw, 96px)',
+                  lineHeight: '.86',
+                  letterSpacing: '-.015em',
+                }}
+              >
+                Drop № 26
+                <br />
+                ships in{' '}
+                <span
+                  className="inline-block border-[3px] border-ink bg-brand-yellow px-[.15em] text-ink"
+                  style={{ transform: 'rotate(-2deg)' }}
+                >
+                  12 days
+                </span>
+              </h2>
+            </div>
+            <p className="mt-4 max-w-[44ch] text-[16px] leading-[1.65] text-paper/80">
+              Subscribe before May 1 to lock in the next drop. After that, you're on the waitlist.
+            </p>
+          </div>
+
+          {/* CTA actions — col-span-5 */}
+          <div
+            className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-10 shadow-[6px_6px_0_rgba(245,241,235,.08)] lg:col-span-5"
+            style={{ background: '#001B21', minHeight: 340 }}
+          >
+            <div>
+              <p className="font-mono text-[10px] tracking-[.22em] uppercase text-paper/50 mb-4">
+                Secure your spot
+              </p>
+              <div
+                className="text-paper"
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 'clamp(28px, 3vw, 48px)',
+                  lineHeight: '.9',
+                }}
+              >
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="text-brand-yellow">Mini</span>
+                  <span className="text-paper/40 text-2xl">—</span>
+                  <span>$14/mo</span>
+                </div>
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="text-brand-yellow">Standard</span>
+                  <span className="text-paper/40 text-2xl">—</span>
+                  <span>$24/mo</span>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-brand-yellow">Mega</span>
+                  <span className="text-paper/40 text-2xl">—</span>
+                  <span>$42/mo</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 mt-6">
+              <Button
+                asChild
+                size="lg"
+                className="w-full rounded-full border-2 border-paper/30 bg-brand-yellow text-ink font-bold text-[16px] hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.2)] transition-all"
+              >
+                <a href="#plans">Start subscription →</a>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="w-full rounded-full border-2 border-paper/30 bg-transparent text-paper text-[15px] font-semibold hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all"
+              >
+                <a href="/drop">Preview drop № 26</a>
+              </Button>
+              <p className="text-center font-mono text-[10px] tracking-[.1em] uppercase text-paper/35 mt-1">
+                Cancel any time · Free shipping
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
