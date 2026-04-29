@@ -282,11 +282,15 @@ export default function Drop() {
                       : 'border-paper/40 bg-paper/10 text-paper/60 cursor-not-allowed',
                   ].join(' ')}
                 >
-                  <a href="#">
-                    {activeTier >= DROP_REQUIRED_TIER
-                      ? `Rent with ${tiers[activeTier].name} →`
-                      : `🔒 Requires ${tiers[DROP_REQUIRED_TIER].name}+`}
-                  </a>
+                  {activeTier >= DROP_REQUIRED_TIER ? (
+                    <Link to={`/checkout?drop=26&tier=${tiers[activeTier].name.toLowerCase()}`}>
+                      Rent with {tiers[activeTier].name} →
+                    </Link>
+                  ) : (
+                    <Link to={`/subscribe?plan=${tiers[DROP_REQUIRED_TIER].name.toLowerCase()}`}>
+                      🔒 Requires {tiers[DROP_REQUIRED_TIER].name}+
+                    </Link>
+                  )}
                 </Button>
 
                 <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] tracking-[.16em] uppercase text-paper/70">

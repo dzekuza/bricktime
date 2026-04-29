@@ -131,7 +131,7 @@ function DropCard({ drop, featured = false }: { drop: Drop; featured?: boolean }
 
   return (
     <Link
-      to={`/drop/${drop.num}`}
+      to={`/checkout?drop=${drop.num}&tier=${drop.requiredTier}`}
       className={[
         'group flex flex-col overflow-hidden rounded-3xl border-2 border-ink bg-paper text-ink no-underline',
         'transition-all hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[8px_8px_0_#001B21]',
@@ -194,12 +194,12 @@ function DropCard({ drop, featured = false }: { drop: Drop; featured?: boolean }
           )}
         </div>
 
-        {/* Footer action */}
+        {/* Footer action — clicking the card goes to drop detail; this is the visual CTA */}
         <div
           className="mt-auto flex items-center justify-between rounded-2xl border-2 border-ink px-4 py-3 text-[13px] font-bold transition-all group-hover:shadow-[4px_4px_0_#001B21]"
           style={{ background: tier.bg, color: tier.textColor }}
         >
-          <span>Rent with {tier.label}</span>
+          <span>Rent with {tier.label}+</span>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: 22 }}>→</span>
         </div>
       </div>

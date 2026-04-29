@@ -6,7 +6,7 @@ const links = [
   { label: 'Products', to: '/archive' },
   { label: 'This Month', to: '/drop' },
   { label: 'Plans', to: '/plans' },
-  { label: 'FAQ', to: '/#faq' },
+  { label: 'Account', to: '/account' },
 ]
 
 export default function Nav() {
@@ -55,7 +55,7 @@ export default function Nav() {
           size="sm"
           className="rounded-full border-2 border-ink bg-ink text-paper font-bold hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#001B21] transition-all"
         >
-          <Link to="/#plans">Subscribe →</Link>
+          <Link to="/subscribe">Subscribe →</Link>
         </Button>
       </div>
     </nav>
