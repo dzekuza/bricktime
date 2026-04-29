@@ -57,10 +57,15 @@ const reviews = [
   { stars: '★★★★☆', quote: '"Build is great. Sticker sheet is generous. Wish there was a third minifig — that\'s my one nit."', name: 'Theo W.', meta: 'Mega · 22 months', avatarColor: '#4DA2FF', initials: 'TW' },
 ]
 
+// Drop 26 requires Standard tier or above
+const DROP_REQUIRED_TIER = 2 // index into tiers[]
+
 const tiers = [
-  { name: 'Mini', price: '$14', spec: '120-180 bricks' },
-  { name: 'Standard', price: '$24', spec: '240-320 bricks' },
-  { name: 'Mega', price: '$42', spec: '400-520 bricks' },
+  { name: 'Nano',     price: 9,  annualPrice: 7,  spec: '60–90 bricks',    bg: '#F5F1EB', textColor: '#001B21' },
+  { name: 'Mini',     price: 14, annualPrice: 11, spec: '120–180 bricks',  bg: '#FFAEE7', textColor: '#001B21' },
+  { name: 'Standard', price: 24, annualPrice: 19, spec: '240–320 bricks',  bg: '#FFD731', textColor: '#001B21' },
+  { name: 'Pro',      price: 35, annualPrice: 28, spec: '340–400 bricks',  bg: '#4DA2FF', textColor: '#001B21' },
+  { name: 'Mega',     price: 55, annualPrice: 44, spec: '420–520 bricks',  bg: '#FB4903', textColor: '#F5F1EB' },
 ]
 
 const thumbs = [
@@ -94,7 +99,7 @@ export default function Drop() {
           <div className="mb-8 flex items-center gap-2.5 font-mono text-[11px] tracking-[.18em] uppercase text-ink/55">
             <Link to="/" className="hover:text-ink transition-colors">BRICKTIME</Link>
             <span className="text-ink/30">/</span>
-            <Link to="/archive" className="hover:text-ink transition-colors">Archive</Link>
+            <Link to="/archive" className="hover:text-ink transition-colors">Products</Link>
             <span className="text-ink/30">/</span>
             <span className="font-bold text-ink">Drop №26 — Mailbox Row</span>
           </div>
@@ -201,51 +206,90 @@ export default function Drop() {
                 </div>
               </div>
 
-              {/* Buy box */}
+              {/* Rent box */}
               <div id="buy" className="mt-8 rounded-3xl border-2 border-ink bg-ink p-7 text-paper shadow-[6px_6px_0_#001B21]">
-                <p className="font-mono text-[11px] tracking-[.18em] uppercase text-paper/70">⬢ Subscribe to receive</p>
-                <div className="mt-1 flex flex-wrap items-end justify-between gap-6">
+                <div className="flex items-start justify-between gap-4">
                   <div>
-                    <span style={{ fontFamily: 'var(--font-display)', fontSize: 64, lineHeight: '.9' }}>
-                      ${[14, 24, 42][activeTier]}
-                    </span>
-                    <small className="mt-1.5 block text-[14px] font-medium text-paper/70">per month, free shipping</small>
+                    <p className="font-mono text-[11px] tracking-[.18em] uppercase text-paper/60">⬢ Rent this drop</p>
+                    <div className="mt-1 flex items-baseline gap-2">
+                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 64, lineHeight: '.9' }}>
+                        ${tiers[activeTier].price}
+                      </span>
+                      <span className="font-mono text-[12px] tracking-[.06em] uppercase text-paper/50">/mo</span>
+                    </div>
+                    <small className="mt-1 block text-[13px] text-paper/60">
+                      {activeTier < DROP_REQUIRED_TIER
+                        ? `Upgrade to ${tiers[DROP_REQUIRED_TIER].name}+ to unlock`
+                        : 'Drop №26 included in your monthly box'}
+                    </small>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 shrink-0">
                     <CountBox value={countdown.days} label="days" />
                     <CountBox value={countdown.hrs} label="hrs" />
                     <CountBox value={countdown.min} label="min" />
                   </div>
                 </div>
 
-                {/* Tier picker */}
-                <div className="mt-4 flex gap-2 flex-wrap">
-                  {tiers.map((t, i) => (
-                    <button
-                      key={t.name}
-                      onClick={() => setActiveTier(i)}
-                      className={[
-                        'flex-1 min-w-[110px] rounded-[14px] border-2 p-3.5 text-left transition-all',
-                        activeTier === i
-                          ? 'border-brand-yellow bg-brand-yellow text-ink'
-                          : 'border-paper bg-transparent text-paper hover:bg-paper/10',
-                      ].join(' ')}
-                    >
-                      <b style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1, display: 'block' }}>{t.name}</b>
-                      <small className="mt-1 block font-mono text-[10px] tracking-[.14em] uppercase opacity-70">{t.price} · {t.spec}</small>
-                    </button>
-                  ))}
+                {/* Tier picker — all 5 tiers, locked below required */}
+                <div className="mt-5 grid grid-cols-5 gap-1.5">
+                  {tiers.map((t, i) => {
+                    const locked = i < DROP_REQUIRED_TIER
+                    const active = activeTier === i
+                    return (
+                      <button
+                        key={t.name}
+                        onClick={() => setActiveTier(i)}
+                        disabled={false}
+                        className={[
+                          'relative rounded-2xl border-2 p-3 text-left transition-all',
+                          active ? 'border-brand-yellow scale-[1.03] shadow-[4px_4px_0_rgba(245,241,235,.2)]' : 'border-paper/30 hover:border-paper/70',
+                          locked ? 'opacity-40' : '',
+                        ].join(' ')}
+                        style={{ background: active ? t.bg : 'transparent' }}
+                      >
+                        {locked && (
+                          <span className="absolute right-2 top-2 text-[9px] opacity-60">🔒</span>
+                        )}
+                        <b
+                          className="block"
+                          style={{
+                            fontFamily: 'var(--font-display)',
+                            fontSize: 16,
+                            lineHeight: 1,
+                            color: active ? t.textColor : '#F5F1EB',
+                          }}
+                        >
+                          {t.name}
+                        </b>
+                        <small
+                          className="mt-1 block font-mono text-[9px] tracking-[.1em] uppercase"
+                          style={{ color: active ? `${t.textColor}90` : 'rgba(245,241,235,.45)' }}
+                        >
+                          ${t.price}/mo
+                        </small>
+                      </button>
+                    )
+                  })}
                 </div>
 
                 <Button
                   asChild
                   size="lg"
-                  className="mt-4 w-full justify-center rounded-full border-2 border-brand-yellow bg-brand-yellow text-[17px] font-bold text-ink hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.25)] transition-all"
+                  className={[
+                    'mt-5 w-full justify-center rounded-full border-2 text-[16px] font-bold transition-all',
+                    activeTier >= DROP_REQUIRED_TIER
+                      ? 'border-brand-yellow bg-brand-yellow text-ink hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.25)]'
+                      : 'border-paper/40 bg-paper/10 text-paper/60 cursor-not-allowed',
+                  ].join(' ')}
                 >
-                  <a href="#">Subscribe & lock in drop №26 →</a>
+                  <a href="#">
+                    {activeTier >= DROP_REQUIRED_TIER
+                      ? `Rent with ${tiers[activeTier].name} →`
+                      : `🔒 Requires ${tiers[DROP_REQUIRED_TIER].name}+`}
+                  </a>
                 </Button>
 
-                <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] tracking-[.16em] uppercase text-paper/85">
+                <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] tracking-[.16em] uppercase text-paper/70">
                   {['Free shipping worldwide', 'Skip any month', 'Cancel any time'].map((s) => (
                     <span key={s} className="flex items-center gap-1.5">
                       <span className="size-2 rounded-full bg-brand-mint shadow-[0_0_0_2px_rgba(245,241,235,.5)]" />

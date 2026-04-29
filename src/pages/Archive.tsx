@@ -5,6 +5,8 @@ import Footer from '@/components/Footer'
 import { Button } from '@/components/ui/button'
 
 // ── types ──────────────────────────────────────────────────────────────────
+type Tier = 'nano' | 'mini' | 'standard' | 'pro' | 'mega'
+
 interface Drop {
   num: number
   title: string
@@ -21,22 +23,32 @@ interface Drop {
   featured?: boolean
   brickColors: string[]
   brickHeights: number[]
+  requiredTier: Tier
+}
+
+// ── tier config ────────────────────────────────────────────────────────────
+const tierConfig: Record<Tier, { label: string; bg: string; textColor: string; level: number }> = {
+  nano:     { label: 'Nano',     bg: '#F5F1EB', textColor: '#001B21', level: 1 },
+  mini:     { label: 'Mini',     bg: '#FFAEE7', textColor: '#001B21', level: 2 },
+  standard: { label: 'Standard', bg: '#FFD731', textColor: '#001B21', level: 3 },
+  pro:      { label: 'Pro',      bg: '#4DA2FF', textColor: '#001B21', level: 4 },
+  mega:     { label: 'Mega',     bg: '#FB4903', textColor: '#F5F1EB', level: 5 },
 }
 
 // ── data ───────────────────────────────────────────────────────────────────
 const drops: Drop[] = [
-  { num: 26, title: 'Mailbox row', subtitle: '+ Postman Otto', date: 'May 2026 · ships May 5', category: 'Cityscape', year: 2026, bricks: 312, minifigs: '2 minifigs', rating: undefined, bg: '#5C4ADE', stamp: 'this-month', stampLabel: 'This month', featured: true, brickColors: ['#FB4903','#F5F1EB','#FFD731','#5DDB9C','#FFAEE7','#4DA2FF','#FB4903'], brickHeights: [46,130,80,170,60,96,48] },
-  { num: 25, title: 'The greenhouse', subtitle: '+ Botanist Iris', date: 'April 2026', category: 'Nature', year: 2026, bricks: 268, minifigs: '1 minifig', rating: '★★★★★ 4.92', bg: '#5DDB9C', brickColors: ['#F5F1EB','#5DDB9C','#FB4903','#FFAEE7'], brickHeights: [60,42,28,36] },
-  { num: 24, title: 'Donut diner', subtitle: '+ Chef Margo', date: 'March 2026', category: 'Cityscape', year: 2026, bricks: 295, minifigs: '2 minifigs', rating: '★★★★★ 4.89', bg: '#FFAEE7', stamp: 'sold-out', stampLabel: 'Sold out', brickColors: ['#FB4903','#F5F1EB','#FFD731','#001B21'], brickHeights: [46,36,50,28] },
-  { num: 23, title: 'Pocket sub', subtitle: '+ Captain Reef', date: 'February 2026', category: 'Vehicles', year: 2026, bricks: 248, minifigs: '1 minifig + variant', rating: '★★★★★ 4.78', bg: '#FFD731', brickColors: ['#4DA2FF','#001B21','#FB4903','#F5F1EB','#5C4ADE'], brickHeights: [40,32,36,24,48] },
-  { num: 22, title: 'Lander №7', subtitle: '+ Astronaut Kai', date: 'January 2026', category: 'Sci-fi', year: 2026, bricks: 274, minifigs: '1 minifig', rating: '★★★★★ 4.84', bg: '#FB4903', brickColors: ['#F5F1EB','#001B21','#FFD731','#5DDB9C'], brickHeights: [52,30,38,46] },
-  { num: 21, title: 'Lighthouse', subtitle: '+ Keeper Anya', date: 'December 2025', category: 'Cityscape', year: 2025, bricks: 292, minifigs: '2 minifigs', rating: '★★★★★ 4.96', bg: '#4DA2FF', brickColors: ['#F5F1EB','#FB4903','#001B21','#FFD731'], brickHeights: [80,24,36,40] },
-  { num: 20, title: 'The big wheel', subtitle: '+ Ringmaster Max', date: 'November 2025', category: 'Cityscape', year: 2025, bricks: 412, minifigs: '3 minifigs', rating: '★★★★★ 4.99', bg: '#001B21', stamp: 'anniv', stampLabel: 'Anniv. edition', brickColors: ['#FB4903','#5DDB9C','#FFAEE7','#FFD731','#4DA2FF'], brickHeights: [44,64,36,50,30] },
-  { num: 19, title: 'Field tractor', subtitle: '+ Farmer Lou', date: 'October 2025', category: 'Vehicles', year: 2025, bricks: 222, minifigs: '1 minifig', rating: '★★★★ 4.61', bg: '#5DDB9C', brickColors: ['#FB4903','#001B21','#F5F1EB'], brickHeights: [38,34,24] },
-  { num: 18, title: 'Record shop', subtitle: '+ DJ Petra', date: 'September 2025', category: 'Cityscape', year: 2025, bricks: 264, minifigs: '1 minifig', rating: '★★★★★ 4.81', bg: '#FFAEE7', brickColors: ['#001B21','#FFD731','#FB4903','#F5F1EB'], brickHeights: [60,30,46,26] },
+  { num: 26, title: 'Mailbox row', subtitle: '+ Postman Otto', date: 'May 2026 · ships May 5', category: 'Cityscape', year: 2026, bricks: 312, minifigs: '2 minifigs', rating: undefined, bg: '#5C4ADE', stamp: 'this-month', stampLabel: 'This month', featured: true, brickColors: ['#FB4903','#F5F1EB','#FFD731','#5DDB9C','#FFAEE7','#4DA2FF','#FB4903'], brickHeights: [46,130,80,170,60,96,48], requiredTier: 'standard' },
+  { num: 25, title: 'The greenhouse', subtitle: '+ Botanist Iris', date: 'April 2026', category: 'Nature', year: 2026, bricks: 268, minifigs: '1 minifig', rating: '★★★★★ 4.92', bg: '#5DDB9C', brickColors: ['#F5F1EB','#5DDB9C','#FB4903','#FFAEE7'], brickHeights: [60,42,28,36], requiredTier: 'mini' },
+  { num: 24, title: 'Donut diner', subtitle: '+ Chef Margo', date: 'March 2026', category: 'Cityscape', year: 2026, bricks: 295, minifigs: '2 minifigs', rating: '★★★★★ 4.89', bg: '#FFAEE7', stamp: 'sold-out', stampLabel: 'Sold out', brickColors: ['#FB4903','#F5F1EB','#FFD731','#001B21'], brickHeights: [46,36,50,28], requiredTier: 'standard' },
+  { num: 23, title: 'Pocket sub', subtitle: '+ Captain Reef', date: 'February 2026', category: 'Vehicles', year: 2026, bricks: 248, minifigs: '1 minifig + variant', rating: '★★★★★ 4.78', bg: '#FFD731', brickColors: ['#4DA2FF','#001B21','#FB4903','#F5F1EB','#5C4ADE'], brickHeights: [40,32,36,24,48], requiredTier: 'mini' },
+  { num: 22, title: 'Lander №7', subtitle: '+ Astronaut Kai', date: 'January 2026', category: 'Sci-fi', year: 2026, bricks: 274, minifigs: '1 minifig', rating: '★★★★★ 4.84', bg: '#FB4903', brickColors: ['#F5F1EB','#001B21','#FFD731','#5DDB9C'], brickHeights: [52,30,38,46], requiredTier: 'pro' },
+  { num: 21, title: 'Lighthouse', subtitle: '+ Keeper Anya', date: 'December 2025', category: 'Cityscape', year: 2025, bricks: 292, minifigs: '2 minifigs', rating: '★★★★★ 4.96', bg: '#4DA2FF', brickColors: ['#F5F1EB','#FB4903','#001B21','#FFD731'], brickHeights: [80,24,36,40], requiredTier: 'standard' },
+  { num: 20, title: 'The big wheel', subtitle: '+ Ringmaster Max', date: 'November 2025', category: 'Cityscape', year: 2025, bricks: 412, minifigs: '3 minifigs', rating: '★★★★★ 4.99', bg: '#001B21', stamp: 'anniv', stampLabel: 'Anniv. edition', brickColors: ['#FB4903','#5DDB9C','#FFAEE7','#FFD731','#4DA2FF'], brickHeights: [44,64,36,50,30], requiredTier: 'mega' },
+  { num: 19, title: 'Field tractor', subtitle: '+ Farmer Lou', date: 'October 2025', category: 'Vehicles', year: 2025, bricks: 222, minifigs: '1 minifig', rating: '★★★★ 4.61', bg: '#5DDB9C', brickColors: ['#FB4903','#001B21','#F5F1EB'], brickHeights: [38,34,24], requiredTier: 'nano' },
+  { num: 18, title: 'Record shop', subtitle: '+ DJ Petra', date: 'September 2025', category: 'Cityscape', year: 2025, bricks: 264, minifigs: '1 minifig', rating: '★★★★★ 4.81', bg: '#FFAEE7', brickColors: ['#001B21','#FFD731','#FB4903','#F5F1EB'], brickHeights: [60,30,46,26], requiredTier: 'mini' },
 ]
 
-const filters = ['All drops', '2026', '2025', '2024', 'Vehicles', 'Cityscape', 'Sci-fi', 'Nature']
+const filters = ['All', 'Nano+', 'Mini+', 'Standard+', 'Pro+', 'Mega only', '2026', '2025', 'Vehicles', 'Cityscape', 'Sci-fi', 'Nature']
 
 const timelineMonths = [
   { label: 'Mar', year: "'24", status: 'done' }, { label: 'Apr', year: "'24", status: 'done' },
@@ -97,11 +109,25 @@ function StudBg({ color, children, className = '' }: { color: string; children: 
   )
 }
 
+function TierBadge({ tier }: { tier: Tier }) {
+  const t = tierConfig[tier]
+  const isTop = tier === 'mega'
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink px-3 py-1 font-mono text-[10px] tracking-[.12em] uppercase font-bold"
+      style={{ background: t.bg, color: t.textColor }}
+    >
+      {isTop ? '🔒 ' : ''}{t.label}{isTop ? ' only' : '+'}
+    </span>
+  )
+}
+
 function DropCard({ drop, featured = false }: { drop: Drop; featured?: boolean }) {
   const stampBg = drop.stamp === 'this-month' ? '#FFD731' : drop.stamp === 'sold-out' ? '#001B21' : '#FB4903'
   const stampColor = drop.stamp === 'this-month' ? '#001B21' : '#F5F1EB'
   const cornerBg = drop.bg === '#001B21' ? '#FFD731' : '#001B21'
   const cornerColor = drop.bg === '#001B21' ? '#001B21' : '#F5F1EB'
+  const tier = tierConfig[drop.requiredTier]
 
   return (
     <Link
@@ -152,8 +178,11 @@ function DropCard({ drop, featured = false }: { drop: Drop; featured?: boolean }
             ? 'Five-storey apartment block with a working mailbox door, three balconies, and the first crossover with drop 14. Postman Otto is numbered 1/3,500.'
             : `${drop.bricks} bricks · ${drop.minifigs}${drop.rating ? ` · ${drop.rating}` : ''}`}
         </p>
-        <div className="flex flex-wrap gap-2 mt-1">
-          {[`⬢ ${drop.bricks} bricks`, `⬢ ${drop.minifigs}`].map((s) => (
+
+        {/* Tier + chips row */}
+        <div className="flex flex-wrap items-center gap-2 mt-1">
+          <TierBadge tier={drop.requiredTier} />
+          {[`⬢ ${drop.bricks} bricks`].map((s) => (
             <span key={s} className="rounded-full border-[1.5px] border-ink px-2.5 py-1 font-mono text-[10px] tracking-[.14em] uppercase text-ink">
               {s}
             </span>
@@ -164,9 +193,14 @@ function DropCard({ drop, featured = false }: { drop: Drop; featured?: boolean }
             </span>
           )}
         </div>
-        <div className="mt-auto flex items-center justify-between border-t border-dashed border-ink/20 pt-3.5 text-[14px] font-bold">
-          <span>{featured ? 'Open drop №26' : 'View drop'}</span>
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 24 }}>→</span>
+
+        {/* Footer action */}
+        <div
+          className="mt-auto flex items-center justify-between rounded-2xl border-2 border-ink px-4 py-3 text-[13px] font-bold transition-all group-hover:shadow-[4px_4px_0_#001B21]"
+          style={{ background: tier.bg, color: tier.textColor }}
+        >
+          <span>Rent with {tier.label}</span>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 22 }}>→</span>
         </div>
       </div>
     </Link>
@@ -177,8 +211,14 @@ function DropCard({ drop, featured = false }: { drop: Drop; featured?: boolean }
 export default function Archive() {
   const [activeFilter, setActiveFilter] = useState('All drops')
 
+  const tierOrder: Tier[] = ['nano', 'mini', 'standard', 'pro', 'mega']
   const filteredDrops = drops.filter((d) => {
-    if (activeFilter === 'All drops') return true
+    if (activeFilter === 'All') return true
+    if (activeFilter === 'Mega only') return d.requiredTier === 'mega'
+    if (activeFilter.endsWith('+')) {
+      const tierName = activeFilter.replace('+', '').toLowerCase() as Tier
+      return tierOrder.indexOf(d.requiredTier) >= tierOrder.indexOf(tierName)
+    }
     if (['2024', '2025', '2026'].includes(activeFilter)) return d.year === Number(activeFilter)
     return d.category === activeFilter
   })
