@@ -226,7 +226,7 @@ export default function Hero() {
           <Button
             asChild
             size="lg"
-            className="rounded-full border-2 border-ink bg-brand-yellow text-ink font-bold text-[16px] hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21] transition-all"
+            className="rounded-full border-2 border-ink bg-brand-yellow text-ink font-bold text-[16px] hover:bg-brand-yellow hover:text-ink hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21] transition-all"
           >
             <a href="#plans">Pradėti prenumeratą →</a>
           </Button>
@@ -234,7 +234,7 @@ export default function Hero() {
             asChild
             variant="outline"
             size="lg"
-            className="rounded-full border-2 border-ink bg-transparent text-ink text-[16px] font-bold hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21] transition-all"
+            className="rounded-full border-2 border-ink bg-transparent text-ink text-[16px] font-bold hover:bg-transparent hover:text-ink hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21] transition-all"
           >
             <a href="/archive">Žiūrėti ankstesnius produktus</a>
           </Button>

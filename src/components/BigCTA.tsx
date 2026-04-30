@@ -110,7 +110,7 @@ export default function BigCTA() {
               <Button
                 asChild
                 size="lg"
-                className="w-full rounded-full border-2 border-paper/30 bg-brand-yellow text-ink font-bold text-[16px] hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.2)] transition-all"
+                className="w-full rounded-full border-2 border-paper/30 bg-brand-yellow text-ink font-bold text-[16px] hover:bg-brand-yellow hover:text-ink hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.2)] transition-all"
               >
                 <a href="#plans">Pradėti prenumeratą →</a>
               </Button>
@@ -118,7 +118,7 @@ export default function BigCTA() {
                 asChild
                 variant="outline"
                 size="lg"
-                className="w-full rounded-full border-2 border-paper/30 bg-transparent text-paper text-[15px] font-semibold hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all"
+                className="w-full rounded-full border-2 border-paper/30 bg-transparent text-paper text-[15px] font-semibold hover:bg-transparent hover:text-paper hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all"
               >
                 <a href="/drop">Peržiūrėti produktą № 26</a>
               </Button>
