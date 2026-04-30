@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import gsap from 'gsap'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -14,63 +15,97 @@ interface Plan {
   accentColor: string
   ctaBg: string
   ctaText: string
+  gridClass: string
 }
 
 const plans: Plan[] = [
   {
-    name: 'Mini',
-    price: '$14',
-    cta: 'Start with Mini',
+    name: 'Nano',
+    price: '$9',
+    cta: 'Pradėti su Nano',
     bg: '#F5F1EB',
     textColor: '#001B21',
     accentColor: '#5DDB9C',
     ctaBg: '#001B21',
     ctaText: '#F5F1EB',
+    gridClass: 'lg:col-span-3',
     perks: [
-      '120–180 bricks per drop',
-      '1 exclusive minifig',
-      'Build card + 8 stickers',
-      'Free standard shipping',
+      '60–90 kaladėlių per produktą',
+      'Surinkimo kortelė',
+      '4 vinilo lipdukai',
+      'Nemokamas standartinis pristatymas',
+    ],
+  },
+  {
+    name: 'Mini',
+    price: '$14',
+    cta: 'Pradėti su Mini',
+    bg: '#FFAEE7',
+    textColor: '#001B21',
+    accentColor: '#001B21',
+    ctaBg: '#001B21',
+    ctaText: '#F5F1EB',
+    gridClass: 'lg:col-span-3',
+    perks: [
+      '120–180 kaladėlių per produktą',
+      '1 išskirtinis miniukas',
+      'Surinkimo kortelė + 8 lipdukų',
+      'Nemokamas standartinis pristatymas',
     ],
   },
   {
     name: 'Standard',
     price: '$24',
-    cta: 'Start with Standard',
-    featured: true,
+    cta: 'Pradėti su Standard',
     bg: '#FFD731',
     textColor: '#001B21',
     accentColor: '#001B21',
     ctaBg: '#001B21',
     ctaText: '#F5F1EB',
+    gridClass: 'lg:col-span-3',
     perks: [
-      '240–320 bricks per drop',
-      '2 exclusive minifigs',
-      'Build card + 16 stickers',
-      'Trade-club access',
-      'Free expedited shipping',
+      '240–320 kaladėlių per produktą',
+      '2 išskirtiniai miniukai',
+      'Surinkimo kortelė + 16 lipdukų',
+      'Keitimų klubo prieiga',
+      'Nemokamas skubus pristatymas',
+    ],
+  },
+  {
+    name: 'Pro',
+    price: '$35',
+    cta: 'Pradėti su Pro',
+    bg: '#4DA2FF',
+    textColor: '#001B21',
+    accentColor: '#001B21',
+    ctaBg: '#001B21',
+    ctaText: '#F5F1EB',
+    gridClass: 'lg:col-span-3',
+    perks: [
+      '340–400 kaladėlių per produktą',
+      '2 miniukai + alternatyvi spalva',
+      'Ankstyva prieiga prie produktų',
+      'Nemokamas skubus pristatymas',
     ],
   },
   {
     name: 'Mega',
-    price: '$42',
-    cta: 'Start with Mega',
+    price: '$55',
+    cta: 'Pradėti su Mega',
     bg: '#FB4903',
     textColor: '#F5F1EB',
     accentColor: '#FFD731',
     ctaBg: '#F5F1EB',
     ctaText: '#001B21',
+    gridClass: 'lg:col-span-3',
     perks: [
-      '400–520 bricks per drop',
-      '3 exclusive minifigs + variant',
-      'Hardcover build book',
-      'Early access drops',
-      'Annual surprise box',
+      '420–520 kaladėlių per produktą',
+      '3 miniukai + retas variantas',
+      'Kietu viršeliu surinkimo knyga',
+      'Metinė siurprizų dėžutė',
     ],
   },
 ]
-
-const colSpans = ['lg:col-span-3', 'lg:col-span-6', 'lg:col-span-3']
 
 function onCardEnter(e: React.MouseEvent<HTMLDivElement>) {
   gsap.killTweensOf(e.currentTarget.querySelector('.plan-price'))
@@ -87,15 +122,20 @@ function onCardLeave(e: React.MouseEvent<HTMLDivElement>) {
 
 export default function Plans() {
   const ref = useReveal<HTMLDivElement>()
+  const spanRef = useRef<HTMLSpanElement>(null)
+
+  function onSpanEnter() {
+    gsap.killTweensOf(spanRef.current)
+    gsap.to(spanRef.current, { rotate: 4, scale: 1.12, boxShadow: '8px 8px 0 #001B21', duration: 0.22, ease: 'back.out(2.5)' })
+  }
+  function onSpanLeave() {
+    gsap.killTweensOf(spanRef.current)
+    gsap.to(spanRef.current, { rotate: -1.5, scale: 1, boxShadow: '0px 0px 0 #001B21', duration: 0.28, ease: 'elastic.out(1, 0.55)' })
+  }
 
   return (
     <section id="plans" className="bg-ink py-20">
       <div className="mx-auto max-w-[1320px] px-7">
-        {/*
-          Bento 12-col, 2 rows:
-          [Label col-4] [Tagline col-8]
-          [Mini col-3] [Standard col-6] [Mega col-3]
-        */}
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
           {/* Tagline tile — full width */}
@@ -112,15 +152,18 @@ export default function Plans() {
                 letterSpacing: '-.015em',
               }}
             >
-              Plans for every
+              Planai kiekvienai
               <br />
               <span
+                ref={spanRef}
                 className="inline-block border-[3px] border-ink bg-[#FB4903] px-[.12em] text-paper shadow-[5px_5px_0_rgba(0,27,33,.15)]"
-                style={{ transform: 'rotate(-1.5deg)' }}
+                style={{ transform: 'rotate(-1.5deg)', transformOrigin: 'center' }}
+                onMouseEnter={onSpanEnter}
+                onMouseLeave={onSpanLeave}
               >
-                desk-shelf
+                lentynų
               </span>{' '}
-              situation.
+              situacijai.
             </h2>
             <div
               className="hidden shrink-0 text-ink/20 lg:block select-none"
@@ -130,15 +173,13 @@ export default function Plans() {
             </div>
           </div>
 
-          {/* Plan cards row */}
+          {/* Plan cards row — full width, overlapping */}
+          <div className="lg:col-span-12 flex flex-col lg:flex-row lg:-space-x-4">
           {plans.map((plan, i) => (
             <div
               key={plan.name}
-              className={[
-                'reveal relative flex flex-col justify-between rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_rgba(245,241,235,.2)]',
-                colSpans[i],
-              ].join(' ')}
-              style={{ background: plan.bg, transitionDelay: `${i * 100}ms`, minHeight: 360 }}
+              className="reveal relative flex flex-col justify-between rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all duration-200 hover:-translate-y-3 hover:z-10 flex-1"
+              style={{ background: plan.bg, transitionDelay: `${i * 80}ms`, minHeight: 420, zIndex: i + 1 }}
               onMouseEnter={onCardEnter}
               onMouseLeave={onCardLeave}
             >
@@ -147,7 +188,7 @@ export default function Plans() {
                   className="absolute -top-4 right-6 rotate-2 rounded border-2 border-ink px-3 py-1 font-mono text-[11px] tracking-[.08em] uppercase"
                   style={{ background: '#001B21', color: '#F5F1EB' }}
                 >
-                  Most popular
+                  Populiariausias
                 </Badge>
               )}
 
@@ -157,7 +198,7 @@ export default function Plans() {
                   className="uppercase"
                   style={{
                     fontFamily: 'var(--font-display)',
-                    fontSize: plan.featured ? 44 : 36,
+                    fontSize: 28,
                     lineHeight: '.88',
                     color: plan.textColor,
                   }}
@@ -169,7 +210,7 @@ export default function Plans() {
                     className="plan-price inline-block"
                     style={{
                       fontFamily: 'var(--font-display)',
-                      fontSize: plan.featured ? 76 : 60,
+                      fontSize: 52,
                       lineHeight: '.88',
                       color: plan.textColor,
                     }}
@@ -180,7 +221,7 @@ export default function Plans() {
                     className="font-mono text-[12px] tracking-[.06em] uppercase"
                     style={{ color: `${plan.textColor}90` }}
                   >
-                    /mo
+                    /mėn.
                   </span>
                 </div>
               </div>
@@ -208,6 +249,7 @@ export default function Plans() {
               </Button>
             </div>
           ))}
+          </div>
         </div>
       </div>
     </section>

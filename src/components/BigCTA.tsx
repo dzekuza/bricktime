@@ -33,10 +33,6 @@ export default function BigCTA() {
   return (
     <section className="bg-paper py-20">
       <div className="mx-auto max-w-[1320px] px-7">
-        {/*
-          Bento 12-col, 1 row:
-          [Urgency copy col-7] [CTA actions col-5]
-        */}
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
           {/* Urgency copy — col-span-7 */}
@@ -47,7 +43,7 @@ export default function BigCTA() {
             onMouseEnter={onEnter}
             onMouseLeave={onLeave}
           >
-            <p className="font-mono text-[11px] tracking-[.24em] uppercase text-paper/70">⬢ Last call</p>
+            <p className="font-mono text-[11px] tracking-[.24em] uppercase text-paper/70">⬢ Paskutinė galimybė</p>
             <div>
               <h2
                 className="uppercase text-paper"
@@ -58,20 +54,20 @@ export default function BigCTA() {
                   letterSpacing: '-.015em',
                 }}
               >
-                Drop № 26
+                Produktas № 26
                 <br />
-                ships in{' '}
+                išsiunčiamas po{' '}
                 <span
                   ref={spanRef}
                   className="inline-block border-[3px] border-ink bg-brand-yellow px-[.15em] text-ink"
                   style={{ transform: 'rotate(-2deg)', transformOrigin: 'center' }}
                 >
-                  12 days
+                  12 dienų
                 </span>
               </h2>
             </div>
             <p className="mt-4 max-w-[44ch] text-[16px] leading-[1.65] text-paper/80">
-              Subscribe before May 1 to lock in the next drop. After that, you're on the waitlist.
+              Prenumeruok iki gegužės 1 d. ir gauk kitą produktą. Po to — laukiamajame sąraše.
             </p>
           </div>
 
@@ -82,7 +78,7 @@ export default function BigCTA() {
           >
             <div>
               <p className="font-mono text-[10px] tracking-[.22em] uppercase text-paper/50 mb-4">
-                Secure your spot
+                Užsitikrink vietą
               </p>
               <div
                 className="text-paper"
@@ -95,17 +91,17 @@ export default function BigCTA() {
                 <div className="flex items-baseline gap-2 mb-1">
                   <span className="text-brand-yellow">Mini</span>
                   <span className="text-paper/40 text-2xl">—</span>
-                  <span>$14/mo</span>
+                  <span>$14/mėn.</span>
                 </div>
                 <div className="flex items-baseline gap-2 mb-1">
                   <span className="text-brand-yellow">Standard</span>
                   <span className="text-paper/40 text-2xl">—</span>
-                  <span>$24/mo</span>
+                  <span>$24/mėn.</span>
                 </div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-brand-yellow">Mega</span>
                   <span className="text-paper/40 text-2xl">—</span>
-                  <span>$42/mo</span>
+                  <span>$42/mėn.</span>
                 </div>
               </div>
             </div>
@@ -116,7 +112,7 @@ export default function BigCTA() {
                 size="lg"
                 className="w-full rounded-full border-2 border-paper/30 bg-brand-yellow text-ink font-bold text-[16px] hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.2)] transition-all"
               >
-                <a href="#plans">Start subscription →</a>
+                <a href="#plans">Pradėti prenumeratą →</a>
               </Button>
               <Button
                 asChild
@@ -124,10 +120,10 @@ export default function BigCTA() {
                 size="lg"
                 className="w-full rounded-full border-2 border-paper/30 bg-transparent text-paper text-[15px] font-semibold hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all"
               >
-                <a href="/drop">Preview drop № 26</a>
+                <a href="/drop">Peržiūrėti produktą № 26</a>
               </Button>
               <p className="text-center font-mono text-[10px] tracking-[.1em] uppercase text-paper/35 mt-1">
-                Cancel any time · Free shipping
+                Atšauk bet kada · Nemokamas pristatymas
               </p>
             </div>
           </div>

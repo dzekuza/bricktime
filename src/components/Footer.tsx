@@ -1,23 +1,23 @@
 import { Separator } from '@/components/ui/separator'
 
 const footerLinks = {
-  Subscribe: [
-    { label: 'Plans', href: '#plans' },
-    { label: 'This month', href: '#' },
-    { label: 'Archive', href: '#' },
-    { label: 'Gift cards', href: '#' },
+  Prenumerata: [
+    { label: 'Planai', href: '#plans' },
+    { label: 'Šis mėnuo', href: '#' },
+    { label: 'Archyvas', href: '#' },
+    { label: 'Dovanų kortelės', href: '#' },
   ],
-  Help: [
-    { label: 'FAQ', href: '#faq' },
-    { label: 'Skip / pause', href: '#' },
-    { label: 'Shipping', href: '#' },
-    { label: 'Returns', href: '#' },
+  Pagalba: [
+    { label: 'D.U.K.', href: '#faq' },
+    { label: 'Praleisti / pristabdyti', href: '#' },
+    { label: 'Pristatymas', href: '#' },
+    { label: 'Grąžinimai', href: '#' },
   ],
-  Company: [
-    { label: 'About', href: '#' },
-    { label: 'Press', href: '#' },
-    { label: 'Trade club', href: '#' },
-    { label: 'Careers', href: '#' },
+  Įmonė: [
+    { label: 'Apie mus', href: '#' },
+    { label: 'Spauda', href: '#' },
+    { label: 'Keitimų klubas', href: '#' },
+    { label: 'Karjera', href: '#' },
   ],
 }
 
@@ -44,7 +44,7 @@ export default function Footer() {
               BRICKTIME
             </div>
             <p className="mt-4 max-w-[32ch] text-[14px] leading-relaxed text-paper/75">
-              A monthly brick subscription for adults who never quite stopped building. Made in Vilnius, shipped worldwide.
+              Mėnesinė kaladėlių prenumerata suaugusiems, kurie niekada negalutinai nustojo statyti. Pagaminta Vilniuje, pristatoma visame pasaulyje.
             </p>
             <div className="mt-6 flex gap-2.5">
               {socials.map((s) => (
@@ -85,7 +85,7 @@ export default function Footer() {
 
         <div className="flex flex-wrap justify-between gap-4 font-mono text-[13px] text-paper/70">
           <span>© 2026 BRICKTIME UAB</span>
-          <span>BRICKTIME™ — original brand · not affiliated with any toy manufacturer</span>
+          <span>BRICKTIME™ — originalus prekės ženklas · nesusijęs su jokiu žaislų gamintoju</span>
         </div>
       </div>
     </footer>

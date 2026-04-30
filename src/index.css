@@ -1,4 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  src: url('/BricolageGrotesque.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -7,14 +15,14 @@
 
 @theme inline {
     /* Brand fonts */
-    --font-display: 'Anton', 'Impact', sans-serif;
+    --font-display: 'Bricolage Grotesque', 'Impact', sans-serif;
     --font-sans: 'Space Grotesk', system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, monospace;
     --font-heading: var(--font-display);
 
     /* Brand colors */
     --color-ink: #001B21;
-    --color-paper: #F5F1EB;
+    --color-paper: #FFFFFF;
     --color-brand-indigo: #5C4ADE;
     --color-brand-sky: #4DA2FF;
     --color-brand-mint: #5DDB9C;
@@ -105,6 +113,11 @@
   h1, h2, h3, h4 {
     text-wrap: balance;
   }
+}
+
+/* Headings using display font render at weight 800 */
+[style*="--font-display"] {
+  font-weight: 800;
 }
 
 /* Stud background patterns */

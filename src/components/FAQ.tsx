@@ -10,32 +10,32 @@ import { useReveal } from '@/hooks/useReveal'
 
 const faqs = [
   {
-    q: 'What are the bricks made of?',
-    a: 'Premium ABS plastic at industry-standard 1.6mm tolerance. Fully compatible with any compatible-brand bricks you already own — they snap, hold, and pop apart cleanly.',
+    q: 'Iš ko pagamintos kaladėlės?',
+    a: 'Aukštos kokybės ABS plastikas prie pramoninio standarto 1,6 mm tolerancijos. Visiškai suderinamos su bet kokios suderinamos markės kaladėlėmis — užsispaudžia, laiko ir išsiskiria švariai.',
   },
   {
-    q: 'Can I skip a month?',
-    a: "Yes. From your dashboard, hit Skip before the 1st of the month. We'll bill you again next cycle, no questions asked.",
+    q: 'Ar galiu praleisti mėnesį?',
+    a: 'Taip. Valdymo skydelyje spausk Praleisti iki mėnesio 1 d. Kitą ciklą vėl apmokesinsime, jokių klausimų.',
   },
   {
-    q: 'Do drops connect to each other?',
-    a: 'Every drop is part of the BRICKTIME universe — a 12-month arc of connected builds that form a complete street, vehicle fleet, or world. Subscribe at any month, build forward.',
+    q: 'Ar produktai jungiasi tarpusavyje?',
+    a: 'Kiekvienas produktas yra BRICKTIME visatos dalis — 12 mėnesių sujungtų kūrinių, sudarančių visą gatvę, transporto parką ar pasaulį. Prisijunk bet kurį mėnesį, statyk į priekį.',
   },
   {
-    q: 'Where do you ship?',
-    a: 'Worldwide. Free standard shipping in the EU, UK and US. Expedited tier ships in 2 business days.',
+    q: 'Kur pristatote?',
+    a: 'Visame pasaulyje. Nemokamas standartinis pristatymas ES, JK ir JAV. Skubus lygis pristato per 2 darbo dienas.',
   },
   {
-    q: 'What if I receive a duplicate minifig?',
-    a: 'Open the BRICKTIME Trade Club from your dashboard. Duplicates are common currency — trade with another subscriber for free.',
+    q: 'Ką daryti gavus dublikatą miniuką?',
+    a: 'Atidaryk BRICKTIME keitimų klubą valdymo skydelyje. Dublikatai — tai įprasta valiuta, keisk su kitu prenumeratoriumi nemokamai.',
   },
 ]
 
 const stats = [
-  { value: '12,400+', label: 'Active subscribers' },
-  { value: '★ 4.9', label: 'Average rating' },
-  { value: '26', label: 'Drops shipped' },
-  { value: '0', label: 'Questions with no answer' },
+  { value: '12 400+', label: 'Aktyvūs prenumeratoriai' },
+  { value: '★ 4.9', label: 'Vidutinis įvertinimas' },
+  { value: '26', label: 'Išsiųstų produktų' },
+  { value: '0', label: 'Klausimų be atsakymo' },
 ]
 
 export default function FAQ() {
@@ -54,18 +54,13 @@ export default function FAQ() {
   return (
     <section id="faq" className="bg-paper py-20">
       <div className="mx-auto max-w-[1320px] px-7">
-        {/*
-          Bento 12-col, 2 rows:
-          [Accordion col-7 row-2] [Stats tile col-5]
-          [                    ] [CTA tile col-5]
-        */}
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
           {/* FAQ accordion — col-span-7, row-span-2 */}
           <div
             className="reveal rounded-3xl border-2 border-ink bg-paper p-9 shadow-[6px_6px_0_#001B21] lg:col-span-7 lg:row-span-2"
           >
-            <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ FAQ</p>
+            <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ D.U.K.</p>
             <h2
               className="mt-3 uppercase text-ink"
               style={{
@@ -79,10 +74,10 @@ export default function FAQ() {
                 className="inline-block border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
                 style={{ transform: 'rotate(-1.5deg)' }}
               >
-                Quick
+                Greiti
               </span>
               <br />
-              questions.
+              klausimai.
             </h2>
 
             <Accordion type="single" collapsible defaultValue="item-0" className="mt-8">
@@ -136,30 +131,30 @@ export default function FAQ() {
             onMouseLeave={onCtaLeave}
           >
             <div>
-              <p className="font-mono text-[10px] tracking-[.22em] uppercase text-paper/60">Still on the fence?</p>
+              <p className="font-mono text-[10px] tracking-[.22em] uppercase text-paper/60">Vis dar abejoji?</p>
               <h3
                 className="mt-3 uppercase text-paper"
                 style={{ fontFamily: 'var(--font-display)', fontSize: 36, lineHeight: '.9' }}
               >
-                First drop,
+                Pirmas produktas,
                 <br />
                 <span
                   ref={zeroRiskRef}
                   className="inline-block border-[3px] border-paper/40 bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(245,241,235,.2)]"
                   style={{ transform: 'rotate(-1.5deg)', transformOrigin: 'center' }}
                 >
-                  zero risk
+                  nulinė rizika
                 </span>.
               </h3>
               <p className="mt-3 text-[15px] leading-[1.6] text-paper/70">
-                Cancel before your first billing date and pay nothing. We'll still send you a tracking link.
+                Atšauk iki pirmojo sąskaitos datos ir nemokėk nieko. Vis tiek atsiųsime sekimo nuorodą.
               </p>
             </div>
             <a
               href="#plans"
               className="mt-6 inline-flex items-center justify-center rounded-full border-2 border-paper/40 bg-brand-yellow px-6 py-3 text-center font-bold text-[15px] text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,0,0,.2)]"
             >
-              Choose a plan →
+              Pasirinkti planą →
             </a>
           </div>
         </div>

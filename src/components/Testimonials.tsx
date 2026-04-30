@@ -4,9 +4,9 @@ import { useReveal } from '@/hooks/useReveal'
 
 const testimonials = [
   {
-    quote: '"My desk has become a tiny city. The drop-26 mailbox build is wild."',
+    quote: '"Mano stalas virto mažu miestu. Produktas-26 pašto surinkimas — tai beprotybė."',
     name: 'Amelia R.',
-    meta: 'Subscriber since drop 04',
+    meta: 'Prenumeratorė nuo produkto 04',
     avatarColor: '#FB4903',
     initials: 'AR',
     bg: '#5DDB9C',
@@ -15,9 +15,9 @@ const testimonials = [
     big: true,
   },
   {
-    quote: '"My kids think I\'m a wizard now. The build cards are just very good."',
+    quote: '"Mano vaikai mano, kad esu burtininkas. Surinkimo kortelės tiesiog nuostabios."',
     name: 'Marco T.',
-    meta: 'Mega tier · 14 months',
+    meta: 'Mega lygis · 14 mėnesių',
     avatarColor: '#FFAEE7',
     initials: 'MT',
     bg: '#F5F1EB',
@@ -26,9 +26,9 @@ const testimonials = [
     big: false,
   },
   {
-    quote: '"Skipped a month, no drama. Came back to a coral-reef drop. Perfect."',
+    quote: '"Praleidau mėnesį, jokios dramos. Grįžau į koralinio rifo produktą. Tobula."',
     name: 'Yuki S.',
-    meta: 'Standard tier',
+    meta: 'Standard lygis',
     avatarColor: '#5DDB9C',
     initials: 'YS',
     bg: '#FFAEE7',
@@ -57,11 +57,6 @@ export default function Testimonials() {
   return (
     <section className="bg-paper py-20">
       <div className="mx-auto max-w-[1320px] px-7">
-        {/*
-          Bento 12-col, 2 rows:
-          [Quote1 col-7] [Quote2 col-5]
-          [Header col-5] [Quote3 col-7]
-        */}
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
           {/* Quote 1 — big tile (col-span-7) */}
@@ -149,7 +144,7 @@ export default function Testimonials() {
             className="reveal flex flex-col justify-center rounded-3xl border-2 border-ink p-9 shadow-[6px_6px_0_rgba(245,241,235,.12)] lg:col-span-5"
             style={{ background: '#001B21', transitionDelay: '80ms', minHeight: 220 }}
           >
-            <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Subscribers</p>
+            <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Prenumeratoriai</p>
             <h2
               className="mt-3 uppercase text-paper"
               style={{
@@ -163,12 +158,12 @@ export default function Testimonials() {
                 className="inline-block border-[3px] border-paper/40 bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(245,241,235,.2)]"
                 style={{ transform: 'rotate(-1.5deg)' }}
               >
-                12,400
+                12 400
               </span>
               <br />
-              builders
+              kūrėjų
               <br />
-              onboard.
+              prisijungę.
             </h2>
           </div>
 

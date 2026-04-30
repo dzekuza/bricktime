@@ -5,35 +5,44 @@ import Footer from '@/components/Footer'
 import { Button } from '@/components/ui/button'
 import { useReveal } from '@/hooks/useReveal'
 
+// ── predefined avatars ──────────────────────────────────────────────────────
+const avatarOptions = [
+  { id: 0, src: '/avatars/avatar-classic.png', label: 'Klasikinis', bg: '#FFD731' },
+  { id: 1, src: '/avatars/avatar-beanie.png',  label: 'Kepurėtas',  bg: '#FB4903' },
+  { id: 2, src: '/avatars/avatar-ninja.png',   label: 'Nindzė',     bg: '#001B21' },
+  { id: 3, src: '/avatars/avatar-robot.png',   label: 'Robotas',    bg: '#4DA2FF' },
+  { id: 4, src: '/avatars/avatar-wizard.png',  label: 'Burtininkas', bg: '#5C4ADE' },
+]
+
 // ── mock user data ──────────────────────────────────────────────────────────
 const user = {
   name: 'Alex Kim',
   email: 'alex.kim@example.com',
   initials: 'AK',
   avatarColor: '#4DA2FF',
-  memberSince: 'Drop № 12 · March 2025',
+  memberSince: 'Produktas № 12 · kovas 2025',
   tier: 'Standard',
   tierBg: '#FFD731',
   tierTextColor: '#001B21',
   tierLevel: 3,
-  nextBilling: 'June 5, 2026',
+  nextBilling: 'Birželio 5, 2026',
   monthlyPrice: 24,
   dropsReceived: 14,
 }
 
 const rentedDrops = [
-  { num: 26, title: 'Mailbox Row', bg: '#5C4ADE', bricks: 312, status: 'Ships May 5' },
-  { num: 25, title: 'The Greenhouse', bg: '#5DDB9C', bricks: 268, status: 'Delivered' },
-  { num: 24, title: 'Donut Diner', bg: '#FFAEE7', bricks: 295, status: 'Delivered' },
-  { num: 21, title: 'Lighthouse', bg: '#4DA2FF', bricks: 292, status: 'Delivered' },
+  { num: 26, title: 'Mailbox Row', bg: '#5C4ADE', bricks: 312, status: 'Išsiunčiama geg. 5' },
+  { num: 25, title: 'The Greenhouse', bg: '#5DDB9C', bricks: 268, status: 'Pristatyta' },
+  { num: 24, title: 'Donut Diner', bg: '#FFAEE7', bricks: 295, status: 'Pristatyta' },
+  { num: 21, title: 'Lighthouse', bg: '#4DA2FF', bricks: 292, status: 'Pristatyta' },
 ]
 
 const billingHistory = [
-  { date: 'May 5, 2026',   amount: '$24', drop: 'Drop № 26', status: 'Paid' },
-  { date: 'Apr 5, 2026',   amount: '$24', drop: 'Drop № 25', status: 'Paid' },
-  { date: 'Mar 5, 2026',   amount: '$24', drop: 'Drop № 24', status: 'Paid' },
-  { date: 'Feb 5, 2026',   amount: '$24', drop: 'Drop № 23', status: 'Paid' },
-  { date: 'Jan 5, 2026',   amount: '$24', drop: 'Drop № 22', status: 'Paid' },
+  { date: 'Geg. 5, 2026',   amount: '$24', drop: 'Produktas № 26', status: 'Apmokėta' },
+  { date: 'Bal. 5, 2026',   amount: '$24', drop: 'Produktas № 25', status: 'Apmokėta' },
+  { date: 'Kov. 5, 2026',   amount: '$24', drop: 'Produktas № 24', status: 'Apmokėta' },
+  { date: 'Vas. 5, 2026',   amount: '$24', drop: 'Produktas № 23', status: 'Apmokėta' },
+  { date: 'Sau. 5, 2026',   amount: '$24', drop: 'Produktas № 22', status: 'Apmokėta' },
 ]
 
 const tierOptions = [
@@ -48,6 +57,10 @@ const tierOptions = [
 export default function Account() {
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [selectedTier, setSelectedTier] = useState(2) // Standard index
+  const [selectedAvatarId, setSelectedAvatarId] = useState(0)
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false)
+
+  const activeAvatar = avatarOptions[selectedAvatarId]
 
   const heroRef  = useReveal<HTMLDivElement>()
   const dropsRef = useReveal<HTMLDivElement>()
@@ -68,20 +81,28 @@ export default function Account() {
               style={{ background: '#001B21', minHeight: 340 }}
             >
               <div className="flex items-start gap-5">
-                {/* Avatar */}
-                <div
-                  className="shrink-0 size-[72px] rounded-full border-2 border-paper/30 grid place-items-center"
-                  style={{ background: user.avatarColor }}
-                >
-                  <span
-                    className="uppercase text-ink"
-                    style={{ fontFamily: 'var(--font-display)', fontSize: 26, lineHeight: 1 }}
+                {/* Avatar — clickable */}
+                <div className="shrink-0">
+                  <button
+                    onClick={() => setShowAvatarPicker((v) => !v)}
+                    className="group relative size-[72px] rounded-full border-2 border-paper/30 overflow-hidden transition-all hover:border-paper/70 hover:scale-105"
+                    style={{ background: activeAvatar.bg }}
+                    aria-label="Keisti avataras"
                   >
-                    {user.initials}
-                  </span>
+                    <img
+                      src={activeAvatar.src}
+                      alt={activeAvatar.label}
+                      className="h-full w-full object-cover object-top"
+                    />
+                    <span className="absolute inset-0 rounded-full bg-ink/0 group-hover:bg-ink/40 transition-colors flex items-end justify-center pb-1.5">
+                      <span className="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[8px] tracking-[.1em] uppercase text-paper font-bold">
+                        Keisti
+                      </span>
+                    </span>
+                  </button>
                 </div>
-                <div>
-                  <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/40">⬢ My account</p>
+                <div className="flex-1">
+                  <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/40">⬢ Mano paskyra</p>
                   <h1
                     className="mt-2 uppercase text-paper"
                     style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,3.5vw,54px)', lineHeight: '.9' }}
@@ -92,11 +113,48 @@ export default function Account() {
                 </div>
               </div>
 
+              {/* Avatar picker */}
+              {showAvatarPicker && (
+                <div className="mt-5 rounded-2xl border border-paper/15 bg-paper/5 p-4">
+                  <p className="mb-3 font-mono text-[10px] tracking-[.18em] uppercase text-paper/40">Pasirink avataras</p>
+                  <div className="flex flex-wrap gap-3">
+                    {avatarOptions.map((av) => (
+                      <button
+                        key={av.id}
+                        onClick={() => { setSelectedAvatarId(av.id); setShowAvatarPicker(false) }}
+                        className={[
+                          'flex flex-col items-center gap-1.5 transition-all',
+                        ].join(' ')}
+                      >
+                        <span
+                          className={[
+                            'size-14 rounded-full overflow-hidden border-2 transition-all',
+                            selectedAvatarId === av.id
+                              ? 'border-paper scale-110 shadow-[0_0_0_3px_rgba(245,241,235,.35)]'
+                              : 'border-paper/20 hover:border-paper/60 hover:scale-105',
+                          ].join(' ')}
+                          style={{ background: av.bg, display: 'block' }}
+                        >
+                          <img
+                            src={av.src}
+                            alt={av.label}
+                            className="h-full w-full object-cover object-top"
+                          />
+                        </span>
+                        <span className="font-mono text-[9px] tracking-[.1em] uppercase text-paper/50">
+                          {av.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="mt-8 grid grid-cols-3 gap-4">
                 {[
-                  { val: user.dropsReceived, label: 'Drops received' },
-                  { val: `${user.tierLevel}/5`, label: 'Tier level' },
-                  { val: '14 mo', label: 'Member' },
+                  { val: user.dropsReceived, label: 'Gauti produktai' },
+                  { val: `${user.tierLevel}/5`, label: 'Plano lygis' },
+                  { val: '14 mėn.', label: 'Narys' },
                 ].map((s) => (
                   <div key={s.label} className="rounded-2xl border border-paper/15 p-4">
                     <div
@@ -111,7 +169,7 @@ export default function Account() {
               </div>
 
               <p className="mt-5 font-mono text-[11px] tracking-[.16em] uppercase text-paper/35">
-                Member since {user.memberSince}
+                Narys nuo {user.memberSince}
               </p>
             </div>
 
@@ -122,7 +180,7 @@ export default function Account() {
             >
               <div>
                 <p className="font-mono text-[11px] tracking-[.22em] uppercase" style={{ color: `${user.tierTextColor}70` }}>
-                  Active subscription
+                  Aktyvi prenumerata
                 </p>
                 <div
                   className="mt-3 uppercase"
@@ -135,11 +193,11 @@ export default function Account() {
                     ${user.monthlyPrice}
                   </span>
                   <span className="font-mono text-[12px] tracking-[.06em] uppercase" style={{ color: `${user.tierTextColor}70` }}>
-                    /mo
+                    /mėn.
                   </span>
                 </div>
                 <p className="mt-3 text-[14px]" style={{ color: `${user.tierTextColor}80` }}>
-                  Next billing: <b style={{ color: user.tierTextColor }}>{user.nextBilling}</b>
+                  Kitas mokėjimas: <b style={{ color: user.tierTextColor }}>{user.nextBilling}</b>
                 </p>
               </div>
 
@@ -148,14 +206,14 @@ export default function Account() {
                   className="w-full rounded-full border-2 border-ink bg-ink text-paper font-bold text-[14px] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] transition-all"
                   onClick={() => setShowUpgrade(!showUpgrade)}
                 >
-                  {showUpgrade ? 'Cancel change' : 'Upgrade / Change plan'}
+                  {showUpgrade ? 'Atšaukti keitimą' : 'Paaukštinti / Keisti planą'}
                 </Button>
                 <div className="grid grid-cols-2 gap-2">
                   <button className="rounded-full border-2 border-ink px-4 py-2.5 text-[12px] font-semibold text-ink transition-all hover:bg-ink/10">
-                    Skip month
+                    Praleisti mėnesį
                   </button>
                   <button className="rounded-full border-2 border-ink px-4 py-2.5 text-[12px] font-semibold text-ink transition-all hover:bg-ink/10">
-                    Pause
+                    Pristabdyti
                   </button>
                 </div>
               </div>
@@ -167,7 +225,7 @@ export default function Account() {
                 className="reveal rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] lg:col-span-12"
                 style={{ background: '#F5F1EB' }}
               >
-                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50 mb-5">⬢ Change plan</p>
+                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50 mb-5">⬢ Keisti planą</p>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
                   {tierOptions.map((t, i) => (
                     <button
@@ -181,7 +239,7 @@ export default function Account() {
                     >
                       {t.level === user.tierLevel && (
                         <span className="absolute -top-3 left-3 rounded-full border border-ink bg-ink px-2 py-0.5 font-mono text-[9px] tracking-[.1em] uppercase text-paper">
-                          Current
+                          Dabartinis
                         </span>
                       )}
                       <div
@@ -190,17 +248,17 @@ export default function Account() {
                         {t.name}
                       </div>
                       <div className="mt-1.5 font-mono text-[11px] tracking-[.06em] uppercase" style={{ color: selectedTier === i ? `${t.textColor}80` : '#001B2180' }}>
-                        ${t.price}/mo
+                        ${t.price}/mėn.
                       </div>
                     </button>
                   ))}
                 </div>
                 <div className="mt-5 flex gap-3">
                   <Button className="rounded-full border-2 border-ink bg-ink text-paper font-bold hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] transition-all">
-                    Confirm change to {tierOptions[selectedTier].name} →
+                    Patvirtinti keitimą į {tierOptions[selectedTier].name} →
                   </Button>
                   <button onClick={() => setShowUpgrade(false)} className="rounded-full border-2 border-ink px-5 py-2.5 text-[14px] font-semibold text-ink transition-all hover:bg-ink/5">
-                    Cancel
+                    Atšaukti
                   </button>
                 </div>
               </div>
@@ -216,12 +274,12 @@ export default function Account() {
           <div ref={dropsRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             <div className="reveal lg:col-span-12">
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ My drops</p>
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ Mano produktai</p>
               <h2
                 className="mt-3 uppercase text-ink"
                 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,3.5vw,58px)', lineHeight: '.88', letterSpacing: '-.015em' }}
               >
-                Your rented drops.
+                Tavo nuomoti produktai.
               </h2>
             </div>
 
@@ -251,7 +309,7 @@ export default function Account() {
                   <span
                     className={[
                       'rounded-full border border-ink px-2.5 py-1 font-mono text-[9px] tracking-[.12em] uppercase',
-                      drop.status === 'Ships May 5' ? 'bg-brand-mint text-ink' : 'bg-paper/80 text-ink',
+                      drop.status === 'Išsiunčiama geg. 5' ? 'bg-brand-mint text-ink' : 'bg-paper/80 text-ink',
                     ].join(' ')}
                   >
                     {drop.status}
@@ -265,9 +323,9 @@ export default function Account() {
                   >
                     {drop.title}
                   </h3>
-                  <p className="mt-2 font-mono text-[11px] tracking-[.14em] uppercase text-ink/50">{drop.bricks} bricks</p>
+                  <p className="mt-2 font-mono text-[11px] tracking-[.14em] uppercase text-ink/50">{drop.bricks} kaladėlių</p>
                   <div className="mt-4 flex items-center justify-between text-[13px] font-bold text-ink">
-                    <span>View drop</span>
+                    <span>Žiūrėti produktą</span>
                     <span style={{ fontFamily: 'var(--font-display)', fontSize: 20 }}>→</span>
                   </div>
                 </div>
@@ -281,8 +339,8 @@ export default function Account() {
               style={{ minHeight: 220 }}
             >
               <span style={{ fontFamily: 'var(--font-display)', fontSize: 48, color: '#001B2140', lineHeight: 1 }}>+</span>
-              <p className="text-[14px] font-bold text-ink">Browse more drops</p>
-              <p className="font-mono text-[11px] tracking-[.14em] uppercase text-ink/45">26 available with Standard+</p>
+              <p className="text-[14px] font-bold text-ink">Naršyti daugiau produktų</p>
+              <p className="font-mono text-[11px] tracking-[.14em] uppercase text-ink/45">26 prieinami su Standard+</p>
             </Link>
 
           </div>
@@ -298,20 +356,20 @@ export default function Account() {
               className="flex flex-col justify-between rounded-3xl border-2 border-paper/15 p-9 lg:col-span-8"
               style={{ background: '#5C4ADE', minHeight: 240 }}
             >
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Shipping May 5</p>
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Išsiunčiama gegužės 5 d.</p>
               <div>
                 <h2
                   className="uppercase text-paper"
                   style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,3vw,52px)', lineHeight: '.9' }}
                 >
-                  Drop № 26 — Mailbox Row + Postman Otto
+                  Produktas № 26 — Mailbox Row + Postman Otto
                 </h2>
                 <p className="mt-3 text-[15px] leading-[1.6] text-paper/70">
-                  Included in your Standard box this month. 312 bricks, 2 exclusive minifigs.
+                  Įskaičiuota į tavo Standard dėžutę šį mėnesį. 312 kaladėlių, 2 išskirtiniai miniukai.
                 </p>
               </div>
               <Button asChild className="mt-6 w-fit rounded-full border-2 border-paper/40 bg-brand-yellow text-ink font-bold hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_rgba(245,241,235,.3)] transition-all">
-                <Link to="/drop/26">Preview drop →</Link>
+                <Link to="/drop/26">Peržiūrėti produktą →</Link>
               </Button>
             </div>
 
@@ -319,13 +377,13 @@ export default function Account() {
               className="flex flex-col justify-between rounded-3xl border-2 border-paper/15 p-9 lg:col-span-4"
               style={{ background: '#001B21' }}
             >
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/40">Quick actions</p>
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/40">Greiti veiksmai</p>
               <div className="flex flex-col gap-2.5 mt-4">
                 {[
-                  { label: 'Skip June drop', color: '#5DDB9C' },
-                  { label: 'Pause subscription', color: '#FFAEE7' },
-                  { label: 'Gift a subscription', color: '#FFD731' },
-                  { label: 'Cancel subscription', color: '#FB4903' },
+                  { label: 'Praleisti birželio produktą', color: '#5DDB9C' },
+                  { label: 'Pristabdyti prenumeratą', color: '#FFAEE7' },
+                  { label: 'Dovanoti prenumeratą', color: '#FFD731' },
+                  { label: 'Atšaukti prenumeratą', color: '#FB4903' },
                 ].map((a) => (
                   <button
                     key={a.label}
@@ -351,12 +409,12 @@ export default function Account() {
           <div ref={billingRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             <div className="reveal lg:col-span-12">
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ Billing</p>
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ Atsiskaitymas</p>
               <h2
                 className="mt-3 uppercase text-ink"
                 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,3.5vw,58px)', lineHeight: '.88', letterSpacing: '-.015em' }}
               >
-                Payment history.
+                Mokėjimų istorija.
               </h2>
             </div>
 
@@ -366,7 +424,7 @@ export default function Account() {
               style={{ background: '#F5F1EB' }}
             >
               <div className="grid grid-cols-4 border-b-2 border-ink bg-ink">
-                {['Date', 'Drop', 'Amount', 'Status'].map((h) => (
+                {['Data', 'Produktas', 'Suma', 'Būsena'].map((h) => (
                   <div key={h} className="p-4 font-mono text-[10px] tracking-[.18em] uppercase text-paper/60">{h}</div>
                 ))}
               </div>
@@ -393,19 +451,19 @@ export default function Account() {
               style={{ background: '#5DDB9C' }}
             >
               <div>
-                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">Payment method</p>
+                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">Mokėjimo būdas</p>
                 <div className="mt-4 rounded-2xl border-2 border-ink bg-ink/10 p-4">
-                  <p className="font-mono text-[11px] tracking-[.14em] uppercase text-ink/60">Visa ending in</p>
+                  <p className="font-mono text-[11px] tracking-[.14em] uppercase text-ink/60">Visa baigiasi</p>
                   <p style={{ fontFamily: 'var(--font-display)', fontSize: 32, color: '#001B21', lineHeight: 1 }}>·· 4242</p>
-                  <p className="mt-1 font-mono text-[11px] tracking-[.06em] uppercase text-ink/55">Expires 09/28</p>
+                  <p className="mt-1 font-mono text-[11px] tracking-[.06em] uppercase text-ink/55">Galioja iki 09/28</p>
                 </div>
               </div>
               <div className="flex flex-col gap-2 mt-6">
                 <button className="rounded-full border-2 border-ink bg-ink px-5 py-3 text-[13px] font-bold text-paper transition-all hover:shadow-[4px_4px_0_#001B21]">
-                  Update payment method
+                  Atnaujinti mokėjimo būdą
                 </button>
                 <button className="rounded-full border-2 border-ink px-5 py-3 text-[13px] font-semibold text-ink transition-all hover:bg-ink/10">
-                  Download invoices
+                  Atsisiųsti sąskaitas
                 </button>
               </div>
             </div>

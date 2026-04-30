@@ -1,29 +1,31 @@
+import { useRef } from 'react'
 import gsap from 'gsap'
 import { useReveal } from '@/hooks/useReveal'
+import FloatDrop from '@/components/FloatDrop'
 
 const features = [
   {
     num: '01',
-    title: '200–400 premium ABS bricks',
-    body: 'Strict tolerance, brilliant colorways, fully compatible with the bricks you already own.',
+    title: '200–400 aukštos kokybės ABS kaladėlių',
+    body: 'Tikslios tolerancijos, ryškios spalvos, visiškai suderinamos su tavo kaladėlėmis.',
     bg: '#4DA2FF',
   },
   {
     num: '02',
-    title: '1–2 exclusive minifigs',
-    body: 'Designed by guest artists. Numbered, never re-released, tradeable inside the club.',
+    title: '1–2 išskirtiniai miniukai',
+    body: 'Sukurti svečių menininkų. Sunumeruoti, niekada neišleisti pakartotinai, keičiami klube.',
     bg: '#FFAEE7',
   },
   {
     num: '03',
-    title: 'Build card + sticker pack',
-    body: 'Step-by-step on one side, lore on the other. Plus 16 vinyl stickers per drop.',
+    title: 'Surinkimo kortelė + lipdukų rinkinys',
+    body: 'Žingsnis po žingsnio vienoje pusėje, istorija kitoje. Plius 16 vinilo lipdukų per produktą.',
     bg: '#5DDB9C',
   },
   {
     num: '04',
-    title: 'Slots into the universe',
-    body: "Every drop connects. By month 12 you've built an entire street.",
+    title: 'Jungiasi į visatą',
+    body: 'Kiekvienas produktas jungiasi. Po 12 mėnesių tu pastatęs visą gatvę.',
     bg: '#FFD731',
   },
 ]
@@ -42,6 +44,17 @@ function onCardLeave(e: React.MouseEvent<HTMLDivElement>) {
 }
 
 export default function WhatsInside() {
+  const spanRef = useRef<HTMLSpanElement>(null)
+
+  function onSpanEnter() {
+    gsap.killTweensOf(spanRef.current)
+    gsap.to(spanRef.current, { rotate: 4, scale: 1.12, boxShadow: '8px 8px 0 #001B21', duration: 0.22, ease: 'back.out(2.5)' })
+  }
+  function onSpanLeave() {
+    gsap.killTweensOf(spanRef.current)
+    gsap.to(spanRef.current, { rotate: -1.5, scale: 1, boxShadow: '0px 0px 0 #001B21', duration: 0.28, ease: 'elastic.out(1, 0.55)' })
+  }
+
   const ref = useReveal<HTMLDivElement>()
 
   return (
@@ -49,10 +62,10 @@ export default function WhatsInside() {
       <div className="mx-auto max-w-[1320px] px-7">
         <div ref={ref} className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:gap-20">
 
-          {/* Left — sticky headline (no reveal on sticky element — transform breaks position:sticky) */}
+          {/* Left — sticky headline */}
           <div className="lg:sticky lg:top-28 lg:self-start">
             <div className="reveal">
-            <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ What's inside</p>
+            <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ Kas viduje</p>
             <h2
               className="mt-4 uppercase text-ink"
               style={{
@@ -62,30 +75,33 @@ export default function WhatsInside() {
                 letterSpacing: '-.015em',
               }}
             >
-              A pack worth
+              Rinkinys, kurį
               <br />
               <span
+                ref={spanRef}
                 className="inline-block border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
-                style={{ transform: 'rotate(-1.5deg)' }}
+                style={{ transform: 'rotate(-1.5deg)', transformOrigin: 'center' }}
+                onMouseEnter={onSpanEnter}
+                onMouseLeave={onSpanLeave}
               >
-                tearing open
-              </span>.
+                norisi atplėšti
+              </span>
             </h2>
             <p className="mt-6 max-w-[40ch] text-[17px] leading-[1.65] text-ink/65">
-              Every drop is built for builders, sized for the mailbox, and designed to connect — month after month.
+              Kiekvienas produktas sukurtas statytojams, tinka į pašto dėžutę ir sujungiamas — mėnesį po mėnesio.
             </p>
             <a
               href="#plans"
               className="mt-8 inline-flex items-center gap-2 rounded-full border-2 border-ink bg-ink px-7 py-3.5 font-bold text-[15px] text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21]"
             >
-              Start subscription →
+              Pradėti prenumeratą →
             </a>
 
             {/* Lifestyle photo */}
             <div className="mt-8 overflow-hidden rounded-3xl border-2 border-ink shadow-[6px_6px_0_#001B21]" style={{ height: 260 }}>
               <img
                 src="/images/build-cactus.jpg"
-                alt="Builder placing the final piece on a BRICKTIME drop"
+                alt="Statytojas dedantis paskutinę detalę"
                 className="h-full w-full object-cover"
                 style={{ objectPosition: 'center 35%' }}
               />
@@ -94,7 +110,7 @@ export default function WhatsInside() {
           </div>
 
           {/* Right — scrollable stacked cards */}
-          <div className="reveal flex flex-col gap-4">
+          <FloatDrop className="flex flex-col gap-4" stagger={0.15} floatDuration={0.8}>
             {features.map((f, i) => (
               <div
                 key={f.num}
@@ -125,7 +141,7 @@ export default function WhatsInside() {
                 </div>
               </div>
             ))}
-          </div>
+          </FloatDrop>
         </div>
       </div>
     </section>

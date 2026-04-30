@@ -7,11 +7,11 @@ import { Badge } from '@/components/ui/badge'
 import { useReveal } from '@/hooks/useReveal'
 
 const plans = [
-  { name: 'Nano',     monthlyPrice: 9,  annualPrice: 7,  bg: '#F5F1EB', textColor: '#001B21', accentColor: '#5DDB9C', perks: ['60–90 bricks', 'Build card', '4 stickers', 'Free shipping'] },
-  { name: 'Mini',     monthlyPrice: 14, annualPrice: 11, bg: '#FFAEE7', textColor: '#001B21', accentColor: '#001B21', perks: ['120–180 bricks', '1 exclusive minifig', 'Build card + 8 stickers', 'Free shipping'] },
-  { name: 'Standard', monthlyPrice: 24, annualPrice: 19, bg: '#FFD731', textColor: '#001B21', accentColor: '#001B21', perks: ['240–320 bricks', '2 exclusive minifigs', '16 stickers', 'Trade-club access', 'Expedited shipping'] },
-  { name: 'Pro',      monthlyPrice: 35, annualPrice: 28, bg: '#4DA2FF', textColor: '#001B21', accentColor: '#001B21', perks: ['340–400 bricks', '2 minifigs + alt colourway', '20 stickers', 'Early access drops', 'Expedited shipping'] },
-  { name: 'Mega',     monthlyPrice: 55, annualPrice: 44, bg: '#FB4903', textColor: '#F5F1EB', accentColor: '#FFD731', perks: ['420–520 bricks', '3 minifigs + rare variant', 'Hardcover build book', 'Annual surprise box', 'All access'] },
+  { name: 'Nano',     monthlyPrice: 9,  annualPrice: 7,  bg: '#F5F1EB', textColor: '#001B21', accentColor: '#5DDB9C', perks: ['60–90 kaladėlių', 'Surinkimo kortelė', '4 lipdukų', 'Nemokamas pristatymas'] },
+  { name: 'Mini',     monthlyPrice: 14, annualPrice: 11, bg: '#FFAEE7', textColor: '#001B21', accentColor: '#001B21', perks: ['120–180 kaladėlių', '1 išskirtinis miniukas', 'Surinkimo kortelė + 8 lipdukų', 'Nemokamas pristatymas'] },
+  { name: 'Standard', monthlyPrice: 24, annualPrice: 19, bg: '#FFD731', textColor: '#001B21', accentColor: '#001B21', perks: ['240–320 kaladėlių', '2 išskirtiniai miniukai', '16 lipdukų', 'Keitimų klubo prieiga', 'Skubus pristatymas'] },
+  { name: 'Pro',      monthlyPrice: 35, annualPrice: 28, bg: '#4DA2FF', textColor: '#001B21', accentColor: '#001B21', perks: ['340–400 kaladėlių', '2 miniukai + alt spalva', '20 lipdukų', 'Ankstyva prieiga prie produktų', 'Skubus pristatymas'] },
+  { name: 'Mega',     monthlyPrice: 55, annualPrice: 44, bg: '#FB4903', textColor: '#F5F1EB', accentColor: '#FFD731', perks: ['420–520 kaladėlių', '3 miniukai + retas variantas', 'Kietu viršeliu surinkimo knyga', 'Metinė siurprizų dėžutė', 'Visiška prieiga'] },
 ]
 
 const planIndex: Record<string, number> = { nano: 0, mini: 1, standard: 2, pro: 3, mega: 4 }
@@ -48,18 +48,18 @@ export default function Subscribe() {
                   className="mt-6 uppercase text-ink"
                   style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,4vw,68px)', lineHeight: '.88' }}
                 >
-                  You're in the club.
+                  Tu klube.
                 </h1>
                 <p className="mt-5 max-w-[42ch] text-[17px] leading-[1.65] text-ink/70">
-                  Welcome to BRICKTIME {plan.name}. Your first box ships with Drop № 26 — Mailbox Row.
-                  Confirmation sent to <b>{form.email || 'your email'}</b>.
+                  Sveiki BRICKTIME {plan.name}. Pirmoji dėžutė išsiunčiama su Produktas № 26 — Mailbox Row.
+                  Patvirtinimas išsiųstas į <b>{form.email || 'jūsų el. paštą'}</b>.
                 </p>
                 <div className="mt-10 flex flex-wrap gap-4 justify-center">
                   <Button asChild className="rounded-full border-2 border-ink bg-ink text-paper font-bold text-[15px] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] transition-all">
-                    <Link to="/account">Go to my account →</Link>
+                    <Link to="/account">Eiti į paskyrą →</Link>
                   </Button>
                   <Button asChild variant="outline" className="rounded-full border-2 border-ink bg-transparent text-ink font-bold text-[15px] hover:bg-ink/5 transition-all">
-                    <Link to="/drop/26">Preview drop № 26</Link>
+                    <Link to="/drop/26">Peržiūrėti produktą № 26</Link>
                   </Button>
                 </div>
               </div>
@@ -84,23 +84,23 @@ export default function Subscribe() {
               className="reveal flex flex-col justify-between rounded-3xl border-2 border-paper/15 p-9 lg:col-span-7"
               style={{ background: '#001B21', minHeight: 280 }}
             >
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/40">⬢ Start subscribing</p>
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/40">⬢ Pradėk prenumeratą</p>
               <div>
                 <h1
                   className="mt-4 uppercase text-paper"
                   style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(38px,4vw,68px)', lineHeight: '.88', letterSpacing: '-.015em' }}
                 >
-                  {step === 'plan' ? 'Pick your plan.' : 'Complete checkout.'}
+                  {step === 'plan' ? 'Pasirink planą.' : 'Užbaik užsakymą.'}
                 </h1>
                 <p className="mt-5 max-w-[46ch] text-[16px] leading-[1.65] text-paper/65">
                   {step === 'plan'
-                    ? 'Five tiers. Cancel any month. Ships within 5 days of signing up.'
-                    : `You're one step away from your first BRICKTIME ${plan.name} box.`}
+                    ? 'Penki lygiai. Atšauk bet kurį mėnesį. Išsiunčiama per 5 dienas po registracijos.'
+                    : `Tik vienas žingsnis iki pirmosios BRICKTIME ${plan.name} dėžutės.`}
                 </p>
               </div>
               {/* Step indicator */}
               <div className="mt-8 flex items-center gap-3">
-                {['Choose plan', 'Payment'].map((s, i) => (
+                {(['Pasirinkti planą', 'Mokėjimas'] as const).map((s, i) => (
                   <div key={s} className="flex items-center gap-3">
                     <div className={[
                       'flex items-center gap-2 rounded-full border-2 px-4 py-1.5 font-mono text-[11px] tracking-[.08em] uppercase transition-all',
@@ -121,7 +121,7 @@ export default function Subscribe() {
               style={{ background: plan.bg, minHeight: 280 }}
             >
               <p className="font-mono text-[11px] tracking-[.22em] uppercase" style={{ color: `${plan.textColor}60` }}>
-                Selected plan
+                Pasirinktas planas
               </p>
               <div>
                 <div
@@ -134,11 +134,11 @@ export default function Subscribe() {
                   <span style={{ fontFamily: 'var(--font-display)', fontSize: 52, lineHeight: '.88', color: plan.textColor }}>
                     ${price}
                   </span>
-                  <span className="font-mono text-[12px] tracking-[.06em] uppercase" style={{ color: `${plan.textColor}70` }}>/mo</span>
+                  <span className="font-mono text-[12px] tracking-[.06em] uppercase" style={{ color: `${plan.textColor}70` }}>/mėn.</span>
                 </div>
                 {billing === 'annual' && (
                   <p className="mt-1 font-mono text-[11px] tracking-[.06em] uppercase" style={{ color: `${plan.textColor}65` }}>
-                    Billed ${total} today · saves ${(plan.monthlyPrice - plan.annualPrice) * 12}/yr
+                    Mokama ${total} šiandien · taupoma ${(plan.monthlyPrice - plan.annualPrice) * 12}/m.
                   </p>
                 )}
               </div>
@@ -153,7 +153,7 @@ export default function Subscribe() {
                       billing === v ? 'bg-ink text-paper' : 'text-ink/60 hover:text-ink',
                     ].join(' ')}
                   >
-                    {v === 'monthly' ? 'Monthly' : 'Annual −17%'}
+                    {v === 'monthly' ? 'Mėnesinis' : 'Metinis −17%'}
                   </button>
                 ))}
               </div>
@@ -182,7 +182,7 @@ export default function Subscribe() {
                 >
                   {i === 2 && (
                     <Badge className="absolute -top-3.5 right-5 rotate-1 rounded border-2 border-ink px-2.5 py-0.5 font-mono text-[10px] tracking-[.08em] uppercase" style={{ background: '#001B21', color: '#F5F1EB' }}>
-                      Popular
+                      Populiarus
                     </Badge>
                   )}
                   {selectedPlan === i && (
@@ -194,7 +194,7 @@ export default function Subscribe() {
                       <span style={{ fontFamily: 'var(--font-display)', fontSize: 48, lineHeight: '.9', color: p.textColor }}>
                         ${billing === 'monthly' ? p.monthlyPrice : p.annualPrice}
                       </span>
-                      <span className="font-mono text-[11px] tracking-[.06em] uppercase" style={{ color: `${p.textColor}70` }}>/mo</span>
+                      <span className="font-mono text-[11px] tracking-[.06em] uppercase" style={{ color: `${p.textColor}70` }}>/mėn.</span>
                     </div>
                   </div>
                   <ul className="mt-5 flex flex-col gap-2">
@@ -215,7 +215,7 @@ export default function Subscribe() {
                 className="rounded-full border-2 border-ink bg-ink text-paper font-bold text-[16px] hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21] transition-all"
                 onClick={() => setStep('payment')}
               >
-                Continue with {plan.name} →
+                Tęsti su {plan.name} →
               </Button>
             </div>
           </div>
@@ -231,15 +231,15 @@ export default function Subscribe() {
                 className="rounded-3xl border-2 border-ink p-10 shadow-[6px_6px_0_#001B21] lg:col-span-7"
                 style={{ background: '#F5F1EB' }}
               >
-                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50 mb-7">⬢ Billing details</p>
+                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50 mb-7">⬢ Mokėjimo duomenys</p>
 
                 <div className="flex flex-col gap-5">
                   {/* Email */}
                   <div>
-                    <label className="mb-2 block font-mono text-[11px] tracking-[.14em] uppercase text-ink/60">Email address</label>
+                    <label className="mb-2 block font-mono text-[11px] tracking-[.14em] uppercase text-ink/60">El. pašto adresas</label>
                     <input
                       type="email"
-                      placeholder="you@example.com"
+                      placeholder="jusu@pastas.lt"
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
                       className="w-full rounded-2xl border-2 border-ink bg-paper px-5 py-3.5 text-[15px] text-ink placeholder:text-ink/30 focus:outline-none focus:shadow-[4px_4px_0_#001B21] transition-all"
@@ -248,10 +248,10 @@ export default function Subscribe() {
 
                   {/* Name on card */}
                   <div>
-                    <label className="mb-2 block font-mono text-[11px] tracking-[.14em] uppercase text-ink/60">Name on card</label>
+                    <label className="mb-2 block font-mono text-[11px] tracking-[.14em] uppercase text-ink/60">Vardas ant kortelės</label>
                     <input
                       type="text"
-                      placeholder="Alex Kim"
+                      placeholder="Jonas Jonaitis"
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
                       className="w-full rounded-2xl border-2 border-ink bg-paper px-5 py-3.5 text-[15px] text-ink placeholder:text-ink/30 focus:outline-none focus:shadow-[4px_4px_0_#001B21] transition-all"
@@ -260,7 +260,7 @@ export default function Subscribe() {
 
                   {/* Card number */}
                   <div>
-                    <label className="mb-2 block font-mono text-[11px] tracking-[.14em] uppercase text-ink/60">Card number</label>
+                    <label className="mb-2 block font-mono text-[11px] tracking-[.14em] uppercase text-ink/60">Kortelės numeris</label>
                     <input
                       type="text"
                       placeholder="1234 5678 9012 3456"
@@ -273,7 +273,7 @@ export default function Subscribe() {
                   {/* Expiry + CVC */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="mb-2 block font-mono text-[11px] tracking-[.14em] uppercase text-ink/60">Expiry</label>
+                      <label className="mb-2 block font-mono text-[11px] tracking-[.14em] uppercase text-ink/60">Galiojimo laikas</label>
                       <input
                         type="text"
                         placeholder="MM / YY"
@@ -301,12 +301,12 @@ export default function Subscribe() {
                     className="flex-1 rounded-full border-2 border-ink bg-ink text-paper font-bold text-[16px] hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21] transition-all"
                     onClick={() => setSubmitted(true)}
                   >
-                    Start {plan.name} — ${billing === 'annual' ? `${total} today` : `${price}/mo`} →
+                    Pradėti {plan.name} — ${billing === 'annual' ? `${total} šiandien` : `${price}/mėn.`} →
                   </Button>
                 </div>
 
                 <p className="mt-4 text-center font-mono text-[11px] tracking-[.14em] uppercase text-ink/40">
-                  SSL encrypted · cancel any time · 30-day money-back guarantee
+                  SSL šifravimas · atšauk bet kada · 30 dienų pinigų grąžinimo garantija
                 </p>
               </div>
 
@@ -316,29 +316,29 @@ export default function Subscribe() {
                   className="rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21]"
                   style={{ background: plan.bg }}
                 >
-                  <p className="font-mono text-[11px] tracking-[.22em] uppercase" style={{ color: `${plan.textColor}60` }}>Order summary</p>
+                  <p className="font-mono text-[11px] tracking-[.22em] uppercase" style={{ color: `${plan.textColor}60` }}>Užsakymo suvestinė</p>
                   <div className="mt-5 flex flex-col gap-3 border-b border-dashed border-ink/30 pb-5">
                     <div className="flex justify-between text-[15px]" style={{ color: plan.textColor }}>
-                      <span>{plan.name} plan ({billing})</span>
-                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 20 }}>${price}/mo</span>
+                      <span>{plan.name} planas ({billing === 'monthly' ? 'mėnesinis' : 'metinis'})</span>
+                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 20 }}>${price}/mėn.</span>
                     </div>
                     {billing === 'annual' && (
                       <div className="flex justify-between text-[13px]" style={{ color: `${plan.textColor}70` }}>
-                        <span>Billed annually (10 months)</span>
-                        <span>−${(plan.monthlyPrice - plan.annualPrice) * 12} saved</span>
+                        <span>Mokama metiškai (10 mėnesių)</span>
+                        <span>−${(plan.monthlyPrice - plan.annualPrice) * 12} taupoma</span>
                       </div>
                     )}
                     <div className="flex justify-between text-[13px]" style={{ color: `${plan.textColor}70` }}>
-                      <span>Drop № 26 (this month)</span>
-                      <span>Included</span>
+                      <span>Produktas № 26 (šis mėnuo)</span>
+                      <span>Įskaičiuota</span>
                     </div>
                     <div className="flex justify-between text-[13px]" style={{ color: `${plan.textColor}70` }}>
-                      <span>Shipping</span>
-                      <span>Free</span>
+                      <span>Pristatymas</span>
+                      <span>Nemokamas</span>
                     </div>
                   </div>
                   <div className="mt-4 flex justify-between items-baseline" style={{ color: plan.textColor }}>
-                    <span className="text-[15px] font-bold">Due today</span>
+                    <span className="text-[15px] font-bold">Mokėti šiandien</span>
                     <span style={{ fontFamily: 'var(--font-display)', fontSize: 40, lineHeight: 1 }}>
                       ${billing === 'annual' ? total : price}
                     </span>
@@ -349,7 +349,7 @@ export default function Subscribe() {
                   className="rounded-3xl border-2 border-ink p-7"
                   style={{ background: '#F5F1EB' }}
                 >
-                  <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50 mb-4">What you're getting</p>
+                  <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50 mb-4">Ką gausite</p>
                   <ul className="flex flex-col gap-2">
                     {plan.perks.map((p) => (
                       <li key={p} className="flex items-center gap-2.5 text-[14px] text-ink">
@@ -364,7 +364,7 @@ export default function Subscribe() {
                   onClick={() => setStep('plan')}
                   className="text-center font-mono text-[12px] tracking-[.14em] uppercase text-ink/50 hover:text-ink transition-colors"
                 >
-                  ← Change plan
+                  ← Keisti planą
                 </button>
               </div>
 

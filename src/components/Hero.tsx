@@ -1,159 +1,268 @@
-import { Badge } from '@/components/ui/badge'
+import { useRef } from 'react'
+import gsap from 'gsap'
+import { useGSAP } from '@gsap/react'
 import { Button } from '@/components/ui/button'
-import { useReveal } from '@/hooks/useReveal'
+
+gsap.registerPlugin(useGSAP)
 
 const avatarColors = ['#5DDB9C', '#FFAEE7', '#FB4903', '#4DA2FF']
 
-export default function Hero() {
-  const ref = useReveal<HTMLDivElement>()
+interface BrickProps {
+  color: string
+  studs?: 1 | 2 | 3
+  rotate?: number
+  size?: number
+}
+
+function Brick({ color, studs = 2, rotate = 0, size = 1 }: BrickProps) {
+  const w = studs === 1 ? 52 : studs === 2 ? 88 : 124
+  const h = 58
+  const studW = 28
+  const studH = 13
+  const studGap = 36
+  const bodyY = studH - 3
+  const shade = 'rgba(0,0,0,0.18)'
+  const highlight = 'rgba(255,255,255,0.15)'
+  const studPositions =
+    studs === 1
+      ? [12]
+      : studs === 2
+        ? [8, 8 + studGap]
+        : [6, 6 + studGap, 6 + studGap * 2]
 
   return (
-    <section className="bg-paper">
-      <div className="mx-auto max-w-[1320px] px-7 py-20">
-        {/* Bento: 12-col — [main copy col-7 row-2] [countdown col-5] [bag col-5] */}
-        <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      width={w * size}
+      height={h * size}
+      fill="none"
+      style={{ transform: `rotate(${rotate}deg)`, display: 'block', flexShrink: 0 }}
+    >
+      {studPositions.map((x, i) => (
+        <rect key={i} x={x} y={0} width={studW} height={studH} rx={6} fill={color} />
+      ))}
+      <rect x={0} y={bodyY} width={w} height={h - bodyY} rx={7} fill={color} />
+      <rect x={6} y={bodyY + 8} width={w - 12} height={h - bodyY - 16} rx={4} fill={shade} />
+      <rect x={0} y={bodyY} width={w} height={4} fill={highlight} />
+    </svg>
+  )
+}
 
-          {/* Tile A — main copy (col-span-7, row-span-2) */}
-          <div
-            className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-9 shadow-[6px_6px_0_#001B21] lg:col-span-7 lg:row-span-2"
-            style={{ background: '#001B21', minHeight: 520 }}
-          >
-            <div>
-              <Badge
-                variant="outline"
-                className="w-fit rounded-full border-2 border-paper/40 bg-transparent px-4 py-1.5 font-mono text-[11px] tracking-[.16em] uppercase text-paper"
-              >
-                <span className="mr-2 inline-block size-2 rounded-full bg-brand-mint" />
-                Drop № 26 — May 2026 ships in 12 days
-              </Badge>
-              <h1
-                className="mt-7 uppercase text-paper"
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'clamp(44px, 4.5vw, 82px)',
-                  lineHeight: '.88',
-                  letterSpacing: '-.015em',
-                }}
-              >
-                Expand your{' '}
-                <span
-                  className="inline-block border-[3px] border-paper/40 bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(245,241,235,.2)]"
-                  style={{ transform: 'rotate(-1.5deg)' }}
-                >
-                  brick
-                </span>
-                <br />
-                <span className="inline-block" style={{ fontStyle: 'italic', transform: 'skew(-8deg)' }}>
-                  collection
-                </span>
-                <br />
-                in a smarter way.
-              </h1>
-              <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-paper/75">
-                A monthly mailbox-friendly pack of premium bricks, exclusive minifigs, and a build card.
-                Cancel, swap, or skip any month — bricks are forever.
-              </p>
-            </div>
+interface BrickEntry extends BrickProps {
+  left: string
+  top: string
+  landOn: 'video' | 'floor'
+}
 
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Button
-                asChild
-                size="lg"
-                className="rounded-full border-2 border-paper/40 bg-brand-yellow text-ink font-bold text-[16px] hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.3)] transition-all"
-              >
-                <a href="#plans">Start subscription →</a>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="rounded-full border-2 border-paper/40 bg-transparent text-paper text-[16px] font-bold hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.2)] transition-all"
-              >
-                <a href="/archive">See past drops</a>
-              </Button>
-            </div>
+// Scattered around the heading like a loose orbit — different heights on each side
+// landOn: 'video' drops onto the video surface, 'floor' falls to section bottom
+const bricks: BrickEntry[] = [
+  { color: '#FFD731', studs: 2, rotate: -8,  size: 1.1,  left: '3%',  top: '8%',  landOn: 'floor' },  // top-left → falls past video
+  { color: '#FB4903', studs: 1, rotate: 6,   size: 0.85, left: '82%', top: '6%',  landOn: 'video' },  // top-right → lands on video
+  { color: '#4DA2FF', studs: 3, rotate: -4,  size: 1.0,  left: '1%',  top: '40%', landOn: 'floor' },  // mid-left → floor
+  { color: '#5DDB9C', studs: 2, rotate: 10,  size: 1.15, left: '85%', top: '35%', landOn: 'floor' },  // mid-right → floor
+  { color: '#5C4ADE', studs: 1, rotate: -12, size: 0.95, left: '6%',  top: '68%', landOn: 'floor' },  // low-left → floor
+  { color: '#FFAEE7', studs: 3, rotate: 5,   size: 1.05, left: '78%', top: '62%', landOn: 'video' },  // low-right → video
+  { color: '#FB4903', studs: 2, rotate: -6,  size: 0.9,  left: '30%', top: '22%', landOn: 'video' },  // center-left → video
+  { color: '#FFD731', studs: 1, rotate: 13,  size: 0.8,  left: '60%', top: '18%', landOn: 'video' },  // center-right → video
+]
+
+// Gentle bob amplitude while floating at scattered positions
+const FLOAT_AMP = 12
+// Seconds before the drop
+const DROP_DELAY = 5
+
+export default function Hero() {
+  const bricksRef = useRef<HTMLDivElement>(null)
+  const spanRef = useRef<HTMLSpanElement>(null)
+  const videoWrapRef = useRef<HTMLDivElement>(null)
+
+  function onSpanEnter() {
+    gsap.killTweensOf(spanRef.current)
+    gsap.to(spanRef.current, { rotate: 4, scale: 1.12, boxShadow: '8px 8px 0 #001B21', duration: 0.22, ease: 'back.out(2.5)' })
+  }
+  function onSpanLeave() {
+    gsap.killTweensOf(spanRef.current)
+    gsap.to(spanRef.current, { rotate: -1.5, scale: 1, boxShadow: '0px 0px 0 #001B21', duration: 0.28, ease: 'elastic.out(1, 0.55)' })
+  }
+
+  useGSAP(
+    (_, contextSafe) => {
+      const container = bricksRef.current
+      if (!container) return
+      const items = Array.from(container.querySelectorAll(':scope > div')) as HTMLElement[]
+
+      const mm = gsap.matchMedia()
+
+      mm.add(
+        {
+          motion: '(prefers-reduced-motion: no-preference)',
+          reduced: '(prefers-reduced-motion: reduce)',
+        },
+        (ctx) => {
+          const { reduced } = ctx.conditions as { motion: boolean; reduced: boolean }
+
+          if (reduced) {
+            gsap.set(items, { autoAlpha: 1, y: 0 })
+            return
+          }
+
+          // Appear in place with a slight upward nudge, then settle
+          gsap.set(items, { autoAlpha: 0, y: -20 })
+          gsap.to(items, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.55,
+            ease: 'power2.out',
+            stagger: 0.07,
+          })
+
+          // Gentle independent bob at each brick's scattered position
+          const bobTweens = items.map((item, i) =>
+            gsap.to(item, {
+              y: -FLOAT_AMP,
+              duration: 1.2 + i * 0.09,
+              ease: 'sine.inOut',
+              repeat: -1,
+              yoyo: true,
+              delay: i * 0.15,
+            })
+          )
+
+          // After DROP_DELAY seconds: drop bricks — some onto video surface, rest to floor
+          const dropCall = gsap.delayedCall(
+            DROP_DELAY,
+            contextSafe!(() => {
+              bobTweens.forEach((t) => t.kill())
+              const containerH = container.offsetHeight
+              const containerTop = container.getBoundingClientRect().top
+              const videoTop = videoWrapRef.current
+                ? videoWrapRef.current.getBoundingClientRect().top - containerTop
+                : containerH
+
+              items.forEach((item, i) => {
+                const floorY = containerH - item.offsetTop - item.offsetHeight
+                const videoY = videoTop - item.offsetTop - item.offsetHeight
+                const targetY = bricks[i].landOn === 'video' ? videoY : floorY
+                gsap.to(item, {
+                  y: targetY,
+                  duration: 0.9 + (i % 4) * 0.08,
+                  ease: 'bounce.out',
+                  delay: i * 0.06,
+                })
+              })
+            })
+          )
+
+          return () => {
+            bobTweens.forEach((t) => t.kill())
+            dropCall.kill()
+          }
+        }
+      )
+
+      return () => mm.revert()
+    },
+    { scope: bricksRef }
+  )
+
+  return (
+    <section className="relative bg-paper overflow-hidden min-h-[88vh]">
+      {/* Text content */}
+      <div className="mx-auto max-w-[1320px] px-7 pt-14 pb-16 text-center">
+        {/* Social proof */}
+        <div className="mb-8 flex items-center justify-center gap-3">
+          <div className="flex">
+            {avatarColors.map((color, i) => (
+              <span
+                key={i}
+                className="size-[28px] rounded-full border-2 border-ink/20"
+                style={{ background: color, marginLeft: i === 0 ? 0 : -8 }}
+              />
+            ))}
           </div>
-
-          {/* Tile B — countdown (col-span-5, row 1) */}
-          <div
-            className="reveal flex flex-col items-center justify-center rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] text-center text-paper lg:col-span-5"
-            style={{ background: '#FB4903', minHeight: 240 }}
-          >
-            <div className="font-mono text-[10px] tracking-[.28em] uppercase text-paper/70 mb-2">
-              Next drop in
-            </div>
-            <div
-              className="text-paper"
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(72px, 7vw, 112px)',
-                lineHeight: '.82',
-                letterSpacing: '-.02em',
-              }}
-            >
-              12
-              <br />
-              DAYS
-            </div>
-            <div className="mt-3 font-mono text-[11px] tracking-[.18em] uppercase text-paper/75">
-              May 2026 · Drop № 26
-            </div>
-          </div>
-
-          {/* Tile C — lifestyle photo + social proof (col-span-5, row 2) */}
-          <div
-            className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink shadow-[6px_6px_0_#001B21] lg:col-span-5 relative overflow-hidden"
-            style={{ minHeight: 240 }}
-          >
-            {/* Photo background */}
-            <img
-              src="/images/build-castle.jpg"
-              alt="Builder assembling a BRICKTIME drop"
-              className="absolute inset-0 h-full w-full object-cover"
-              style={{ objectPosition: 'center 30%' }}
-            />
-            {/* Gradient overlay for readability */}
-            <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,27,33,.18) 0%, rgba(0,27,33,.72) 100%)' }} />
-
-            {/* Content */}
-            <div className="relative z-10 flex h-full flex-col justify-between p-8">
-              <div className="flex items-start justify-between">
-                <span className="rounded-full border border-paper/40 bg-paper/10 px-3 py-1.5 font-mono text-[10px] tracking-[.16em] uppercase text-paper backdrop-blur-sm">
-                  Drop № 26 · 312 pcs
-                </span>
-                <span className="rounded-full border border-paper/40 bg-ink/60 px-3 py-1.5 font-mono text-[10px] tracking-[.14em] uppercase text-paper backdrop-blur-sm">
-                  Mailbox Row
-                </span>
-              </div>
-
-              <div>
-                <h3
-                  className="uppercase text-paper"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 52, lineHeight: '.85', textShadow: '0 2px 12px rgba(0,0,0,.4)' }}
-                >
-                  BRICK
-                  <br />
-                  TIME
-                </h3>
-                <div className="mt-4 flex items-center gap-3">
-                  <div className="flex">
-                    {avatarColors.map((color, i) => (
-                      <span
-                        key={i}
-                        className="size-[28px] rounded-full border-2 border-paper/60"
-                        style={{ background: color, marginLeft: i === 0 ? 0 : -8 }}
-                      />
-                    ))}
-                  </div>
-                  <div className="text-[13px] text-paper" style={{ textShadow: '0 1px 6px rgba(0,0,0,.5)' }}>
-                    <div className="font-bold">★★★★★ 4.9</div>
-                    <div className="opacity-80 text-[11px]">12,400+ builders</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="text-[13px] text-ink/60">
+            <span className="font-bold text-ink">★★★★★ 4.9</span>
+            {' · '}12 400+ kūrėjų
           </div>
         </div>
+
+        {/* Headline */}
+        <h1
+          className="uppercase text-ink"
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'clamp(48px, 6vw, 104px)',
+            lineHeight: '.86',
+            letterSpacing: '-.02em',
+          }}
+        >
+          Praplėsk savo{' '}
+          <span
+            ref={spanRef}
+            className="inline-block border-[3px] border-ink/30 bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
+            style={{ transform: 'rotate(-1.5deg)', transformOrigin: 'center' }}
+            onMouseEnter={onSpanEnter}
+            onMouseLeave={onSpanLeave}
+          >
+            kaladėlių
+          </span>
+          <br />
+          <span className="inline-block" style={{ fontStyle: 'italic', transform: 'skew(-8deg)' }}>
+            kolekciją
+          </span>
+          <br />
+          protingiau.
+        </h1>
+
+        {/* Subtext */}
+        <p className="mt-7 mx-auto max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">
+          Kas mėnesį į pašto dėžutę tilpstantis rinkinys su aukštos kokybės kaladėlėmis, išskirtiniais
+          miniukais ir surinkimo kortele. Atšauk, keisk ar praleisk bet kurį mėnesį — kaladėlės amžinai.
+        </p>
+
+        {/* CTAs */}
+        <div className="mt-9 flex flex-wrap justify-center gap-3">
+          <Button
+            asChild
+            size="lg"
+            className="rounded-full border-2 border-ink bg-brand-yellow text-ink font-bold text-[16px] hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21] transition-all"
+          >
+            <a href="#plans">Pradėti prenumeratą →</a>
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            size="lg"
+            className="rounded-full border-2 border-ink bg-transparent text-ink text-[16px] font-bold hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21] transition-all"
+          >
+            <a href="/archive">Žiūrėti ankstesnius produktus</a>
+          </Button>
+        </div>
+
+        {/* Hero video / fallback image */}
+        <div ref={videoWrapRef} className="mt-10 w-full overflow-hidden rounded-2xl border-2 border-ink shadow-[6px_6px_0_#001B21]" style={{ aspectRatio: '16/7' }}>
+          <video
+            className="h-full w-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster="/hero-video-poster.jpeg"
+          >
+            <source src="/hero-video.mp4" type="video/mp4" />
+            <img src="/hero-video-poster.jpeg" alt="" className="h-full w-full object-cover" />
+          </video>
+        </div>
+      </div>
+
+      {/* Bricks pinned to section bottom — float up from there, drop back with bounce */}
+      <div ref={bricksRef} className="absolute inset-0 pointer-events-none">
+        {bricks.map(({ left, top, ...b }, i) => (
+          <div key={i} className="absolute" style={{ left, top }}>
+            <Brick {...b} />
+          </div>
+        ))}
       </div>
     </section>
   )

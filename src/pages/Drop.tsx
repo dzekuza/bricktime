@@ -45,13 +45,13 @@ const bagContents = [
 ]
 
 const compatibility = [
-  { drop: 'DROP № 14 — JUL 2025', title: 'Otto\'s bus', desc: 'The bus depot from drop 14 docks against Mailbox Row\'s east wall using the same brass hinge.', bg: '#5DDB9C' },
-  { drop: 'DROP № 09 — FEB 2025', title: 'Bakery corner', desc: 'Place the bakery to the north — the awning lines up with Mailbox Row\'s ground-floor entrance.', bg: '#FFAEE7' },
-  { drop: 'DROP № 21 — DEC 2025', title: 'Lighthouse', desc: 'Optional: route Otto\'s bike past the lighthouse using the path tiles included in this drop\'s bag 4.', bg: '#FFD731' },
+  { drop: 'PRODUKTAS № 14 — JUL 2025', title: 'Otto\'s bus', desc: 'The bus depot from product 14 docks against Mailbox Row\'s east wall using the same brass hinge.', bg: '#5DDB9C' },
+  { drop: 'PRODUKTAS № 09 — FEB 2025', title: 'Bakery corner', desc: 'Place the bakery to the north — the awning lines up with Mailbox Row\'s ground-floor entrance.', bg: '#FFAEE7' },
+  { drop: 'PRODUKTAS № 21 — DEC 2025', title: 'Lighthouse', desc: 'Optional: route Otto\'s bike past the lighthouse using the path tiles included in this product\'s bag 4.', bg: '#FFD731' },
 ]
 
 const reviews = [
-  { stars: '★★★★★', quote: '"The hinge crossover with the bus is genuinely clever. My street has a postal route now."', name: 'Daniel K.', meta: 'Mega · Subscriber since drop 02', avatarColor: '#FB4903', initials: 'DK' },
+  { stars: '★★★★★', quote: '"The hinge crossover with the bus is genuinely clever. My street has a postal route now."', name: 'Daniel K.', meta: 'Mega · Subscriber since product 02', avatarColor: '#FB4903', initials: 'DK' },
   { stars: '★★★★★', quote: '"Otto\'s satchel actually flexes. I can\'t explain how delightful that is until you hold it."', name: 'Priya N.', meta: 'Standard · 11 months', avatarColor: '#5DDB9C', initials: 'PN' },
   { stars: '★★★★★', quote: '"Finished it in one evening. The mint+cream colour pairing is the best of the year."', name: 'Lucia F.', meta: 'Standard · 6 months', avatarColor: '#FFAEE7', initials: 'LF' },
   { stars: '★★★★☆', quote: '"Build is great. Sticker sheet is generous. Wish there was a third minifig — that\'s my one nit."', name: 'Theo W.', meta: 'Mega · 22 months', avatarColor: '#4DA2FF', initials: 'TW' },
@@ -95,7 +95,7 @@ export default function Drop() {
             <span className="text-ink/30">/</span>
             <Link to="/archive" className="hover:text-ink transition-colors">Products</Link>
             <span className="text-ink/30">/</span>
-            <span className="font-bold text-ink">Drop №26 — Mailbox Row</span>
+            <span className="font-bold text-ink">Product №26 — Mailbox Row</span>
           </div>
 
           <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2">
@@ -126,7 +126,7 @@ export default function Drop() {
                     className="absolute right-6 top-6 rounded-[8px] border-2 border-ink bg-brand-orange px-4 py-2.5 text-paper"
                     style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1, transform: 'rotate(3deg)', boxShadow: '4px 4px 0 #001B21' }}
                   >
-                    Drop № 26
+                    Product № 26
                   </div>
                   <div className="absolute bottom-5 left-6 font-mono text-[10px] tracking-[.18em] uppercase text-paper/70">
                     {thumbs[activeThumb].label}
@@ -185,7 +185,7 @@ export default function Drop() {
               </h1>
 
               <p className="mt-6 max-w-[48ch] text-[18px] leading-[1.62] text-ink/80">
-                A five-storey postwar apartment block in mint and cream, complete with a working mailbox door, three planted balconies, and the universe's first scheduled crossover — Otto's bus is the bus from drop №14.
+                A five-storey postwar apartment block in mint and cream, complete with a working mailbox door, three planted balconies, and the universe's first scheduled crossover — Otto's bus is the bus from product №14.
               </p>
 
               {/* Spec grid */}
@@ -204,7 +204,7 @@ export default function Drop() {
               <div id="buy" className="mt-8 rounded-3xl border-2 border-ink bg-ink p-7 text-paper shadow-[6px_6px_0_#001B21]">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="font-mono text-[11px] tracking-[.18em] uppercase text-paper/60">⬢ Rent this drop</p>
+                    <p className="font-mono text-[11px] tracking-[.18em] uppercase text-paper/60">⬢ Rent this product</p>
                     <div className="mt-1 flex items-baseline gap-2">
                       <span style={{ fontFamily: 'var(--font-display)', fontSize: 64, lineHeight: '.9' }}>
                         ${tiers[activeTier].price}
@@ -214,7 +214,7 @@ export default function Drop() {
                     <small className="mt-1 block text-[13px] text-paper/60">
                       {activeTier < DROP_REQUIRED_TIER
                         ? `Upgrade to ${tiers[DROP_REQUIRED_TIER].name}+ to unlock`
-                        : 'Drop №26 included in your monthly box'}
+                        : 'Product №26 included in your monthly box'}
                     </small>
                   </div>
                   <div className="flex gap-2 shrink-0">
@@ -298,7 +298,7 @@ export default function Drop() {
               </div>
 
               <p className="mt-4 text-center font-mono text-[11px] tracking-[.16em] uppercase text-ink/55">
-                Already a subscriber? Drop №26 is included in your May box.
+                Already a subscriber? Product №26 is included in your May box.
               </p>
             </div>
           </div>
@@ -403,13 +403,13 @@ export default function Drop() {
                 className="mt-3 uppercase text-ink"
                 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,5vw,72px)', lineHeight: '.9', letterSpacing: '-.01em' }}
               >
-                Otto has been<br />delivering mail<br />since drop 14.
+                Otto has been<br />delivering mail<br />since product 14.
               </h2>
               <p className="mt-6 text-[17px] leading-[1.6] text-ink/80">
-                You may have spotted Otto first as the bus driver in our spring-2025 transit drop. He's been quietly background-fielding bus routes ever since — but in May 2026 we're giving him his own building.
+                You may have spotted Otto first as the bus driver in our spring-2025 transit product. He's been quietly background-fielding bus routes ever since — but in May 2026 we're giving him his own building.
               </p>
               <p className="mt-3.5 text-[17px] leading-[1.6] text-ink/80">
-                Mailbox Row is the first BRICKTIME drop with a designed crossover: the fixed brass hinge under the mailbox is the same pin used in Otto's bus from drop 14. Slot them together, and the whole street starts to make sense.
+                Mailbox Row is the first BRICKTIME product with a designed crossover: the fixed brass hinge under the mailbox is the same pin used in Otto's bus from product 14. Slot them together, and the whole street starts to make sense.
               </p>
               <div className="mt-8 flex items-center gap-4 border-t border-dashed border-ink/20 pt-6">
                 <Avatar className="size-[54px] border-2 border-ink">
@@ -492,7 +492,7 @@ export default function Drop() {
               <ul className="mt-8 grid grid-cols-1 gap-[18px] md:grid-cols-3">
                 {[
                   { title: 'Removable satchel piece', body: "First time we've used the new fabric-look ABS — the satchel actually flexes when Otto sits down." },
-                  { title: 'Folding bicycle (8 pieces)', body: "Designed to fit on the bus from drop 14. Otto can ride to work, or take the bus, or both." },
+                  { title: 'Folding bicycle (8 pieces)', body: "Designed to fit on the bus from product 14. Otto can ride to work, or take the bus, or both." },
                   { title: 'Hand-numbered base plate', body: "Each base is laser-numbered 1/3,500 to 3,500/3,500. Yours arrives with a random number, registered on the BRICKTIME ledger." },
                 ].map((item) => (
                   <li key={item.title} className="flex items-start gap-3.5">
@@ -524,7 +524,7 @@ export default function Drop() {
                 className="mt-3 uppercase text-paper"
                 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,4vw,72px)', lineHeight: '.9', letterSpacing: '-.01em' }}
               >
-                Slots into three<br />existing drops.
+                Slots into three<br />existing products.
               </h2>
             </div>
 
@@ -534,7 +534,7 @@ export default function Drop() {
               style={{ background: '#FFD731' }}
             >
               <p className="max-w-[44ch] text-[20px] leading-[1.55] text-ink font-medium">
-                Every BRICKTIME drop is part of one growing universe. Mailbox Row connects directly with these previous drops via shared pins, scale, and color set.
+                Every BRICKTIME product is part of one growing universe. Mailbox Row connects directly with these previous products via shared pins, scale, and color set.
               </p>
             </div>
 

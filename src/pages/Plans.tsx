@@ -9,7 +9,7 @@ import { useReveal } from '@/hooks/useReveal'
 const plans = [
   {
     name: 'Nano',
-    tagline: 'Try one drop.',
+    tagline: 'Išbandyk vieną produktą.',
     monthlyPrice: 9,
     annualPrice: 7,
     bg: '#F5F1EB',
@@ -18,22 +18,21 @@ const plans = [
     ctaBg: '#001B21',
     ctaText: '#F5F1EB',
     perks: [
-      { label: '60–90 premium ABS bricks', included: true },
-      { label: 'Build card', included: true },
-      { label: '4 vinyl stickers', included: true },
-      { label: 'Free standard shipping', included: true },
-      { label: 'Exclusive minifig', included: false },
-      { label: 'Trade-club access', included: false },
-      { label: 'Early access drops', included: false },
-      { label: 'Annual surprise box', included: false },
+      { label: '60–90 aukštos kokybės ABS kaladėlių', included: true },
+      { label: 'Surinkimo kortelė', included: true },
+      { label: '4 vinilo lipdukai', included: true },
+      { label: 'Nemokamas standartinis pristatymas', included: true },
+      { label: 'Išskirtinis miniukas', included: false },
+      { label: 'Keitimų klubo prieiga', included: false },
+      { label: 'Ankstyva prieiga prie produktų', included: false },
+      { label: 'Metinė staigmenos dėžutė', included: false },
     ],
-    // 2-row layout: top-left row 1
     gridClass: 'lg:col-span-3',
     featured: false,
   },
   {
     name: 'Mini',
-    tagline: 'The full experience.',
+    tagline: 'Pilnas patyrimas.',
     monthlyPrice: 14,
     annualPrice: 11,
     bg: '#FFAEE7',
@@ -42,21 +41,20 @@ const plans = [
     ctaBg: '#001B21',
     ctaText: '#F5F1EB',
     perks: [
-      { label: '120–180 premium ABS bricks', included: true },
-      { label: '1 exclusive minifig', included: true },
-      { label: 'Build card + 8 vinyl stickers', included: true },
-      { label: 'Free standard shipping', included: true },
-      { label: 'Trade-club access', included: false },
-      { label: 'Early access drops', included: false },
-      { label: 'Annual surprise box', included: false },
+      { label: '120–180 aukštos kokybės ABS kaladėlių', included: true },
+      { label: '1 išskirtinis miniukas', included: true },
+      { label: 'Surinkimo kortelė + 8 vinilo lipdukai', included: true },
+      { label: 'Nemokamas standartinis pristatymas', included: true },
+      { label: 'Keitimų klubo prieiga', included: false },
+      { label: 'Ankstyva prieiga prie produktų', included: false },
+      { label: 'Metinė staigmenos dėžutė', included: false },
     ],
-    // top-left row 1 (next to Nano)
     gridClass: 'lg:col-span-3',
     featured: false,
   },
   {
     name: 'Standard',
-    tagline: 'Most builders live here.',
+    tagline: 'Čia gyvena dauguma kūrėjų.',
     monthlyPrice: 24,
     annualPrice: 19,
     bg: '#FFD731',
@@ -65,21 +63,20 @@ const plans = [
     ctaBg: '#001B21',
     ctaText: '#F5F1EB',
     perks: [
-      { label: '240–320 premium ABS bricks', included: true },
-      { label: '2 exclusive minifigs', included: true },
-      { label: 'Build card + 16 vinyl stickers', included: true },
-      { label: 'Free expedited shipping', included: true },
-      { label: 'Trade-club access', included: true },
-      { label: 'Early access drops', included: false },
-      { label: 'Annual surprise box', included: false },
+      { label: '240–320 aukštos kokybės ABS kaladėlių', included: true },
+      { label: '2 išskirtiniai miniukai', included: true },
+      { label: 'Surinkimo kortelė + 16 vinilo lipdukų', included: true },
+      { label: 'Nemokamas skubus pristatymas', included: true },
+      { label: 'Keitimų klubo prieiga', included: true },
+      { label: 'Ankstyva prieiga prie produktų', included: false },
+      { label: 'Metinė staigmenos dėžutė', included: false },
     ],
-    // right col, spans both rows
     gridClass: 'lg:col-span-6 lg:row-span-2',
     featured: true,
   },
   {
     name: 'Pro',
-    tagline: 'Step it up.',
+    tagline: 'Žengk aukštyn.',
     monthlyPrice: 35,
     annualPrice: 28,
     bg: '#4DA2FF',
@@ -88,21 +85,20 @@ const plans = [
     ctaBg: '#001B21',
     ctaText: '#F5F1EB',
     perks: [
-      { label: '340–400 premium ABS bricks', included: true },
-      { label: '2 exclusive minifigs + alt colourway', included: true },
-      { label: 'Build card + 20 vinyl stickers', included: true },
-      { label: 'Free expedited shipping', included: true },
-      { label: 'Trade-club access', included: true },
-      { label: 'Early access drops', included: true },
-      { label: 'Annual surprise box', included: false },
+      { label: '340–400 aukštos kokybės ABS kaladėlių', included: true },
+      { label: '2 išskirtiniai miniukai + alternatyvi spalva', included: true },
+      { label: 'Surinkimo kortelė + 20 vinilo lipdukų', included: true },
+      { label: 'Nemokamas skubus pristatymas', included: true },
+      { label: 'Keitimų klubo prieiga', included: true },
+      { label: 'Ankstyva prieiga prie produktų', included: true },
+      { label: 'Metinė staigmenos dėžutė', included: false },
     ],
-    // bottom-left row 2
     gridClass: 'lg:col-span-3',
     featured: false,
   },
   {
     name: 'Mega',
-    tagline: 'Go all-in.',
+    tagline: 'Eik iki galo.',
     monthlyPrice: 55,
     annualPrice: 44,
     bg: '#FB4903',
@@ -111,45 +107,44 @@ const plans = [
     ctaBg: '#F5F1EB',
     ctaText: '#001B21',
     perks: [
-      { label: '420–520 premium ABS bricks', included: true },
-      { label: '3 exclusive minifigs + rare variant', included: true },
-      { label: 'Hardcover build book', included: true },
-      { label: 'Free expedited shipping', included: true },
-      { label: 'Trade-club access', included: true },
-      { label: 'Early access drops', included: true },
-      { label: 'Annual surprise box', included: true },
+      { label: '420–520 aukštos kokybės ABS kaladėlių', included: true },
+      { label: '3 išskirtiniai miniukai + retas variantas', included: true },
+      { label: 'Kieta surinkimo knyga', included: true },
+      { label: 'Nemokamas skubus pristatymas', included: true },
+      { label: 'Keitimų klubo prieiga', included: true },
+      { label: 'Ankstyva prieiga prie produktų', included: true },
+      { label: 'Metinė staigmenos dėžutė', included: true },
     ],
-    // bottom-right row 2 (fills col-3 gap)
     gridClass: 'lg:col-span-3',
     featured: false,
   },
 ]
 
 const trustTiles = [
-  { label: 'Cancel any time', body: 'No fees, no friction. One click in your account dashboard.', bg: '#5DDB9C', num: '01' },
-  { label: 'Skip any month', body: 'Going on holiday? Skip up to 3 months per year, billing pauses.', bg: '#FFAEE7', num: '02' },
-  { label: '30-day guarantee', body: "Don't love your first box — we'll refund it, no questions asked.", bg: '#4DA2FF', num: '03' },
-  { label: 'Free worldwide shipping', body: 'Standard on all plans. Expedited on Standard, Pro and Mega.', bg: '#FFD731', num: '04' },
+  { label: 'Atšauk bet kada', body: 'Jokių mokesčių, jokio trinties. Vienas paspaudimas tavo paskyros skydelyje.', bg: '#5DDB9C', num: '01' },
+  { label: 'Praleisk bet kurį mėnesį', body: 'Vyksti atostogų? Per metus galima praleisti iki 3 mėnesių, mokėjimas sustabdomas.', bg: '#FFAEE7', num: '02' },
+  { label: '30 dienų garantija', body: 'Nepatiko pirmoji dėžutė — grąžinsime visą sumą, be jokių klausimų.', bg: '#4DA2FF', num: '03' },
+  { label: 'Nemokamas pristatymas visame pasaulyje', body: 'Standartinis visuose planuose. Skubus Standard, Pro ir Mega planuose.', bg: '#FFD731', num: '04' },
 ]
 
 const faqs = [
-  { q: 'When does my first box ship?', a: "Orders placed before the 15th of the month ship with the current month's drop. After the 15th, you'll get the following month's drop." },
-  { q: 'Can I switch plans mid-subscription?', a: 'Yes — upgrade or downgrade at any time from your dashboard. Changes take effect from the next billing cycle.' },
-  { q: 'What payment methods do you accept?', a: 'We accept all major credit and debit cards (Visa, Mastercard, Amex), PayPal, and Apple Pay.' },
-  { q: 'How does the annual billing discount work?', a: 'Annual billing charges you for 10 months upfront and gives you 12 months of drops — effectively 2 months free. The rate shown is the per-month equivalent.' },
-  { q: 'Are the minifigs compatible with standard bricks?', a: 'Every BRICKTIME piece is 100 % compatible with all major brick systems you already own.' },
-  { q: 'Do you ship internationally?', a: 'We ship to 42 countries. Standard shipping is free everywhere. Delivery times range from 3–5 days (EU) to 7–14 days (rest of world).' },
+  { q: 'Kada išsiunčiama pirmoji dėžutė?', a: 'Užsakymai, pateikti iki mėnesio 15 d., išsiunčiami su einamojo mėnesio produktu. Po 15 d. — su kito mėnesio produktu.' },
+  { q: 'Ar galiu keisti planą prenumeratos metu?', a: 'Taip — paaukštink arba sumažink planą bet kada iš savo skydelio. Pakeitimai įsigalioja nuo kito atsiskaitymo ciklo.' },
+  { q: 'Kokius mokėjimo būdus priimate?', a: 'Priimame visas pagrindines kredito ir debeto korteles (Visa, Mastercard, Amex), PayPal ir Apple Pay.' },
+  { q: 'Kaip veikia metinio atsiskaitymo nuolaida?', a: 'Metinis atsiskaitymas apmokestina už 10 mėnesių iš anksto ir suteikia 12 mėnesių produktų — iš esmės 2 mėnesiai nemokamai. Rodoma kaina yra mėnesio ekvivalentas.' },
+  { q: 'Ar miniukai suderinami su standartinėmis kaladėlėmis?', a: 'Kiekviena BRICKTIME detalė yra 100 % suderinama su visomis pagrindinėmis kaladėlių sistemomis, kurias jau turi.' },
+  { q: 'Ar pristatote į užsienį?', a: 'Pristatome į 42 šalis. Standartinis pristatymas nemokamas visur. Pristatymo laikas: 3–5 dienos (ES), 7–14 dienų (likęs pasaulis).' },
 ]
 
 const comparisonRows = [
-  { feature: 'Bricks per drop',     nano: '60–90',    mini: '120–180', standard: '240–320', pro: '340–400',   mega: '420–520' },
-  { feature: 'Exclusive minifigs',  nano: '—',        mini: '1',       standard: '2',       pro: '2 + alt',  mega: '3 + variant' },
-  { feature: 'Build card',          nano: '✓',        mini: '✓',       standard: '✓',       pro: '✓',        mega: 'Hardcover book' },
-  { feature: 'Vinyl stickers',      nano: '4',        mini: '8',       standard: '16',      pro: '20',       mega: '24' },
-  { feature: 'Shipping',            nano: 'Standard', mini: 'Standard',standard: 'Expedited',pro: 'Expedited',mega: 'Expedited' },
-  { feature: 'Trade-club access',   nano: '—',        mini: '—',       standard: '✓',       pro: '✓',        mega: '✓' },
-  { feature: 'Early-access drops',  nano: '—',        mini: '—',       standard: '—',       pro: '✓',        mega: '✓' },
-  { feature: 'Annual surprise box', nano: '—',        mini: '—',       standard: '—',       pro: '—',        mega: '✓' },
+  { feature: 'Kaladėlių per produktą',   nano: '60–90',    mini: '120–180', standard: '240–320', pro: '340–400',   mega: '420–520' },
+  { feature: 'Išskirtiniai miniukai',   nano: '—',        mini: '1',       standard: '2',       pro: '2 + alt',  mega: '3 + variantas' },
+  { feature: 'Surinkimo kortelė',       nano: '✓',        mini: '✓',       standard: '✓',       pro: '✓',        mega: 'Kieta knyga' },
+  { feature: 'Vinilo lipdukai',         nano: '4',        mini: '8',       standard: '16',      pro: '20',       mega: '24' },
+  { feature: 'Pristatymas',             nano: 'Standartinis', mini: 'Standartinis', standard: 'Skubus', pro: 'Skubus', mega: 'Skubus' },
+  { feature: 'Keitimų klubo prieiga',   nano: '—',        mini: '—',       standard: '✓',       pro: '✓',        mega: '✓' },
+  { feature: 'Ankstyva prieiga prie produktų', nano: '—', mini: '—',       standard: '—',       pro: '✓',        mega: '✓' },
+  { feature: 'Metinė staigmenos dėžutė', nano: '—',      mini: '—',       standard: '—',       pro: '—',        mega: '✓' },
 ]
 
 // ── sub-components ─────────────────────────────────────────────────────────
@@ -165,7 +160,7 @@ function BillingToggle({ value, onChange }: { value: 'monthly' | 'annual'; onCha
             value === v ? 'bg-ink text-paper' : 'text-ink/60 hover:text-ink',
           ].join(' ')}
         >
-          {v === 'monthly' ? 'Monthly' : 'Annual — save 2 months'}
+          {v === 'monthly' ? 'Mėnesinis' : 'Metinis — taupyk 2 mėnesius'}
         </button>
       ))}
     </div>
@@ -225,7 +220,7 @@ export default function PlansPage() {
               style={{ background: '#001B21', minHeight: 340 }}
             >
               <div>
-                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Plans & pricing</p>
+                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Planai ir kainos</p>
                 <h1
                   className="mt-5 uppercase text-paper"
                   style={{
@@ -235,27 +230,27 @@ export default function PlansPage() {
                     letterSpacing: '-.015em',
                   }}
                 >
-                  Bricks every
+                  Kaladėlės kiekvieną
                   <br />
-                  month.{' '}
+                  mėnesį.{' '}
                   <span
                     className="inline-block bg-brand-yellow px-[.1em] text-ink"
                     style={{ transform: 'rotate(-1.5deg)' }}
                   >
-                    Pick
+                    Rinkis
                   </span>
                   <br />
-                  your tier.
+                  savo lygį.
                 </h1>
                 <p className="mt-6 max-w-[48ch] text-[17px] leading-[1.65] text-paper/70">
-                  Five plans from first-timer to collector. No lock-ins — cancel, skip, or swap any month.
+                  Penki planai — nuo pradedančiojo iki kolekcionieriaus. Jokių įsipareigojimų — atšauk, praleisk ar keisk bet kurį mėnesį.
                 </p>
               </div>
               <div className="mt-8">
                 <BillingToggle value={billing} onChange={setBilling} />
                 {billing === 'annual' && (
                   <p className="mt-3 font-mono text-[11px] tracking-[.12em] uppercase text-brand-mint">
-                    ✓ 2 months free — billed as one annual payment
+                    ✓ 2 mėnesiai nemokamai — apmokestinama kaip vienas metinis mokėjimas
                   </p>
                 )}
               </div>
@@ -266,14 +261,14 @@ export default function PlansPage() {
               className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] lg:col-span-5 lg:row-span-2"
               style={{ background: '#5DDB9C', minHeight: 340 }}
             >
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">Community</p>
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">Bendruomenė</p>
 
               <div className="flex flex-col gap-7">
                 {[
-                  { num: '12,400+', label: 'Active subscribers' },
-                  { num: '4.9 / 5', label: 'Average rating' },
-                  { num: '26', label: 'Drops shipped' },
-                  { num: '42', label: 'Countries reached' },
+                  { num: '12 400+', label: 'Aktyvūs prenumeratoriai' },
+                  { num: '4.9 / 5', label: 'Vidutinis įvertinimas' },
+                  { num: '26', label: 'Išsiųstų produktų' },
+                  { num: '42', label: 'Šalių pasiekta' },
                 ].map((s) => (
                   <div key={s.label}>
                     <div
@@ -297,7 +292,7 @@ export default function PlansPage() {
                     />
                   ))}
                 </div>
-                <p className="text-[13px] font-semibold text-ink">Builders worldwide</p>
+                <p className="text-[13px] font-semibold text-ink">Kūrėjai visame pasaulyje</p>
               </div>
             </div>
 
@@ -317,10 +312,10 @@ export default function PlansPage() {
                   className="uppercase text-ink"
                   style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(20px,2vw,30px)', lineHeight: '.92' }}
                 >
-                  30-day money-back guarantee
+                  30 dienų pinigų grąžinimo garantija
                 </p>
                 <p className="mt-2 text-[14px] leading-[1.6] text-ink/65">
-                  Not happy with your first box? We'll refund the full amount — no questions, no forms.
+                  Nepatiko pirmoji dėžutė? Grąžinsime visą sumą — be klausimų, be formų.
                 </p>
               </div>
             </div>
@@ -348,20 +343,15 @@ export default function PlansPage() {
                   letterSpacing: '-.015em',
                 }}
               >
-                Five plans.
+                Penki planai.
                 <br />
-                One universe.
+                Viena visata.
               </h2>
               <div className="hidden lg:block">
                 <BillingToggle value={billing} onChange={setBilling} />
               </div>
             </div>
 
-            {/*
-              2-row bento:
-              Row 1 → Nano(col-3) Mini(col-3) Standard(col-6, row-span-2)
-              Row 2 → Pro(col-3)  Mega(col-3)  ↑ continued ↑
-            */}
             {plans.map((plan, i) => (
               <div
                 key={plan.name}
@@ -378,7 +368,7 @@ export default function PlansPage() {
                     className="absolute -top-4 right-6 rotate-2 rounded border-2 border-ink px-3 py-1 font-mono text-[11px] tracking-[.08em] uppercase"
                     style={{ background: '#001B21', color: '#F5F1EB' }}
                   >
-                    Most popular
+                    Populiariausias
                   </Badge>
                 )}
 
@@ -416,7 +406,7 @@ export default function PlansPage() {
                       className="font-mono text-[12px] tracking-[.06em] uppercase"
                       style={{ color: `${plan.textColor}80` }}
                     >
-                      /mo
+                      /mėn.
                     </span>
                   </div>
                   {billing === 'annual' && (
@@ -424,7 +414,7 @@ export default function PlansPage() {
                       className="mt-1.5 font-mono text-[11px] tracking-[.06em] uppercase"
                       style={{ color: `${plan.textColor}70` }}
                     >
-                      billed ${plan.annualPrice * 10}/yr — save ${(plan.monthlyPrice - plan.annualPrice) * 12}
+                      mokama ${plan.annualPrice * 10}/metams — taupai ${(plan.monthlyPrice - plan.annualPrice) * 12}
                     </p>
                   )}
                 </div>
@@ -455,7 +445,7 @@ export default function PlansPage() {
                   style={{ background: plan.ctaBg, color: plan.ctaText }}
                   asChild
                 >
-                  <a href="#">Start with {plan.name} →</a>
+                  <a href="#">Pradėti su {plan.name} →</a>
                 </Button>
               </div>
             ))}
@@ -470,7 +460,7 @@ export default function PlansPage() {
           <div ref={compareRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             <div className="reveal lg:col-span-12">
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ Side by side</p>
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ Palyginimas</p>
               <h2
                 className="mt-3 uppercase text-ink"
                 style={{
@@ -480,7 +470,7 @@ export default function PlansPage() {
                   letterSpacing: '-.015em',
                 }}
               >
-                Everything, compared.
+                Viskas, greta.
               </h2>
             </div>
 
@@ -491,7 +481,7 @@ export default function PlansPage() {
               <div className="min-w-[720px]">
                 {/* Column headers */}
                 <div className="grid border-b-2 border-ink" style={{ gridTemplateColumns: '2fr 1fr 1fr 1.4fr 1fr 1fr' }}>
-                  <div className="p-5 font-mono text-[11px] tracking-[.18em] uppercase text-ink/40">Feature</div>
+                  <div className="p-5 font-mono text-[11px] tracking-[.18em] uppercase text-ink/40">Savybė</div>
                   {plans.map((p) => (
                     <div
                       key={p.name}
@@ -506,7 +496,7 @@ export default function PlansPage() {
                       </span>
                       {p.featured && (
                         <span className="font-mono text-[9px] tracking-[.1em] uppercase" style={{ color: `${p.textColor}60` }}>
-                          Popular
+                          Populiarus
                         </span>
                       )}
                     </div>
@@ -585,7 +575,7 @@ export default function PlansPage() {
               className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-9 shadow-[6px_6px_0_#001B21] lg:col-span-4"
               style={{ background: '#5C4ADE', minHeight: 280 }}
             >
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Questions</p>
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Klausimai</p>
               <div>
                 <h2
                   className="uppercase text-paper"
@@ -596,14 +586,14 @@ export default function PlansPage() {
                     letterSpacing: '-.015em',
                   }}
                 >
-                  The things
+                  Tai, ko
                   <br />
-                  people
+                  žmonės
                   <br />
-                  ask us.
+                  klausia.
                 </h2>
                 <p className="mt-5 text-[14px] leading-[1.65] text-paper/65">
-                  Still stuck? Drop us a line at{' '}
+                  Vis dar neaišku? Rašyk mums{' '}
                   <a href="mailto:hi@bricktime.co" className="text-brand-yellow underline underline-offset-2">
                     hi@bricktime.co
                   </a>
@@ -639,7 +629,7 @@ export default function PlansPage() {
               className="flex flex-col justify-between rounded-3xl border-2 border-paper/20 p-10 lg:col-span-8"
               style={{ background: '#FB4903', minHeight: 300 }}
             >
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/60">⬢ Drop № 26 — shipping May 5</p>
+              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/60">⬢ Produktas № 26 — išsiunčiama gegužės 5 d.</p>
               <div>
                 <h2
                   className="uppercase text-paper"
@@ -650,14 +640,14 @@ export default function PlansPage() {
                     letterSpacing: '-.015em',
                   }}
                 >
-                  Order before
+                  Užsisakyk iki
                   <br />
-                  May 15 — get
+                  gegužės 15 — gauk
                   <br />
                   Mailbox Row.
                 </h2>
                 <p className="mt-5 max-w-[44ch] text-[16px] leading-[1.6] text-paper/75">
-                  Drop № 26 is Mailbox Row + Postman Otto. 312 bricks, 2 minifigs, one very satisfying build.
+                  Produktas № 26 — tai Mailbox Row + Postman Otto. 312 kaladėlių, 2 miniukai, vienas labai tenkinantis surinkimas.
                 </p>
               </div>
             </div>
@@ -667,7 +657,7 @@ export default function PlansPage() {
               style={{ background: '#001B21', minHeight: 300 }}
             >
               <div>
-                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">Starting from</p>
+                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">Nuo</p>
                 <div
                   className="mt-1 uppercase text-paper"
                   style={{ fontFamily: 'var(--font-display)', fontSize: 72, lineHeight: '.88' }}
@@ -675,7 +665,7 @@ export default function PlansPage() {
                   ${billing === 'monthly' ? 9 : 7}
                 </div>
                 <p className="mt-1 font-mono text-[11px] tracking-[.08em] uppercase text-paper/50">
-                  per month{billing === 'annual' ? ' (annual)' : ''}
+                  per mėnesį{billing === 'annual' ? ' (metinis)' : ''}
                 </p>
               </div>
 
@@ -684,14 +674,14 @@ export default function PlansPage() {
                   className="w-full rounded-full border-2 border-paper/40 bg-brand-yellow text-ink font-bold text-[15px] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_rgba(245,241,235,.3)] transition-all"
                   asChild
                 >
-                  <a href="#">Start subscription →</a>
+                  <a href="#">Pradėti prenumeratą →</a>
                 </Button>
                 <Button
                   variant="outline"
                   className="w-full rounded-full border-2 border-paper/30 bg-transparent text-paper font-bold text-[15px] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_rgba(245,241,235,.2)] transition-all"
                   asChild
                 >
-                  <a href="/drop/26">Preview this drop →</a>
+                  <a href="/drop/26">Peržiūrėti šį produktą →</a>
                 </Button>
               </div>
             </div>
