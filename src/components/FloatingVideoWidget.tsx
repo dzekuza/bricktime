@@ -24,23 +24,23 @@ export default function FloatingVideoWidget() {
     >
       {/* Speech bubble */}
       <div
-        className="relative mr-10 rounded-2xl px-4 py-2 text-[14px] font-bold text-paper shadow-[4px_4px_0_#001B21]"
+        className="relative mr-5 rounded-xl px-3 py-1.5 text-[12px] font-bold text-paper shadow-[3px_3px_0_#001B21]"
         style={{ background: '#001B21' }}
       >
         Sveiki! 👋
         {/* Tail */}
         <span
-          className="absolute -bottom-[7px] right-6 h-0 w-0"
+          className="absolute -bottom-[6px] right-4 h-0 w-0"
           style={{
-            borderLeft: '7px solid transparent',
-            borderRight: '7px solid transparent',
-            borderTop: '8px solid #001B21',
+            borderLeft: '5px solid transparent',
+            borderRight: '5px solid transparent',
+            borderTop: '6px solid #001B21',
           }}
         />
       </div>
 
       {/* Video card */}
-      <div className="relative overflow-hidden rounded-2xl border-2 border-ink shadow-[6px_6px_0_#001B21]" style={{ width: 260 }}>
+      <div className="relative overflow-hidden rounded-xl border-2 border-ink shadow-[4px_4px_0_#001B21]" style={{ width: 130 }}>
         <video
           src="/loader.mp4"
           autoPlay
@@ -54,10 +54,10 @@ export default function FloatingVideoWidget() {
         {/* Close button */}
         <button
           onClick={() => setDismissed(true)}
-          className="absolute right-2 top-2 grid size-7 place-items-center rounded-full bg-ink text-paper transition-transform hover:scale-110"
+          className="absolute right-1.5 top-1.5 grid size-5 place-items-center rounded-full bg-ink text-paper transition-transform hover:scale-110"
           aria-label="Uždaryti"
         >
-          <XIcon className="size-3.5" />
+          <XIcon className="size-3" />
         </button>
       </div>
     </div>
