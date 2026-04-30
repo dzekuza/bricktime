@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
+import { ArrowRightIcon, StarIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 gsap.registerPlugin(useGSAP)
@@ -182,7 +183,10 @@ export default function Hero() {
             ))}
           </div>
           <div className="text-[13px] text-ink/60">
-            <span className="font-bold text-ink">★★★★★ 4.9</span>
+            <span className="inline-flex items-center gap-0.5 font-bold text-ink">
+              {Array.from({ length: 5 }).map((_, i) => <StarIcon key={i} className="size-3 fill-current" />)}
+              {' '}4.9
+            </span>
             {' · '}12 400+ kūrėjų
           </div>
         </div>
@@ -228,7 +232,7 @@ export default function Hero() {
             size="lg"
             className="rounded-full border-2 border-ink bg-brand-yellow text-ink font-bold text-[16px] hover:bg-brand-yellow hover:text-ink hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21] transition-all"
           >
-            <a href="#plans">Pradėti prenumeratą →</a>
+            <a href="#plans">Pradėti prenumeratą <ArrowRightIcon data-icon="inline-end" /></a>
           </Button>
           <Button
             asChild

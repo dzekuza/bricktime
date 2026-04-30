@@ -73,7 +73,7 @@ export default function HowItWorks() {
               <div className="font-mono text-[10px] tracking-[.24em] uppercase text-ink/60 mb-1">Žingsnis</div>
               <div
                 className="text-ink/10 select-none"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 130, lineHeight: .8 }}
+                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(72px, 10vw, 130px)', lineHeight: .8 }}
               >
                 {steps[0].num}
               </div>
@@ -142,13 +142,13 @@ export default function HowItWorks() {
             <div>
               <div
                 className="text-ink/10 select-none"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 88, lineHeight: .8 }}
+                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(52px, 7vw, 88px)', lineHeight: .8 }}
               >
                 {steps[1].num}
               </div>
               <h3
                 className="mt-1 uppercase text-ink"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 32, lineHeight: '.88' }}
+                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(22px, 2.5vw, 32px)', lineHeight: '.88' }}
               >
                 {steps[1].title.split('\n').map((l, j) => (
                   <span key={j}>
@@ -176,7 +176,7 @@ export default function HowItWorks() {
             <div>
               <div
                 className="text-ink/10 select-none"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 88, lineHeight: .8 }}
+                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(52px, 7vw, 88px)', lineHeight: .8 }}
               >
                 {steps[2].num}
               </div>

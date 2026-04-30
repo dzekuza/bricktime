@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
+import { ArrowRightIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useReveal } from '@/hooks/useReveal'
@@ -56,7 +57,7 @@ export default function Subscribe() {
                 </p>
                 <div className="mt-10 flex flex-wrap gap-4 justify-center">
                   <Button asChild className="rounded-full border-2 border-ink bg-ink text-paper font-bold text-[15px] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] transition-all">
-                    <Link to="/account">Eiti į paskyrą →</Link>
+                    <Link to="/account">Eiti į paskyrą <ArrowRightIcon data-icon="inline-end" /></Link>
                   </Button>
                   <Button asChild variant="outline" className="rounded-full border-2 border-ink bg-transparent text-ink font-bold text-[15px] hover:bg-ink/5 transition-all">
                     <Link to="/drop/26">Peržiūrėti produktą № 26</Link>
@@ -109,7 +110,7 @@ export default function Subscribe() {
                       <span>{i + 1}</span>
                       <span>{s}</span>
                     </div>
-                    {i === 0 && <span className="text-paper/30 font-mono">→</span>}
+                    {i === 0 && <ArrowRightIcon className="size-4 text-paper/30" />}
                   </div>
                 ))}
               </div>
@@ -215,7 +216,7 @@ export default function Subscribe() {
                 className="rounded-full border-2 border-ink bg-ink text-paper font-bold text-[16px] hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21] transition-all"
                 onClick={() => setStep('payment')}
               >
-                Tęsti su {plan.name} →
+                Tęsti su {plan.name} <ArrowRightIcon data-icon="inline-end" />
               </Button>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { ArrowRightIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useReveal } from '@/hooks/useReveal'
 import gsap from 'gsap'
@@ -112,7 +113,7 @@ export default function BigCTA() {
                 size="lg"
                 className="w-full rounded-full border-2 border-paper/30 bg-brand-yellow text-ink font-bold text-[16px] hover:bg-brand-yellow hover:text-ink hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.2)] transition-all"
               >
-                <a href="#plans">Pradėti prenumeratą →</a>
+                <a href="#plans">Pradėti prenumeratą <ArrowRightIcon data-icon="inline-end" /></a>
               </Button>
               <Button
                 asChild

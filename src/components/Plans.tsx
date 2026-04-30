@@ -198,7 +198,7 @@ export default function Plans() {
                   className="uppercase"
                   style={{
                     fontFamily: 'var(--font-display)',
-                    fontSize: 28,
+                    fontSize: 'clamp(20px, 2vw, 28px)',
                     lineHeight: '.88',
                     color: plan.textColor,
                   }}
@@ -210,7 +210,7 @@ export default function Plans() {
                     className="plan-price inline-block"
                     style={{
                       fontFamily: 'var(--font-display)',
-                      fontSize: 52,
+                      fontSize: 'clamp(32px, 4vw, 52px)',
                       lineHeight: '.88',
                       color: plan.textColor,
                     }}

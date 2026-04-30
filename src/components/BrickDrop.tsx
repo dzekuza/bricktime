@@ -1,4 +1,5 @@
 import FloatDrop from '@/components/FloatDrop'
+import { ArrowRightIcon } from 'lucide-react'
 
 interface BrickProps {
   color: string
@@ -106,7 +107,7 @@ export default function BrickDrop() {
             href="#plans"
             className="inline-flex items-center gap-2 rounded-full border-2 border-paper bg-paper px-8 py-4 font-bold text-[15px] text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.3)]"
           >
-            Pradėti prenumeratą →
+            Pradėti prenumeratą <ArrowRightIcon className="size-4" />
           </a>
         </div>
       </div>

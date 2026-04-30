@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
+import { ArrowRightIcon } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useReveal } from '@/hooks/useReveal'
@@ -445,7 +446,7 @@ export default function PlansPage() {
                   style={{ background: plan.ctaBg, color: plan.ctaText }}
                   asChild
                 >
-                  <a href="#">Pradėti su {plan.name} →</a>
+                  <a href="#">Pradėti su {plan.name} <ArrowRightIcon data-icon="inline-end" /></a>
                 </Button>
               </div>
             ))}
@@ -674,14 +675,14 @@ export default function PlansPage() {
                   className="w-full rounded-full border-2 border-paper/40 bg-brand-yellow text-ink font-bold text-[15px] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_rgba(245,241,235,.3)] transition-all"
                   asChild
                 >
-                  <a href="#">Pradėti prenumeratą →</a>
+                  <a href="#">Pradėti prenumeratą <ArrowRightIcon data-icon="inline-end" /></a>
                 </Button>
                 <Button
                   variant="outline"
                   className="w-full rounded-full border-2 border-paper/30 bg-transparent text-paper font-bold text-[15px] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_rgba(245,241,235,.2)] transition-all"
                   asChild
                 >
-                  <a href="/drop/26">Peržiūrėti šį produktą →</a>
+                  <a href="/drop/26">Peržiūrėti šį produktą <ArrowRightIcon data-icon="inline-end" /></a>
                 </Button>
               </div>
             </div>

@@ -1,4 +1,5 @@
 import gsap from 'gsap'
+import { StarIcon } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { useReveal } from '@/hooks/useReveal'
 
@@ -69,7 +70,9 @@ export default function Testimonials() {
             onMouseEnter={onCardEnter}
             onMouseLeave={onCardLeave}
           >
-            <div className="stars text-ink tracking-[3px] text-lg">★★★★★</div>
+            <div className="stars flex gap-0.5 text-ink">
+              {Array.from({ length: 5 }).map((_, i) => <StarIcon key={i} className="size-4 fill-current" />)}
+            </div>
             <p
               className="mt-4 uppercase text-ink"
               style={{
@@ -109,7 +112,7 @@ export default function Testimonials() {
             onMouseEnter={onCardEnter}
             onMouseLeave={onCardLeave}
           >
-            <div className="stars text-ink tracking-[3px]">★★★★★</div>
+            <div className="stars text-ink tracking-[3px]">⭐⭐⭐⭐⭐</div>
             <p
               className="mt-4 uppercase text-ink"
               style={{
@@ -177,7 +180,7 @@ export default function Testimonials() {
             onMouseEnter={onCardEnter}
             onMouseLeave={onCardLeave}
           >
-            <div className="stars text-ink tracking-[3px]">★★★★★</div>
+            <div className="stars text-ink tracking-[3px]">⭐⭐⭐⭐⭐</div>
             <p
               className="mt-4 uppercase text-ink"
               style={{

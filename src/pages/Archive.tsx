@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
+import { ArrowRightIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 // ── types ──────────────────────────────────────────────────────────────────
@@ -181,7 +182,7 @@ function ProductCard({ product, featured = false }: { product: Product; featured
           style={{ background: tier.bg, color: tier.textColor }}
         >
           <span>Nuomok su {tier.label}+</span>
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 22 }}>→</span>
+          <ArrowRightIcon className="size-5" />
         </div>
       </div>
     </Link>

@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import gsap from 'gsap'
+import { ArrowRightIcon } from 'lucide-react'
 import { useReveal } from '@/hooks/useReveal'
 import FloatDrop from '@/components/FloatDrop'
 
@@ -94,7 +95,7 @@ export default function WhatsInside() {
               href="#plans"
               className="mt-8 inline-flex items-center gap-2 rounded-full border-2 border-ink bg-ink px-7 py-3.5 font-bold text-[15px] text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21]"
             >
-              Pradėti prenumeratą →
+              Pradėti prenumeratą <ArrowRightIcon className="size-4" />
             </a>
 
             {/* Lifestyle photo */}

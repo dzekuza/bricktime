@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { MenuIcon, XIcon, ArrowRightIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 const links = [
@@ -26,7 +27,7 @@ export default function Nav() {
         className="sticky top-0 z-50"
         style={{ background: '#FFFFFF' }}
       >
-        <div className="mx-auto grid h-[84px] max-w-[1320px] grid-cols-3 items-center px-7">
+        <div className="mx-auto flex h-[84px] max-w-[1320px] items-center justify-between px-7 md:grid md:grid-cols-3">
 
           {/* Left — desktop nav links */}
           <div className="hidden items-center gap-7 md:flex">
@@ -45,7 +46,7 @@ export default function Nav() {
           </div>
 
           
-          <Link to="/" className="flex items-center justify-self-center">
+          <Link to="/" className="flex items-center md:justify-self-center">
             <video
               src="/nav-logo.mov"
               autoPlay
@@ -63,13 +64,13 @@ export default function Nav() {
               size="sm"
               className="hidden rounded-full border-2 border-ink bg-ink text-paper font-bold hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#001B21] transition-all md:inline-flex"
             >
-              <Link to="/subscribe">Prenumeruoti →</Link>
+              <Link to="/subscribe">Prenumeruoti <ArrowRightIcon data-icon="inline-end" /></Link>
             </Button>
 
             {/* Account avatar */}
             <Link
               to="/account"
-              className="hidden size-9 items-center justify-center overflow-hidden rounded-full border-2 border-ink bg-brand-yellow transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#001B21] md:flex"
+              className="flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-ink bg-brand-yellow transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#001B21]"
               aria-label="Paskyra"
             >
               <img src="/avatars/avatar-classic.png" alt="Paskyra" className="h-full w-full object-cover" />
@@ -78,21 +79,10 @@ export default function Nav() {
             {/* Hamburger — mobile only */}
             <button
               onClick={() => setOpen((v) => !v)}
-              className="flex size-10 flex-col items-center justify-center gap-[5px] rounded-full border-2 border-ink bg-paper md:hidden"
+              className="grid size-10 place-items-center rounded-full border-2 border-ink bg-paper md:hidden"
               aria-label={open ? 'Uždaryti meniu' : 'Atidaryti meniu'}
             >
-              <span
-                className="block h-[2px] w-5 bg-ink transition-all duration-200"
-                style={{ transform: open ? 'translateY(7px) rotate(45deg)' : 'none' }}
-              />
-              <span
-                className="block h-[2px] w-5 bg-ink transition-all duration-200"
-                style={{ opacity: open ? 0 : 1 }}
-              />
-              <span
-                className="block h-[2px] w-5 bg-ink transition-all duration-200"
-                style={{ transform: open ? 'translateY(-7px) rotate(-45deg)' : 'none' }}
-              />
+              {open ? <XIcon className="size-5 text-ink" /> : <MenuIcon className="size-5 text-ink" />}
             </button>
           </div>
         </div>
@@ -126,7 +116,7 @@ export default function Nav() {
               className="grid size-9 place-items-center rounded-full border-2 border-ink text-ink"
               aria-label="Uždaryti meniu"
             >
-              ✕
+              <XIcon className="size-4" />
             </button>
           </div>
 
@@ -164,7 +154,7 @@ export default function Nav() {
               to="/subscribe"
               className="flex w-full items-center justify-center rounded-full border-2 border-ink bg-ink py-4 text-center font-bold text-[16px] text-paper"
             >
-              Prenumeruoti →
+              Prenumeruoti <ArrowRightIcon className="inline size-4 ml-1" />
             </Link>
             <p className="mt-3 text-center font-mono text-[10px] tracking-[.14em] uppercase text-ink/40">
               Atšauk bet kada · Nemokamas pristatymas

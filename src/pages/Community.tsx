@@ -130,7 +130,7 @@ function FeedCard({ item, onLike }: { item: FeedItem; onLike: () => void }) {
           <div className="mt-3 flex items-baseline gap-2">
             <span
               className="text-ink/20 leading-none"
-              style={{ fontFamily: 'var(--font-display)', fontSize: 64 }}
+              style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px, 5vw, 64px)' }}
             >
               №{item.dropNum}
             </span>
@@ -200,7 +200,7 @@ function LeaderboardPanel() {
             >
               <p
                 className="text-paper/30 leading-none mb-2"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 28 }}
+                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(18px, 2vw, 28px)' }}
               >
                 #{entry.rank}
               </p>
@@ -216,7 +216,7 @@ function LeaderboardPanel() {
               </div>
               <p
                 className="mt-2 text-paper leading-none"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 22 }}
+                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(16px, 1.8vw, 22px)' }}
               >
                 {entry.totalPoints}
               </p>
@@ -312,7 +312,7 @@ export default function Community() {
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[40%_60%]">
 
             {/* Left — leaderboard, sticky */}
-            <div className="sticky self-start max-h-[calc(100vh-120px)] overflow-y-auto" style={{ top: '120px' }}>
+            <div className="sticky self-start max-h-[calc(100dvh-120px)] overflow-y-auto" style={{ top: '120px' }}>
               <p className="mb-6 font-mono text-[11px] uppercase tracking-[.22em] text-ink/50">⬢ Lyderiai</p>
               <LeaderboardPanel />
             </div>

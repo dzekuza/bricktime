@@ -61,14 +61,14 @@ function AchievementsSection() {
   const totalPoints = calculatePoints(currentUserAchievements)
 
   return (
-    <section className="py-20" style={{ background: '#F5F1EB' }}>
-      <div className="mx-auto max-w-[1320px] px-7">
+    <section className="bg-white py-8 md:py-20 md:bg-[#F5F1EB]">
+      <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         <p className="font-mono text-[11px] uppercase tracking-[.22em] text-ink/50">⬢ Pažymėjimai</p>
         <h2
           className="mt-2 uppercase text-ink"
           style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px, 4vw, 64px)', lineHeight: '.9', letterSpacing: '-.02em' }}
         >
-          Tavo ženkleliai.
+          Taškai.
         </h2>
 
         <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-12">
@@ -157,21 +157,20 @@ export default function Account() {
       <Nav />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="bg-ink py-20">
-        <div className="mx-auto max-w-[1320px] px-7">
+      <section className="bg-white md:bg-ink py-6 md:py-20">
+        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div ref={heroRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             {/* User tile */}
             <div
-              className="reveal flex flex-col justify-between rounded-3xl border-2 border-paper/15 p-9 lg:col-span-7"
-              style={{ background: '#001B21', minHeight: 340 }}
+              className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-ink md:border-paper/15 p-[18px] md:p-9 lg:col-span-7 bg-[#5ddb9c] md:bg-[#001B21] min-h-[340px]"
             >
               <div className="flex items-start gap-5">
                 {/* Avatar — clickable */}
                 <div className="shrink-0">
                   <button
                     onClick={() => setShowAvatarPicker((v) => !v)}
-                    className="group relative size-[72px] rounded-full border-2 border-paper/30 overflow-hidden transition-all hover:border-paper/70 hover:scale-105"
+                    className="group relative size-[72px] rounded-full border-2 border-ink/30 md:border-paper/30 overflow-hidden transition-all hover:border-ink/70 md:hover:border-paper/70 hover:scale-105"
                     style={{ background: activeAvatar.bg }}
                     aria-label="Keisti avataras"
                   >
@@ -181,28 +180,28 @@ export default function Account() {
                       className="h-full w-full object-cover object-top"
                     />
                     <span className="absolute inset-0 rounded-full bg-ink/0 group-hover:bg-ink/40 transition-colors flex items-end justify-center pb-1.5">
-                      <span className="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[8px] tracking-[.1em] uppercase text-paper font-bold">
+                      <span className="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[8px] tracking-[.1em] uppercase text-ink md:text-paper font-bold">
                         Keisti
                       </span>
                     </span>
                   </button>
                 </div>
                 <div className="flex-1">
-                  <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/40">⬢ Mano paskyra</p>
+                  <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50 md:text-paper/40">⬢ Mano paskyra</p>
                   <h1
-                    className="mt-2 uppercase text-paper"
+                    className="mt-2 uppercase text-ink md:text-paper"
                     style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,3.5vw,54px)', lineHeight: '.9' }}
                   >
                     {user.name}
                   </h1>
-                  <p className="mt-1.5 text-[15px] text-paper/60">{user.email}</p>
+                  <p className="mt-1.5 text-[15px] text-ink/60 md:text-paper/60">{user.email}</p>
                 </div>
               </div>
 
               {/* Avatar picker */}
               {showAvatarPicker && (
-                <div className="mt-5 rounded-2xl border border-paper/15 bg-paper/5 p-4">
-                  <p className="mb-3 font-mono text-[10px] tracking-[.18em] uppercase text-paper/40">Pasirink avataras</p>
+                <div className="mt-5 rounded-2xl border border-ink/15 md:border-paper/15 bg-ink/5 md:bg-paper/5 p-4">
+                  <p className="mb-3 font-mono text-[10px] tracking-[.18em] uppercase text-ink/40 md:text-paper/40">Pasirink avataras</p>
                   <div className="flex flex-wrap gap-3">
                     {avatarOptions.map((av) => (
                       <button
@@ -216,8 +215,8 @@ export default function Account() {
                           className={[
                             'size-14 rounded-full overflow-hidden border-2 transition-all',
                             selectedAvatarId === av.id
-                              ? 'border-paper scale-110 shadow-[0_0_0_3px_rgba(245,241,235,.35)]'
-                              : 'border-paper/20 hover:border-paper/60 hover:scale-105',
+                              ? 'border-ink md:border-paper scale-110 shadow-[0_0_0_3px_rgba(0,27,33,.2)] md:shadow-[0_0_0_3px_rgba(245,241,235,.35)]'
+                              : 'border-ink/20 md:border-paper/20 hover:border-ink/60 md:hover:border-paper/60 hover:scale-105',
                           ].join(' ')}
                           style={{ background: av.bg, display: 'block' }}
                         >
@@ -227,7 +226,7 @@ export default function Account() {
                             className="h-full w-full object-cover object-top"
                           />
                         </span>
-                        <span className="font-mono text-[9px] tracking-[.1em] uppercase text-paper/50">
+                        <span className="font-mono text-[9px] tracking-[.1em] uppercase text-ink/50 md:text-paper/50">
                           {av.label}
                         </span>
                       </button>
@@ -236,33 +235,33 @@ export default function Account() {
                 </div>
               )}
 
-              <div className="mt-8 grid grid-cols-4 gap-4">
+              <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
                 {[
                   { val: user.dropsReceived, label: 'Gauti produktai' },
                   { val: `${user.tierLevel}/5`, label: 'Plano lygis' },
                   { val: '14 mėn.', label: 'Narys' },
                   { val: calculatePoints(currentUserAchievements), label: 'Taškai' },
                 ].map((s) => (
-                  <div key={s.label} className="rounded-2xl border border-paper/15 p-4">
+                  <div key={s.label} className="rounded-2xl border border-ink/30 md:border-paper/15 p-4">
                     <div
-                      className="uppercase text-paper"
-                      style={{ fontFamily: 'var(--font-display)', fontSize: 32, lineHeight: 1 }}
+                      className="uppercase text-ink md:text-paper"
+                      style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(20px, 2.5vw, 32px)', lineHeight: 1 }}
                     >
                       {s.val}
                     </div>
-                    <div className="mt-1 font-mono text-[10px] tracking-[.14em] uppercase text-paper/45">{s.label}</div>
+                    <div className="mt-1 font-mono text-[10px] tracking-[.14em] uppercase text-ink/50 md:text-paper/45">{s.label}</div>
                   </div>
                 ))}
               </div>
 
-              <p className="mt-5 font-mono text-[11px] tracking-[.16em] uppercase text-paper/35">
+              <p className="mt-5 font-mono text-[11px] tracking-[.16em] uppercase text-ink/40 md:text-paper/35">
                 Narys nuo {user.memberSince}
               </p>
             </div>
 
             {/* Subscription tile */}
             <div
-              className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-9 shadow-[6px_6px_0_rgba(245,241,235,.12)] lg:col-span-5"
+              className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-ink p-[18px] md:p-9 shadow-[6px_6px_0_rgba(245,241,235,.12)] lg:col-span-5"
               style={{ background: user.tierBg, minHeight: 340 }}
             >
               <div>
@@ -276,7 +275,7 @@ export default function Account() {
                   {user.tier}
                 </div>
                 <div className="mt-2 flex items-baseline gap-1.5">
-                  <span style={{ fontFamily: 'var(--font-display)', fontSize: 36, color: user.tierTextColor, lineHeight: 1 }}>
+                  <span style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3vw, 36px)', color: user.tierTextColor, lineHeight: 1 }}>
                     ${user.monthlyPrice}
                   </span>
                   <span className="font-mono text-[12px] tracking-[.06em] uppercase" style={{ color: `${user.tierTextColor}70` }}>
@@ -288,7 +287,17 @@ export default function Account() {
                 </p>
               </div>
 
-              <div className="flex flex-col gap-2.5 mt-6">
+              {/* Mobile: two simple buttons matching Figma */}
+              <div className="mt-6 flex gap-3 md:hidden">
+                <button className="flex-1 rounded-full border-2 border-ink bg-ink px-3 py-2 text-[14px] font-bold text-paper transition-all hover:opacity-80">
+                  Atšaukti
+                </button>
+                <button className="flex-1 rounded-full border-2 border-ink bg-white px-3 py-2 text-[14px] font-bold text-ink transition-all hover:bg-ink/5">
+                  Keisti
+                </button>
+              </div>
+              {/* Desktop: full button set */}
+              <div className="hidden md:flex flex-col gap-2.5 mt-6">
                 <Button
                   className="w-full rounded-full border-2 border-ink bg-ink text-paper font-bold text-[14px] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] transition-all"
                   onClick={() => setShowUpgrade(!showUpgrade)}
@@ -356,8 +365,8 @@ export default function Account() {
       </section>
 
       {/* ── Active rentals ───────────────────────────────────────────── */}
-      <section className="bg-paper py-20">
-        <div className="mx-auto max-w-[1320px] px-7">
+      <section className="bg-paper py-8 md:py-20">
+        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div ref={dropsRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             <div className="reveal lg:col-span-12">
@@ -438,33 +447,32 @@ export default function Account() {
       <AchievementsSection />
 
       {/* ── Upcoming drop ────────────────────────────────────────────── */}
-      <section className="bg-ink py-16">
-        <div className="mx-auto max-w-[1320px] px-7">
+      <section className="bg-ink py-8 md:py-16">
+        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             <div
-              className="flex flex-col justify-between rounded-3xl border-2 border-paper/15 p-9 lg:col-span-8"
+              className="flex flex-col gap-3 rounded-2xl md:rounded-3xl border-2 border-paper/15 p-[18px] md:p-9 lg:col-span-8"
               style={{ background: '#5C4ADE', minHeight: 240 }}
             >
               <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Išsiunčiama gegužės 5 d.</p>
-              <div>
-                <h2
-                  className="uppercase text-paper"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,3vw,52px)', lineHeight: '.9' }}
-                >
-                  Produktas № 26 — Mailbox Row + Postman Otto
-                </h2>
-                <p className="mt-3 text-[15px] leading-[1.6] text-paper/70">
-                  Įskaičiuota į tavo Standard dėžutę šį mėnesį. 312 kaladėlių, 2 išskirtiniai miniukai.
-                </p>
-              </div>
-              <Button asChild className="mt-6 w-fit rounded-full border-2 border-paper/40 bg-brand-yellow text-ink font-bold hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_rgba(245,241,235,.3)] transition-all">
+              <h2
+                className="uppercase text-paper"
+                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,3vw,52px)', lineHeight: '.9' }}
+              >
+                Produktas № 26 — Mailbox Row + Postman Otto
+              </h2>
+              <p className="text-[15px] leading-[1.6] text-paper/70">
+                Įskaičiuota į tavo Standard dėžutę šį mėnesį. 312 kaladėlių, 2 išskirtiniai miniukai.
+              </p>
+              <Button asChild className="mt-2 w-full md:w-fit rounded-full border-2 border-paper/40 bg-brand-yellow text-ink font-bold hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_rgba(245,241,235,.3)] transition-all">
                 <Link to="/drop/26">Peržiūrėti produktą →</Link>
               </Button>
             </div>
 
+            {/* Quick actions — desktop only */}
             <div
-              className="flex flex-col justify-between rounded-3xl border-2 border-paper/15 p-9 lg:col-span-4"
+              className="hidden md:flex flex-col justify-between rounded-3xl border-2 border-paper/15 p-9 lg:col-span-4"
               style={{ background: '#001B21' }}
             >
               <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/40">Greiti veiksmai</p>
@@ -494,8 +502,8 @@ export default function Account() {
       </section>
 
       {/* ── Billing history ──────────────────────────────────────────── */}
-      <section className="bg-paper py-20">
-        <div className="mx-auto max-w-[1320px] px-7">
+      <section className="bg-paper py-8 md:py-20">
+        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div ref={billingRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             <div className="reveal lg:col-span-12">
@@ -513,26 +521,47 @@ export default function Account() {
               className="reveal rounded-3xl border-2 border-ink overflow-hidden shadow-[6px_6px_0_#001B21] lg:col-span-8"
               style={{ background: '#F5F1EB' }}
             >
-              <div className="grid grid-cols-4 border-b-2 border-ink bg-ink">
-                {['Data', 'Produktas', 'Suma', 'Būsena'].map((h) => (
-                  <div key={h} className="p-4 font-mono text-[10px] tracking-[.18em] uppercase text-paper/60">{h}</div>
+              {/* Mobile card layout */}
+              <div className="sm:hidden divide-y divide-dashed divide-ink/20">
+                {billingHistory.map((b, i) => (
+                  <div key={i} className="flex items-center justify-between gap-3 px-5 py-4">
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-semibold text-ink truncate">{b.drop}</p>
+                      <p className="font-mono text-[10px] tracking-[.1em] uppercase text-ink/50">{b.date}</p>
+                    </div>
+                    <div className="flex items-center gap-2.5 shrink-0">
+                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 16, color: '#001B21', lineHeight: 1 }}>{b.amount}</span>
+                      <span className="rounded-full border border-brand-mint bg-brand-mint/20 px-2.5 py-0.5 font-mono text-[10px] tracking-[.1em] uppercase text-ink">
+                        {b.status}
+                      </span>
+                    </div>
+                  </div>
                 ))}
               </div>
-              {billingHistory.map((b, i) => (
-                <div
-                  key={i}
-                  className="grid grid-cols-4 border-b border-dashed border-ink/20 last:border-b-0 hover:bg-ink/[.03] transition-colors"
-                >
-                  <div className="p-4 text-[14px] text-ink/70">{b.date}</div>
-                  <div className="p-4 text-[14px] font-semibold text-ink">{b.drop}</div>
-                  <div className="p-4 text-[14px] text-ink" style={{ fontFamily: 'var(--font-display)', fontSize: 18 }}>{b.amount}</div>
-                  <div className="p-4">
-                    <span className="rounded-full border border-brand-mint bg-brand-mint/20 px-2.5 py-0.5 font-mono text-[10px] tracking-[.1em] uppercase text-ink">
-                      {b.status}
-                    </span>
-                  </div>
+
+              {/* Desktop table */}
+              <div className="hidden sm:block">
+                <div className="grid grid-cols-4 border-b-2 border-ink bg-ink">
+                  {['Data', 'Produktas', 'Suma', 'Būsena'].map((h) => (
+                    <div key={h} className="p-4 font-mono text-[10px] tracking-[.18em] uppercase text-paper/60">{h}</div>
+                  ))}
                 </div>
-              ))}
+                {billingHistory.map((b, i) => (
+                  <div
+                    key={i}
+                    className="grid grid-cols-4 border-b border-dashed border-ink/20 last:border-b-0 hover:bg-ink/[.03] transition-colors"
+                  >
+                    <div className="p-4 text-[14px] text-ink/70">{b.date}</div>
+                    <div className="p-4 text-[14px] font-semibold text-ink">{b.drop}</div>
+                    <div className="p-4 text-[14px] text-ink" style={{ fontFamily: 'var(--font-display)', fontSize: 18 }}>{b.amount}</div>
+                    <div className="p-4">
+                      <span className="rounded-full border border-brand-mint bg-brand-mint/20 px-2.5 py-0.5 font-mono text-[10px] tracking-[.1em] uppercase text-ink">
+                        {b.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Billing info card */}
