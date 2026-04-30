@@ -8,6 +8,7 @@ export interface AchievementDef {
   category: AchievementCategory
   color: string
   icon: string
+  image?: string
 }
 
 export interface UserAchievement {
@@ -64,6 +65,7 @@ export const achievementDefs: AchievementDef[] = [
     category: 'activity',
     color: '#FFD731',
     icon: '☀️',
+    image: '/achievements/daily_checkin.png',
   },
   {
     id: 'week_streak',
@@ -73,6 +75,7 @@ export const achievementDefs: AchievementDef[] = [
     category: 'activity',
     color: '#FB4903',
     icon: '🔥',
+    image: '/achievements/week_streak.png',
   },
   {
     id: 'old_member',
@@ -82,6 +85,7 @@ export const achievementDefs: AchievementDef[] = [
     category: 'loyalty',
     color: '#5C4ADE',
     icon: '🏛️',
+    image: '/achievements/old_member.png',
   },
   {
     id: 'first_drop',
@@ -91,6 +95,7 @@ export const achievementDefs: AchievementDef[] = [
     category: 'collector',
     color: '#5DDB9C',
     icon: '📦',
+    image: '/achievements/first_drop.png',
   },
   {
     id: 'collector_5',
@@ -100,6 +105,7 @@ export const achievementDefs: AchievementDef[] = [
     category: 'collector',
     color: '#4DA2FF',
     icon: '🧱',
+    image: '/achievements/collector_5.png',
   },
   {
     id: 'build_photo',
@@ -118,6 +124,7 @@ export const achievementDefs: AchievementDef[] = [
     category: 'social',
     color: '#5C4ADE',
     icon: '💬',
+    image: '/achievements/commenter.png',
   },
   {
     id: 'liker',
@@ -127,6 +134,7 @@ export const achievementDefs: AchievementDef[] = [
     category: 'social',
     color: '#FFD731',
     icon: '❤️',
+    image: '/achievements/liker.png',
   },
   {
     id: 'drop_streak_3',

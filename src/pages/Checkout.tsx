@@ -49,7 +49,7 @@ export default function Checkout() {
     return (
       <div className="min-h-screen bg-paper">
         <Nav />
-        <div className="mx-auto max-w-[1320px] px-7 py-32 text-center">
+        <div className="mx-auto max-w-[1320px] px-4 md:px-7 py-20 md:py-32 text-center">
           <h1 className="heading-display text-d-sm text-ink">Produktas nerastas</h1>
           <Link to="/archive" className="mt-6 inline-block text-ink underline">← Grįžti į produktus</Link>
         </div>
@@ -62,8 +62,8 @@ export default function Checkout() {
     return (
       <div className="min-h-screen bg-paper">
         <Nav />
-        <section className="py-20">
-          <div className="mx-auto max-w-[1320px] px-7">
+        <section className="py-10 md:py-20">
+          <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <div
               className="flex flex-col items-center justify-center brick-card p-16 text-center min-h-[420px]"
               style={{ background: '#5DDB9C' }}
@@ -78,7 +78,7 @@ export default function Checkout() {
                 <b>{drop.title}</b> eilėje tavo {userSub?.name} prenumeratoje. Įtrauksime į kitą siuntą.
               </p>
               <div className="mt-10 flex flex-wrap gap-4 justify-center">
-                <Button asChild className="rounded-full border-2 border-ink bg-ink text-paper font-bold text-[15px] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] transition-all">
+                <Button asChild className="rounded-full border-2 border-ink bg-ink text-paper font-bold text-[15px] brick-hover-sm">
                   <Link to="/account">Žiūrėti mano produktus →</Link>
                 </Button>
                 <Button asChild variant="outline" className="rounded-full border-2 border-ink bg-transparent text-ink font-bold text-[15px] hover:bg-ink/5 transition-all">
@@ -97,8 +97,8 @@ export default function Checkout() {
     <div className="min-h-screen bg-paper">
       <Nav />
 
-      <section className="py-20">
-        <div className="mx-auto max-w-[1320px] px-7">
+      <section className="py-10 md:py-20">
+        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
 
           {/* Breadcrumb */}
           <div className="mb-10 flex items-center gap-2.5 label-mono text-ink/50">
@@ -119,12 +119,11 @@ export default function Checkout() {
             >
               {/* Coloured visual top */}
               <div
-                className="relative flex flex-col items-center justify-end p-6 md:p-8"
+                className="relative flex flex-col items-center justify-end p-6 md:p-8 min-h-[280px]"
                 style={{
                   background: drop.bg,
                   backgroundImage: 'radial-gradient(circle at 16px 16px, rgba(255,255,255,.16) 4px, transparent 5px)',
                   backgroundSize: '40px 40px',
-                  minHeight: 280,
                 }}
               >
                 <div
@@ -156,17 +155,16 @@ export default function Checkout() {
               {/* Drop info */}
               <div className="bg-paper p-6 md:p-7">
                 <h2
-                  className="heading-display text-d-md text-ink"
-                  style={{ lineHeight: '.9' }}
+                  className="heading-display text-d-md text-ink leading-[.9]"
                 >
                   {drop.title}<br />{drop.subtitle}
                 </h2>
                 <p className="mt-2 label-mono text-ink/50">{drop.date}</p>
                 <div className="mt-5 grid grid-cols-3 gap-3">
-                  {[['Kaladėlių', drop.bricks], ['Miniukai', drop.minifigs.replace(' minifig', '').replace('s', ' fig')], ['Surinkimo laikas', '4–6h']].map(([label, val]) => (
+                  {[['Kaladėlių', drop.bricks], ['Miniukai', drop.minifigs], ['Laikas', '4–6h']].map(([label, val]) => (
                     <div key={label as string} className="rounded-2xl border-2 border-ink p-3 text-center">
                       <div className="font-display text-2xl leading-none" style={{ color: '#001B21' }}>{val}</div>
-                      <div className="mt-1 font-mono text-[10px] tracking-[.14em] uppercase text-ink/50">{label}</div>
+                      <div className="label-mono text-ink/50 mt-1">{label}</div>
                     </div>
                   ))}
                 </div>
@@ -217,8 +215,7 @@ export default function Checkout() {
                 >
                   <p className="label-mono text-paper/40">Neprenumeruojama</p>
                   <h3
-                    className="mt-3 heading-display text-d-xs text-paper"
-                    style={{ lineHeight: '.9' }}
+                    className="mt-3 heading-display text-d-xs text-paper leading-[.9]"
                   >
                     Prenumeruok, kad nuomotum šį produktą.
                   </h3>
@@ -259,19 +256,19 @@ export default function Checkout() {
                 {isEligible ? (
                   <Button
                     size="lg"
-                    className="mt-6 w-full rounded-full border-2 border-ink bg-ink text-paper font-bold text-[16px] hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21] transition-all"
+                    className="mt-6 w-full rounded-full border-2 border-ink bg-ink text-paper font-bold text-[16px] brick-hover-sm"
                     onClick={() => setConfirmed(true)}
                   >
                     Patvirtinti nuomą →
                   </Button>
                 ) : userSub ? (
-                  <Button asChild size="lg" className="mt-6 w-full rounded-full border-2 border-ink bg-brand-yellow text-ink font-bold text-[16px] hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21] transition-all">
+                  <Button asChild size="lg" className="mt-6 w-full rounded-full border-2 border-ink bg-brand-yellow text-ink font-bold text-[16px] brick-hover-sm">
                     <Link to={`/subscribe?plan=${requiredTier.name.toLowerCase()}`}>
                       Paaukštinti į {requiredTier.name} →
                     </Link>
                   </Button>
                 ) : (
-                  <Button asChild size="lg" className="mt-6 w-full rounded-full border-2 border-ink bg-brand-yellow text-ink font-bold text-[16px] hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21] transition-all">
+                  <Button asChild size="lg" className="mt-6 w-full rounded-full border-2 border-ink bg-brand-yellow text-ink font-bold text-[16px] brick-hover-sm">
                     <Link to={`/subscribe?plan=${requiredTier.name.toLowerCase()}`}>
                       Prenumeruoti {requiredTier.name} →
                     </Link>

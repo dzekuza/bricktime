@@ -211,7 +211,7 @@ export default function PlansPage() {
       <Nav />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="bg-paper py-20">
+      <section className="bg-paper py-6">
         <div className="mx-auto max-w-[1320px] px-7">
           <div ref={heroRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 

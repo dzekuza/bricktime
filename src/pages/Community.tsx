@@ -120,7 +120,10 @@ function FeedCard({ item, onLike }: { item: FeedItem; onLike: () => void }) {
 
         {item.type === 'achievement' && def && (
           <div className="mt-3 inline-flex items-center gap-2 rounded-full border-2 border-ink px-3 py-1.5 shadow-[3px_3px_0_#001B21]" style={{ background: def.color }}>
-            <span>{def.icon}</span>
+            {def.image
+              ? <img src={def.image} alt={def.label} className="w-5 h-5 object-contain" />
+              : <span>{def.icon}</span>
+            }
             <span className="text-[13px] font-bold text-ink">{def.label}</span>
             <span className="font-mono text-[11px] text-ink/60">+{def.points} taškai</span>
           </div>
@@ -274,15 +277,17 @@ export default function Community() {
       <Nav />
 
       {/* Hero */}
-      <section className="bg-ink">
-        <div ref={heroRef} className="mx-auto max-w-[1320px] px-7 py-20">
-          <p className="label-mono text-paper/40">⬢ Bendruomenė</p>
-          <h1 className="heading-display text-d-xl tracking-[-0.02em] mt-3 text-paper">
-            Bendruomenė.
-          </h1>
-          <p className="mt-5 font-mono text-[15px] text-paper/50 tracking-[.04em]">
-            Žaisk. Statyk. Dalinkis.
-          </p>
+      <section className="bg-paper py-4 md:py-6">
+        <div ref={heroRef} className="mx-auto max-w-[1320px] px-4 md:px-7">
+          <div className="rounded-2xl md:rounded-3xl border-2 border-ink bg-ink overflow-hidden p-6 md:p-10">
+            <p className="label-mono text-paper/40">⬢ Bendruomenė</p>
+            <h1 className="heading-display text-d-xl tracking-[-0.02em] mt-3 text-paper">
+              Bendruomenė.
+            </h1>
+            <p className="mt-5 font-mono text-[15px] text-paper/50 tracking-[.04em]">
+              Žaisk. Statyk. Dalinkis.
+            </p>
+          </div>
         </div>
       </section>
 

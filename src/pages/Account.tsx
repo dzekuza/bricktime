@@ -31,20 +31,6 @@ const user = {
   dropsReceived: 14,
 }
 
-const rentedDrops = [
-  { num: 26, title: 'Mailbox Row', bg: '#5C4ADE', bricks: 312, status: 'Išsiunčiama geg. 5' },
-  { num: 25, title: 'The Greenhouse', bg: '#5DDB9C', bricks: 268, status: 'Pristatyta' },
-  { num: 24, title: 'Donut Diner', bg: '#FFAEE7', bricks: 295, status: 'Pristatyta' },
-  { num: 21, title: 'Lighthouse', bg: '#4DA2FF', bricks: 292, status: 'Pristatyta' },
-]
-
-const billingHistory = [
-  { date: 'Geg. 5, 2026',   amount: '$24', drop: 'Produktas № 26', status: 'Apmokėta' },
-  { date: 'Bal. 5, 2026',   amount: '$24', drop: 'Produktas № 25', status: 'Apmokėta' },
-  { date: 'Kov. 5, 2026',   amount: '$24', drop: 'Produktas № 24', status: 'Apmokėta' },
-  { date: 'Vas. 5, 2026',   amount: '$24', drop: 'Produktas № 23', status: 'Apmokėta' },
-  { date: 'Sau. 5, 2026',   amount: '$24', drop: 'Produktas № 22', status: 'Apmokėta' },
-]
 
 const tierOptions = [
   { name: 'Nano',     price: 9,  bg: '#F5F1EB', textColor: '#001B21', level: 1 },
@@ -111,7 +97,10 @@ function AchievementsSection() {
                     onMouseEnter={() => setHoveredId(def.id)}
                     onMouseLeave={() => setHoveredId(null)}
                   >
-                    <p className="text-2xl">{def.icon}</p>
+                    {def.image
+                      ? <img src={def.image} alt={def.label} className="w-10 h-10 object-contain" />
+                      : <p className="text-2xl">{def.icon}</p>
+                    }
                     <p className="mt-2 text-[12px] font-bold text-ink leading-tight">{def.label}</p>
                     <p className="mt-1 font-mono text-[10px] text-ink/50">+{def.points} taškai</p>
 
@@ -134,6 +123,12 @@ function AchievementsSection() {
   )
 }
 
+const rentedDrops = [
+  { num: 26, title: 'Mailbox row',    bricks: 312, bg: '#5DDB9C', status: 'Išsiunčiama geg. 5' },
+  { num: 25, title: 'The greenhouse', bricks: 268, bg: '#FFD731', status: 'Pristatyta' },
+  { num: 24, title: 'Donut diner',    bricks: 295, bg: '#FB4903', status: 'Pristatyta' },
+]
+
 export default function Account() {
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [selectedTier, setSelectedTier] = useState(2) // Standard index
@@ -142,8 +137,8 @@ export default function Account() {
 
   const activeAvatar = avatarOptions[selectedAvatarId]
 
-  const heroRef  = useReveal<HTMLDivElement>()
-  const dropsRef = useReveal<HTMLDivElement>()
+  const heroRef    = useReveal<HTMLDivElement>()
+  const dropsRef   = useReveal<HTMLDivElement>()
   const billingRef = useReveal<HTMLDivElement>()
 
   return (
@@ -151,20 +146,20 @@ export default function Account() {
       <Nav />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="bg-white md:bg-ink py-6 md:py-20">
+      <section className="bg-paper py-6">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div ref={heroRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             {/* User tile */}
             <div
-              className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-ink md:border-paper/15 p-[18px] md:p-9 lg:col-span-7 bg-[#5ddb9c] md:bg-[#001B21] min-h-[340px]"
+              className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-ink p-6 md:p-9 lg:col-span-7 bg-[#5ddb9c] min-h-[340px]"
             >
               <div className="flex items-start gap-5">
                 {/* Avatar — clickable */}
                 <div className="shrink-0">
                   <button
                     onClick={() => setShowAvatarPicker((v) => !v)}
-                    className="group relative size-[72px] rounded-full border-2 border-ink/30 md:border-paper/30 overflow-hidden transition-all hover:border-ink/70 md:hover:border-paper/70 hover:scale-105"
+                    className="group relative size-[72px] rounded-full border-2 border-ink/30 overflow-hidden transition-all hover:border-ink/70 hover:scale-105"
                     style={{ background: activeAvatar.bg }}
                     aria-label="Keisti avataras"
                   >
@@ -174,25 +169,25 @@ export default function Account() {
                       className="h-full w-full object-cover object-top"
                     />
                     <span className="absolute inset-0 rounded-full bg-ink/0 group-hover:bg-ink/40 transition-colors flex items-end justify-center pb-1.5">
-                      <span className="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[8px] tracking-[.1em] uppercase text-ink md:text-paper font-bold">
+                      <span className="opacity-0 group-hover:opacity-100 transition-opacity font-mono text-[8px] tracking-[.1em] uppercase text-ink font-bold">
                         Keisti
                       </span>
                     </span>
                   </button>
                 </div>
                 <div className="flex-1">
-                  <p className="label-mono text-ink/50 md:text-paper/40">⬢ Mano paskyra</p>
-                  <h1 className="heading-display text-d-lg leading-[.9] mt-2 text-ink md:text-paper">
+                  <p className="label-mono text-ink/50">⬢ Mano paskyra</p>
+                  <h1 className="heading-display text-d-lg leading-[.9] mt-2 text-ink">
                     {user.name}
                   </h1>
-                  <p className="mt-1.5 text-[15px] text-ink/60 md:text-paper/60">{user.email}</p>
+                  <p className="mt-1.5 text-[15px] text-ink/60">{user.email}</p>
                 </div>
               </div>
 
               {/* Avatar picker */}
               {showAvatarPicker && (
-                <div className="mt-5 rounded-2xl border border-ink/15 md:border-paper/15 bg-ink/5 md:bg-paper/5 p-4">
-                  <p className="mb-3 font-mono text-[10px] tracking-[.18em] uppercase text-ink/40 md:text-paper/40">Pasirink avataras</p>
+                <div className="mt-5 rounded-2xl border border-ink/15 bg-ink/5 p-4">
+                  <p className="mb-3 font-mono text-[10px] tracking-[.18em] uppercase text-ink/40">Pasirink avataras</p>
                   <div className="flex flex-wrap gap-3">
                     {avatarOptions.map((av) => (
                       <button
@@ -206,8 +201,8 @@ export default function Account() {
                           className={[
                             'size-14 rounded-full overflow-hidden border-2 transition-all',
                             selectedAvatarId === av.id
-                              ? 'border-ink md:border-paper scale-110 shadow-[0_0_0_3px_rgba(0,27,33,.2)] md:shadow-[0_0_0_3px_rgba(245,241,235,.35)]'
-                              : 'border-ink/20 md:border-paper/20 hover:border-ink/60 md:hover:border-paper/60 hover:scale-105',
+                              ? 'border-ink scale-110 shadow-[0_0_0_3px_rgba(0,27,33,.2)]'
+                              : 'border-ink/20 hover:border-ink/60 hover:scale-105',
                           ].join(' ')}
                           style={{ background: av.bg, display: 'block' }}
                         >
@@ -217,7 +212,7 @@ export default function Account() {
                             className="h-full w-full object-cover object-top"
                           />
                         </span>
-                        <span className="font-mono text-[9px] tracking-[.1em] uppercase text-ink/50 md:text-paper/50">
+                        <span className="font-mono text-[9px] tracking-[.1em] uppercase text-ink/50">
                           {av.label}
                         </span>
                       </button>
@@ -233,23 +228,23 @@ export default function Account() {
                   { val: '14 mėn.', label: 'Narys' },
                   { val: calculatePoints(currentUserAchievements), label: 'Taškai' },
                 ].map((s) => (
-                  <div key={s.label} className="rounded-2xl border border-ink/30 md:border-paper/15 p-4">
-                    <div className="font-display text-d-sm leading-none uppercase text-ink md:text-paper">
+                  <div key={s.label} className="rounded-2xl border border-ink/20 p-4">
+                    <div className="font-display text-d-sm leading-none uppercase text-ink">
                       {s.val}
                     </div>
-                    <div className="mt-1 font-mono text-[10px] tracking-[.14em] uppercase text-ink/50 md:text-paper/45">{s.label}</div>
+                    <div className="mt-1 font-mono text-[10px] tracking-[.14em] uppercase text-ink/50">{s.label}</div>
                   </div>
                 ))}
               </div>
 
-              <p className="mt-5 font-mono text-[11px] tracking-[.16em] uppercase text-ink/40 md:text-paper/35">
+              <p className="mt-5 font-mono text-[11px] tracking-[.16em] uppercase text-ink/40">
                 Narys nuo {user.memberSince}
               </p>
             </div>
 
             {/* Subscription tile */}
             <div
-              className="reveal flex flex-col justify-between brick-card p-[18px] md:p-9 shadow-[6px_6px_0_rgba(245,241,235,.12)] lg:col-span-5 min-h-[340px]"
+              className="reveal flex flex-col justify-between brick-card p-6 md:p-9 lg:col-span-5 min-h-[340px]"
               style={{ background: user.tierBg }}
             >
               <div>
@@ -292,14 +287,6 @@ export default function Account() {
                 >
                   {showUpgrade ? 'Atšaukti keitimą' : 'Paaukštinti / Keisti planą'}
                 </Button>
-                <div className="grid grid-cols-2 gap-2">
-                  <button className="rounded-full border-2 border-ink px-4 py-2.5 text-[12px] font-semibold text-ink transition-all hover:bg-ink/10">
-                    Praleisti mėnesį
-                  </button>
-                  <button className="rounded-full border-2 border-ink px-4 py-2.5 text-[12px] font-semibold text-ink transition-all hover:bg-ink/10">
-                    Pristabdyti
-                  </button>
-                </div>
               </div>
             </div>
 
@@ -353,74 +340,6 @@ export default function Account() {
         </div>
       </section>
 
-      {/* ── Active rentals ───────────────────────────────────────────── */}
-      <section className="bg-paper py-8 md:py-20">
-        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div ref={dropsRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-
-            <div className="reveal lg:col-span-12">
-              <p className="label-mono text-ink/50">⬢ Mano produktai</p>
-              <h2 className="heading-display text-d-lg tracking-[-0.015em] mt-3 text-ink">
-                Tavo nuomoti produktai.
-              </h2>
-            </div>
-
-            {rentedDrops.map((drop, i) => (
-              <Link
-                key={drop.num}
-                to={`/drop/${drop.num}`}
-                className="reveal brick-card brick-card-hover overflow-hidden lg:col-span-3 no-underline"
-                style={{ transitionDelay: `${i * 60}ms` }}
-              >
-                {/* Top coloured area */}
-                <div
-                  className="relative flex items-end justify-between p-3 md:p-5 min-h-[140px]"
-                  style={{
-                    background: drop.bg,
-                    backgroundImage: 'radial-gradient(circle at 12px 12px, rgba(255,255,255,.18) 3px, transparent 4px)',
-                    backgroundSize: '30px 30px',
-                  }}
-                >
-                  <div className="font-display text-[28px] leading-none rounded-[8px] border-2 border-ink bg-ink px-3 py-2 text-paper">
-                    № {drop.num}
-                  </div>
-                  <span
-                    className={[
-                      'rounded-full border border-ink px-2.5 py-1 font-mono text-[9px] tracking-[.12em] uppercase',
-                      drop.status === 'Išsiunčiama geg. 5' ? 'bg-brand-mint text-ink' : 'bg-paper/80 text-ink',
-                    ].join(' ')}
-                  >
-                    {drop.status}
-                  </span>
-                </div>
-                {/* Body */}
-                <div className="bg-paper p-3 md:p-5">
-                  <h3 className="font-display text-[24px] leading-[.9] uppercase text-ink">
-                    {drop.title}
-                  </h3>
-                  <p className="mt-2 font-mono text-[11px] tracking-[.14em] uppercase text-ink/50">{drop.bricks} kaladėlių</p>
-                  <div className="mt-4 flex items-center justify-between text-[13px] font-bold text-ink">
-                    <span>Žiūrėti produktą</span>
-                    <span className="font-display text-[20px]">→</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-
-            {/* Browse more CTA */}
-            <Link
-              to="/archive"
-              className="reveal flex flex-col items-center justify-center gap-3 rounded-2xl md:rounded-3xl border-2 border-dashed border-ink p-3 md:p-8 text-center transition-all hover:border-solid hover:shadow-[6px_6px_0_#001B21] lg:col-span-3 no-underline min-h-[220px]"
-            >
-              <span className="font-display text-[48px] leading-none" style={{ color: '#001B2140' }}>+</span>
-              <p className="text-[14px] font-bold text-ink">Naršyti daugiau produktų</p>
-              <p className="font-mono text-[11px] tracking-[.14em] uppercase text-ink/45">26 prieinami su Standard+</p>
-            </Link>
-
-          </div>
-        </div>
-      </section>
-
       {/* ── Achievements ─────────────────────────────────────────────── */}
       <AchievementsSection />
 
@@ -453,8 +372,6 @@ export default function Account() {
               <p className="label-mono text-paper/40">Greiti veiksmai</p>
               <div className="flex flex-col gap-2.5 mt-4">
                 {[
-                  { label: 'Praleisti birželio produktą', color: '#5DDB9C' },
-                  { label: 'Pristabdyti prenumeratą', color: '#FFAEE7' },
                   { label: 'Dovanoti prenumeratą', color: '#FFD731' },
                   { label: 'Atšaukti prenumeratą', color: '#FB4903' },
                 ].map((a) => (
