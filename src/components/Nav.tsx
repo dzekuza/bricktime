@@ -6,6 +6,7 @@ const links = [
   { label: 'Pradžia', to: '/' },
   { label: 'Produktai', to: '/archive' },
   { label: 'Planai', to: '/plans' },
+  { label: 'Bendruomenė', to: '/community' },
   { label: 'Paskyra', to: '/account' },
 ]
 

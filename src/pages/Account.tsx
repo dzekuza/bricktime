@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { achievementDefs, currentUserAchievements, calculatePoints } from '@/data/community'
 import { Link } from 'react-router-dom'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
@@ -54,6 +55,91 @@ const tierOptions = [
 ]
 
 // ── page ───────────────────────────────────────────────────────────────────
+function AchievementsSection() {
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const unlockedIds = new Set(currentUserAchievements.map((u) => u.achievementId))
+  const totalPoints = calculatePoints(currentUserAchievements)
+
+  return (
+    <section className="py-20" style={{ background: '#F5F1EB' }}>
+      <div className="mx-auto max-w-[1320px] px-7">
+        <p className="font-mono text-[11px] uppercase tracking-[.22em] text-ink/50">⬢ Pažymėjimai</p>
+        <h2
+          className="mt-2 uppercase text-ink"
+          style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px, 4vw, 64px)', lineHeight: '.9', letterSpacing: '-.02em' }}
+        >
+          Tavo ženkleliai.
+        </h2>
+
+        <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-12">
+          {/* Points summary */}
+          <div className="lg:col-span-3">
+            <div className="rounded-3xl border-2 border-ink bg-ink p-8 shadow-[6px_6px_0_#FFD731]">
+              <p
+                className="leading-none text-paper"
+                style={{ fontFamily: 'var(--font-display)', fontSize: 72 }}
+              >
+                {totalPoints}
+              </p>
+              <p className="mt-1 font-mono text-[11px] uppercase tracking-widest text-paper/40">Taškai iš viso</p>
+              <div className="mt-6 rounded-2xl border border-paper/15 px-4 py-3">
+                <p className="font-mono text-[11px] uppercase tracking-widest text-paper/40">Lyderių lentelė</p>
+                <p className="mt-1 text-[22px] font-bold text-paper"># 5 vieta</p>
+              </div>
+              <a
+                href="/community"
+                className="mt-3 block text-center font-mono text-[11px] uppercase tracking-widest text-paper/40 hover:text-paper/70 transition-colors"
+              >
+                Žiūrėti lyderių lentelę →
+              </a>
+            </div>
+          </div>
+
+          {/* Badge grid */}
+          <div className="lg:col-span-9">
+            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
+              {achievementDefs.map((def) => {
+                const unlocked = unlockedIds.has(def.id)
+                const hovered = hoveredId === def.id
+                return (
+                  <div
+                    key={def.id}
+                    className="relative cursor-default rounded-2xl border-2 p-4 transition-all"
+                    style={{
+                      background: unlocked ? def.color : 'transparent',
+                      borderStyle: unlocked ? 'solid' : 'dashed',
+                      borderColor: unlocked ? '#001B21' : 'rgba(0,27,33,.25)',
+                      boxShadow: unlocked ? (hovered ? '6px 6px 0 #001B21' : '4px 4px 0 #001B21') : 'none',
+                      opacity: unlocked ? 1 : 0.4,
+                      filter: unlocked ? 'none' : 'grayscale(1)',
+                      transform: hovered && unlocked ? 'translateY(-3px)' : 'none',
+                    }}
+                    onMouseEnter={() => setHoveredId(def.id)}
+                    onMouseLeave={() => setHoveredId(null)}
+                  >
+                    <p className="text-2xl">{def.icon}</p>
+                    <p className="mt-2 text-[12px] font-bold text-ink leading-tight">{def.label}</p>
+                    <p className="mt-1 font-mono text-[10px] text-ink/50">+{def.points} taškai</p>
+
+                    {/* Tooltip */}
+                    {hovered && (
+                      <div className="absolute bottom-full left-1/2 z-10 mb-2 w-48 -translate-x-1/2 rounded-xl border-2 border-ink bg-paper px-3 py-2 shadow-[4px_4px_0_#001B21]">
+                        <p className="text-[12px] font-bold text-ink">{def.label}</p>
+                        <p className="mt-0.5 text-[11px] text-ink/60">{def.description}</p>
+                        <p className="mt-1 font-mono text-[10px] text-ink/40">+{def.points} taškai</p>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export default function Account() {
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [selectedTier, setSelectedTier] = useState(2) // Standard index
@@ -150,11 +236,12 @@ export default function Account() {
                 </div>
               )}
 
-              <div className="mt-8 grid grid-cols-3 gap-4">
+              <div className="mt-8 grid grid-cols-4 gap-4">
                 {[
                   { val: user.dropsReceived, label: 'Gauti produktai' },
                   { val: `${user.tierLevel}/5`, label: 'Plano lygis' },
                   { val: '14 mėn.', label: 'Narys' },
+                  { val: calculatePoints(currentUserAchievements), label: 'Taškai' },
                 ].map((s) => (
                   <div key={s.label} className="rounded-2xl border border-paper/15 p-4">
                     <div
@@ -346,6 +433,9 @@ export default function Account() {
           </div>
         </div>
       </section>
+
+      {/* ── Achievements ─────────────────────────────────────────────── */}
+      <AchievementsSection />
 
       {/* ── Upcoming drop ────────────────────────────────────────────── */}
       <section className="bg-ink py-16">

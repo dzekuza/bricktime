@@ -6,6 +6,7 @@ import Plans from '@/pages/Plans'
 import Account from '@/pages/Account'
 import Subscribe from '@/pages/Subscribe'
 import Checkout from '@/pages/Checkout'
+import Community from '@/pages/Community'
 import LoadingScreen from '@/components/LoadingScreen'
 
 export default function App() {
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/archive" element={<Archive />} />
         <Route path="/plans" element={<Plans />} />
         <Route path="/account" element={<Account />} />
+        <Route path="/community" element={<Community />} />
         <Route path="/subscribe" element={<Subscribe />} />
         <Route path="/checkout" element={<Checkout />} />
       </Routes>
