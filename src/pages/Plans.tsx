@@ -217,20 +217,12 @@ export default function PlansPage() {
 
             {/* Main copy — col-7 */}
             <div
-              className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-9 shadow-[6px_6px_0_#001B21] lg:col-span-7"
-              style={{ background: '#001B21', minHeight: 340 }}
+              className="reveal flex flex-col justify-between brick-card p-6 md:p-9 lg:col-span-7 min-h-[340px]"
+              style={{ background: '#001B21' }}
             >
               <div>
-                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Planai ir kainos</p>
-                <h1
-                  className="mt-5 uppercase text-paper"
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: 'clamp(42px, 4.5vw, 76px)',
-                    lineHeight: '.88',
-                    letterSpacing: '-.015em',
-                  }}
-                >
+                <p className="label-mono text-paper/50">⬢ Planai ir kainos</p>
+                <h1 className="heading-display text-d-xl tracking-[-0.015em] mt-5 text-paper">
                   Kaladėlės kiekvieną
                   <br />
                   mėnesį.{' '}
@@ -259,10 +251,10 @@ export default function PlansPage() {
 
             {/* Stats tile — col-5, row-span-2 */}
             <div
-              className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] lg:col-span-5 lg:row-span-2"
-              style={{ background: '#5DDB9C', minHeight: 340 }}
+              className="reveal flex flex-col justify-between brick-card p-6 md:p-8 lg:col-span-5 lg:row-span-2 min-h-[340px]"
+              style={{ background: '#5DDB9C' }}
             >
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">Bendruomenė</p>
+              <p className="label-mono text-ink/50">Bendruomenė</p>
 
               <div className="flex flex-col gap-7">
                 {[
@@ -272,10 +264,7 @@ export default function PlansPage() {
                   { num: '42', label: 'Šalių pasiekta' },
                 ].map((s) => (
                   <div key={s.label}>
-                    <div
-                      className="uppercase text-ink"
-                      style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,3.2vw,52px)', lineHeight: '.88' }}
-                    >
+                    <div className="font-display text-d-md leading-[.88] uppercase text-ink">
                       {s.num}
                     </div>
                     <div className="mt-1 font-mono text-[12px] tracking-[.1em] uppercase text-ink/55">{s.label}</div>
@@ -299,20 +288,14 @@ export default function PlansPage() {
 
             {/* Guarantee pill — col-7 */}
             <div
-              className="reveal flex items-center gap-6 rounded-3xl border-2 border-ink p-7 shadow-[6px_6px_0_#001B21] lg:col-span-7"
+              className="reveal flex items-center gap-6 brick-card p-6 md:p-7 lg:col-span-7"
               style={{ background: '#FFD731' }}
             >
-              <div
-                className="shrink-0 text-ink/20 select-none"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 64, lineHeight: 1 }}
-              >
+              <div className="shrink-0 font-display text-[64px] leading-none text-ink/20 select-none">
                 ▩
               </div>
               <div>
-                <p
-                  className="uppercase text-ink"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(20px,2vw,30px)', lineHeight: '.92' }}
-                >
+                <p className="heading-display text-d-xs text-ink">
                   30 dienų pinigų grąžinimo garantija
                 </p>
                 <p className="mt-2 text-[14px] leading-[1.6] text-ink/65">
@@ -332,18 +315,10 @@ export default function PlansPage() {
 
             {/* Tagline row */}
             <div
-              className="reveal flex items-center justify-between rounded-3xl border-2 border-paper/20 p-8 lg:col-span-12"
+              className="reveal flex items-center justify-between rounded-2xl md:rounded-3xl border-2 border-paper/20 p-6 md:p-8 lg:col-span-12"
               style={{ background: '#FB4903' }}
             >
-              <h2
-                className="uppercase text-paper"
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'clamp(32px,3.5vw,60px)',
-                  lineHeight: '.88',
-                  letterSpacing: '-.015em',
-                }}
-              >
+              <h2 className="heading-display text-d-lg tracking-[-0.015em] text-paper">
                 Penki planai.
                 <br />
                 Viena visata.
@@ -353,16 +328,12 @@ export default function PlansPage() {
               </div>
             </div>
 
+            <div className="lg:col-span-12 flex flex-col lg:flex-row lg:-space-x-4">
             {plans.map((plan, i) => (
               <div
                 key={plan.name}
-                className={[
-                  'reveal relative flex flex-col justify-between rounded-3xl border-2 border-ink p-8',
-                  'shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all',
-                  'hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_rgba(245,241,235,.2)]',
-                  plan.gridClass,
-                ].join(' ')}
-                style={{ background: plan.bg, transitionDelay: `${i * 70}ms`, minHeight: plan.featured ? 520 : 380 }}
+                className="reveal relative flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-ink p-6 md:p-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_rgba(245,241,235,.2)] flex-1 min-h-[420px]"
+                style={{ background: plan.bg, transitionDelay: `-ems` }}
               >
                 {plan.featured && (
                   <Badge
@@ -382,24 +353,15 @@ export default function PlansPage() {
                     {plan.tagline}
                   </p>
                   <div
-                    className="mt-2 uppercase"
-                    style={{
-                      fontFamily: 'var(--font-display)',
-                      fontSize: plan.featured ? 48 : 34,
-                      lineHeight: '.88',
-                      color: plan.textColor,
-                    }}
+                    className="mt-2 font-display text-d-xs leading-[.88] uppercase"
+                    style={{ color: plan.textColor }}
                   >
                     {plan.name}
                   </div>
                   <div className="mt-3 flex items-baseline gap-1">
                     <span
-                      style={{
-                        fontFamily: 'var(--font-display)',
-                        fontSize: plan.featured ? 84 : 56,
-                        lineHeight: '.88',
-                        color: plan.textColor,
-                      }}
+                      className="font-display text-d-md leading-[.88]"
+                      style={{ color: plan.textColor }}
                     >
                       ${billing === 'monthly' ? plan.monthlyPrice : plan.annualPrice}
                     </span>
@@ -450,6 +412,7 @@ export default function PlansPage() {
                 </Button>
               </div>
             ))}
+            </div>
 
           </div>
         </div>
@@ -461,28 +424,20 @@ export default function PlansPage() {
           <div ref={compareRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             <div className="reveal lg:col-span-12">
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ Palyginimas</p>
-              <h2
-                className="mt-3 uppercase text-ink"
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'clamp(36px,4vw,68px)',
-                  lineHeight: '.88',
-                  letterSpacing: '-.015em',
-                }}
-              >
+              <p className="label-mono text-ink/50">⬢ Palyginimas</p>
+              <h2 className="heading-display text-d-lg tracking-[-0.015em] mt-3 text-ink">
                 Viskas, greta.
               </h2>
             </div>
 
             <div
-              className="reveal rounded-3xl border-2 border-ink shadow-[6px_6px_0_#001B21] overflow-x-auto lg:col-span-12"
+              className="reveal brick-card overflow-x-auto lg:col-span-12"
               style={{ background: '#F5F1EB' }}
             >
               <div className="min-w-[720px]">
                 {/* Column headers */}
                 <div className="grid border-b-2 border-ink" style={{ gridTemplateColumns: '2fr 1fr 1fr 1.4fr 1fr 1fr' }}>
-                  <div className="p-5 font-mono text-[11px] tracking-[.18em] uppercase text-ink/40">Savybė</div>
+                  <div className="p-3 md:p-5 font-mono text-[11px] tracking-[.18em] uppercase text-ink/40">Savybė</div>
                   {plans.map((p) => (
                     <div
                       key={p.name}
@@ -490,8 +445,8 @@ export default function PlansPage() {
                       style={{ background: p.bg }}
                     >
                       <span
-                        className="uppercase"
-                        style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: p.textColor, lineHeight: 1 }}
+                        className="font-display text-[18px] leading-none uppercase"
+                        style={{ color: p.textColor }}
                       >
                         {p.name}
                       </span>
@@ -543,20 +498,14 @@ export default function PlansPage() {
             {trustTiles.map((t, i) => (
               <div
                 key={t.num}
-                className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_rgba(245,241,235,.12)] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_rgba(245,241,235,.2)]"
-                style={{ background: t.bg, transitionDelay: `${i * 70}ms`, minHeight: 220 }}
+                className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-ink p-6 md:p-8 shadow-[6px_6px_0_rgba(245,241,235,.12)] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_rgba(245,241,235,.2)] min-h-[220px]"
+                style={{ background: t.bg, transitionDelay: `${i * 70}ms` }}
               >
-                <span
-                  className="text-ink/20 select-none"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 52, lineHeight: .85 }}
-                >
+                <span className="font-display text-[52px] leading-[.85] text-ink/20 select-none">
                   {t.num}
                 </span>
                 <div>
-                  <h3
-                    className="uppercase text-ink"
-                    style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(18px,1.8vw,26px)', lineHeight: '.92' }}
-                  >
+                  <h3 className="heading-display text-d-xs leading-[.92] text-ink">
                     {t.label}
                   </h3>
                   <p className="mt-3 text-[14px] leading-[1.6] text-ink/65">{t.body}</p>
@@ -573,20 +522,12 @@ export default function PlansPage() {
           <div ref={faqRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             <div
-              className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-9 shadow-[6px_6px_0_#001B21] lg:col-span-4"
-              style={{ background: '#5C4ADE', minHeight: 280 }}
+              className="reveal flex flex-col justify-between brick-card p-6 md:p-9 lg:col-span-4 min-h-[280px]"
+              style={{ background: '#5C4ADE' }}
             >
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Klausimai</p>
+              <p className="label-mono text-paper/50">⬢ Klausimai</p>
               <div>
-                <h2
-                  className="uppercase text-paper"
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: 'clamp(32px,3vw,52px)',
-                    lineHeight: '.88',
-                    letterSpacing: '-.015em',
-                  }}
-                >
+                <h2 className="heading-display text-d-md tracking-[-0.015em] text-paper">
                   Tai, ko
                   <br />
                   žmonės
@@ -603,7 +544,7 @@ export default function PlansPage() {
             </div>
 
             <div
-              className="reveal rounded-3xl border-2 border-ink p-9 shadow-[6px_6px_0_#001B21] lg:col-span-8"
+              className="reveal brick-card p-6 md:p-9 lg:col-span-8"
               style={{ background: '#F5F1EB' }}
             >
               {faqs.map((faq, i) => (
@@ -627,20 +568,12 @@ export default function PlansPage() {
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             <div
-              className="flex flex-col justify-between rounded-3xl border-2 border-paper/20 p-10 lg:col-span-8"
-              style={{ background: '#FB4903', minHeight: 300 }}
+              className="flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-paper/20 p-10 lg:col-span-8 min-h-[300px]"
+              style={{ background: '#FB4903' }}
             >
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/60">⬢ Produktas № 26 — išsiunčiama gegužės 5 d.</p>
+              <p className="label-mono text-paper/60">⬢ Produktas № 26 — išsiunčiama gegužės 5 d.</p>
               <div>
-                <h2
-                  className="uppercase text-paper"
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: 'clamp(38px,4vw,68px)',
-                    lineHeight: '.88',
-                    letterSpacing: '-.015em',
-                  }}
-                >
+                <h2 className="heading-display text-d-lg tracking-[-0.015em] text-paper">
                   Užsisakyk iki
                   <br />
                   gegužės 15 — gauk
@@ -654,15 +587,12 @@ export default function PlansPage() {
             </div>
 
             <div
-              className="flex flex-col justify-between rounded-3xl border-2 border-paper/15 p-9 lg:col-span-4"
-              style={{ background: '#001B21', minHeight: 300 }}
+              className="flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-paper/15 p-6 md:p-9 lg:col-span-4 min-h-[300px]"
+              style={{ background: '#001B21' }}
             >
               <div>
-                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">Nuo</p>
-                <div
-                  className="mt-1 uppercase text-paper"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 72, lineHeight: '.88' }}
-                >
+                <p className="label-mono text-paper/50">Nuo</p>
+                <div className="font-display text-[72px] leading-[.88] mt-1 uppercase text-paper">
                   ${billing === 'monthly' ? 9 : 7}
                 </div>
                 <p className="mt-1 font-mono text-[11px] tracking-[.08em] uppercase text-paper/50">

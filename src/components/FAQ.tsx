@@ -52,24 +52,16 @@ export default function FAQ() {
   }
 
   return (
-    <section id="faq" className="bg-paper py-20">
-      <div className="mx-auto max-w-[1320px] px-7">
+    <section id="faq" className="bg-paper py-10 md:py-20">
+      <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
           {/* FAQ accordion — col-span-7, row-span-2 */}
           <div
-            className="reveal rounded-3xl border-2 border-ink bg-paper p-9 shadow-[6px_6px_0_#001B21] lg:col-span-7 lg:row-span-2"
+            className="reveal brick-card bg-paper p-6 md:p-9 lg:col-span-7 lg:row-span-2"
           >
-            <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ D.U.K.</p>
-            <h2
-              className="mt-3 uppercase text-ink"
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(40px, 4vw, 68px)',
-                lineHeight: '.88',
-                letterSpacing: '-.01em',
-              }}
-            >
+            <p className="label-mono text-ink/50">⬢ D.U.K.</p>
+            <h2 className="mt-3 heading-display text-d-lg text-ink">
               <span
                 className="inline-block border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
                 style={{ transform: 'rotate(-1.5deg)' }}
@@ -84,14 +76,7 @@ export default function FAQ() {
               {faqs.map((faq, i) => (
                 <AccordionItem key={i} value={`item-${i}`} className="border-b-2 border-ink py-0.5">
                   <AccordionTrigger
-                    className="py-5 text-left hover:no-underline"
-                    style={{
-                      fontFamily: 'var(--font-display)',
-                      fontSize: 'clamp(18px, 2vw, 24px)',
-                      lineHeight: 1,
-                      letterSpacing: '-.01em',
-                      textTransform: 'uppercase',
-                    }}
+                    className="heading-display text-d-xs leading-none py-5 text-left hover:no-underline"
                   >
                     {faq.q}
                   </AccordionTrigger>
@@ -105,15 +90,12 @@ export default function FAQ() {
 
           {/* Stats tile — col-span-5 */}
           <div
-            className="reveal grid grid-cols-2 gap-4 rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_rgba(245,241,235,.1)] lg:col-span-5"
+            className="reveal grid grid-cols-2 gap-4 rounded-2xl md:rounded-3xl border-2 border-ink p-6 md:p-8 shadow-[6px_6px_0_rgba(245,241,235,.1)] lg:col-span-5"
             style={{ background: '#001B21' }}
           >
             {stats.map((s, i) => (
-              <div key={i} className="flex flex-col justify-between rounded-2xl border border-paper/15 p-5" style={{ minHeight: 100 }}>
-                <div
-                  className="text-paper"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 32, lineHeight: .9 }}
-                >
+              <div key={i} className="flex flex-col justify-between rounded-xl md:rounded-2xl border border-paper/15 p-3 md:p-5 min-h-[100px]">
+                <div className="font-display text-d-xs leading-[.9] text-paper">
                   {s.value}
                 </div>
                 <div className="mt-2 font-mono text-[10px] tracking-[.16em] uppercase text-paper/50">
@@ -125,17 +107,14 @@ export default function FAQ() {
 
           {/* CTA tile — col-span-5, row 2 */}
           <div
-            className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] lg:col-span-5"
+            className="reveal flex flex-col justify-between brick-card p-6 md:p-8 lg:col-span-5"
             style={{ background: '#5C4ADE' }}
             onMouseEnter={onCtaEnter}
             onMouseLeave={onCtaLeave}
           >
             <div>
               <p className="font-mono text-[10px] tracking-[.22em] uppercase text-paper/60">Vis dar abejoji?</p>
-              <h3
-                className="mt-3 uppercase text-paper"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 36, lineHeight: '.9' }}
-              >
+              <h3 className="mt-3 heading-display text-d-sm leading-[.9] text-paper">
                 Pirmas produktas,
                 <br />
                 <span

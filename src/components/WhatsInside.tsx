@@ -59,29 +59,23 @@ export default function WhatsInside() {
   const ref = useReveal<HTMLDivElement>()
 
   return (
-    <section className="bg-paper py-20">
-      <div className="mx-auto max-w-[1320px] px-7">
+    <section className="bg-paper py-10 md:py-20">
+      <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:gap-20">
 
           {/* Left — sticky headline */}
           <div className="lg:sticky lg:top-28 lg:self-start">
             <div className="reveal">
-            <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ Kas viduje</p>
+            <p className="label-mono text-ink/50">⬢ Kas viduje</p>
             <h2
-              className="mt-4 uppercase text-ink"
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(48px, 5vw, 84px)',
-                lineHeight: '.88',
-                letterSpacing: '-.015em',
-              }}
+              className="heading-display text-d-xl tracking-[-0.015em] mt-4 text-ink"
             >
               Rinkinys, kurį
               <br />
               <span
                 ref={spanRef}
-                className="inline-block border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
-                style={{ transform: 'rotate(-1.5deg)', transformOrigin: 'center' }}
+                className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
+                style={{ transformOrigin: 'center' }}
                 onMouseEnter={onSpanEnter}
                 onMouseLeave={onSpanLeave}
               >
@@ -93,13 +87,13 @@ export default function WhatsInside() {
             </p>
             <a
               href="#plans"
-              className="mt-8 inline-flex items-center gap-2 rounded-full border-2 border-ink bg-ink px-7 py-3.5 font-bold text-[15px] text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21]"
+              className="mt-8 inline-flex items-center gap-2 rounded-full border-2 border-ink bg-ink px-7 py-3.5 font-bold text-[15px] text-paper brick-hover-sm"
             >
               Pradėti prenumeratą <ArrowRightIcon className="size-4" />
             </a>
 
             {/* Lifestyle photo */}
-            <div className="mt-8 overflow-hidden rounded-3xl border-2 border-ink shadow-[6px_6px_0_#001B21]" style={{ height: 260 }}>
+            <div className="brick-card mt-8 h-[260px] overflow-hidden">
               <img
                 src="/images/build-cactus.jpg"
                 alt="Statytojas dedantis paskutinę detalę"
@@ -115,26 +109,19 @@ export default function WhatsInside() {
             {features.map((f, i) => (
               <div
                 key={f.num}
-                className="flex gap-6 rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21]"
+                className="brick-card brick-card-hover flex gap-6 p-6 md:p-8"
                 style={{ background: f.bg, transitionDelay: `${i * 60}ms` }}
                 onMouseEnter={onCardEnter}
                 onMouseLeave={onCardLeave}
               >
                 <div
-                  className="card-num shrink-0 select-none leading-none text-ink/20"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 52, lineHeight: .85 }}
+                  className="card-num font-display text-d-md shrink-0 select-none leading-none text-ink/20"
                 >
                   {f.num}
                 </div>
                 <div className="pt-1">
                   <h3
-                    className="uppercase text-ink"
-                    style={{
-                      fontFamily: 'var(--font-display)',
-                      fontSize: 'clamp(20px, 1.8vw, 28px)',
-                      lineHeight: '.92',
-                      letterSpacing: '-.01em',
-                    }}
+                    className="heading-display text-d-xs tracking-[-0.01em] leading-[.92] text-ink"
                   >
                     {f.title}
                   </h3>

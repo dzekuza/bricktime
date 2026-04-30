@@ -58,33 +58,27 @@ export default function HowItWorks() {
   const ref = useReveal<HTMLDivElement>()
 
   return (
-    <section className="bg-paper py-20">
-      <div className="mx-auto max-w-[1320px] px-7">
+    <section className="bg-paper py-10 md:py-20">
+      <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
           {/* Step 01 — big tile, spans 2 rows */}
           <div
-            className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-5 lg:row-span-2"
-            style={{ background: steps[0].bg, minHeight: 420 }}
+            className="reveal brick-card brick-card-hover flex flex-col justify-between p-6 md:p-8 min-h-[420px] lg:col-span-5 lg:row-span-2"
+            style={{ background: steps[0].bg }}
             onMouseEnter={onCardEnter}
             onMouseLeave={onCardLeave}
           >
             <div>
               <div className="font-mono text-[10px] tracking-[.24em] uppercase text-ink/60 mb-1">Žingsnis</div>
               <div
-                className="text-ink/10 select-none"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(72px, 10vw, 130px)', lineHeight: .8 }}
+                className="font-display text-ink/10 select-none leading-[.8]"
+                style={{ fontSize: 'clamp(72px, 10vw, 130px)' }}
               >
                 {steps[0].num}
               </div>
               <h3
-                className="mt-2 uppercase text-ink"
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'clamp(38px, 3.5vw, 56px)',
-                  lineHeight: '.88',
-                  letterSpacing: '-.01em',
-                }}
+                className="heading-display text-d-md mt-2 text-ink"
               >
                 {steps[0].title.split('\n').map((l, j) => (
                   <span key={j}>
@@ -104,23 +98,16 @@ export default function HowItWorks() {
 
           {/* Header tile — col-span-7, row 1 */}
           <div
-            className="reveal flex flex-col justify-center rounded-3xl border-2 border-ink bg-paper p-9 shadow-[6px_6px_0_#001B21] lg:col-span-7"
+            className="reveal brick-card flex flex-col justify-center bg-paper p-6 md:p-9 lg:col-span-7"
           >
-            <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ Kaip tai veikia</p>
+            <p className="label-mono text-ink/50">⬢ Kaip tai veikia</p>
             <h2
-              className="mt-3 uppercase text-ink"
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(40px, 4vw, 72px)',
-                lineHeight: '.88',
-                letterSpacing: '-.01em',
-              }}
+              className="heading-display text-d-lg mt-3 text-ink"
             >
               Pasirink planą,
               <br />
               <span
-                className="inline-block border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
-                style={{ transform: 'rotate(-1.5deg)' }}
+                className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
               >
                 statyk
               </span>{' '}
@@ -134,21 +121,20 @@ export default function HowItWorks() {
 
           {/* Step 02 — col-span-4, row 2 */}
           <div
-            className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-7 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-4"
-            style={{ background: steps[1].bg, transitionDelay: '100ms', minHeight: 260 }}
+            className="reveal brick-card brick-card-hover flex flex-col justify-between p-6 md:p-7 min-h-[260px] lg:col-span-4"
+            style={{ background: steps[1].bg, transitionDelay: '100ms' }}
             onMouseEnter={onCardEnter}
             onMouseLeave={onCardLeave}
           >
             <div>
               <div
-                className="text-ink/10 select-none"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(52px, 7vw, 88px)', lineHeight: .8 }}
+                className="font-display text-ink/10 select-none leading-[.8]"
+                style={{ fontSize: 'clamp(52px, 7vw, 88px)' }}
               >
                 {steps[1].num}
               </div>
               <h3
-                className="mt-1 uppercase text-ink"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(22px, 2.5vw, 32px)', lineHeight: '.88' }}
+                className="heading-display text-d-sm mt-1 text-ink"
               >
                 {steps[1].title.split('\n').map((l, j) => (
                   <span key={j}>
@@ -168,21 +154,20 @@ export default function HowItWorks() {
 
           {/* Step 03 — col-span-3, row 2 */}
           <div
-            className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-7 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-3"
-            style={{ background: steps[2].bg, transitionDelay: '200ms', minHeight: 260 }}
+            className="reveal brick-card brick-card-hover flex flex-col justify-between p-6 md:p-7 min-h-[260px] lg:col-span-3"
+            style={{ background: steps[2].bg, transitionDelay: '200ms' }}
             onMouseEnter={onCardEnter}
             onMouseLeave={onCardLeave}
           >
             <div>
               <div
-                className="text-ink/10 select-none"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(52px, 7vw, 88px)', lineHeight: .8 }}
+                className="font-display text-ink/10 select-none leading-[.8]"
+                style={{ fontSize: 'clamp(52px, 7vw, 88px)' }}
               >
                 {steps[2].num}
               </div>
               <h3
-                className="mt-1 uppercase text-ink"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 28, lineHeight: '.88' }}
+                className="heading-display text-d-sm mt-1 text-ink"
               >
                 {steps[2].title.split('\n').map((l, j) => (
                   <span key={j}>

@@ -24,8 +24,7 @@ export default function Nav() {
   return (
     <>
       <nav
-        className="sticky top-0 z-50"
-        style={{ background: '#FFFFFF' }}
+        className="sticky top-0 z-50 bg-white"
       >
         <div className="mx-auto flex h-[84px] max-w-[1320px] items-center justify-between px-7 md:grid md:grid-cols-3">
 
@@ -62,7 +61,7 @@ export default function Nav() {
             <Button
               asChild
               size="sm"
-              className="hidden rounded-full border-2 border-ink bg-ink text-paper font-bold hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#001B21] transition-all md:inline-flex"
+              className="hidden rounded-full border-2 border-ink bg-ink text-paper font-bold brick-hover-sm md:inline-flex"
             >
               <Link to="/subscribe">Prenumeruoti <ArrowRightIcon data-icon="inline-end" /></Link>
             </Button>
@@ -70,7 +69,7 @@ export default function Nav() {
             {/* Account avatar */}
             <Link
               to="/account"
-              className="flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-ink bg-brand-yellow transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#001B21]"
+              className="flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-ink bg-brand-yellow brick-hover-sm"
               aria-label="Paskyra"
             >
               <img src="/avatars/avatar-classic.png" alt="Paskyra" className="h-full w-full object-cover" />
@@ -88,7 +87,7 @@ export default function Nav() {
         </div>
       </nav>
 
-      {/* Mobile drawer */}
+      {/* Mobile top drawer */}
       <div
         className="fixed inset-0 z-40 md:hidden"
         style={{ pointerEvents: open ? 'all' : 'none' }}
@@ -100,38 +99,23 @@ export default function Nav() {
         />
 
         <div
-          className="absolute right-0 top-0 flex h-full w-[80vw] max-w-[340px] flex-col border-l-2 border-ink"
+          className="absolute left-0 top-0 w-full flex flex-col border-b-2 border-ink bg-white"
           style={{
-            background: '#FFFFFF',
-            transform: open ? 'translateX(0)' : 'translateX(100%)',
+            transform: open ? 'translateY(0)' : 'translateY(-100%)',
             transition: 'transform 0.28s cubic-bezier(0.32, 0, 0.16, 1)',
           }}
         >
-          <div className="flex h-[84px] items-center justify-between border-b-2 border-ink px-6">
-            <span className="uppercase text-ink" style={{ fontFamily: 'var(--font-display)', fontSize: 22 }}>
-              Meniu
-            </span>
-            <button
-              onClick={() => setOpen(false)}
-              className="grid size-9 place-items-center rounded-full border-2 border-ink text-ink"
-              aria-label="Uždaryti meniu"
-            >
-              <XIcon className="size-4" />
-            </button>
-          </div>
-
-          <nav className="flex flex-col px-6 pt-4">
+          <nav className="flex flex-col px-6 pt-[84px]">
             {links.map((l, i) => {
               const isActive = l.to === '/' ? pathname === '/' : pathname.startsWith(l.to.split('#')[0]) && l.to !== '/'
               return (
                 <Link
                   key={l.label}
                   to={l.to}
-                  className="flex items-center justify-between border-b-2 border-ink/10 py-5 text-[22px] font-bold uppercase text-ink transition-opacity hover:opacity-60"
+                  className="flex items-center justify-between border-b-2 border-ink/10 py-5 text-[22px] font-bold uppercase text-ink transition-opacity hover:opacity-60 font-display"
                   style={{
-                    fontFamily: 'var(--font-display)',
                     opacity: open ? 1 : 0,
-                    transform: open ? 'translateX(0)' : 'translateX(16px)',
+                    transform: open ? 'translateY(0)' : 'translateY(-10px)',
                     transition: `opacity 0.22s ease ${i * 40}ms, transform 0.22s ease ${i * 40}ms`,
                   }}
                 >
@@ -143,10 +127,10 @@ export default function Nav() {
           </nav>
 
           <div
-            className="mt-auto border-t-2 border-ink p-6"
+            className="border-t-2 border-ink p-6"
             style={{
               opacity: open ? 1 : 0,
-              transform: open ? 'translateY(0)' : 'translateY(12px)',
+              transform: open ? 'translateY(0)' : 'translateY(-8px)',
               transition: 'opacity 0.25s ease 220ms, transform 0.25s ease 220ms',
             }}
           >
@@ -156,9 +140,6 @@ export default function Nav() {
             >
               Prenumeruoti <ArrowRightIcon className="inline size-4 ml-1" />
             </Link>
-            <p className="mt-3 text-center font-mono text-[10px] tracking-[.14em] uppercase text-ink/40">
-              Atšauk bet kada · Nemokamas pristatymas
-            </p>
           </div>
         </div>
       </div>

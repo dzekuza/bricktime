@@ -32,29 +32,21 @@ export default function BigCTA() {
   }
 
   return (
-    <section className="bg-paper py-20">
-      <div className="mx-auto max-w-[1320px] px-7">
+    <section className="bg-paper py-10 md:py-20">
+      <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
           {/* Urgency copy — col-span-7 */}
           <div
             ref={tileRef}
-            className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-10 shadow-[6px_6px_0_#001B21] lg:col-span-7"
-            style={{ background: '#FB4903', minHeight: 340 }}
+            className="reveal flex flex-col justify-between brick-card p-10 min-h-[340px] lg:col-span-7"
+            style={{ background: '#FB4903' }}
             onMouseEnter={onEnter}
             onMouseLeave={onLeave}
           >
-            <p className="font-mono text-[11px] tracking-[.24em] uppercase text-paper/70">⬢ Paskutinė galimybė</p>
+            <p className="label-mono tracking-[.24em] text-paper/70">⬢ Paskutinė galimybė</p>
             <div>
-              <h2
-                className="uppercase text-paper"
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'clamp(52px, 6vw, 96px)',
-                  lineHeight: '.86',
-                  letterSpacing: '-.015em',
-                }}
-              >
+              <h2 className="heading-display text-d-hero text-paper tracking-[-0.015em] leading-[.86]">
                 Produktas № 26
                 <br />
                 išsiunčiamas po{' '}
@@ -74,21 +66,14 @@ export default function BigCTA() {
 
           {/* CTA actions — col-span-5 */}
           <div
-            className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-10 shadow-[6px_6px_0_rgba(245,241,235,.08)] lg:col-span-5"
-            style={{ background: '#001B21', minHeight: 340 }}
+            className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-ink p-10 shadow-[6px_6px_0_rgba(245,241,235,.08)] lg:col-span-5 min-h-[340px]"
+            style={{ background: '#001B21' }}
           >
             <div>
               <p className="font-mono text-[10px] tracking-[.22em] uppercase text-paper/50 mb-4">
                 Užsitikrink vietą
               </p>
-              <div
-                className="text-paper"
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'clamp(28px, 3vw, 48px)',
-                  lineHeight: '.9',
-                }}
-              >
+              <div className="font-display text-d-md leading-[.9] text-paper">
                 <div className="flex items-baseline gap-2 mb-1">
                   <span className="text-brand-yellow">Mini</span>
                   <span className="text-paper/40 text-2xl">—</span>

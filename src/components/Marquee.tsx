@@ -14,8 +14,7 @@ export default function Marquee() {
   return (
     <div className="overflow-hidden border-b-2 border-t-2 border-ink bg-paper text-ink">
       <div
-        className="marquee-track flex gap-12 whitespace-nowrap py-[18px]"
-        style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3.5vw, 42px)', letterSpacing: '-.005em' }}
+        className="marquee-track flex gap-12 whitespace-nowrap py-[18px] font-display text-d-sm tracking-[-0.005em]"
       >
         {repeated.map((item, i) => (
           <span key={i} className="inline-flex items-center gap-12">

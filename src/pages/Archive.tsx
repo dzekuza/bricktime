@@ -4,6 +4,7 @@ import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { ArrowRightIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 // ── types ──────────────────────────────────────────────────────────────────
 type Tier = 'nano' | 'mini' | 'standard' | 'pro' | 'mega'
@@ -50,7 +51,6 @@ const products: Product[] = [
   { id: 18, title: 'Record shop', subtitle: '+ DJ Petra', date: '2025 rugsėjis', category: 'Miestas', year: 2025, bricks: 264, minifigs: '1 minifigūrėlė', rating: '★★★★★ 4.81', bg: '#FFAEE7', brickColors: ['#001B21','#FFD731','#FB4903','#F5F1EB'], brickHeights: [60,30,46,26], requiredTier: 'mini' },
 ]
 
-const filters = ['Visi', 'Nano+', 'Mini+', 'Standard+', 'Pro+', 'Tik Mega', '2026', '2025', 'Transportas', 'Miestas', 'Sci-fi', 'Gamta']
 
 // ── sub-components ─────────────────────────────────────────────────────────
 function MockModel({ colors, heights }: { colors: string[]; heights: number[] }) {
@@ -120,18 +120,17 @@ function ProductCard({ product, featured = false }: { product: Product; featured
     <Link
       to={`/checkout?product=${product.id}&tier=${product.requiredTier}`}
       className={[
-        'group flex flex-col overflow-hidden rounded-3xl border-2 border-ink bg-paper text-ink no-underline',
-        'transition-all hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[8px_8px_0_#001B21]',
-        featured ? 'md:col-span-2' : '',
+        'group flex flex-col overflow-hidden brick-card brick-card-hover bg-paper text-ink no-underline',
+        '',
       ].join(' ')}
     >
       {/* Visual */}
-      <StudBg color={product.bg} image={product.image} className={`relative border-b-2 border-ink ${featured ? 'h-[380px]' : 'h-[280px]'}`}>
+      <StudBg color={product.bg} image={product.image} className={`relative border-b-2 border-ink h-[280px]`}>
         {/* Badge */}
         {product.badge && (
           <div
-            className="absolute right-[18px] top-[18px] z-10 grid size-[78px] -rotate-12 place-items-center rounded-full border-2 border-ink p-2 text-center shadow-[3px_3px_0_#001B21]"
-            style={{ fontFamily: 'var(--font-display)', fontSize: 13, lineHeight: 1, background: badgeBg, color: badgeColor }}
+            className="absolute right-[18px] top-[18px] z-10 grid size-[78px] -rotate-12 place-items-center rounded-full border-2 border-ink p-2 text-center shadow-[3px_3px_0_#001B21] font-display text-[13px] leading-none"
+            style={{ background: badgeBg, color: badgeColor }}
           >
             {product.badgeLabel?.split(' ').map((w, i) => <span key={i} className="block">{w}</span>)}
           </div>
@@ -144,14 +143,14 @@ function ProductCard({ product, featured = false }: { product: Product; featured
       </StudBg>
 
       {/* Body */}
-      <div className="flex flex-1 flex-col gap-3 p-6">
-        <div className="flex items-center justify-between font-mono text-[11px] tracking-[.16em] uppercase text-ink/60">
+      <div className="flex flex-1 flex-col gap-3 p-3 md:p-6">
+        <div className="flex items-center justify-between label-mono text-ink/60">
           <span>{product.date}</span>
           <span>{product.category}</span>
         </div>
         <h3
-          className="uppercase text-ink"
-          style={{ fontFamily: 'var(--font-display)', fontSize: featured ? 48 : 32, lineHeight: '.95' }}
+          className={`heading-display text-ink ${featured ? 'text-d-sm' : 'text-3xl'}`}
+          style={{ lineHeight: '.95' }}
         >
           {product.title}<br />{product.subtitle}
         </h3>
@@ -191,18 +190,16 @@ function ProductCard({ product, featured = false }: { product: Product; featured
 
 // ── page ───────────────────────────────────────────────────────────────────
 export default function Archive() {
-  const [activeFilter, setActiveFilter] = useState('Visi')
+  const [tierFilter, setTierFilter] = useState('all')
+  const [categoryFilter, setCategoryFilter] = useState('all')
 
   const tierOrder: Tier[] = ['nano', 'mini', 'standard', 'pro', 'mega']
+  const categories = [...new Set(products.map((p) => p.category))].sort()
+
   const filteredProducts = products.filter((p) => {
-    if (activeFilter === 'Visi') return true
-    if (activeFilter === 'Tik Mega') return p.requiredTier === 'mega'
-    if (activeFilter.endsWith('+')) {
-      const tierName = activeFilter.replace('+', '').toLowerCase() as Tier
-      return tierOrder.indexOf(p.requiredTier) >= tierOrder.indexOf(tierName)
-    }
-    if (['2024', '2025', '2026'].includes(activeFilter)) return p.year === Number(activeFilter)
-    return p.category === activeFilter
+    const tierOk = tierFilter === 'all' || tierOrder.indexOf(p.requiredTier) >= tierOrder.indexOf(tierFilter as Tier)
+    const catOk = categoryFilter === 'all' || p.category === categoryFilter
+    return tierOk && catOk
   })
 
   return (
@@ -210,13 +207,14 @@ export default function Archive() {
       <Nav />
 
       {/* ── Hero ── */}
-      <section className="bg-ink py-20">
-        <div className="mx-auto max-w-[1320px] px-7">
+      <section className="bg-paper py-4 md:py-6">
+        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+          <div className="rounded-2xl md:rounded-3xl border-2 border-ink bg-ink overflow-hidden p-4 md:p-6">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             {/* Left tile */}
-            <div className="flex flex-col justify-between rounded-3xl border-2 border-ink bg-ink p-9 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-8" style={{ minHeight: 420 }}>
-              <div className="mb-6 flex items-center gap-2.5 font-mono text-[11px] tracking-[.18em] uppercase">
+            <div className="flex flex-col justify-between brick-card brick-card-hover bg-ink p-6 md:p-9 lg:col-span-8 min-h-[420px]">
+              <div className="mb-6 flex items-center gap-2.5 label-mono">
                 <Link to="/" className="text-paper/50 hover:text-paper transition-colors">BRICKTIME</Link>
                 <span className="text-paper/30">/</span>
                 <span className="text-paper/50">Produktai</span>
@@ -224,11 +222,10 @@ export default function Archive() {
 
               <div className="flex-1 flex flex-col justify-center">
                 <h1
-                  className="max-w-[14ch] uppercase text-paper"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px,5.5vw,84px)', lineHeight: '.88', letterSpacing: '-.015em' }}
+                  className="max-w-[14ch] heading-display text-d-xl text-paper tracking-[-0.015em]"
                 >
                   Visi{' '}
-                  <span className="inline-block text-brand-orange" style={{ fontStyle: 'italic', transform: 'skew(-8deg)' }}>
+                  <span className="inline-block text-brand-orange italic" style={{ transform: 'skew(-8deg)' }}>
                     rinkiniai,
                   </span>
                   <br />vienoje vietoje.
@@ -241,53 +238,63 @@ export default function Archive() {
             </div>
 
             {/* Right tile — stats */}
-            <div className="flex flex-col justify-around rounded-3xl border-2 border-ink bg-brand-orange p-9 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-4" style={{ minHeight: 420 }}>
+            <div className="flex flex-col justify-around brick-card brick-card-hover bg-brand-orange p-6 md:p-9 lg:col-span-4 min-h-[420px]">
               {[['26', 'Rinkinių katalogas'], ['7 840', 'Detalių iš viso'], ['54', 'Minifigūrėlių']].map(([val, label]) => (
                 <div key={label} className="flex flex-col gap-2 border-b border-paper/20 pb-8 last:border-b-0 last:pb-0">
-                  <b style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,4vw,60px)', lineHeight: '.88', color: '#F5F1EB' }}>{val}</b>
-                  <small className="font-mono text-[11px] tracking-[.16em] uppercase text-paper/70">{label}</small>
+                  <b className="heading-display text-d-lg" style={{ color: '#F5F1EB' }}>{val}</b>
+                  <small className="label-mono text-paper/70">{label}</small>
                 </div>
               ))}
             </div>
 
           </div>
+          </div>
         </div>
       </section>
 
-      {/* ── Filter bar ── */}
-      <div className="sticky top-[72px] z-40 border-b-2 border-ink bg-ink">
-        <div className="mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-4 px-7 py-[18px]">
-          <div className="flex flex-wrap gap-2.5">
-            {filters.map((f) => (
-              <button
-                key={f}
-                onClick={() => setActiveFilter(f)}
-                className={[
-                  'rounded-full border-2 px-4 py-2 text-[13px] font-semibold transition-all',
-                  activeFilter === f
-                    ? 'border-brand-yellow bg-brand-yellow text-ink'
-                    : 'border-paper bg-transparent text-paper hover:bg-paper/10',
-                ].join(' ')}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-2.5 font-mono text-[11px] tracking-[.16em] uppercase text-paper/85">
-            <span>Rūšiuoti</span>
-            <select className="rounded-full border-2 border-paper bg-transparent px-3 py-2 text-[13px] font-semibold text-paper tracking-normal normal-case">
-              <option>Naujausi pirmiausia</option>
-              <option>Seniausi pirmiausia</option>
-              <option>Daugiausiai detalių</option>
-              <option>Narių įvertinimas</option>
-            </select>
-          </div>
-        </div>
-      </div>
 
       {/* ── Grid ── */}
-      <section className="py-16">
-        <div className="mx-auto max-w-[1320px] px-7">
+      <section className="py-10 md:py-16">
+        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+
+          {/* Filters */}
+          <div className="mb-8 flex flex-wrap gap-3">
+            <Select value={tierFilter} onValueChange={setTierFilter}>
+              <SelectTrigger className="w-[180px] rounded-full border-2 border-ink font-semibold text-[14px]">
+                <SelectValue placeholder="Planas" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Visi planai</SelectItem>
+                <SelectItem value="nano">Nano+</SelectItem>
+                <SelectItem value="mini">Mini+</SelectItem>
+                <SelectItem value="standard">Standard+</SelectItem>
+                <SelectItem value="pro">Pro+</SelectItem>
+                <SelectItem value="mega">Tik Mega</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-[180px] rounded-full border-2 border-ink font-semibold text-[14px]">
+                <SelectValue placeholder="Kategorija" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Visos kategorijos</SelectItem>
+                {categories.map((c) => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {(tierFilter !== 'all' || categoryFilter !== 'all') && (
+              <button
+                onClick={() => { setTierFilter('all'); setCategoryFilter('all') }}
+                className="rounded-full border-2 border-ink/30 px-4 py-2 text-[13px] font-semibold text-ink/50 hover:border-ink hover:text-ink transition-all"
+              >
+                Išvalyti
+              </button>
+            )}
+          </div>
+
           <div className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} featured={product.featured} />
@@ -303,7 +310,7 @@ export default function Archive() {
             >
               Rodyti daugiau ↓
             </Button>
-            <p className="mt-3.5 font-mono text-[11px] tracking-[.16em] uppercase text-ink/55">
+            <p className="mt-3.5 label-mono text-ink/55">
               Rodoma {filteredProducts.length} iš 26 · Naujausi pirmiausia
             </p>
           </div>

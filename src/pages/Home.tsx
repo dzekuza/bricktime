@@ -6,7 +6,6 @@ import WhatsInside from '@/components/WhatsInside'
 import Plans from '@/components/Plans'
 import Testimonials from '@/components/Testimonials'
 import FAQ from '@/components/FAQ'
-import BigCTA from '@/components/BigCTA'
 import Footer from '@/components/Footer'
 import FloatingVideoWidget from '@/components/FloatingVideoWidget'
 
@@ -22,7 +21,6 @@ export default function Home() {
         <Plans />
         <Testimonials />
         <FAQ />
-        <BigCTA />
       </main>
       <Footer />
       <FloatingVideoWidget />

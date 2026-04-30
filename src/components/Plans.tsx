@@ -134,30 +134,24 @@ export default function Plans() {
   }
 
   return (
-    <section id="plans" className="bg-ink py-20">
-      <div className="mx-auto max-w-[1320px] px-7">
+    <section id="plans" className="bg-ink py-10 md:py-20">
+      <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
           {/* Tagline tile — full width */}
           <div
-            className="reveal flex items-end justify-between rounded-3xl border-2 border-ink p-9 shadow-[6px_6px_0_rgba(245,241,235,.12)] lg:col-span-12"
+            className="reveal brick-card flex items-end justify-between p-6 md:p-9 shadow-[6px_6px_0_rgba(245,241,235,.12)] lg:col-span-12"
             style={{ background: '#FFD731' }}
           >
             <h2
-              className="uppercase text-ink"
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(38px, 4vw, 68px)',
-                lineHeight: '.88',
-                letterSpacing: '-.015em',
-              }}
+              className="heading-display text-d-lg tracking-[-0.015em] text-ink"
             >
               Planai kiekvienai
               <br />
               <span
                 ref={spanRef}
-                className="inline-block border-[3px] border-ink bg-[#FB4903] px-[.12em] text-paper shadow-[5px_5px_0_rgba(0,27,33,.15)]"
-                style={{ transform: 'rotate(-1.5deg)', transformOrigin: 'center' }}
+                className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-[#FB4903] px-[.12em] text-paper shadow-[5px_5px_0_rgba(0,27,33,.15)]"
+                style={{ transformOrigin: 'center' }}
                 onMouseEnter={onSpanEnter}
                 onMouseLeave={onSpanLeave}
               >
@@ -166,8 +160,8 @@ export default function Plans() {
               situacijai.
             </h2>
             <div
-              className="hidden shrink-0 text-ink/20 lg:block select-none"
-              style={{ fontFamily: 'var(--font-display)', fontSize: 80, lineHeight: 1 }}
+              className="font-display hidden shrink-0 text-ink/20 lg:block select-none leading-none"
+              style={{ fontSize: 80 }}
             >
               ▩
             </div>
@@ -178,8 +172,8 @@ export default function Plans() {
           {plans.map((plan, i) => (
             <div
               key={plan.name}
-              className="reveal relative flex flex-col justify-between rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all duration-200 hover:-translate-y-3 hover:z-10 flex-1"
-              style={{ background: plan.bg, transitionDelay: `${i * 80}ms`, minHeight: 420, zIndex: i + 1 }}
+              className="reveal brick-card relative flex flex-col justify-between p-6 md:p-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all duration-200 hover:-translate-y-3 hover:z-10 flex-1"
+              style={{ background: plan.bg, transitionDelay: `${i * 80}ms`, zIndex: i + 1 }}
               onMouseEnter={onCardEnter}
               onMouseLeave={onCardLeave}
             >
@@ -195,25 +189,15 @@ export default function Plans() {
               {/* Name + price */}
               <div>
                 <div
-                  className="uppercase"
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: 'clamp(20px, 2vw, 28px)',
-                    lineHeight: '.88',
-                    color: plan.textColor,
-                  }}
+                  className="heading-display text-d-xs uppercase"
+                  style={{ color: plan.textColor }}
                 >
                   {plan.name}
                 </div>
                 <div className="mt-2 flex items-baseline gap-1">
                   <span
-                    className="plan-price inline-block"
-                    style={{
-                      fontFamily: 'var(--font-display)',
-                      fontSize: 'clamp(32px, 4vw, 52px)',
-                      lineHeight: '.88',
-                      color: plan.textColor,
-                    }}
+                    className="plan-price heading-display text-d-md inline-block"
+                    style={{ color: plan.textColor }}
                   >
                     {plan.price}
                   </span>

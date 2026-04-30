@@ -63,22 +63,16 @@ function AchievementsSection() {
   return (
     <section className="bg-white py-8 md:py-20 md:bg-[#F5F1EB]">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-        <p className="font-mono text-[11px] uppercase tracking-[.22em] text-ink/50">⬢ Pažymėjimai</p>
-        <h2
-          className="mt-2 uppercase text-ink"
-          style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px, 4vw, 64px)', lineHeight: '.9', letterSpacing: '-.02em' }}
-        >
+        <p className="label-mono text-ink/50">⬢ Pažymėjimai</p>
+        <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.02em] mt-2 text-ink">
           Taškai.
         </h2>
 
         <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* Points summary */}
           <div className="lg:col-span-3">
-            <div className="rounded-3xl border-2 border-ink bg-ink p-8 shadow-[6px_6px_0_#FFD731]">
-              <p
-                className="leading-none text-paper"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 72 }}
-              >
+            <div className="rounded-2xl md:rounded-3xl border-2 border-ink bg-ink p-3 md:p-8 shadow-[6px_6px_0_#FFD731]">
+              <p className="font-display text-[72px] leading-none text-paper">
                 {totalPoints}
               </p>
               <p className="mt-1 font-mono text-[11px] uppercase tracking-widest text-paper/40">Taškai iš viso</p>
@@ -187,11 +181,8 @@ export default function Account() {
                   </button>
                 </div>
                 <div className="flex-1">
-                  <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50 md:text-paper/40">⬢ Mano paskyra</p>
-                  <h1
-                    className="mt-2 uppercase text-ink md:text-paper"
-                    style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,3.5vw,54px)', lineHeight: '.9' }}
-                  >
+                  <p className="label-mono text-ink/50 md:text-paper/40">⬢ Mano paskyra</p>
+                  <h1 className="heading-display text-d-lg leading-[.9] mt-2 text-ink md:text-paper">
                     {user.name}
                   </h1>
                   <p className="mt-1.5 text-[15px] text-ink/60 md:text-paper/60">{user.email}</p>
@@ -243,10 +234,7 @@ export default function Account() {
                   { val: calculatePoints(currentUserAchievements), label: 'Taškai' },
                 ].map((s) => (
                   <div key={s.label} className="rounded-2xl border border-ink/30 md:border-paper/15 p-4">
-                    <div
-                      className="uppercase text-ink md:text-paper"
-                      style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(20px, 2.5vw, 32px)', lineHeight: 1 }}
-                    >
+                    <div className="font-display text-d-sm leading-none uppercase text-ink md:text-paper">
                       {s.val}
                     </div>
                     <div className="mt-1 font-mono text-[10px] tracking-[.14em] uppercase text-ink/50 md:text-paper/45">{s.label}</div>
@@ -261,21 +249,21 @@ export default function Account() {
 
             {/* Subscription tile */}
             <div
-              className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-ink p-[18px] md:p-9 shadow-[6px_6px_0_rgba(245,241,235,.12)] lg:col-span-5"
-              style={{ background: user.tierBg, minHeight: 340 }}
+              className="reveal flex flex-col justify-between brick-card p-[18px] md:p-9 shadow-[6px_6px_0_rgba(245,241,235,.12)] lg:col-span-5 min-h-[340px]"
+              style={{ background: user.tierBg }}
             >
               <div>
-                <p className="font-mono text-[11px] tracking-[.22em] uppercase" style={{ color: `${user.tierTextColor}70` }}>
+                <p className="label-mono" style={{ color: `${user.tierTextColor}70` }}>
                   Aktyvi prenumerata
                 </p>
                 <div
-                  className="mt-3 uppercase"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px,5vw,80px)', lineHeight: '.88', color: user.tierTextColor }}
+                  className="font-display text-d-xl leading-[.88] mt-3 uppercase"
+                  style={{ color: user.tierTextColor }}
                 >
                   {user.tier}
                 </div>
                 <div className="mt-2 flex items-baseline gap-1.5">
-                  <span style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 3vw, 36px)', color: user.tierTextColor, lineHeight: 1 }}>
+                  <span className="font-display text-d-sm leading-none" style={{ color: user.tierTextColor }}>
                     ${user.monthlyPrice}
                   </span>
                   <span className="font-mono text-[12px] tracking-[.06em] uppercase" style={{ color: `${user.tierTextColor}70` }}>
@@ -318,17 +306,17 @@ export default function Account() {
             {/* Upgrade plan picker — shown inline when toggle is open */}
             {showUpgrade && (
               <div
-                className="reveal rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] lg:col-span-12"
+                className="reveal brick-card p-3 md:p-8 lg:col-span-12"
                 style={{ background: '#F5F1EB' }}
               >
-                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50 mb-5">⬢ Keisti planą</p>
+                <p className="label-mono text-ink/50 mb-5">⬢ Keisti planą</p>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
                   {tierOptions.map((t, i) => (
                     <button
                       key={t.name}
                       onClick={() => setSelectedTier(i)}
                       className={[
-                        'relative rounded-2xl border-2 p-5 text-left transition-all',
+                        'relative rounded-2xl border-2 p-3 md:p-5 text-left transition-all',
                         selectedTier === i ? 'border-ink scale-[1.02] shadow-[4px_4px_0_#001B21]' : 'border-ink/30 hover:border-ink',
                       ].join(' ')}
                       style={{ background: selectedTier === i ? t.bg : 'transparent' }}
@@ -339,7 +327,8 @@ export default function Account() {
                         </span>
                       )}
                       <div
-                        style={{ fontFamily: 'var(--font-display)', fontSize: 22, lineHeight: 1, color: selectedTier === i ? t.textColor : '#001B21' }}
+                        className="font-display text-[22px] leading-none"
+                        style={{ color: selectedTier === i ? t.textColor : '#001B21' }}
                       >
                         {t.name}
                       </div>
@@ -370,11 +359,8 @@ export default function Account() {
           <div ref={dropsRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             <div className="reveal lg:col-span-12">
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ Mano produktai</p>
-              <h2
-                className="mt-3 uppercase text-ink"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,3.5vw,58px)', lineHeight: '.88', letterSpacing: '-.015em' }}
-              >
+              <p className="label-mono text-ink/50">⬢ Mano produktai</p>
+              <h2 className="heading-display text-d-lg tracking-[-0.015em] mt-3 text-ink">
                 Tavo nuomoti produktai.
               </h2>
             </div>
@@ -383,23 +369,19 @@ export default function Account() {
               <Link
                 key={drop.num}
                 to={`/drop/${drop.num}`}
-                className="reveal rounded-3xl border-2 border-ink overflow-hidden shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-3 no-underline"
+                className="reveal brick-card brick-card-hover overflow-hidden lg:col-span-3 no-underline"
                 style={{ transitionDelay: `${i * 60}ms` }}
               >
                 {/* Top coloured area */}
                 <div
-                  className="relative flex items-end justify-between p-5"
+                  className="relative flex items-end justify-between p-3 md:p-5 min-h-[140px]"
                   style={{
                     background: drop.bg,
                     backgroundImage: 'radial-gradient(circle at 12px 12px, rgba(255,255,255,.18) 3px, transparent 4px)',
                     backgroundSize: '30px 30px',
-                    minHeight: 140,
                   }}
                 >
-                  <div
-                    className="rounded-[8px] border-2 border-ink bg-ink px-3 py-2 text-paper"
-                    style={{ fontFamily: 'var(--font-display)', fontSize: 28, lineHeight: 1 }}
-                  >
+                  <div className="font-display text-[28px] leading-none rounded-[8px] border-2 border-ink bg-ink px-3 py-2 text-paper">
                     № {drop.num}
                   </div>
                   <span
@@ -412,17 +394,14 @@ export default function Account() {
                   </span>
                 </div>
                 {/* Body */}
-                <div className="bg-paper p-5">
-                  <h3
-                    className="uppercase text-ink"
-                    style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: '.9' }}
-                  >
+                <div className="bg-paper p-3 md:p-5">
+                  <h3 className="font-display text-[24px] leading-[.9] uppercase text-ink">
                     {drop.title}
                   </h3>
                   <p className="mt-2 font-mono text-[11px] tracking-[.14em] uppercase text-ink/50">{drop.bricks} kaladėlių</p>
                   <div className="mt-4 flex items-center justify-between text-[13px] font-bold text-ink">
                     <span>Žiūrėti produktą</span>
-                    <span style={{ fontFamily: 'var(--font-display)', fontSize: 20 }}>→</span>
+                    <span className="font-display text-[20px]">→</span>
                   </div>
                 </div>
               </Link>
@@ -431,10 +410,9 @@ export default function Account() {
             {/* Browse more CTA */}
             <Link
               to="/archive"
-              className="reveal flex flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-ink p-8 text-center transition-all hover:border-solid hover:shadow-[6px_6px_0_#001B21] lg:col-span-3 no-underline"
-              style={{ minHeight: 220 }}
+              className="reveal flex flex-col items-center justify-center gap-3 rounded-2xl md:rounded-3xl border-2 border-dashed border-ink p-3 md:p-8 text-center transition-all hover:border-solid hover:shadow-[6px_6px_0_#001B21] lg:col-span-3 no-underline min-h-[220px]"
             >
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 48, color: '#001B2140', lineHeight: 1 }}>+</span>
+              <span className="font-display text-[48px] leading-none" style={{ color: '#001B2140' }}>+</span>
               <p className="text-[14px] font-bold text-ink">Naršyti daugiau produktų</p>
               <p className="font-mono text-[11px] tracking-[.14em] uppercase text-ink/45">26 prieinami su Standard+</p>
             </Link>
@@ -452,14 +430,11 @@ export default function Account() {
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             <div
-              className="flex flex-col gap-3 rounded-2xl md:rounded-3xl border-2 border-paper/15 p-[18px] md:p-9 lg:col-span-8"
-              style={{ background: '#5C4ADE', minHeight: 240 }}
+              className="flex flex-col gap-3 rounded-2xl md:rounded-3xl border-2 border-paper/15 p-[18px] md:p-9 lg:col-span-8 min-h-[240px]"
+              style={{ background: '#5C4ADE' }}
             >
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Išsiunčiama gegužės 5 d.</p>
-              <h2
-                className="uppercase text-paper"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,3vw,52px)', lineHeight: '.9' }}
-              >
+              <p className="label-mono text-paper/50">⬢ Išsiunčiama gegužės 5 d.</p>
+              <h2 className="heading-display text-d-md leading-[.9] text-paper">
                 Produktas № 26 — Mailbox Row + Postman Otto
               </h2>
               <p className="text-[15px] leading-[1.6] text-paper/70">
@@ -472,10 +447,10 @@ export default function Account() {
 
             {/* Quick actions — desktop only */}
             <div
-              className="hidden md:flex flex-col justify-between rounded-3xl border-2 border-paper/15 p-9 lg:col-span-4"
+              className="hidden md:flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-paper/15 p-3 md:p-9 lg:col-span-4"
               style={{ background: '#001B21' }}
             >
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/40">Greiti veiksmai</p>
+              <p className="label-mono text-paper/40">Greiti veiksmai</p>
               <div className="flex flex-col gap-2.5 mt-4">
                 {[
                   { label: 'Praleisti birželio produktą', color: '#5DDB9C' },
@@ -507,18 +482,15 @@ export default function Account() {
           <div ref={billingRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             <div className="reveal lg:col-span-12">
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ Atsiskaitymas</p>
-              <h2
-                className="mt-3 uppercase text-ink"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,3.5vw,58px)', lineHeight: '.88', letterSpacing: '-.015em' }}
-              >
+              <p className="label-mono text-ink/50">⬢ Atsiskaitymas</p>
+              <h2 className="heading-display text-d-lg tracking-[-0.015em] mt-3 text-ink">
                 Mokėjimų istorija.
               </h2>
             </div>
 
             {/* Billing table */}
             <div
-              className="reveal rounded-3xl border-2 border-ink overflow-hidden shadow-[6px_6px_0_#001B21] lg:col-span-8"
+              className="reveal brick-card overflow-hidden lg:col-span-8"
               style={{ background: '#F5F1EB' }}
             >
               {/* Mobile card layout */}
@@ -530,7 +502,7 @@ export default function Account() {
                       <p className="font-mono text-[10px] tracking-[.1em] uppercase text-ink/50">{b.date}</p>
                     </div>
                     <div className="flex items-center gap-2.5 shrink-0">
-                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 16, color: '#001B21', lineHeight: 1 }}>{b.amount}</span>
+                      <span className="font-display text-[16px] leading-none" style={{ color: '#001B21' }}>{b.amount}</span>
                       <span className="rounded-full border border-brand-mint bg-brand-mint/20 px-2.5 py-0.5 font-mono text-[10px] tracking-[.1em] uppercase text-ink">
                         {b.status}
                       </span>
@@ -553,7 +525,7 @@ export default function Account() {
                   >
                     <div className="p-4 text-[14px] text-ink/70">{b.date}</div>
                     <div className="p-4 text-[14px] font-semibold text-ink">{b.drop}</div>
-                    <div className="p-4 text-[14px] text-ink" style={{ fontFamily: 'var(--font-display)', fontSize: 18 }}>{b.amount}</div>
+                    <div className="p-4 font-display text-[18px] text-ink">{b.amount}</div>
                     <div className="p-4">
                       <span className="rounded-full border border-brand-mint bg-brand-mint/20 px-2.5 py-0.5 font-mono text-[10px] tracking-[.1em] uppercase text-ink">
                         {b.status}
@@ -566,14 +538,14 @@ export default function Account() {
 
             {/* Billing info card */}
             <div
-              className="reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] lg:col-span-4"
+              className="reveal flex flex-col justify-between brick-card p-3 md:p-8 lg:col-span-4"
               style={{ background: '#5DDB9C' }}
             >
               <div>
-                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">Mokėjimo būdas</p>
+                <p className="label-mono text-ink/50">Mokėjimo būdas</p>
                 <div className="mt-4 rounded-2xl border-2 border-ink bg-ink/10 p-4">
                   <p className="font-mono text-[11px] tracking-[.14em] uppercase text-ink/60">Visa baigiasi</p>
-                  <p style={{ fontFamily: 'var(--font-display)', fontSize: 32, color: '#001B21', lineHeight: 1 }}>·· 4242</p>
+                  <p className="font-display text-[32px] leading-none" style={{ color: '#001B21' }}>·· 4242</p>
                   <p className="mt-1 font-mono text-[11px] tracking-[.06em] uppercase text-ink/55">Galioja iki 09/28</p>
                 </div>
               </div>

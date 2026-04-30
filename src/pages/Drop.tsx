@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { StarIcon } from 'lucide-react'
 
 // ── Countdown ──────────────────────────────────────────────────────────────
 function useCountdown(targetDays: number) {
@@ -29,7 +30,7 @@ function useCountdown(targetDays: number) {
 function CountBox({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex min-w-[56px] flex-col items-center rounded-[10px] border-2 border-paper bg-paper px-3 py-2 text-ink">
-      <span style={{ fontFamily: 'var(--font-display)', fontSize: 32, lineHeight: 1 }}>
+      <span className="font-display text-3xl leading-none">
         {String(value).padStart(2, '0')}
       </span>
       <small className="mt-0.5 font-mono text-[9px] tracking-[.16em] uppercase text-ink/55">{label}</small>
@@ -51,10 +52,10 @@ const compatibility = [
 ]
 
 const reviews = [
-  { stars: '★★★★★', quote: '"The hinge crossover with the bus is genuinely clever. My street has a postal route now."', name: 'Daniel K.', meta: 'Mega · Subscriber since product 02', avatarColor: '#FB4903', initials: 'DK' },
-  { stars: '★★★★★', quote: '"Otto\'s satchel actually flexes. I can\'t explain how delightful that is until you hold it."', name: 'Priya N.', meta: 'Standard · 11 months', avatarColor: '#5DDB9C', initials: 'PN' },
-  { stars: '★★★★★', quote: '"Finished it in one evening. The mint+cream colour pairing is the best of the year."', name: 'Lucia F.', meta: 'Standard · 6 months', avatarColor: '#FFAEE7', initials: 'LF' },
-  { stars: '★★★★☆', quote: '"Build is great. Sticker sheet is generous. Wish there was a third minifig — that\'s my one nit."', name: 'Theo W.', meta: 'Mega · 22 months', avatarColor: '#4DA2FF', initials: 'TW' },
+  { stars: 5, quote: '"The hinge crossover with the bus is genuinely clever. My street has a postal route now."', name: 'Daniel K.', meta: 'Mega · Subscriber since product 02', avatarColor: '#FB4903', initials: 'DK' },
+  { stars: 5, quote: '"Otto\'s satchel actually flexes. I can\'t explain how delightful that is until you hold it."', name: 'Priya N.', meta: 'Standard · 11 months', avatarColor: '#5DDB9C', initials: 'PN' },
+  { stars: 5, quote: '"Finished it in one evening. The mint+cream colour pairing is the best of the year."', name: 'Lucia F.', meta: 'Standard · 6 months', avatarColor: '#FFAEE7', initials: 'LF' },
+  { stars: 4, quote: '"Build is great. Sticker sheet is generous. Wish there was a third minifig — that\'s my one nit."', name: 'Theo W.', meta: 'Mega · 22 months', avatarColor: '#4DA2FF', initials: 'TW' },
 ]
 
 // Drop 26 requires Standard tier or above
@@ -100,7 +101,7 @@ export default function Drop() {
 
           <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2">
             {/* Gallery tile */}
-            <div className="rounded-3xl border-2 border-ink p-4 shadow-[6px_6px_0_#001B21]">
+            <div className="brick-card p-4">
               <div className="flex flex-col gap-4">
                 {/* Main image */}
                 <div
@@ -117,14 +118,14 @@ export default function Drop() {
                   {/* Overlay badges */}
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
                   <div
-                    className="absolute left-6 top-6 rounded-[8px] border-2 border-ink bg-brand-yellow px-4 py-2.5 text-ink"
-                    style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1, transform: 'rotate(-3deg)', boxShadow: '4px 4px 0 #001B21' }}
+                    className="absolute left-6 top-6 font-display text-2xl leading-none rounded-[8px] border-2 border-ink bg-brand-yellow px-4 py-2.5 text-ink rotate-[-3deg]"
+                    style={{ boxShadow: '4px 4px 0 #001B21' }}
                   >
                     May 2026
                   </div>
                   <div
-                    className="absolute right-6 top-6 rounded-[8px] border-2 border-ink bg-brand-orange px-4 py-2.5 text-paper"
-                    style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1, transform: 'rotate(3deg)', boxShadow: '4px 4px 0 #001B21' }}
+                    className="absolute right-6 top-6 font-display text-2xl leading-none rounded-[8px] border-2 border-ink bg-brand-orange px-4 py-2.5 text-paper"
+                    style={{ transform: 'rotate(3deg)', boxShadow: '4px 4px 0 #001B21' }}
                   >
                     Product № 26
                   </div>
@@ -157,11 +158,11 @@ export default function Drop() {
             </div>
 
             {/* Details tile */}
-            <div className="rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_rgba(0,0,0,.06)] bg-paper">
+            <div className="brick-card p-6 md:p-8 bg-paper" style={{ boxShadow: '6px 6px 0 rgba(0,0,0,.06)' }}>
               <div className="flex flex-wrap items-center gap-3">
                 <span
-                  className="rounded-[8px] bg-ink px-3.5 py-2 text-paper"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 24, lineHeight: 1, letterSpacing: '.04em' }}
+                  className="font-display text-2xl leading-none rounded-[8px] bg-ink px-3.5 py-2 text-paper"
+                  style={{ letterSpacing: '.04em' }}
                 >
                   № 26
                 </span>
@@ -174,12 +175,9 @@ export default function Drop() {
                 </Badge>
               </div>
 
-              <h1
-                className="mt-3.5 uppercase text-ink"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,4vw,68px)', lineHeight: '.88', letterSpacing: '-.01em' }}
-              >
+              <h1 className="heading-display text-d-lg tracking-[-0.01em] mt-3.5 text-ink">
                 Mailbox Row<br />+{' '}
-                <span className="inline-block text-brand-indigo" style={{ fontStyle: 'italic', transform: 'skew(-8deg)' }}>
+                <span className="inline-block italic text-brand-indigo" style={{ transform: 'skew(-8deg)' }}>
                   Postman
                 </span>{' '}Otto.
               </h1>
@@ -189,11 +187,11 @@ export default function Drop() {
               </p>
 
               {/* Spec grid */}
-              <div className="mt-8 overflow-hidden rounded-3xl border-2 border-ink">
+              <div className="mt-8 overflow-hidden rounded-2xl md:rounded-3xl border-2 border-ink">
                 <div className="grid grid-cols-2 sm:grid-cols-4">
                   {[['312', 'Bricks'], ['2', 'Minifigs'], ['18', 'Stickers'], ['4–6h', 'Build time']].map(([val, label], i) => (
                     <div key={i} className={`flex flex-col gap-1 bg-paper p-4 ${i < 3 ? 'border-r-0 sm:border-r-[1.5px] border-ink' : ''} ${i % 2 === 0 ? 'border-b-[1.5px] sm:border-b-0 border-ink' : ''}`} style={{ borderStyle: 'solid', borderColor: '#001B21' }}>
-                      <b style={{ fontFamily: 'var(--font-display)', fontSize: 36, lineHeight: 1 }}>{val}</b>
+                      <b className="font-display text-[36px] leading-none">{val}</b>
                       <small className="font-mono text-[10px] tracking-[.16em] uppercase text-ink/55">{label}</small>
                     </div>
                   ))}
@@ -201,12 +199,12 @@ export default function Drop() {
               </div>
 
               {/* Rent box */}
-              <div id="buy" className="mt-8 rounded-3xl border-2 border-ink bg-ink p-7 text-paper shadow-[6px_6px_0_#001B21]">
+              <div id="buy" className="mt-8 brick-card bg-ink p-6 md:p-7 text-paper">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="font-mono text-[11px] tracking-[.18em] uppercase text-paper/60">⬢ Rent this product</p>
+                    <p className="label-mono text-paper/60">⬢ Rent this product</p>
                     <div className="mt-1 flex items-baseline gap-2">
-                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 64, lineHeight: '.9' }}>
+                      <span className="font-display text-[64px] leading-[.9]">
                         ${tiers[activeTier].price}
                       </span>
                       <span className="font-mono text-[12px] tracking-[.06em] uppercase text-paper/50">/mo</span>
@@ -245,13 +243,8 @@ export default function Drop() {
                           <span className="absolute right-2 top-2 text-[9px] opacity-60">🔒</span>
                         )}
                         <b
-                          className="block"
-                          style={{
-                            fontFamily: 'var(--font-display)',
-                            fontSize: 16,
-                            lineHeight: 1,
-                            color: active ? t.textColor : '#F5F1EB',
-                          }}
+                          className="font-display block text-[16px] leading-none"
+                          style={{ color: active ? t.textColor : '#F5F1EB' }}
                         >
                           {t.name}
                         </b>
@@ -311,12 +304,9 @@ export default function Drop() {
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             {/* Row 1: Header tile */}
-            <div className="flex flex-col justify-center rounded-3xl border-2 border-ink bg-paper p-8 shadow-[6px_6px_0_#001B21] lg:col-span-5">
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ What's in the bag</p>
-              <h2
-                className="mt-3 uppercase text-ink"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,4vw,72px)', lineHeight: '.9', letterSpacing: '-.01em' }}
-              >
+            <div className="flex flex-col justify-center brick-card bg-paper p-6 md:p-8 lg:col-span-5">
+              <p className="label-mono text-ink/50">⬢ What's in the bag</p>
+              <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.01em] mt-3 text-ink">
                 Four parts.<br />One mailbox row.
               </h2>
               <p className="mt-5 max-w-[40ch] text-[16px] leading-[1.65] text-ink/65">
@@ -326,22 +316,16 @@ export default function Drop() {
 
             {/* Row 1: Bag 04 — sky wide tile */}
             <div
-              className="relative flex flex-col justify-end rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-7"
-              style={{ background: bagContents[3].bg, minHeight: 280 }}
+              className="relative flex flex-col justify-end brick-card brick-card-hover p-6 md:p-8 lg:col-span-7 min-h-[280px]"
+              style={{ background: bagContents[3].bg }}
             >
               <Badge className="absolute right-6 top-6 rounded-full border-[1.5px] border-ink bg-paper px-2.5 py-1 font-mono text-[10px] tracking-[.14em] uppercase text-ink">
                 Bag {bagContents[3].num}
               </Badge>
-              <div
-                className="absolute left-8 top-6 select-none text-ink/15"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 110, lineHeight: 1 }}
-              >
+              <div className="absolute left-8 top-6 font-display text-[110px] leading-none select-none text-ink/15">
                 {bagContents[3].num}
               </div>
-              <h4
-                className="uppercase text-ink"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 36, lineHeight: '.95' }}
-              >
+              <h4 className="font-display text-[36px] leading-[.95] uppercase text-ink">
                 {bagContents[3].label.split('\n').map((l, i) => <span key={i}>{l}<br /></span>)}
               </h4>
               <p className="mt-2 max-w-[40ch] text-[14px] leading-[1.5] text-ink/75">{bagContents[3].desc}</p>
@@ -351,22 +335,16 @@ export default function Drop() {
             {bagContents.slice(0, 3).map((bag) => (
               <div
                 key={bag.num}
-                className="relative flex flex-col justify-end rounded-3xl border-2 border-ink p-7 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-4"
-                style={{ background: bag.bg, minHeight: 260 }}
+                className="relative flex flex-col justify-end brick-card brick-card-hover p-6 md:p-7 lg:col-span-4 min-h-[260px]"
+                style={{ background: bag.bg }}
               >
                 <Badge className="absolute right-5 top-5 rounded-full border-[1.5px] border-ink bg-paper px-2.5 py-1 font-mono text-[10px] tracking-[.14em] uppercase text-ink">
                   Bag {bag.num}
                 </Badge>
-                <div
-                  className="absolute left-7 top-5 select-none text-ink/15"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 88, lineHeight: 1 }}
-                >
+                <div className="absolute left-7 top-5 font-display text-[88px] leading-none select-none text-ink/15">
                   {bag.num}
                 </div>
-                <h4
-                  className="uppercase text-ink"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 28, lineHeight: '.95' }}
-                >
+                <h4 className="font-display text-[28px] leading-[.95] uppercase text-ink">
                   {bag.label.split('\n').map((l, i) => <span key={i}>{l}<br /></span>)}
                 </h4>
                 <p className="mt-2 text-[13px] leading-[1.5] text-ink/75">{bag.desc}</p>
@@ -383,26 +361,22 @@ export default function Drop() {
 
             {/* Art panel tile */}
             <div
-              className="relative overflow-hidden rounded-3xl border-2 border-ink shadow-[6px_6px_0_#001B21] lg:col-span-5"
+              className="relative overflow-hidden brick-card lg:col-span-5 min-h-[480px]"
               style={{
                 background: '#FB4903',
                 backgroundImage: 'radial-gradient(circle at 18px 18px, rgba(255,255,255,.14) 5px, transparent 6px)',
                 backgroundSize: '48px 48px',
-                minHeight: 480,
               }}
             >
-              <div className="absolute inset-10 grid place-items-center rounded-3xl border-2 border-dashed border-paper/35 text-center font-mono text-[11px] tracking-[.18em] uppercase text-paper/55">
+              <div className="absolute inset-10 grid place-items-center rounded-2xl md:rounded-3xl border-2 border-dashed border-paper/35 text-center font-mono text-[11px] tracking-[.18em] uppercase text-paper/55">
                 Editorial photo<br />Otto sketch + photo of finished build on a desk
               </div>
             </div>
 
             {/* Story text tile */}
-            <div className="flex flex-col justify-center rounded-3xl border-2 border-ink bg-paper p-10 shadow-[6px_6px_0_#001B21] lg:col-span-7">
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ The story</p>
-              <h2
-                className="mt-3 uppercase text-ink"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,5vw,72px)', lineHeight: '.9', letterSpacing: '-.01em' }}
-              >
+            <div className="flex flex-col justify-center brick-card bg-paper p-10 lg:col-span-7">
+              <p className="label-mono text-ink/50">⬢ The story</p>
+              <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.01em] mt-3 text-ink">
                 Otto has been<br />delivering mail<br />since product 14.
               </h2>
               <p className="mt-6 text-[17px] leading-[1.6] text-ink/80">
@@ -431,12 +405,9 @@ export default function Drop() {
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             {/* Header tile */}
-            <div className="flex flex-col justify-center rounded-3xl border-2 border-ink bg-paper p-8 shadow-[6px_6px_0_#001B21] lg:col-span-5">
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ Exclusive minifigs</p>
-              <h2
-                className="mt-3 uppercase text-ink"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,4.5vw,80px)', lineHeight: '.9', letterSpacing: '-.01em' }}
-              >
+            <div className="flex flex-col justify-center brick-card bg-paper p-6 md:p-8 lg:col-span-5">
+              <p className="label-mono text-ink/50">⬢ Exclusive minifigs</p>
+              <h2 className="heading-display text-d-xl leading-[.9] tracking-[-0.01em] mt-3 text-ink">
                 Two new<br />residents.
               </h2>
               <p className="mt-5 max-w-[38ch] text-[16px] leading-[1.65] text-ink/75">
@@ -446,12 +417,11 @@ export default function Drop() {
 
             {/* Figcard tile */}
             <div
-              className="relative grid place-items-center overflow-hidden rounded-3xl border-2 bg-ink p-12 shadow-[6px_6px_0_#001B21] lg:col-span-7"
+              className="relative grid place-items-center overflow-hidden rounded-2xl md:rounded-3xl border-2 bg-ink p-12 shadow-[6px_6px_0_#001B21] lg:col-span-7 min-h-[480px]"
               style={{
                 borderColor: 'rgba(245,241,235,.2)',
                 backgroundImage: 'linear-gradient(transparent 31px, rgba(245,241,235,.08) 32px), linear-gradient(90deg, transparent 31px, rgba(245,241,235,.08) 32px)',
                 backgroundSize: '32px 32px',
-                minHeight: 480,
               }}
             >
               <div className="absolute left-6 top-6 font-mono text-[11px] tracking-[.18em] uppercase text-paper/70">
@@ -470,23 +440,20 @@ export default function Drop() {
                 <div className="absolute size-2.5 rounded-full border-[3px] border-paper bg-paper" style={{ top: 64, left: 88 }} />
                 <div className="absolute rounded-b-[36px] border-[3px] border-t-0 border-paper" style={{ left: 62, top: 82, width: 36, height: 14 }} />
                 <div className="absolute rounded-[8px] border-[3px] border-paper bg-brand-sky" style={{ left: 34, top: 106, width: 92, height: 80 }} />
-                <div className="absolute grid place-items-center rounded border-[3px] border-ink bg-paper text-ink" style={{ left: 60, top: 128, width: 40, height: 24, fontFamily: 'var(--font-display)', fontSize: 14 }}>P</div>
+                <div className="absolute grid place-items-center rounded border-[3px] border-ink bg-paper font-display text-[14px] text-ink" style={{ left: 60, top: 128, width: 40, height: 24 }}>P</div>
                 <div className="absolute rounded-[6px] border-[3px] border-paper bg-ink" style={{ left: 44, top: 186, width: 36, height: 54 }} />
                 <div className="absolute rounded-[6px] border-[3px] border-paper bg-ink" style={{ left: 80, top: 186, width: 36, height: 54 }} />
               </div>
-              <div className="absolute bottom-6 left-6 uppercase text-paper" style={{ fontFamily: 'var(--font-display)', fontSize: 32, lineHeight: '.95' }}>
+              <div className="absolute bottom-6 left-6 font-display text-3xl leading-[.95] uppercase text-paper">
                 <small className="mb-1.5 block font-mono text-[10px] tracking-[.16em] uppercase text-paper/60">Designed by guest artist Hanae Mori</small>
                 Postman Otto
               </div>
             </div>
 
             {/* Kit list tile — full width second row */}
-            <div className="rounded-3xl border-2 border-ink bg-paper p-8 shadow-[6px_6px_0_#001B21] lg:col-span-12">
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50">⬢ Otto's kit</p>
-              <h3
-                className="mt-3 uppercase text-ink"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px,3.5vw,48px)', lineHeight: '.9', letterSpacing: '-.01em' }}
-              >
+            <div className="brick-card bg-paper p-6 md:p-8 lg:col-span-12">
+              <p className="label-mono text-ink/50">⬢ Otto's kit</p>
+              <h3 className="heading-display text-d-md leading-[.9] tracking-[-0.01em] mt-3 text-ink">
                 Mail satchel, folding bike, printed lanyard.
               </h3>
               <ul className="mt-8 grid grid-cols-1 gap-[18px] md:grid-cols-3">
@@ -516,21 +483,18 @@ export default function Drop() {
 
             {/* Row 1: Header label tile */}
             <div
-              className="flex flex-col justify-center rounded-3xl border-2 p-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] lg:col-span-5"
+              className="flex flex-col justify-center rounded-2xl md:rounded-3xl border-2 p-6 md:p-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] lg:col-span-5"
               style={{ borderColor: 'rgba(245,241,235,.2)', background: 'rgba(245,241,235,.05)' }}
             >
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Universe map</p>
-              <h2
-                className="mt-3 uppercase text-paper"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,4vw,72px)', lineHeight: '.9', letterSpacing: '-.01em' }}
-              >
+              <p className="label-mono text-paper/50">⬢ Universe map</p>
+              <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.01em] mt-3 text-paper">
                 Slots into three<br />existing products.
               </h2>
             </div>
 
             {/* Row 1: Tagline tile */}
             <div
-              className="flex flex-col justify-center rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] lg:col-span-7"
+              className="flex flex-col justify-center rounded-2xl md:rounded-3xl border-2 border-ink p-6 md:p-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] lg:col-span-7"
               style={{ background: '#FFD731' }}
             >
               <p className="max-w-[44ch] text-[20px] leading-[1.55] text-ink font-medium">
@@ -542,11 +506,11 @@ export default function Drop() {
             {compatibility.map((c) => (
               <div
                 key={c.drop}
-                className="flex flex-col gap-3.5 rounded-3xl border-2 border-ink p-7 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_rgba(245,241,235,.15)] lg:col-span-4"
+                className="flex flex-col gap-3.5 rounded-2xl md:rounded-3xl border-2 border-ink p-6 md:p-7 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_rgba(245,241,235,.15)] lg:col-span-4"
                 style={{ background: c.bg, color: '#001B21' }}
               >
-                <p className="font-mono text-[11px] tracking-[.18em] uppercase text-ink/50">{c.drop}</p>
-                <h4 className="uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 28, lineHeight: '.95' }}>{c.title}</h4>
+                <p className="label-mono text-ink/50">{c.drop}</p>
+                <h4 className="font-display text-[28px] leading-[.95] uppercase">{c.title}</h4>
                 <p className="text-[14px] leading-[1.5] text-ink/70">{c.desc}</p>
                 <div className="mt-auto h-[100px] rounded-xl border-2 border-dashed border-black/20 bg-black/5 grid place-items-center font-mono text-[10px] tracking-[.14em] uppercase text-black/40">
                   [ Connection diagram ]
@@ -563,22 +527,19 @@ export default function Drop() {
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             {/* Row 1: Header tile */}
-            <div className="flex flex-col justify-center rounded-3xl border-2 border-ink bg-ink p-8 shadow-[6px_6px_0_#001B21] lg:col-span-5">
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Early access</p>
-              <h2
-                className="mt-3 uppercase text-paper"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,4vw,72px)', lineHeight: '.9', letterSpacing: '-.01em' }}
-              >
+            <div className="flex flex-col justify-center brick-card bg-ink p-6 md:p-8 lg:col-span-5">
+              <p className="label-mono text-paper/50">⬢ Early access</p>
+              <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.01em] mt-3 text-paper">
                 From the<br />preview build.
               </h2>
             </div>
 
             {/* Row 1: Rating tile */}
             <div
-              className="flex flex-col justify-center rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] lg:col-span-7"
+              className="flex flex-col justify-center brick-card p-6 md:p-8 lg:col-span-7"
               style={{ background: '#FFD731' }}
             >
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(64px,7vw,96px)', lineHeight: 1, color: '#001B21' }}>
+              <div className="font-display text-d-hero leading-none" style={{ color: '#001B21' }}>
                 4.92<span style={{ fontSize: '40%', opacity: .5 }}>/5</span>
               </div>
               <small className="mt-2 font-mono text-[12px] tracking-[.16em] uppercase text-ink/70">Based on 86 Mega-tier preview reviews</small>
@@ -588,11 +549,11 @@ export default function Drop() {
             {reviews.map((r, i) => (
               <Card
                 key={i}
-                className="flex flex-col gap-3.5 rounded-3xl border-2 border-ink bg-paper p-6 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21] lg:col-span-6"
+                className="flex flex-col gap-3.5 brick-card brick-card-hover bg-paper p-3 md:p-6 lg:col-span-6"
               >
                 <CardContent className="flex flex-col gap-3.5 p-0">
-                  <div className="text-[18px] tracking-[2px]" style={{ color: '#FB4903' }}>{r.stars}</div>
-                  <p className="uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 22, lineHeight: 1.05, letterSpacing: '.005em' }}>{r.quote}</p>
+                  <div className="flex gap-0.5" style={{ color: '#FB4903' }}>{Array.from({ length: r.stars }).map((_, i) => <StarIcon key={i} className="size-4 fill-current" />)}</div>
+                  <p className="font-display text-[22px] leading-[1.05] tracking-[.005em] uppercase">{r.quote}</p>
                   <div className="mt-auto flex items-center gap-2.5 border-t border-dashed border-ink/18 pt-3">
                     <Avatar className="size-9 border-2 border-ink">
                       <AvatarFallback style={{ background: r.avatarColor }} className="text-[12px] font-bold text-ink">{r.initials}</AvatarFallback>
@@ -608,15 +569,15 @@ export default function Drop() {
           </div>
 
           {/* Prev / Next */}
-          <div className="mt-4 overflow-hidden rounded-3xl border-2 border-ink">
+          <div className="mt-4 overflow-hidden rounded-2xl md:rounded-3xl border-2 border-ink">
             <div className="grid grid-cols-2">
-              <Link to="/drop/25" className="flex flex-col gap-1.5 bg-paper p-8 transition-colors hover:bg-brand-yellow">
+              <Link to="/drop/25" className="flex flex-col gap-1.5 bg-paper p-6 md:p-8 transition-colors hover:bg-brand-yellow">
                 <small className="font-mono text-[11px] tracking-[.16em] uppercase text-ink/55">← Previous · April 2026</small>
-                <b className="uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 32, lineHeight: '.95' }}>№ 25 — Greenhouse</b>
+                <b className="font-display text-[32px] leading-[.95] uppercase">№ 25 — Greenhouse</b>
               </Link>
-              <Link to="/drop/27" className="flex flex-col items-end gap-1.5 border-l-2 border-ink bg-paper p-8 text-right transition-colors hover:bg-brand-yellow">
+              <Link to="/drop/27" className="flex flex-col items-end gap-1.5 border-l-2 border-ink bg-paper p-6 md:p-8 text-right transition-colors hover:bg-brand-yellow">
                 <small className="font-mono text-[11px] tracking-[.16em] uppercase text-ink/55">Next · June 2026 →</small>
-                <b className="uppercase" style={{ fontFamily: 'var(--font-display)', fontSize: 32, lineHeight: '.95' }}>№ 27 — TBA</b>
+                <b className="font-display text-[32px] leading-[.95] uppercase">№ 27 — TBA</b>
               </Link>
             </div>
           </div>

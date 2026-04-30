@@ -50,7 +50,7 @@ export default function Checkout() {
       <div className="min-h-screen bg-paper">
         <Nav />
         <div className="mx-auto max-w-[1320px] px-7 py-32 text-center">
-          <h1 className="uppercase text-ink" style={{ fontFamily: 'var(--font-display)', fontSize: 48 }}>Produktas nerastas</h1>
+          <h1 className="heading-display text-d-sm text-ink">Produktas nerastas</h1>
           <Link to="/archive" className="mt-6 inline-block text-ink underline">← Grįžti į produktus</Link>
         </div>
         <Footer />
@@ -65,13 +65,12 @@ export default function Checkout() {
         <section className="py-20">
           <div className="mx-auto max-w-[1320px] px-7">
             <div
-              className="flex flex-col items-center justify-center rounded-3xl border-2 border-ink p-16 shadow-[6px_6px_0_#001B21] text-center"
-              style={{ background: '#5DDB9C', minHeight: 420 }}
+              className="flex flex-col items-center justify-center brick-card p-16 text-center min-h-[420px]"
+              style={{ background: '#5DDB9C' }}
             >
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 80, color: '#001B21', lineHeight: 1 }}>✓</div>
+              <div className="font-display text-[80px] leading-none" style={{ color: '#001B21' }}>✓</div>
               <h2
-                className="mt-6 uppercase text-ink"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,4vw,68px)', lineHeight: '.88' }}
+                className="mt-6 heading-display text-d-lg text-ink"
               >
                 Produktas № {dropNum} pridėtas į tavo dėžutę!
               </h2>
@@ -102,7 +101,7 @@ export default function Checkout() {
         <div className="mx-auto max-w-[1320px] px-7">
 
           {/* Breadcrumb */}
-          <div className="mb-10 flex items-center gap-2.5 font-mono text-[11px] tracking-[.18em] uppercase text-ink/50">
+          <div className="mb-10 flex items-center gap-2.5 label-mono text-ink/50">
             <Link to="/" className="hover:text-ink transition-colors">BRICKTIME</Link>
             <span className="text-ink/30">/</span>
             <Link to="/archive" className="hover:text-ink transition-colors">Produktai</Link>
@@ -116,12 +115,11 @@ export default function Checkout() {
 
             {/* Drop preview tile */}
             <div
-              className="rounded-3xl border-2 border-ink shadow-[6px_6px_0_#001B21] overflow-hidden lg:col-span-6"
-              style={{ minHeight: 480 }}
+              className="brick-card overflow-hidden lg:col-span-6 min-h-[480px]"
             >
               {/* Coloured visual top */}
               <div
-                className="relative flex flex-col items-center justify-end p-8"
+                className="relative flex flex-col items-center justify-end p-6 md:p-8"
                 style={{
                   background: drop.bg,
                   backgroundImage: 'radial-gradient(circle at 16px 16px, rgba(255,255,255,.16) 4px, transparent 5px)',
@@ -130,8 +128,7 @@ export default function Checkout() {
                 }}
               >
                 <div
-                  className="absolute left-6 top-6 rounded-[10px] border-2 border-ink bg-ink px-4 py-3 text-paper"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 32, lineHeight: 1 }}
+                  className="absolute left-6 top-6 rounded-[10px] border-2 border-ink bg-ink px-4 py-3 text-paper font-display text-3xl leading-none"
                 >
                   № {dropNum}
                 </div>
@@ -157,18 +154,18 @@ export default function Checkout() {
               </div>
 
               {/* Drop info */}
-              <div className="bg-paper p-7">
+              <div className="bg-paper p-6 md:p-7">
                 <h2
-                  className="uppercase text-ink"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px,3vw,48px)', lineHeight: '.9' }}
+                  className="heading-display text-d-md text-ink"
+                  style={{ lineHeight: '.9' }}
                 >
                   {drop.title}<br />{drop.subtitle}
                 </h2>
-                <p className="mt-2 font-mono text-[11px] tracking-[.16em] uppercase text-ink/50">{drop.date}</p>
+                <p className="mt-2 label-mono text-ink/50">{drop.date}</p>
                 <div className="mt-5 grid grid-cols-3 gap-3">
                   {[['Kaladėlių', drop.bricks], ['Miniukai', drop.minifigs.replace(' minifig', '').replace('s', ' fig')], ['Surinkimo laikas', '4–6h']].map(([label, val]) => (
                     <div key={label as string} className="rounded-2xl border-2 border-ink p-3 text-center">
-                      <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: '#001B21', lineHeight: 1 }}>{val}</div>
+                      <div className="font-display text-2xl leading-none" style={{ color: '#001B21' }}>{val}</div>
                       <div className="mt-1 font-mono text-[10px] tracking-[.14em] uppercase text-ink/50">{label}</div>
                     </div>
                   ))}
@@ -182,13 +179,13 @@ export default function Checkout() {
               {/* Subscription status */}
               {userSub ? (
                 <div
-                  className="rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21]"
+                  className="brick-card p-6 md:p-8"
                   style={{ background: userSub.bg }}
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="font-mono text-[11px] tracking-[.22em] uppercase" style={{ color: `${userSub.textColor}60` }}>Tavo prenumerata</p>
-                      <div className="mt-2" style={{ fontFamily: 'var(--font-display)', fontSize: 40, lineHeight: '.9', color: userSub.textColor }}>
+                      <p className="label-mono" style={{ color: `${userSub.textColor}60` }}>Tavo prenumerata</p>
+                      <div className="mt-2 font-display text-[40px] leading-[.9]" style={{ color: userSub.textColor }}>
                         {userSub.name}
                       </div>
                     </div>
@@ -215,13 +212,13 @@ export default function Checkout() {
                 </div>
               ) : (
                 <div
-                  className="rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21]"
+                  className="brick-card p-6 md:p-8"
                   style={{ background: '#001B21' }}
                 >
-                  <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/40">Neprenumeruojama</p>
+                  <p className="label-mono text-paper/40">Neprenumeruojama</p>
                   <h3
-                    className="mt-3 uppercase text-paper"
-                    style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px,2.5vw,40px)', lineHeight: '.9' }}
+                    className="mt-3 heading-display text-d-xs text-paper"
+                    style={{ lineHeight: '.9' }}
                   >
                     Prenumeruok, kad nuomotum šį produktą.
                   </h3>
@@ -234,10 +231,10 @@ export default function Checkout() {
 
               {/* Action tile */}
               <div
-                className="rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21]"
+                className="brick-card p-6 md:p-8"
                 style={{ background: '#F5F1EB' }}
               >
-                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50 mb-5">⬢ Nuomos suvestinė</p>
+                <p className="label-mono text-ink/50 mb-5">⬢ Nuomos suvestinė</p>
 
                 <div className="flex flex-col gap-2.5 border-b border-dashed border-ink/20 pb-5">
                   {[
@@ -255,9 +252,9 @@ export default function Checkout() {
 
                 <div className="mt-5 flex items-baseline justify-between">
                   <span className="text-[15px] font-bold text-ink">Mokėti šiandien</span>
-                  <span style={{ fontFamily: 'var(--font-display)', fontSize: 48, color: '#001B21', lineHeight: 1 }}>$0</span>
+                  <span className="font-display text-d-sm leading-none" style={{ color: '#001B21' }}>$0</span>
                 </div>
-                <p className="mt-1 font-mono text-[11px] tracking-[.1em] uppercase text-ink/40">Padengta tavo prenumeratos</p>
+                <p className="mt-1 label-mono text-ink/40">Padengta tavo prenumeratos</p>
 
                 {isEligible ? (
                   <Button
@@ -281,7 +278,7 @@ export default function Checkout() {
                   </Button>
                 )}
 
-                <div className="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-1 font-mono text-[11px] tracking-[.14em] uppercase text-ink/40">
+                <div className="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-1 label-mono text-ink/40">
                   {['Atšauk bet kada', 'Nemokamas pristatymas', '30 dienų garantija'].map((s) => (
                     <span key={s} className="flex items-center gap-1.5">
                       <span className="size-1.5 rounded-full bg-brand-mint" />{s}
@@ -292,10 +289,10 @@ export default function Checkout() {
 
               {/* Tier eligibility ladder */}
               <div
-                className="rounded-3xl border-2 border-ink p-7"
+                className="brick-card p-6 md:p-7"
                 style={{ background: '#001B21' }}
               >
-                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/40 mb-4">Kurie planai apima šį produktą</p>
+                <p className="label-mono text-paper/40 mb-4">Kurie planai apima šį produktą</p>
                 <div className="grid grid-cols-5 gap-1.5">
                   {tiers.map((t) => {
                     const eligible = t.level >= requiredTier.level

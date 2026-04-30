@@ -60,7 +60,7 @@ function FeedCard({ item, onLike }: { item: FeedItem; onLike: () => void }) {
 
   return (
     <div
-      className="rounded-3xl border-2 border-ink bg-paper shadow-[6px_6px_0_#001B21] overflow-hidden"
+      className="brick-card overflow-hidden"
       style={item.type === 'first_drop' ? { background: '#FFFBE6' } : undefined}
     >
       {/* Accent strip for checkin/streak */}
@@ -68,7 +68,7 @@ function FeedCard({ item, onLike }: { item: FeedItem; onLike: () => void }) {
         <div className="h-1 w-full" style={{ background: accentColor }} />
       )}
 
-      <div className="p-5">
+      <div className="p-3 md:p-5">
         {/* Header */}
         <div className="flex items-center gap-3">
           <div
@@ -128,10 +128,7 @@ function FeedCard({ item, onLike }: { item: FeedItem; onLike: () => void }) {
 
         {item.type === 'first_drop' && item.dropNum && (
           <div className="mt-3 flex items-baseline gap-2">
-            <span
-              className="text-ink/20 leading-none"
-              style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px, 5vw, 64px)' }}
-            >
+            <span className="font-display text-d-md leading-none text-ink/20">
               №{item.dropNum}
             </span>
             <span className="text-[14px] font-bold text-ink">{item.dropTitle}</span>
@@ -198,10 +195,7 @@ function LeaderboardPanel() {
               className={`rounded-2xl border-2 border-ink shadow-[4px_4px_0_#001B21] p-3 flex flex-col items-center text-center ${isCenter ? 'mt-0' : 'mt-5'}`}
               style={{ background: entry.avatarBg, ...studPattern }}
             >
-              <p
-                className="text-paper/30 leading-none mb-2"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(18px, 2vw, 28px)' }}
-              >
+              <p className="font-display text-d-xs leading-none text-paper/30 mb-2">
                 #{entry.rank}
               </p>
               <div className="size-9 rounded-full border-2 border-paper/30 overflow-hidden mb-2">
@@ -214,10 +208,7 @@ function LeaderboardPanel() {
               >
                 {entry.tier}
               </div>
-              <p
-                className="mt-2 text-paper leading-none"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(16px, 1.8vw, 22px)' }}
-              >
+              <p className="font-display text-[16px] leading-none mt-2 text-paper">
                 {entry.totalPoints}
               </p>
               <p className="font-mono text-[9px] uppercase tracking-widest text-paper/50">taškai</p>
@@ -227,7 +218,7 @@ function LeaderboardPanel() {
       </div>
 
       {/* Table */}
-      <div className="rounded-3xl border-2 border-ink overflow-hidden shadow-[6px_6px_0_#001B21]">
+      <div className="brick-card overflow-hidden">
         <div className="grid grid-cols-[28px_1fr_60px_44px] bg-ink px-4 py-2.5 gap-3">
           {['#', 'Narys', 'Planas', 'pts'].map((col) => (
             <p key={col} className="font-mono text-[9px] uppercase tracking-widest text-paper/50">{col}</p>
@@ -239,10 +230,7 @@ function LeaderboardPanel() {
             className="grid grid-cols-[28px_1fr_60px_44px] items-center px-4 py-3 gap-3 border-b border-dashed border-ink/10 last:border-b-0 hover:bg-ink/[.03] transition-colors"
             style={entry.isCurrentUser ? { background: 'rgba(255,215,49,.12)' } : undefined}
           >
-            <p
-              className="text-ink/40 leading-none"
-              style={{ fontFamily: 'var(--font-display)', fontSize: 16 }}
-            >
+            <p className="font-display text-[16px] leading-none text-ink/40">
               {entry.rank}
             </p>
             <div className="flex items-center gap-2 min-w-0">
@@ -267,7 +255,7 @@ function LeaderboardPanel() {
                 {entry.tier}
               </span>
             </div>
-            <p style={{ fontFamily: 'var(--font-display)', fontSize: 16 }} className="text-ink leading-none">
+            <p className="font-display text-[16px] leading-none text-ink">
               {entry.totalPoints}
             </p>
           </div>
@@ -288,16 +276,8 @@ export default function Community() {
       {/* Hero */}
       <section className="bg-ink">
         <div ref={heroRef} className="mx-auto max-w-[1320px] px-7 py-20">
-          <p className="font-mono text-[11px] uppercase tracking-[.22em] text-paper/40">⬢ Bendruomenė</p>
-          <h1
-            className="mt-3 uppercase text-paper"
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(48px, 6vw, 96px)',
-              lineHeight: '.88',
-              letterSpacing: '-.02em',
-            }}
-          >
+          <p className="label-mono text-paper/40">⬢ Bendruomenė</p>
+          <h1 className="heading-display text-d-xl tracking-[-0.02em] mt-3 text-paper">
             Bendruomenė.
           </h1>
           <p className="mt-5 font-mono text-[15px] text-paper/50 tracking-[.04em]">
@@ -312,14 +292,14 @@ export default function Community() {
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[40%_60%]">
 
             {/* Left — leaderboard, sticky */}
-            <div className="sticky self-start max-h-[calc(100dvh-120px)] overflow-y-auto" style={{ top: '120px' }}>
-              <p className="mb-6 font-mono text-[11px] uppercase tracking-[.22em] text-ink/50">⬢ Lyderiai</p>
+            <div className="md:sticky md:self-start md:max-h-[calc(100dvh-120px)] md:overflow-y-auto" style={{ top: '120px' }}>
+              <p className="label-mono text-ink/50 mb-6">⬢ Lyderiai</p>
               <LeaderboardPanel />
             </div>
 
             {/* Right — feed */}
             <div>
-              <p className="mb-6 font-mono text-[11px] uppercase tracking-[.22em] text-ink/50">⬢ Srautas</p>
+              <p className="label-mono text-ink/50 mb-6">⬢ Srautas</p>
               <FeedPanel />
             </div>
 

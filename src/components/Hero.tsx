@@ -170,7 +170,7 @@ export default function Hero() {
   return (
     <section className="relative bg-paper overflow-hidden min-h-[88vh]">
       {/* Text content */}
-      <div className="mx-auto max-w-[1320px] px-7 pt-14 pb-16 text-center">
+      <div className="mx-auto max-w-[1320px] px-4 md:px-7 pt-10 md:pt-14 pb-16 text-center">
         {/* Social proof */}
         <div className="mb-8 flex items-center justify-center gap-3">
           <div className="flex">
@@ -193,13 +193,7 @@ export default function Hero() {
 
         {/* Headline */}
         <h1
-          className="uppercase text-ink"
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(48px, 6vw, 104px)',
-            lineHeight: '.86',
-            letterSpacing: '-.02em',
-          }}
+          className="heading-display text-d-hero tracking-[-0.02em] text-ink"
         >
           Praplėsk savo{' '}
           <span
@@ -212,7 +206,7 @@ export default function Hero() {
             kaladėlių
           </span>
           <br />
-          <span className="inline-block" style={{ fontStyle: 'italic', transform: 'skew(-8deg)' }}>
+          <span className="inline-block italic skew-x-[-8deg]">
             kolekciją
           </span>
           <br />
@@ -226,26 +220,26 @@ export default function Hero() {
         </p>
 
         {/* CTAs */}
-        <div className="mt-9 flex flex-wrap justify-center gap-3">
+        <div className="mt-9 flex gap-3 w-full justify-center md:flex-wrap md:w-auto">
           <Button
             asChild
             size="lg"
-            className="rounded-full border-2 border-ink bg-brand-yellow text-ink font-bold text-[16px] hover:bg-brand-yellow hover:text-ink hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21] transition-all"
+            className="flex-1 md:flex-none rounded-full border-2 border-ink bg-brand-yellow text-ink font-bold text-[16px] hover:bg-brand-yellow hover:text-ink brick-hover-sm"
           >
-            <a href="#plans">Pradėti prenumeratą <ArrowRightIcon data-icon="inline-end" /></a>
+            <a href="#plans">Prenumeruoti <ArrowRightIcon data-icon="inline-end" /></a>
           </Button>
           <Button
             asChild
             variant="outline"
             size="lg"
-            className="rounded-full border-2 border-ink bg-transparent text-ink text-[16px] font-bold hover:bg-transparent hover:text-ink hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21] transition-all"
+            className="flex-1 md:flex-none rounded-full border-2 border-ink bg-transparent text-ink text-[16px] font-bold hover:bg-transparent hover:text-ink brick-hover-sm"
           >
-            <a href="/archive">Žiūrėti ankstesnius produktus</a>
+            <a href="/archive"><span className="md:hidden">Produktai</span><span className="hidden md:inline">Žiūrėti ankstesnius produktus</span></a>
           </Button>
         </div>
 
         {/* Hero video / fallback image */}
-        <div ref={videoWrapRef} className="mt-10 w-full overflow-hidden rounded-2xl border-2 border-ink shadow-[6px_6px_0_#001B21]" style={{ aspectRatio: '16/7' }}>
+        <div ref={videoWrapRef} className="mt-8 md:mt-10 w-full overflow-hidden rounded-[28px] md:rounded-3xl border-2 border-ink shadow-[6px_6px_0_#001B21] aspect-[4/3] md:aspect-[16/7]">
           <video
             className="h-full w-full object-cover"
             autoPlay

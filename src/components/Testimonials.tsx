@@ -56,32 +56,24 @@ export default function Testimonials() {
   const ref = useReveal<HTMLDivElement>()
 
   return (
-    <section className="bg-paper py-20">
-      <div className="mx-auto max-w-[1320px] px-7">
+    <section className="bg-paper py-10 md:py-20">
+      <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
           {/* Quote 1 — big tile (col-span-7) */}
           <div
             className={[
-              'reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-9 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21]',
+              'reveal flex flex-col justify-between brick-card brick-card-hover p-6 md:p-9 min-h-[280px]',
               testimonials[0].colSpan,
             ].join(' ')}
-            style={{ background: testimonials[0].bg, minHeight: 280 }}
+            style={{ background: testimonials[0].bg }}
             onMouseEnter={onCardEnter}
             onMouseLeave={onCardLeave}
           >
             <div className="stars flex gap-0.5 text-ink">
               {Array.from({ length: 5 }).map((_, i) => <StarIcon key={i} className="size-4 fill-current" />)}
             </div>
-            <p
-              className="mt-4 uppercase text-ink"
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(24px, 2.5vw, 36px)',
-                lineHeight: 1.05,
-                letterSpacing: '-.01em',
-              }}
-            >
+            <p className="mt-4 uppercase text-ink heading-display text-d-xs leading-[1.05]">
               {testimonials[0].quote}
             </p>
             <div className="mt-6 flex items-center gap-3">
@@ -105,23 +97,15 @@ export default function Testimonials() {
           {/* Quote 2 — col-span-5 */}
           <div
             className={[
-              'reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21]',
+              'reveal flex flex-col justify-between brick-card brick-card-hover p-6 md:p-8 min-h-[280px]',
               testimonials[1].colSpan,
             ].join(' ')}
-            style={{ background: testimonials[1].bg, transitionDelay: '100ms', minHeight: 280 }}
+            style={{ background: testimonials[1].bg, transitionDelay: '100ms' }}
             onMouseEnter={onCardEnter}
             onMouseLeave={onCardLeave}
           >
-            <div className="stars text-ink tracking-[3px]">⭐⭐⭐⭐⭐</div>
-            <p
-              className="mt-4 uppercase text-ink"
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(20px, 2vw, 28px)',
-                lineHeight: 1.05,
-                letterSpacing: '-.01em',
-              }}
-            >
+            <div className="stars flex gap-0.5 text-ink">{Array.from({ length: 5 }).map((_, i) => <StarIcon key={i} className="size-4 fill-current" />)}</div>
+            <p className="mt-4 uppercase text-ink heading-display text-d-xs leading-[1.05]">
               {testimonials[1].quote}
             </p>
             <div className="mt-6 flex items-center gap-3">
@@ -144,19 +128,11 @@ export default function Testimonials() {
 
           {/* Header tile — col-span-5, row 2 */}
           <div
-            className="reveal flex flex-col justify-center rounded-3xl border-2 border-ink p-9 shadow-[6px_6px_0_rgba(245,241,235,.12)] lg:col-span-5"
-            style={{ background: '#001B21', transitionDelay: '80ms', minHeight: 220 }}
+            className="reveal flex flex-col justify-center rounded-2xl md:rounded-3xl border-2 border-ink p-6 md:p-9 shadow-[6px_6px_0_rgba(245,241,235,.12)] lg:col-span-5 min-h-[220px]"
+            style={{ background: '#001B21', transitionDelay: '80ms' }}
           >
-            <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/50">⬢ Prenumeratoriai</p>
-            <h2
-              className="mt-3 uppercase text-paper"
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(36px, 3.5vw, 58px)',
-                lineHeight: '.88',
-                letterSpacing: '-.01em',
-              }}
-            >
+            <p className="label-mono text-paper/50">⬢ Prenumeratoriai</p>
+            <h2 className="mt-3 heading-display text-d-lg text-paper">
               <span
                 className="inline-block border-[3px] border-paper/40 bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(245,241,235,.2)]"
                 style={{ transform: 'rotate(-1.5deg)' }}
@@ -173,23 +149,15 @@ export default function Testimonials() {
           {/* Quote 3 — col-span-7, row 2 */}
           <div
             className={[
-              'reveal flex flex-col justify-between rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21]',
+              'reveal flex flex-col justify-between brick-card brick-card-hover p-6 md:p-8 min-h-[220px]',
               testimonials[2].colSpan,
             ].join(' ')}
-            style={{ background: testimonials[2].bg, transitionDelay: '160ms', minHeight: 220 }}
+            style={{ background: testimonials[2].bg, transitionDelay: '160ms' }}
             onMouseEnter={onCardEnter}
             onMouseLeave={onCardLeave}
           >
-            <div className="stars text-ink tracking-[3px]">⭐⭐⭐⭐⭐</div>
-            <p
-              className="mt-4 uppercase text-ink"
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(20px, 2vw, 30px)',
-                lineHeight: 1.05,
-                letterSpacing: '-.01em',
-              }}
-            >
+            <div className="stars flex gap-0.5 text-ink">{Array.from({ length: 5 }).map((_, i) => <StarIcon key={i} className="size-4 fill-current" />)}</div>
+            <p className="mt-4 uppercase text-ink heading-display text-d-xs leading-[1.05]">
               {testimonials[2].quote}
             </p>
             <div className="mt-6 flex items-center gap-3">

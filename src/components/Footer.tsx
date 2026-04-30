@@ -25,8 +25,8 @@ const socials = ['Instagram', 'TikTok', 'Discord']
 
 export default function Footer() {
   return (
-    <footer className="bg-ink pb-8 pt-20 text-paper" style={{ marginTop: 0 }}>
-      <div className="mx-auto max-w-[1320px] px-7">
+    <footer className="bg-ink pb-8 pt-8 md:pt-20 text-paper mt-0">
+      <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         {/* Grid */}
         <div className="grid grid-cols-2 gap-12 md:grid-cols-[2fr_1fr_1fr_1fr]">
           {/* Brand */}
@@ -51,7 +51,7 @@ export default function Footer() {
           {/* Links */}
           {Object.entries(footerLinks).map(([section, links]) => (
             <div key={section}>
-              <h4 className="mb-4 font-mono text-[11px] tracking-[.18em] uppercase text-paper/60">
+              <h4 className="mb-4 label-mono text-paper/60">
                 {section}
               </h4>
               <ul className="flex flex-col gap-2.5">

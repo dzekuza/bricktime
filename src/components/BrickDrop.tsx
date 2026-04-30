@@ -65,17 +65,12 @@ export default function BrickDrop() {
       <div className="mx-auto max-w-[1320px] px-7">
         {/* Headline */}
         <div className="mb-16 text-center">
-          <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/40">
+          <p className="label-mono text-paper/40">
             ⬢ Kaladėlė po kaladėlės
           </p>
           <h2
-            className="mt-4 uppercase text-paper"
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(52px, 6vw, 100px)',
-              lineHeight: '.86',
-              letterSpacing: '-.02em',
-            }}
+            className="mt-4 heading-display text-d-hero text-paper tracking-[-0.02em]"
+            style={{ lineHeight: '.86' }}
           >
             Statyk
             <br />

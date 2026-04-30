@@ -41,13 +41,12 @@ export default function Subscribe() {
           <div className="mx-auto max-w-[1320px] px-7">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
               <div
-                className="flex flex-col items-center justify-center rounded-3xl border-2 border-ink p-16 shadow-[6px_6px_0_#001B21] text-center lg:col-span-12"
-                style={{ background: '#5DDB9C', minHeight: 420 }}
+                className="flex flex-col items-center justify-center brick-card p-16 text-center lg:col-span-12 min-h-[420px]"
+                style={{ background: '#5DDB9C' }}
               >
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 80, color: '#001B21', lineHeight: 1 }}>✓</div>
+                <div className="font-display text-[80px] leading-none" style={{ color: '#001B21' }}>✓</div>
                 <h1
-                  className="mt-6 uppercase text-ink"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px,4vw,68px)', lineHeight: '.88' }}
+                  className="mt-6 heading-display text-d-lg text-ink"
                 >
                   Tu klube.
                 </h1>
@@ -82,14 +81,13 @@ export default function Subscribe() {
           <div ref={heroRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             <div
-              className="reveal flex flex-col justify-between rounded-3xl border-2 border-paper/15 p-9 lg:col-span-7"
+              className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-paper/15 p-6 md:p-9 lg:col-span-7"
               style={{ background: '#001B21', minHeight: 280 }}
             >
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase text-paper/40">⬢ Pradėk prenumeratą</p>
+              <p className="label-mono text-paper/40">⬢ Pradėk prenumeratą</p>
               <div>
                 <h1
-                  className="mt-4 uppercase text-paper"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(38px,4vw,68px)', lineHeight: '.88', letterSpacing: '-.015em' }}
+                  className="mt-4 heading-display text-d-lg text-paper tracking-[-0.015em]"
                 >
                   {step === 'plan' ? 'Pasirink planą.' : 'Užbaik užsakymą.'}
                 </h1>
@@ -118,21 +116,21 @@ export default function Subscribe() {
 
             {/* Order summary tile */}
             <div
-              className="reveal flex flex-col justify-between rounded-3xl border-2 border-paper/15 p-8 lg:col-span-5"
+              className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-paper/15 p-6 md:p-8 lg:col-span-5"
               style={{ background: plan.bg, minHeight: 280 }}
             >
-              <p className="font-mono text-[11px] tracking-[.22em] uppercase" style={{ color: `${plan.textColor}60` }}>
+              <p className="label-mono" style={{ color: `${plan.textColor}60` }}>
                 Pasirinktas planas
               </p>
               <div>
                 <div
-                  className="uppercase"
-                  style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px,4vw,64px)', lineHeight: '.88', color: plan.textColor }}
+                  className="heading-display text-d-lg"
+                  style={{ color: plan.textColor }}
                 >
                   {plan.name}
                 </div>
                 <div className="mt-3 flex items-baseline gap-1.5">
-                  <span style={{ fontFamily: 'var(--font-display)', fontSize: 52, lineHeight: '.88', color: plan.textColor }}>
+                  <span className="font-display text-d-sm leading-[.88]" style={{ color: plan.textColor }}>
                     ${price}
                   </span>
                   <span className="font-mono text-[12px] tracking-[.06em] uppercase" style={{ color: `${plan.textColor}70` }}>/mėn.</span>
@@ -174,7 +172,7 @@ export default function Subscribe() {
                   key={p.name}
                   onClick={() => setSelectedPlan(i)}
                   className={[
-                    'relative flex flex-col justify-between rounded-3xl border-2 p-7 text-left transition-all',
+                    'relative flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 p-6 md:p-7 text-left transition-all',
                     selectedPlan === i
                       ? 'border-ink shadow-[6px_6px_0_#001B21] scale-[1.02]'
                       : 'border-ink/40 hover:border-ink hover:shadow-[4px_4px_0_#001B21]',
@@ -190,9 +188,9 @@ export default function Subscribe() {
                     <span className="absolute right-4 top-4 size-6 grid place-items-center rounded-full border-2 border-ink bg-ink text-paper text-[11px] font-bold">✓</span>
                   )}
                   <div>
-                    <div style={{ fontFamily: 'var(--font-display)', fontSize: 32, lineHeight: '.88', color: p.textColor }}>{p.name}</div>
+                    <div className="font-display text-3xl leading-[.88]" style={{ color: p.textColor }}>{p.name}</div>
                     <div className="mt-2 flex items-baseline gap-1">
-                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 48, lineHeight: '.9', color: p.textColor }}>
+                      <span className="font-display text-d-sm leading-[.9]" style={{ color: p.textColor }}>
                         ${billing === 'monthly' ? p.monthlyPrice : p.annualPrice}
                       </span>
                       <span className="font-mono text-[11px] tracking-[.06em] uppercase" style={{ color: `${p.textColor}70` }}>/mėn.</span>
@@ -229,15 +227,15 @@ export default function Subscribe() {
 
               {/* Form tile */}
               <div
-                className="rounded-3xl border-2 border-ink p-10 shadow-[6px_6px_0_#001B21] lg:col-span-7"
+                className="brick-card p-10 lg:col-span-7"
                 style={{ background: '#F5F1EB' }}
               >
-                <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50 mb-7">⬢ Mokėjimo duomenys</p>
+                <p className="label-mono text-ink/50 mb-7">⬢ Mokėjimo duomenys</p>
 
                 <div className="flex flex-col gap-5">
                   {/* Email */}
                   <div>
-                    <label className="mb-2 block font-mono text-[11px] tracking-[.14em] uppercase text-ink/60">El. pašto adresas</label>
+                    <label className="mb-2 block label-mono text-ink/60">El. pašto adresas</label>
                     <input
                       type="email"
                       placeholder="jusu@pastas.lt"
@@ -249,7 +247,7 @@ export default function Subscribe() {
 
                   {/* Name on card */}
                   <div>
-                    <label className="mb-2 block font-mono text-[11px] tracking-[.14em] uppercase text-ink/60">Vardas ant kortelės</label>
+                    <label className="mb-2 block label-mono text-ink/60">Vardas ant kortelės</label>
                     <input
                       type="text"
                       placeholder="Jonas Jonaitis"
@@ -261,7 +259,7 @@ export default function Subscribe() {
 
                   {/* Card number */}
                   <div>
-                    <label className="mb-2 block font-mono text-[11px] tracking-[.14em] uppercase text-ink/60">Kortelės numeris</label>
+                    <label className="mb-2 block label-mono text-ink/60">Kortelės numeris</label>
                     <input
                       type="text"
                       placeholder="1234 5678 9012 3456"
@@ -274,7 +272,7 @@ export default function Subscribe() {
                   {/* Expiry + CVC */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="mb-2 block font-mono text-[11px] tracking-[.14em] uppercase text-ink/60">Galiojimo laikas</label>
+                      <label className="mb-2 block label-mono text-ink/60">Galiojimo laikas</label>
                       <input
                         type="text"
                         placeholder="MM / YY"
@@ -284,7 +282,7 @@ export default function Subscribe() {
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block font-mono text-[11px] tracking-[.14em] uppercase text-ink/60">CVC</label>
+                      <label className="mb-2 block label-mono text-ink/60">CVC</label>
                       <input
                         type="text"
                         placeholder="···"
@@ -306,7 +304,7 @@ export default function Subscribe() {
                   </Button>
                 </div>
 
-                <p className="mt-4 text-center font-mono text-[11px] tracking-[.14em] uppercase text-ink/40">
+                <p className="mt-4 text-center label-mono text-ink/40">
                   SSL šifravimas · atšauk bet kada · 30 dienų pinigų grąžinimo garantija
                 </p>
               </div>
@@ -314,14 +312,14 @@ export default function Subscribe() {
               {/* Order summary */}
               <div className="flex flex-col gap-4 lg:col-span-5">
                 <div
-                  className="rounded-3xl border-2 border-ink p-8 shadow-[6px_6px_0_#001B21]"
+                  className="brick-card p-6 md:p-8"
                   style={{ background: plan.bg }}
                 >
-                  <p className="font-mono text-[11px] tracking-[.22em] uppercase" style={{ color: `${plan.textColor}60` }}>Užsakymo suvestinė</p>
+                  <p className="label-mono" style={{ color: `${plan.textColor}60` }}>Užsakymo suvestinė</p>
                   <div className="mt-5 flex flex-col gap-3 border-b border-dashed border-ink/30 pb-5">
                     <div className="flex justify-between text-[15px]" style={{ color: plan.textColor }}>
                       <span>{plan.name} planas ({billing === 'monthly' ? 'mėnesinis' : 'metinis'})</span>
-                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 20 }}>${price}/mėn.</span>
+                      <span className="font-display text-xl">${price}/mėn.</span>
                     </div>
                     {billing === 'annual' && (
                       <div className="flex justify-between text-[13px]" style={{ color: `${plan.textColor}70` }}>
@@ -340,17 +338,17 @@ export default function Subscribe() {
                   </div>
                   <div className="mt-4 flex justify-between items-baseline" style={{ color: plan.textColor }}>
                     <span className="text-[15px] font-bold">Mokėti šiandien</span>
-                    <span style={{ fontFamily: 'var(--font-display)', fontSize: 40, lineHeight: 1 }}>
+                    <span className="font-display text-[40px] leading-none">
                       ${billing === 'annual' ? total : price}
                     </span>
                   </div>
                 </div>
 
                 <div
-                  className="rounded-3xl border-2 border-ink p-7"
+                  className="brick-card p-6 md:p-7"
                   style={{ background: '#F5F1EB' }}
                 >
-                  <p className="font-mono text-[11px] tracking-[.22em] uppercase text-ink/50 mb-4">Ką gausite</p>
+                  <p className="label-mono text-ink/50 mb-4">Ką gausite</p>
                   <ul className="flex flex-col gap-2">
                     {plan.perks.map((p) => (
                       <li key={p} className="flex items-center gap-2.5 text-[14px] text-ink">
