@@ -31,18 +31,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 gap-12 md:grid-cols-[2fr_1fr_1fr_1fr]">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <div
-              className="flex items-center gap-2.5 text-paper"
-              style={{ fontFamily: 'var(--font-display)', fontSize: 28 }}
-            >
-              <span
-                className="grid size-9 place-items-center rounded-full border-2 border-paper bg-brand-yellow text-ink"
-                style={{ fontFamily: 'var(--font-display)', fontSize: 18 }}
-              >
-                B!
-              </span>
-              BRICKTIME
-            </div>
+            <img src="/brickwhite.svg" alt="BRICKTIME" className="h-8 w-auto" />
             <p className="mt-4 max-w-[32ch] text-[14px] leading-relaxed text-paper/75">
               Mėnesinė kaladėlių prenumerata suaugusiems, kurie niekada negalutinai nustojo statyti. Pagaminta Vilniuje, pristatoma visame pasaulyje.
             </p>
