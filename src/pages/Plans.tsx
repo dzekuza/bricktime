@@ -327,7 +327,7 @@ export default function PlansPage() {
             </div>
 
             <div className="lg:col-span-12 flex flex-col lg:flex-row lg:-space-x-4">
-            {plans.map((plan, i) => (
+            {plans.map((plan) => (
               <div
                 key={plan.name}
                 className="reveal relative flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-ink p-6 md:p-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_rgba(245,241,235,.2)] flex-1 min-h-[420px]"

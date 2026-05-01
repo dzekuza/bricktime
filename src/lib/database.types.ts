@@ -18,6 +18,7 @@ export type FeedEventType = 'checkin' | 'build_photo' | 'comment' | 'like' | 'ac
 
 export interface Database {
   public: {
+    PostgrestVersion: "12"
     Tables: {
       plans: {
         Row: {
@@ -43,7 +44,7 @@ export interface Database {
           joined_at: string
           updated_at: string
         }
-        Insert: Omit<Database['public']['Tables']['subscribers']['Row'], 'joined_at' | 'updated_at'>
+        Insert: Omit<Database['public']['Tables']['subscribers']['Row'], 'joined_at' | 'updated_at' | 'plan' | 'status'> & { plan?: PlanTier; status?: SubscriberStatus }
         Update: Partial<Database['public']['Tables']['subscribers']['Insert']>
       }
       products: {
@@ -113,6 +114,7 @@ export interface Database {
           image_url: string | null
           drop_num: number | null
           achievement_id: string | null
+          parent_id: string | null
           like_count: number
           created_at: string
         }
