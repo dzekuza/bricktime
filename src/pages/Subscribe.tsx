@@ -369,18 +369,35 @@ export default function Subscribe() {
                   </div>
                   <div>
                     <label className="mb-2 block label-mono text-ink/60">Kortelės numeris</label>
-                    <input type="text" placeholder="1234 5678 9012 3456" value={form.card} onChange={(e) => setForm({ ...form, card: e.target.value })}
-                      className="w-full rounded-2xl border-2 border-ink bg-paper px-5 py-3.5 text-[15px] text-ink placeholder:text-ink/30 focus:outline-none focus:shadow-[4px_4px_0_#001B21] transition-shadow" />
+                    <input
+                      type="text" inputMode="numeric" placeholder="1234 5678 9012 3456"
+                      value={form.card} maxLength={19}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, '').slice(0, 16)
+                        const formatted = digits.replace(/(.{4})/g, '$1 ').trimEnd()
+                        setForm({ ...form, card: formatted })
+                      }}
+                      className="w-full rounded-2xl border-2 border-ink bg-paper px-5 py-3.5 text-[15px] text-ink placeholder:text-ink/30 focus:outline-none focus:shadow-[4px_4px_0_#001B21] transition-shadow tracking-widest" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="mb-2 block label-mono text-ink/60">Galiojimo laikas</label>
-                      <input type="text" placeholder="MM / YY" value={form.expiry} onChange={(e) => setForm({ ...form, expiry: e.target.value })}
+                      <input
+                        type="text" inputMode="numeric" placeholder="MM / YY"
+                        value={form.expiry} maxLength={7}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/\D/g, '').slice(0, 4)
+                          const formatted = digits.length > 2 ? `${digits.slice(0, 2)} / ${digits.slice(2)}` : digits
+                          setForm({ ...form, expiry: formatted })
+                        }}
                         className="w-full rounded-2xl border-2 border-ink bg-paper px-5 py-3.5 text-[15px] text-ink placeholder:text-ink/30 focus:outline-none focus:shadow-[4px_4px_0_#001B21] transition-shadow" />
                     </div>
                     <div>
                       <label className="mb-2 block label-mono text-ink/60">CVC</label>
-                      <input type="text" placeholder="···" value={form.cvc} onChange={(e) => setForm({ ...form, cvc: e.target.value })}
+                      <input
+                        type="text" inputMode="numeric" placeholder="···"
+                        value={form.cvc} maxLength={4}
+                        onChange={(e) => setForm({ ...form, cvc: e.target.value.replace(/\D/g, '').slice(0, 4) })}
                         className="w-full rounded-2xl border-2 border-ink bg-paper px-5 py-3.5 text-[15px] text-ink placeholder:text-ink/30 focus:outline-none focus:shadow-[4px_4px_0_#001B21] transition-shadow" />
                     </div>
                   </div>
