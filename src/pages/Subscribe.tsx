@@ -515,8 +515,7 @@ export default function Subscribe() {
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div ref={faqRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
             <div className="reveal flex flex-col justify-between brick-card p-6 md:p-9 lg:col-span-4 min-h-[280px]" style={{ background: '#5C4ADE' }}>
-              <h3 className="label-mono text-paper/50">⬢ Klausimai</h3>
-              <div>
+<div>
                 <h2 className="heading-display text-d-md tracking-[-0.015em] text-paper">Tai, ko<br />žmonės<br />klausia.</h2>
                 <p className="mt-5 text-[14px] leading-[1.65] text-paper/65">
                   Vis dar neaišku? Rašyk mums{' '}
