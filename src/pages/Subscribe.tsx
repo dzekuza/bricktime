@@ -458,8 +458,7 @@ export default function Subscribe() {
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div ref={compareRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
             <div className="reveal lg:col-span-12">
-              <h3 className="label-mono text-ink/50">⬢ Palyginimas</h3>
-              <h2 className="heading-display text-d-lg tracking-[-0.015em] mt-3 text-ink">Viskas, greta.</h2>
+              <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink">Viskas, greta.</h2>
             </div>
             <div className="reveal brick-card overflow-x-auto lg:col-span-12" style={{ background: '#F5F1EB' }}>
               <div className="min-w-[720px]">
@@ -491,13 +490,13 @@ export default function Subscribe() {
       </section>
 
       {/* ── Trust signals ────────────────────────────────────────────── */}
-      <section className="bg-ink py-20">
+      <section className="bg-paper py-20">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div ref={trustRef} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {trustTiles.map((t, i) => (
               <div
                 key={t.num}
-                className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-ink p-6 md:p-8 shadow-[6px_6px_0_rgba(245,241,235,.12)] brick-card-hover min-h-[220px]"
+                className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-ink p-6 md:p-8 shadow-[6px_6px_0_#001B21] brick-card-hover min-h-[220px]"
                 style={{ background: t.bg, transitionDelay: `${i * 70}ms` }}
               >
                 <span className="font-display text-[52px] leading-[.85] text-ink/20 select-none">{t.num}</span>
