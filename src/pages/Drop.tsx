@@ -240,14 +240,13 @@ export default function Drop() {
 
               {/* Spec grid */}
               <div className="mt-8 overflow-hidden rounded-2xl md:rounded-3xl border-2 border-ink">
-                <div className="grid grid-cols-2 sm:grid-cols-4">
+                <div className="grid grid-cols-3">
                   {[
                     [String(product?.bricks ?? 312), 'Bricks'],
-                    [product?.minifigs ?? '2', 'Minifigs'],
-                    [product?.build_time ?? '4–6h', 'Build time'],
+                    [product?.build_time ?? '—', 'Build time'],
                     [product?.tier ? (product.tier.charAt(0).toUpperCase() + product.tier.slice(1)) : 'Standard', 'Min. plan'],
                   ].map(([val, label], i) => (
-                    <div key={i} className={`flex flex-col gap-1 bg-paper p-4 ${i < 3 ? 'border-r-0 sm:border-r-[1.5px] border-ink' : ''} ${i % 2 === 0 ? 'border-b-[1.5px] sm:border-b-0 border-ink' : ''}`} style={{ borderStyle: 'solid', borderColor: '#001B21' }}>
+                    <div key={i} className={`flex flex-col gap-1 bg-paper p-4 ${i < 2 ? 'border-r-[1.5px] border-ink' : ''}`} style={{ borderStyle: 'solid', borderColor: '#001B21' }}>
                       <b className="font-display text-[36px] leading-none">{val}</b>
                       <small className="font-mono text-[10px] tracking-[.16em] uppercase text-ink/55">{label}</small>
                     </div>
