@@ -243,9 +243,10 @@ export default function Subscribe() {
           <div ref={heroRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             <div
-              className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-[#1e4048] p-6 md:p-9 lg:col-span-12 min-h-[280px]"
+              className="reveal relative flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-[#1e4048] p-6 md:p-9 lg:col-span-12 min-h-[280px]"
               style={{ background: '#001B21' }}
             >
+              <img src="/br.svg" alt="" className="absolute bottom-6 right-6 w-[200px] select-none pointer-events-none opacity-10" />
               <div>
                 <h1 className="mt-4 heading-display text-d-lg text-paper tracking-[-0.015em]">
                   {step === 'plan' ? 'Pasirink planą.' : 'Užbaik užsakymą.'}
