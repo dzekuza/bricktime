@@ -189,7 +189,7 @@ export default function Drop() {
                       key={i}
                       onClick={() => setActiveThumb(i)}
                       className={[
-                        'relative h-[90px] overflow-hidden rounded-2xl border-2 border-ink transition-all',
+                        'relative h-[90px] overflow-hidden rounded-lg border-2 border-ink transition-all',
                         activeThumb === i ? 'outline outline-[3px] outline-offset-2 outline-brand-yellow' : 'hover:opacity-80',
                       ].join(' ')}
                       style={{ background: t.bg }}
