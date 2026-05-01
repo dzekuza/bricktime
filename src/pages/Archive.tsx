@@ -143,7 +143,7 @@ function ProductCard({ product, featured = false }: { product: Product; featured
 
   return (
     <Link
-      to={`/checkout?product=${product.id}&tier=${product.requiredTier}`}
+      to={`/drop/${product.id}`}
       className={[
         'group flex flex-col overflow-hidden brick-card brick-card-hover bg-paper text-ink no-underline',
         '',
