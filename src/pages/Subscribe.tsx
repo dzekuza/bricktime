@@ -152,26 +152,6 @@ const faqs = [
   { q: 'Ar pristatote į užsienį?',                    a: 'Pristatome į 42 šalis. Standartinis pristatymas nemokamas visur. Pristatymo laikas: 3–5 dienos (ES), 7–14 dienų (likęs pasaulis).' },
 ]
 
-// ── sub-components ─────────────────────────────────────────────────────────
-
-function BillingToggle({ value, onChange }: { value: 'monthly' | 'annual'; onChange: (v: 'monthly' | 'annual') => void }) {
-  return (
-    <div className="inline-flex items-center gap-1 rounded-full border-2 border-ink bg-paper p-1">
-      {(['monthly', 'annual'] as const).map((v) => (
-        <button
-          key={v}
-          onClick={() => onChange(v)}
-          className={[
-            'rounded-full px-4 py-1.5 font-mono text-[11px] tracking-[.06em] uppercase transition-all',
-            value === v ? 'bg-ink text-paper' : 'text-ink/60 hover:text-ink',
-          ].join(' ')}
-        >
-          {v === 'monthly' ? 'Mėnesinis' : 'Metinis −17%'}
-        </button>
-      ))}
-    </div>
-  )
-}
 
 function FAQItem({ q, a, open, onToggle }: { q: string; a: string; open: boolean; onToggle: () => void }) {
   return (
@@ -215,7 +195,6 @@ export default function Subscribe() {
   const total = billing === 'monthly' ? price : price * 10
 
   const heroRef = useReveal<HTMLDivElement>()
-  const plansRef = useReveal<HTMLDivElement>()
   const compareRef = useReveal<HTMLDivElement>()
   const trustRef = useReveal<HTMLDivElement>()
   const faqRef = useReveal<HTMLDivElement>()
@@ -473,65 +452,6 @@ export default function Subscribe() {
           </div>
         </section>
       )}
-
-      {/* ── Plan details (full perks) ─────────────────────────────────── */}
-      <section className="bg-paper py-20">
-        <div className="mx-auto max-w-[1320px] px-4 md:px-7" ref={plansRef}>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 mb-8">
-            <div className="reveal flex items-center justify-between rounded-2xl md:rounded-3xl border-2 border-paper/20 p-6 md:p-8 lg:col-span-12" style={{ background: '#FB4903' }}>
-              <h2 className="heading-display text-d-lg tracking-[-0.015em] text-paper">Penki planai.<br />Viena visata.</h2>
-              <div className="hidden lg:block">
-                <BillingToggle value={billing} onChange={setBilling} />
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col lg:flex-row lg:-space-x-4">
-            {plans.map((p) => (
-              <div
-                key={p.name}
-                className="reveal relative flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-ink p-6 md:p-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] flex-1 min-h-[420px]"
-                style={{ background: p.bg }}
-              >
-                {p.featured && (
-                  <Badge className="absolute -top-4 right-6 rotate-2 rounded border-2 border-ink px-3 py-1 font-mono text-[11px] tracking-[.08em] uppercase" style={{ background: '#001B21', color: '#F5F1EB' }}>
-                    Populiariausias
-                  </Badge>
-                )}
-                <div>
-                  <p className="font-mono text-[11px] tracking-[.16em] uppercase" style={{ color: `${p.textColor}80` }}>{p.tagline}</p>
-                  <div className="mt-2 font-display text-d-xs leading-[.88] uppercase" style={{ color: p.textColor }}>{p.name}</div>
-                  <div className="mt-3 flex items-baseline gap-1">
-                    <span className="font-display text-d-md leading-[.88]" style={{ color: p.textColor }}>
-                      ${billing === 'monthly' ? p.monthlyPrice : p.annualPrice}
-                    </span>
-                    <span className="font-mono text-[12px] tracking-[.06em] uppercase" style={{ color: `${p.textColor}80` }}>/mėn.</span>
-                  </div>
-                  {billing === 'annual' && (
-                    <p className="mt-1.5 font-mono text-[11px] tracking-[.06em] uppercase" style={{ color: `${p.textColor}70` }}>
-                      mokama ${p.annualPrice * 10}/metams — taupai ${(p.monthlyPrice - p.annualPrice) * 12}
-                    </p>
-                  )}
-                </div>
-                <ul className="mt-6 flex flex-col gap-2.5">
-                  {p.perks.map((perk) => (
-                    <li key={perk.label} className="flex items-start gap-2.5 text-[14px]" style={{ opacity: perk.included ? 1 : 0.3 }}>
-                      <span className="mt-[3px] shrink-0 size-3 rounded-full border-2" style={{ background: perk.included ? p.accentColor : 'transparent', borderColor: p.textColor }} />
-                      <span style={{ color: `${p.textColor}cc` }}>{perk.label}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  className="mt-7 w-full rounded-full border-2 border-ink font-bold text-[14px] tracking-[.02em] brick-hover-sm"
-                  style={{ background: p.ctaBg, color: p.ctaText }}
-                  onClick={() => { setSelectedPlan(plans.indexOf(p)); setStep('plan'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-                >
-                  Pradėti su {p.name} <ArrowRightIcon data-icon="inline-end" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ── Comparison table ─────────────────────────────────────────── */}
       <section className="bg-paper py-20">
