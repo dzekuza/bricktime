@@ -313,7 +313,7 @@ export default function Subscribe() {
         /* ── Plan selection ─────────────────────────────────────────── */
         <section className="bg-paper pt-4 pb-20">
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-            <div className="flex flex-col lg:flex-row lg:-space-x-4">
+            <div className="grid grid-cols-2 gap-3 lg:flex lg:flex-row lg:-space-x-4 lg:gap-0">
               {plans.map((p, i) => (
                 <button
                   key={p.name}
@@ -324,7 +324,7 @@ export default function Subscribe() {
                       ? 'border-ink shadow-[6px_6px_0_#001B21] -translate-y-3 z-10'
                       : 'border-ink/40 hover:border-ink hover:shadow-[4px_4px_0_#001B21]',
                   ].join(' ')}
-                  style={{ background: p.bg, minHeight: 320, zIndex: i + 1 }}
+                  style={{ background: p.bg, zIndex: i + 1 }}
                 >
                   {p.featured && (
                     <Badge className="absolute -top-3.5 right-5 rotate-1 rounded border-2 border-ink px-2.5 py-0.5 font-mono text-[10px] tracking-[.08em] uppercase" style={{ background: '#001B21', color: '#F5F1EB' }}>
