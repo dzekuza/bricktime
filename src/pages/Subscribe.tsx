@@ -243,7 +243,7 @@ export default function Subscribe() {
           <div ref={heroRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             <div
-              className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-[#1e4048] p-6 md:p-9 lg:col-span-7 min-h-[280px]"
+              className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-[#1e4048] p-6 md:p-9 lg:col-span-12 min-h-[280px]"
               style={{ background: '#001B21' }}
             >
               <div>
@@ -272,24 +272,6 @@ export default function Subscribe() {
               </div>
             </div>
 
-            <div
-              className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-[#1e4048] p-6 md:p-8 lg:col-span-5 min-h-[280px]"
-              style={{ background: plan.bg }}
-            >
-              <h3 className="text-2xl text-ink/50 font-semibold">Pasirinktas planas</h3>
-              <div>
-                <div className="heading-display text-d-lg" style={{ color: plan.textColor }}>{plan.name}</div>
-                <div className="mt-3 flex items-baseline gap-1.5">
-                  <span className="font-display text-d-sm leading-[.88]" style={{ color: plan.textColor }}>${price}</span>
-                  <span className="font-mono text-[12px] tracking-[.06em] uppercase" style={{ color: `${plan.textColor}70` }}>/mėn.</span>
-                </div>
-                {billing === 'annual' && (
-                  <p className="mt-1 font-mono text-[11px] tracking-[.06em] uppercase" style={{ color: `${plan.textColor}65` }}>
-                    Mokama ${total} šiandien · taupoma ${(plan.monthlyPrice - plan.annualPrice) * 12}/m.
-                  </p>
-                )}
-              </div>
-            </div>
 
           </div>
         </div>
