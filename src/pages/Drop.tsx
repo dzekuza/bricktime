@@ -76,6 +76,7 @@ type DbProduct = {
   title: string
   subtitle: string
   description: string | null
+  category: string
   bricks: number
   minifigs: string
   build_time: string | null
@@ -83,6 +84,15 @@ type DbProduct = {
   gallery: string[]
   tier: string
   faq: FaqItem[] | null
+  release_date: string | null
+}
+
+const LT_MONTHS = ['Sausis','Vasaris','Kovas','Balandis','Gegužė','Birželis','Liepa','Rugpjūtis','Rugsėjis','Spalis','Lapkritis','Gruodis']
+
+function formatReleaseDate(iso: string | null): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  return `${LT_MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`
 }
 
 const THUMB_BG = ['#5C4ADE', '#5DDB9C', '#FFAEE7', '#FFD731']
@@ -99,7 +109,7 @@ export default function Drop() {
     if (!id) return
     supabase
       .from('products')
-      .select('id, title, subtitle, description, bricks, minifigs, build_time, image_url, gallery, tier, faq')
+      .select('id, title, subtitle, description, category, bricks, minifigs, build_time, image_url, gallery, tier, faq, release_date')
       .eq('id', Number(id))
       .single()
       .then(({ data }) => { if (data) setProduct(data as unknown as DbProduct) })
@@ -134,7 +144,7 @@ export default function Drop() {
             <span className="text-ink/30">/</span>
             <Link to="/archive" className="hover:text-ink transition-colors">Products</Link>
             <span className="text-ink/30">/</span>
-            <span className="font-bold text-ink">Product №26 — Mailbox Row</span>
+            <span className="font-bold text-ink">Product №{product?.id} — {product?.title}</span>
           </div>
 
           <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2">
@@ -155,17 +165,19 @@ export default function Drop() {
                   />
                   {/* Overlay badges */}
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
-                  <div
-                    className="absolute left-6 top-6 font-display text-2xl leading-none rounded-[8px] border-2 border-ink bg-brand-yellow px-4 py-2.5 text-ink rotate-[-3deg]"
-                    style={{ boxShadow: '4px 4px 0 #001B21' }}
-                  >
-                    May 2026
-                  </div>
+                  {product?.release_date && (
+                    <div
+                      className="absolute left-6 top-6 font-display text-2xl leading-none rounded-[8px] border-2 border-ink bg-brand-yellow px-4 py-2.5 text-ink rotate-[-3deg]"
+                      style={{ boxShadow: '4px 4px 0 #001B21' }}
+                    >
+                      {formatReleaseDate(product.release_date)}
+                    </div>
+                  )}
                   <div
                     className="absolute right-6 top-6 font-display text-2xl leading-none rounded-[8px] border-2 border-ink bg-brand-orange px-4 py-2.5 text-paper"
                     style={{ transform: 'rotate(3deg)', boxShadow: '4px 4px 0 #001B21' }}
                   >
-                    Product № 26
+                    Product № {product?.id}
                   </div>
                   <div className="absolute bottom-5 left-6 font-mono text-[10px] tracking-[.18em] uppercase text-paper/70">
                     {thumbs[activeThumb].label}
@@ -202,15 +214,19 @@ export default function Drop() {
                   className="font-display text-2xl leading-none rounded-[8px] bg-ink px-3.5 py-2 text-paper"
                   style={{ letterSpacing: '.04em' }}
                 >
-                  № 26
+                  № {product?.id}
                 </span>
-                <Badge className="rounded-full border-2 border-ink bg-brand-mint px-3 py-1 text-ink font-semibold">
-                  <span className="mr-1.5 inline-block size-2 rounded-full bg-ink" />
-                  Ships May 5, 2026
-                </Badge>
-                <Badge variant="outline" className="rounded-full border-2 border-ink px-3 py-1 text-ink font-semibold">
-                  Cityscape
-                </Badge>
+                {product?.release_date && (
+                  <Badge className="rounded-full border-2 border-ink bg-brand-mint px-3 py-1 text-ink font-semibold">
+                    <span className="mr-1.5 inline-block size-2 rounded-full bg-ink" />
+                    {formatReleaseDate(product.release_date)}
+                  </Badge>
+                )}
+                {product?.category && (
+                  <Badge variant="outline" className="rounded-full border-2 border-ink px-3 py-1 text-ink font-semibold">
+                    {product.category}
+                  </Badge>
+                )}
               </div>
 
               <h1 className="heading-display text-d-lg tracking-[-0.01em] mt-3.5 text-ink">
@@ -255,7 +271,7 @@ export default function Drop() {
                     <small className="mt-1 block text-[13px] text-paper/60">
                       {activeTier < DROP_REQUIRED_TIER
                         ? `Upgrade to ${tiers[DROP_REQUIRED_TIER].name}+ to unlock`
-                        : 'Product №26 included in your monthly box'}
+                        : `Product №${product?.id} included in your monthly box`}
                     </small>
                   </div>
                   <div className="flex gap-2 shrink-0">
@@ -334,7 +350,7 @@ export default function Drop() {
               </div>
 
               <p className="mt-4 text-center font-mono text-[11px] tracking-[.16em] uppercase text-ink/55">
-                Already a subscriber? Product №26 is included in your May box.
+                Already a subscriber? Product №{product?.id} is included in your box.
               </p>
             </div>
           </div>
