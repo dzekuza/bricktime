@@ -185,6 +185,10 @@ export type Database = {
           created_at: string
           description: string | null
           faq: { q: string; a: string }[] | null
+          bags: { num: string; label: string; desc: string; bg: string }[]
+          story: { headline: string; body: string[]; image_url: string | null; author_name: string; author_role: string } | null
+          minifig: { name: string; description: string; image_url: string | null; edition: string; kit_headline: string; kit_items: { title: string; body: string }[] } | null
+          compatibility: { drop: string; title: string; desc: string; bg: string }[]
           featured: boolean
           gallery: string[]
           id: number
@@ -211,6 +215,10 @@ export type Database = {
           created_at?: string
           description?: string | null
           faq?: { q: string; a: string }[] | null
+          bags?: { num: string; label: string; desc: string; bg: string }[]
+          story?: { headline: string; body: string[]; image_url: string | null; author_name: string; author_role: string } | null
+          minifig?: { name: string; description: string; image_url: string | null; edition: string; kit_headline: string; kit_items: { title: string; body: string }[] } | null
+          compatibility?: { drop: string; title: string; desc: string; bg: string }[]
           featured?: boolean
           gallery?: string[]
           id: number
@@ -238,6 +246,10 @@ export type Database = {
           build_time?: string | null
           value?: number | null
           faq?: { q: string; a: string }[] | null
+          bags?: { num: string; label: string; desc: string; bg: string }[]
+          story?: { headline: string; body: string[]; image_url: string | null; author_name: string; author_role: string } | null
+          minifig?: { name: string; description: string; image_url: string | null; edition: string; kit_headline: string; kit_items: { title: string; body: string }[] } | null
+          compatibility?: { drop: string; title: string; desc: string; bg: string }[]
           gallery?: string[]
           id?: number
           image_url?: string | null
