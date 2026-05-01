@@ -182,7 +182,7 @@ export default function Checkout() {
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="label-mono" style={{ color: `${userSub.textColor}60` }}>Tavo prenumerata</p>
+                      <h3 className="label-mono" style={{ color: `${userSub.textColor}60` }}>Tavo prenumerata</h3>
                       <div className="mt-2 font-display text-[40px] leading-[.9]" style={{ color: userSub.textColor }}>
                         {userSub.name}
                       </div>
@@ -213,7 +213,7 @@ export default function Checkout() {
                   className="brick-card p-6 md:p-8"
                   style={{ background: '#001B21' }}
                 >
-                  <p className="label-mono text-paper/40">Neprenumeruojama</p>
+                  <h3 className="label-mono text-paper/40">Neprenumeruojama</h3>
                   <h3
                     className="mt-3 heading-display text-d-xs text-paper leading-[.9]"
                   >
@@ -231,7 +231,7 @@ export default function Checkout() {
                 className="brick-card p-6 md:p-8"
                 style={{ background: '#F5F1EB' }}
               >
-                <p className="label-mono text-ink/50 mb-5">⬢ Nuomos suvestinė</p>
+                <h3 className="label-mono text-ink/50 mb-5">⬢ Nuomos suvestinė</h3>
 
                 <div className="flex flex-col gap-2.5 border-b border-dashed border-ink/20 pb-5">
                   {[
@@ -289,7 +289,7 @@ export default function Checkout() {
                 className="brick-card p-6 md:p-7"
                 style={{ background: '#001B21' }}
               >
-                <p className="label-mono text-paper/40 mb-4">Kurie planai apima šį produktą</p>
+                <h3 className="label-mono text-paper/40 mb-4">Kurie planai apima šį produktą</h3>
                 <div className="grid grid-cols-5 gap-1.5">
                   {tiers.map((t) => {
                     const eligible = t.level >= requiredTier.level

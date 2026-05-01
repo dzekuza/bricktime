@@ -221,7 +221,7 @@ export default function PlansPage() {
               style={{ background: '#001B21' }}
             >
               <div>
-                <p className="label-mono text-paper/50">⬢ Planai ir kainos</p>
+                <h3 className="label-mono text-paper/50">⬢ Planai ir kainos</h3>
                 <h1 className="heading-display text-d-xl tracking-[-0.015em] mt-5 text-paper">
                   Kaladėlės kiekvieną
                   <br />
@@ -254,7 +254,7 @@ export default function PlansPage() {
               className="reveal flex flex-col justify-between brick-card p-6 md:p-8 lg:col-span-5 lg:row-span-2 min-h-[340px]"
               style={{ background: '#5DDB9C' }}
             >
-              <p className="label-mono text-ink/50">Bendruomenė</p>
+              <h3 className="label-mono text-ink/50">Bendruomenė</h3>
 
               <div className="flex flex-col gap-7">
                 {[
@@ -424,7 +424,7 @@ export default function PlansPage() {
           <div ref={compareRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             <div className="reveal lg:col-span-12">
-              <p className="label-mono text-ink/50">⬢ Palyginimas</p>
+              <h3 className="label-mono text-ink/50">⬢ Palyginimas</h3>
               <h2 className="heading-display text-d-lg tracking-[-0.015em] mt-3 text-ink">
                 Viskas, greta.
               </h2>
@@ -525,7 +525,7 @@ export default function PlansPage() {
               className="reveal flex flex-col justify-between brick-card p-6 md:p-9 lg:col-span-4 min-h-[280px]"
               style={{ background: '#5C4ADE' }}
             >
-              <p className="label-mono text-paper/50">⬢ Klausimai</p>
+              <h3 className="label-mono text-paper/50">⬢ Klausimai</h3>
               <div>
                 <h2 className="heading-display text-d-md tracking-[-0.015em] text-paper">
                   Tai, ko
@@ -571,7 +571,7 @@ export default function PlansPage() {
               className="flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-paper/20 p-10 lg:col-span-8 min-h-[300px]"
               style={{ background: '#FB4903' }}
             >
-              <p className="label-mono text-paper/60">⬢ Produktas № 26 — išsiunčiama gegužės 5 d.</p>
+              <h3 className="label-mono text-paper/60">⬢ Produktas № 26 — išsiunčiama gegužės 5 d.</h3>
               <div>
                 <h2 className="heading-display text-d-lg tracking-[-0.015em] text-paper">
                   Užsisakyk iki
@@ -591,7 +591,7 @@ export default function PlansPage() {
               style={{ background: '#001B21' }}
             >
               <div>
-                <p className="label-mono text-paper/50">Nuo</p>
+                <h3 className="label-mono text-paper/50">Nuo</h3>
                 <div className="font-display text-[72px] leading-[.88] mt-1 uppercase text-paper">
                   ${billing === 'monthly' ? 9 : 7}
                 </div>

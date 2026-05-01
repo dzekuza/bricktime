@@ -44,7 +44,7 @@ export default function BigCTA() {
             onMouseEnter={onEnter}
             onMouseLeave={onLeave}
           >
-            <p className="label-mono tracking-[.24em] text-paper/70">⬢ Paskutinė galimybė</p>
+            <h3 className="label-mono tracking-[.24em] text-paper/70">⬢ Paskutinė galimybė</h3>
             <div>
               <h2 className="heading-display text-d-hero text-paper tracking-[-0.015em] leading-[.86]">
                 Produktas № 26

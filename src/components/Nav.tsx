@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { MenuIcon, XIcon, ArrowRightIcon } from 'lucide-react'
+import { MenuIcon, XIcon, ArrowRightIcon, LogOutIcon, UserIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { useAuth } from '@/hooks/useAuth'
+import { supabase } from '@/lib/supabase'
+import { avatarSrc } from '@/lib/avatars'
 
 const links = [
   { label: 'Pradžia', to: '/' },
@@ -10,6 +14,122 @@ const links = [
   { label: 'Bendruomenė', to: '/community' },
   { label: 'Paskyra', to: '/account' },
 ]
+
+// ── Sign-in form inside popover ───────────────────────────────────────────────
+
+function SignInForm({ onClose }: { onClose: () => void }) {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    setLoading(false)
+    if (error) setError(error.message)
+    else onClose()
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-1">
+      <p className="font-bold text-[14px] text-ink">Prisijungti</p>
+      <input
+        type="email"
+        placeholder="El. paštas"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+        className="rounded-xl border-2 border-ink/20 bg-paper px-3 py-2 font-mono text-[13px] text-ink outline-none focus:border-ink transition-colors"
+      />
+      <input
+        type="password"
+        placeholder="Slaptažodis"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+        className="rounded-xl border-2 border-ink/20 bg-paper px-3 py-2 font-mono text-[13px] text-ink outline-none focus:border-ink transition-colors"
+      />
+      {error && <p className="font-mono text-[11px] text-red-500">{error}</p>}
+      <button
+        type="submit"
+        disabled={loading}
+        className="rounded-xl border-2 border-ink bg-ink py-2 font-mono text-[12px] font-bold text-paper hover:opacity-80 disabled:opacity-40 transition-all"
+      >
+        {loading ? '…' : 'Prisijungti'}
+      </button>
+    </form>
+  )
+}
+
+// ── Avatar button ─────────────────────────────────────────────────────────────
+
+function AvatarPopover() {
+  const { user, profile, signOut } = useAuth()
+  const [open, setOpen] = useState(false)
+
+  const avatarId = profile?.avatarId ?? 0
+  const avatarBg = profile?.avatarBg ?? '#FFD731'
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          className="flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-ink brick-hover-sm"
+          style={{ background: avatarBg }}
+          aria-label="Paskyra"
+        >
+          {user
+            ? <img src={avatarSrc(avatarId)} alt="Paskyra" className="h-full w-full object-cover" />
+            : <UserIcon className="size-4 text-ink" />
+          }
+        </button>
+      </PopoverTrigger>
+
+      <PopoverContent align="end" className="w-64 rounded-2xl border-2 border-ink p-4 shadow-[6px_6px_0_#001B21] bg-paper">
+        {user && profile ? (
+          <div className="flex flex-col gap-3">
+            {/* Profile row */}
+            <div className="flex items-center gap-3">
+              <div className="size-10 shrink-0 overflow-hidden rounded-full border-2 border-ink" style={{ background: avatarBg }}>
+                <img src={avatarSrc(avatarId)} alt={profile.name} className="h-full w-full object-cover" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[14px] font-bold text-ink leading-tight truncate">{profile.name}</p>
+                <p className="font-mono text-[11px] text-ink/40 truncate">{user.email}</p>
+              </div>
+            </div>
+
+            <div className="h-px bg-ink/10" />
+
+            <Link
+              to="/account"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 rounded-xl px-3 py-2 text-[13px] font-semibold text-ink hover:bg-ink/5 transition-colors"
+            >
+              <UserIcon className="size-4 text-ink/50" />
+              Paskyra
+            </Link>
+
+            <button
+              onClick={async () => { await signOut(); setOpen(false) }}
+              className="flex items-center gap-2 rounded-xl px-3 py-2 text-[13px] font-semibold text-ink hover:bg-red-50 hover:text-red-600 transition-colors"
+            >
+              <LogOutIcon className="size-4" />
+              Atsijungti
+            </button>
+          </div>
+        ) : (
+          <SignInForm onClose={() => setOpen(false)} />
+        )}
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+// ── Nav ───────────────────────────────────────────────────────────────────────
 
 export default function Nav() {
   const { pathname } = useLocation()
@@ -23,9 +143,7 @@ export default function Nav() {
 
   return (
     <>
-      <nav
-        className="sticky top-0 z-50 bg-white"
-      >
+      <nav className="sticky top-0 z-50 bg-white">
         <div className="mx-auto flex h-[84px] max-w-[1320px] items-center justify-between px-7 md:grid md:grid-cols-3">
 
           {/* Left — desktop nav links */}
@@ -44,19 +162,11 @@ export default function Nav() {
             })}
           </div>
 
-          
           <Link to="/" className="flex items-center md:justify-self-center">
-            <video
-              src="/nav-logo.mov"
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="h-16 w-auto object-contain"
-            />
+            <video src="/nav-logo.mov" autoPlay loop muted playsInline className="h-16 w-auto object-contain" />
           </Link>
 
-          {/* Right — CTA + hamburger */}
+          {/* Right — CTA + avatar + hamburger */}
           <div className="flex items-center justify-end gap-3">
             <Button
               asChild
@@ -66,16 +176,8 @@ export default function Nav() {
               <Link to="/subscribe">Prenumeruoti <ArrowRightIcon data-icon="inline-end" /></Link>
             </Button>
 
-            {/* Account avatar */}
-            <Link
-              to="/account"
-              className="flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-ink bg-brand-yellow brick-hover-sm"
-              aria-label="Paskyra"
-            >
-              <img src="/avatars/avatar-classic.png" alt="Paskyra" className="h-full w-full object-cover" />
-            </Link>
+            <AvatarPopover />
 
-            {/* Hamburger — mobile only */}
             <button
               onClick={() => setOpen((v) => !v)}
               className="grid size-10 place-items-center rounded-full border-2 border-ink bg-paper md:hidden"
@@ -87,17 +189,13 @@ export default function Nav() {
         </div>
       </nav>
 
-      {/* Mobile top drawer */}
-      <div
-        className="fixed inset-0 z-40 md:hidden"
-        style={{ pointerEvents: open ? 'all' : 'none' }}
-      >
+      {/* Mobile drawer */}
+      <div className="fixed inset-0 z-40 md:hidden" style={{ pointerEvents: open ? 'all' : 'none' }}>
         <div
           className="absolute inset-0 bg-ink/60 transition-opacity duration-300"
           style={{ opacity: open ? 1 : 0 }}
           onClick={() => setOpen(false)}
         />
-
         <div
           className="absolute left-0 top-0 w-full flex flex-col border-b-2 border-ink bg-white"
           style={{

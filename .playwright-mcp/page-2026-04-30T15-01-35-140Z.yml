@@ -1,0 +1,412 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - img "BRICKTIME" [ref=e4]
+    - img [ref=e5]
+  - navigation [ref=e37]:
+    - generic [ref=e38]:
+      - link "BRICKTIME" [ref=e39] [cursor=pointer]:
+        - /url: /
+        - img "BRICKTIME" [ref=e40]
+      - generic [ref=e41]:
+        - link "Pradžia" [ref=e42] [cursor=pointer]:
+          - /url: /
+        - link "Produktai" [ref=e43] [cursor=pointer]:
+          - /url: /archive
+        - link "Planai" [ref=e44] [cursor=pointer]:
+          - /url: /plans
+        - link "Paskyra" [ref=e45] [cursor=pointer]:
+          - /url: /account
+      - link "Prenumeruoti →" [ref=e47] [cursor=pointer]:
+        - /url: /subscribe
+  - main [ref=e48]:
+    - generic [ref=e50]:
+      - generic [ref=e52]: Produktas № 26 — gegužės 2026 išsiunčiamas po 12 dienų
+      - heading "Praplėsk savo kaladėlių kolekciją protingiau." [level=1] [ref=e54]:
+        - text: Praplėsk savo
+        - generic [ref=e55]: kaladėlių
+        - generic [ref=e56]: kolekciją
+        - text: protingiau.
+      - paragraph [ref=e57]: Kas mėnesį į pašto dėžutę tilpstantis rinkinys su aukštos kokybės kaladėlėmis, išskirtiniais miniukais ir surinkimo kortele. Atšauk, keisk ar praleisk bet kurį mėnesį — kaladėlės amžinai.
+      - generic [ref=e58]:
+        - link "Pradėti prenumeratą →" [ref=e59] [cursor=pointer]:
+          - /url: "#plans"
+        - link "Žiūrėti ankstesnius produktus" [ref=e60] [cursor=pointer]:
+          - /url: /archive
+      - generic [ref=e67]: ★★★★★ 4.9 · 12 400+ kūrėjų
+    - generic [ref=e71]:
+      - generic [ref=e72]:
+        - text: STATYK
+        - generic [ref=e73]: ★
+      - generic [ref=e74]:
+        - text: RINK
+        - generic [ref=e75]: ★
+      - generic [ref=e76]:
+        - text: KARTOK
+        - generic [ref=e77]: ★
+      - generic [ref=e78]:
+        - text: NAUJAS PRODUKTAS KAS MĖNESĮ
+        - generic [ref=e79]: ★
+      - generic [ref=e80]:
+        - text: NEMOKAMAS PRISTATYMAS
+        - generic [ref=e81]: ★
+      - generic [ref=e82]:
+        - text: PRALEISK BET KADA
+        - generic [ref=e83]: ★
+      - generic [ref=e84]:
+        - text: STATYK
+        - generic [ref=e85]: ★
+      - generic [ref=e86]:
+        - text: RINK
+        - generic [ref=e87]: ★
+      - generic [ref=e88]:
+        - text: KARTOK
+        - generic [ref=e89]: ★
+      - generic [ref=e90]:
+        - text: NAUJAS PRODUKTAS KAS MĖNESĮ
+        - generic [ref=e91]: ★
+      - generic [ref=e92]:
+        - text: NEMOKAMAS PRISTATYMAS
+        - generic [ref=e93]: ★
+      - generic [ref=e94]:
+        - text: PRALEISK BET KADA
+        - generic [ref=e95]: ★
+    - generic [ref=e98]:
+      - generic [ref=e100]:
+        - generic [ref=e101]: Žingsnis
+        - generic [ref=e102]: "01"
+        - heading "Pasirink planą" [level=3] [ref=e103]:
+          - generic [ref=e104]: Pasirink
+          - generic [ref=e105]: planą
+        - paragraph [ref=e106]: Mini, Standard ar Mega. Keisk lygį bet kada — vis daugiau ant lentynų.
+      - generic [ref=e114]:
+        - paragraph [ref=e115]: ⬢ Kaip tai veikia
+        - heading "Pasirink planą, statyk pasaulį." [level=2] [ref=e116]:
+          - text: Pasirink planą,
+          - generic [ref=e117]: statyk
+          - text: pasaulį.
+        - paragraph [ref=e118]: Trys paprasti žingsniai. Jokio klijų, jokių instrukcijų už mokamą užtvarą, jokio ilgalaikio įsipareigojimo. Tiesiog kaladėlės prie durų — kiekvieną mėnesį, laiku.
+      - generic [ref=e120]:
+        - generic [ref=e121]: "02"
+        - heading "Gauk mėnesio produktą" [level=3] [ref=e122]:
+          - generic [ref=e123]: Gauk
+          - generic [ref=e124]: mėnesio produktą
+        - paragraph [ref=e125]: Teminė siunta atkeliauja pirmąjį antradienį. Atpakuok, nuskenuok QR, surink modelį.
+      - generic [ref=e134]:
+        - generic [ref=e135]: "03"
+        - heading "Statyk, keisk, kartok" [level=3] [ref=e136]:
+          - generic [ref=e137]: Statyk,
+          - generic [ref=e138]: keisk, kartok
+        - paragraph [ref=e139]: Kiekvienas produktas jungiasi į visatą. Keisk dubletus BRICKTIME klube.
+    - generic [ref=e149]:
+      - generic [ref=e151]:
+        - paragraph [ref=e152]: ⬢ Kas viduje
+        - heading "Rinkinys, kurį norisi atplėšti ." [level=2] [ref=e153]:
+          - text: Rinkinys, kurį
+          - generic [ref=e154]: norisi atplėšti
+          - text: .
+        - paragraph [ref=e155]: Kiekvienas produktas sukurtas statytojams, tinka į pašto dėžutę ir sujungiamas — mėnesį po mėnesio.
+        - link "Pradėti prenumeratą →" [ref=e156] [cursor=pointer]:
+          - /url: "#plans"
+        - img "Statytojas dedantis paskutinę detalę" [ref=e158]
+      - generic [ref=e159]:
+        - generic [ref=e160]:
+          - generic [ref=e161]: "01"
+          - generic [ref=e162]:
+            - heading "200–400 aukštos kokybės ABS kaladėlių" [level=3] [ref=e163]
+            - paragraph [ref=e164]: Tikslios tolerancijos, ryškios spalvos, visiškai suderinamos su tavo kaladėlėmis.
+        - generic [ref=e165]:
+          - generic [ref=e166]: "02"
+          - generic [ref=e167]:
+            - heading "1–2 išskirtiniai miniukai" [level=3] [ref=e168]
+            - paragraph [ref=e169]: Sukurti svečių menininkų. Sunumeruoti, niekada neišleisti pakartotinai, keičiami klube.
+        - generic [ref=e170]:
+          - generic [ref=e171]: "03"
+          - generic [ref=e172]:
+            - heading "Surinkimo kortelė + lipdukų rinkinys" [level=3] [ref=e173]
+            - paragraph [ref=e174]: Žingsnis po žingsnio vienoje pusėje, istorija kitoje. Plius 16 vinilo lipdukų per produktą.
+        - generic [ref=e175]:
+          - generic [ref=e176]: "04"
+          - generic [ref=e177]:
+            - heading "Jungiasi į visatą" [level=3] [ref=e178]
+            - paragraph [ref=e179]: Kiekvienas produktas jungiasi. Po 12 mėnesių tu pastatęs visą gatvę.
+    - generic [ref=e182]:
+      - generic [ref=e183]:
+        - heading "Planai kiekvienai lentynų situacijai." [level=2] [ref=e184]:
+          - text: Planai kiekvienai
+          - generic [ref=e185]: lentynų
+          - text: situacijai.
+        - generic [ref=e186]: ▩
+      - generic [ref=e187]:
+        - generic [ref=e188]:
+          - generic [ref=e189]: Nano
+          - generic [ref=e190]:
+            - generic [ref=e191]: $9
+            - generic [ref=e192]: /mėn.
+        - list [ref=e193]:
+          - listitem [ref=e194]:
+            - generic [ref=e196]: 60–90 kaladėlių per produktą
+          - listitem [ref=e197]:
+            - generic [ref=e199]: Surinkimo kortelė
+          - listitem [ref=e200]:
+            - generic [ref=e202]: 4 vinilo lipdukai
+          - listitem [ref=e203]:
+            - generic [ref=e205]: Nemokamas standartinis pristatymas
+        - link "Pradėti su Nano" [ref=e206] [cursor=pointer]:
+          - /url: "#"
+      - generic [ref=e207]:
+        - generic [ref=e208]:
+          - generic [ref=e209]: Mini
+          - generic [ref=e210]:
+            - generic [ref=e211]: $14
+            - generic [ref=e212]: /mėn.
+        - list [ref=e213]:
+          - listitem [ref=e214]:
+            - generic [ref=e216]: 120–180 kaladėlių per produktą
+          - listitem [ref=e217]:
+            - generic [ref=e219]: 1 išskirtinis miniukas
+          - listitem [ref=e220]:
+            - generic [ref=e222]: Surinkimo kortelė + 8 lipdukų
+          - listitem [ref=e223]:
+            - generic [ref=e225]: Nemokamas standartinis pristatymas
+        - link "Pradėti su Mini" [ref=e226] [cursor=pointer]:
+          - /url: "#"
+      - generic [ref=e227]:
+        - generic [ref=e228]: Populiariausias
+        - generic [ref=e229]:
+          - generic [ref=e230]: Standard
+          - generic [ref=e231]:
+            - generic [ref=e232]: $24
+            - generic [ref=e233]: /mėn.
+        - list [ref=e234]:
+          - listitem [ref=e235]:
+            - generic [ref=e237]: 240–320 kaladėlių per produktą
+          - listitem [ref=e238]:
+            - generic [ref=e240]: 2 išskirtiniai miniukai
+          - listitem [ref=e241]:
+            - generic [ref=e243]: Surinkimo kortelė + 16 lipdukų
+          - listitem [ref=e244]:
+            - generic [ref=e246]: Keitimų klubo prieiga
+          - listitem [ref=e247]:
+            - generic [ref=e249]: Nemokamas skubus pristatymas
+        - link "Pradėti su Standard" [ref=e250] [cursor=pointer]:
+          - /url: "#"
+      - generic [ref=e251]:
+        - generic [ref=e252]:
+          - generic [ref=e253]: Pro
+          - generic [ref=e254]:
+            - generic [ref=e255]: $35
+            - generic [ref=e256]: /mėn.
+        - list [ref=e257]:
+          - listitem [ref=e258]:
+            - generic [ref=e260]: 340–400 kaladėlių per produktą
+          - listitem [ref=e261]:
+            - generic [ref=e263]: 2 miniukai + alternatyvi spalva
+          - listitem [ref=e264]:
+            - generic [ref=e266]: Ankstyva prieiga prie produktų
+          - listitem [ref=e267]:
+            - generic [ref=e269]: Nemokamas skubus pristatymas
+        - link "Pradėti su Pro" [ref=e270] [cursor=pointer]:
+          - /url: "#"
+      - generic [ref=e271]:
+        - generic [ref=e272]:
+          - generic [ref=e273]: Mega
+          - generic [ref=e274]:
+            - generic [ref=e275]: $55
+            - generic [ref=e276]: /mėn.
+        - list [ref=e277]:
+          - listitem [ref=e278]:
+            - generic [ref=e280]: 420–520 kaladėlių per produktą
+          - listitem [ref=e281]:
+            - generic [ref=e283]: 3 miniukai + retas variantas
+          - listitem [ref=e284]:
+            - generic [ref=e286]: Kietu viršeliu surinkimo knyga
+          - listitem [ref=e287]:
+            - generic [ref=e289]: Metinė siurprizų dėžutė
+        - link "Pradėti su Mega" [ref=e290] [cursor=pointer]:
+          - /url: "#"
+    - generic [ref=e293]:
+      - generic [ref=e294]:
+        - generic [ref=e295]: ★★★★★
+        - paragraph [ref=e296]: "\"Mano stalas virto mažu miestu. Produktas-26 pašto surinkimas — tai beprotybė.\""
+        - generic [ref=e297]:
+          - generic [ref=e299]: AR
+          - generic [ref=e300]:
+            - text: Amelia R.
+            - generic [ref=e301]: Prenumeratorė nuo produkto 04
+      - generic [ref=e302]:
+        - generic [ref=e303]: ★★★★★
+        - paragraph [ref=e304]: "\"Mano vaikai mano, kad esu burtininkas. Surinkimo kortelės tiesiog nuostabios.\""
+        - generic [ref=e305]:
+          - generic [ref=e307]: MT
+          - generic [ref=e308]:
+            - text: Marco T.
+            - generic [ref=e309]: Mega lygis · 14 mėnesių
+      - generic [ref=e310]:
+        - paragraph [ref=e311]: ⬢ Prenumeratoriai
+        - heading "12 400 kūrėjų prisijungę." [level=2] [ref=e312]:
+          - generic [ref=e313]: 12 400
+          - text: kūrėjų
+          - text: prisijungę.
+      - generic [ref=e314]:
+        - generic [ref=e315]: ★★★★★
+        - paragraph [ref=e316]: "\"Praleidau mėnesį, jokios dramos. Grįžau į koralinio rifo produktą. Tobula.\""
+        - generic [ref=e317]:
+          - generic [ref=e319]: YS
+          - generic [ref=e320]:
+            - text: Yuki S.
+            - generic [ref=e321]: Standard lygis
+    - generic [ref=e324]:
+      - generic [ref=e325]:
+        - paragraph [ref=e326]: ⬢ D.U.K.
+        - heading "Greiti klausimai." [level=2] [ref=e327]:
+          - generic [ref=e328]: Greiti
+          - text: klausimai.
+        - generic [ref=e329]:
+          - generic [ref=e330]:
+            - heading "Iš ko pagamintos kaladėlės?" [level=3] [ref=e331]:
+              - button "Iš ko pagamintos kaladėlės?" [expanded] [ref=e332]:
+                - text: Iš ko pagamintos kaladėlės?
+                - img
+            - region "Iš ko pagamintos kaladėlės?" [ref=e333]:
+              - paragraph [ref=e335]: Aukštos kokybės ABS plastikas prie pramoninio standarto 1,6 mm tolerancijos. Visiškai suderinamos su bet kokios suderinamos markės kaladėlėmis — užsispaudžia, laiko ir išsiskiria švariai.
+          - heading "Ar galiu praleisti mėnesį?" [level=3] [ref=e337]:
+            - button "Ar galiu praleisti mėnesį?" [ref=e338]:
+              - text: Ar galiu praleisti mėnesį?
+              - img
+          - heading "Ar produktai jungiasi tarpusavyje?" [level=3] [ref=e340]:
+            - button "Ar produktai jungiasi tarpusavyje?" [ref=e341]:
+              - text: Ar produktai jungiasi tarpusavyje?
+              - img
+          - heading "Kur pristatote?" [level=3] [ref=e343]:
+            - button "Kur pristatote?" [ref=e344]:
+              - text: Kur pristatote?
+              - img
+          - heading "Ką daryti gavus dublikatą miniuką?" [level=3] [ref=e346]:
+            - button "Ką daryti gavus dublikatą miniuką?" [ref=e347]:
+              - text: Ką daryti gavus dublikatą miniuką?
+              - img
+      - generic [ref=e348]:
+        - generic [ref=e349]:
+          - generic [ref=e350]: 12 400+
+          - generic [ref=e351]: Aktyvūs prenumeratoriai
+        - generic [ref=e352]:
+          - generic [ref=e353]: ★ 4.9
+          - generic [ref=e354]: Vidutinis įvertinimas
+        - generic [ref=e355]:
+          - generic [ref=e356]: "26"
+          - generic [ref=e357]: Išsiųstų produktų
+        - generic [ref=e358]:
+          - generic [ref=e359]: "0"
+          - generic [ref=e360]: Klausimų be atsakymo
+      - generic [ref=e361]:
+        - generic [ref=e362]:
+          - paragraph [ref=e363]: Vis dar abejoji?
+          - heading "Pirmas produktas, nulinė rizika ." [level=3] [ref=e364]:
+            - text: Pirmas produktas,
+            - generic [ref=e365]: nulinė rizika
+            - text: .
+          - paragraph [ref=e366]: Atšauk iki pirmojo sąskaitos datos ir nemokėk nieko. Vis tiek atsiųsime sekimo nuorodą.
+        - link "Pasirinkti planą →" [ref=e367] [cursor=pointer]:
+          - /url: "#plans"
+    - generic [ref=e370]:
+      - generic [ref=e371]:
+        - paragraph [ref=e372]: ⬢ Paskutinė galimybė
+        - heading "Produktas № 26 išsiunčiamas po 12 dienų" [level=2] [ref=e374]:
+          - text: Produktas № 26
+          - text: išsiunčiamas po
+          - generic [ref=e375]: 12 dienų
+        - paragraph [ref=e376]: Prenumeruok iki gegužės 1 d. ir gauk kitą produktą. Po to — laukiamajame sąraše.
+      - generic [ref=e377]:
+        - generic [ref=e378]:
+          - paragraph [ref=e379]: Užsitikrink vietą
+          - generic [ref=e380]:
+            - generic [ref=e381]:
+              - generic [ref=e382]: Mini
+              - generic [ref=e383]: —
+              - generic [ref=e384]: $14/mėn.
+            - generic [ref=e385]:
+              - generic [ref=e386]: Standard
+              - generic [ref=e387]: —
+              - generic [ref=e388]: $24/mėn.
+            - generic [ref=e389]:
+              - generic [ref=e390]: Mega
+              - generic [ref=e391]: —
+              - generic [ref=e392]: $42/mėn.
+        - generic [ref=e393]:
+          - link "Pradėti prenumeratą →" [ref=e394] [cursor=pointer]:
+            - /url: "#plans"
+          - link "Peržiūrėti produktą № 26" [ref=e395] [cursor=pointer]:
+            - /url: /drop
+          - paragraph [ref=e396]: Atšauk bet kada · Nemokamas pristatymas
+    - generic [ref=e398]:
+      - generic [ref=e399]:
+        - paragraph [ref=e400]: ⬢ Kaladėlė po kaladėlės
+        - heading "Statyk kiekvieną mėnesį." [level=2] [ref=e401]:
+          - text: Statyk
+          - generic [ref=e402]: kiekvieną
+          - text: mėnesį.
+      - link "Pradėti prenumeratą →" [ref=e405] [cursor=pointer]:
+        - /url: "#plans"
+  - contentinfo [ref=e406]:
+    - generic [ref=e407]:
+      - generic [ref=e408]:
+        - generic [ref=e409]:
+          - generic [ref=e410]:
+            - generic [ref=e411]: B!
+            - text: BRICKTIME
+          - paragraph [ref=e412]: Mėnesinė kaladėlių prenumerata suaugusiems, kurie niekada negalutinai nustojo statyti. Pagaminta Vilniuje, pristatoma visame pasaulyje.
+          - generic [ref=e413]:
+            - link "Instagram" [ref=e414] [cursor=pointer]:
+              - /url: "#"
+            - link "TikTok" [ref=e415] [cursor=pointer]:
+              - /url: "#"
+            - link "Discord" [ref=e416] [cursor=pointer]:
+              - /url: "#"
+        - generic [ref=e417]:
+          - heading "Prenumerata" [level=4] [ref=e418]
+          - list [ref=e419]:
+            - listitem [ref=e420]:
+              - link "Planai" [ref=e421] [cursor=pointer]:
+                - /url: "#plans"
+            - listitem [ref=e422]:
+              - link "Šis mėnuo" [ref=e423] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e424]:
+              - link "Archyvas" [ref=e425] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e426]:
+              - link "Dovanų kortelės" [ref=e427] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e428]:
+          - heading "Pagalba" [level=4] [ref=e429]
+          - list [ref=e430]:
+            - listitem [ref=e431]:
+              - link "D.U.K." [ref=e432] [cursor=pointer]:
+                - /url: "#faq"
+            - listitem [ref=e433]:
+              - link "Praleisti / pristabdyti" [ref=e434] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e435]:
+              - link "Pristatymas" [ref=e436] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e437]:
+              - link "Grąžinimai" [ref=e438] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e439]:
+          - heading "Įmonė" [level=4] [ref=e440]
+          - list [ref=e441]:
+            - listitem [ref=e442]:
+              - link "Apie mus" [ref=e443] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e444]:
+              - link "Spauda" [ref=e445] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e446]:
+              - link "Keitimų klubas" [ref=e447] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e448]:
+              - link "Karjera" [ref=e449] [cursor=pointer]:
+                - /url: "#"
+      - generic [ref=e450]:
+        - generic [ref=e451]: © 2026 BRICKTIME UAB
+        - generic [ref=e452]: BRICKTIME™ — originalus prekės ženklas · nesusijęs su jokiu žaislų gamintoju

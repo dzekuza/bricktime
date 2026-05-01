@@ -100,7 +100,7 @@ export default function HowItWorks() {
           <div
             className="reveal brick-card flex flex-col justify-center bg-paper p-6 md:p-9 lg:col-span-7"
           >
-            <p className="label-mono text-ink/50">⬢ Kaip tai veikia</p>
+            <h3 className="label-mono text-ink/50">⬢ Kaip tai veikia</h3>
             <h2
               className="heading-display text-d-lg mt-3 text-ink"
             >

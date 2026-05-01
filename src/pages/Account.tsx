@@ -49,7 +49,7 @@ function AchievementsSection() {
   return (
     <section className="bg-white py-8 md:py-20 md:bg-[#F5F1EB]">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-        <p className="label-mono text-ink/50">⬢ Pažymėjimai</p>
+        <h3 className="label-mono text-ink/50">⬢ Pažymėjimai</h3>
         <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.02em] mt-2 text-ink">
           Taškai.
         </h2>
@@ -84,7 +84,7 @@ function AchievementsSection() {
                 return (
                   <div
                     key={def.id}
-                    className="relative cursor-default rounded-2xl border-2 p-4 transition-all"
+                    className="relative cursor-default rounded-2xl border-2 p-3 md:p-4 transition-all"
                     style={{
                       background: unlocked ? def.color : 'transparent',
                       borderStyle: unlocked ? 'solid' : 'dashed',
@@ -123,11 +123,6 @@ function AchievementsSection() {
   )
 }
 
-const rentedDrops = [
-  { num: 26, title: 'Mailbox row',    bricks: 312, bg: '#5DDB9C', status: 'Išsiunčiama geg. 5' },
-  { num: 25, title: 'The greenhouse', bricks: 268, bg: '#FFD731', status: 'Pristatyta' },
-  { num: 24, title: 'Donut diner',    bricks: 295, bg: '#FB4903', status: 'Pristatyta' },
-]
 
 export default function Account() {
   const [showUpgrade, setShowUpgrade] = useState(false)
@@ -138,8 +133,6 @@ export default function Account() {
   const activeAvatar = avatarOptions[selectedAvatarId]
 
   const heroRef    = useReveal<HTMLDivElement>()
-  const dropsRef   = useReveal<HTMLDivElement>()
-  const billingRef = useReveal<HTMLDivElement>()
 
   return (
     <div className="min-h-screen bg-paper">
@@ -152,7 +145,7 @@ export default function Account() {
 
             {/* User tile */}
             <div
-              className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-ink p-6 md:p-9 lg:col-span-7 bg-[#5ddb9c] min-h-[340px]"
+              className="reveal flex flex-col rounded-2xl md:rounded-3xl border-2 border-ink p-6 md:p-9 lg:col-span-7 bg-[#5ddb9c] min-h-[340px]"
             >
               <div className="flex items-start gap-5">
                 {/* Avatar — clickable */}
@@ -176,7 +169,7 @@ export default function Account() {
                   </button>
                 </div>
                 <div className="flex-1">
-                  <p className="label-mono text-ink/50">⬢ Mano paskyra</p>
+                  <h3 className="label-mono text-ink/50">⬢ Mano paskyra</h3>
                   <h1 className="heading-display text-d-lg leading-[.9] mt-2 text-ink">
                     {user.name}
                   </h1>
@@ -221,7 +214,7 @@ export default function Account() {
                 </div>
               )}
 
-              <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+              <div className="mt-auto pt-8 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
                 {[
                   { val: user.dropsReceived, label: 'Gauti produktai' },
                   { val: `${user.tierLevel}/5`, label: 'Plano lygis' },
@@ -229,7 +222,7 @@ export default function Account() {
                   { val: calculatePoints(currentUserAchievements), label: 'Taškai' },
                 ].map((s) => (
                   <div key={s.label} className="rounded-2xl border border-ink/20 p-4">
-                    <div className="font-display text-d-sm leading-none uppercase text-ink">
+                    <div className="font-display text-d-sm leading-none uppercase text-ink whitespace-nowrap">
                       {s.val}
                     </div>
                     <div className="mt-1 font-mono text-[10px] tracking-[.14em] uppercase text-ink/50">{s.label}</div>
@@ -244,13 +237,13 @@ export default function Account() {
 
             {/* Subscription tile */}
             <div
-              className="reveal flex flex-col justify-between brick-card p-6 md:p-9 lg:col-span-5 min-h-[340px]"
+              className="reveal flex flex-col brick-card p-6 md:p-9 lg:col-span-5 min-h-[340px]"
               style={{ background: user.tierBg }}
             >
               <div>
-                <p className="label-mono" style={{ color: `${user.tierTextColor}70` }}>
+                <h3 className="label-mono" style={{ color: `${user.tierTextColor}70` }}>
                   Aktyvi prenumerata
-                </p>
+                </h3>
                 <div
                   className="font-display text-d-xl leading-[.88] mt-3 uppercase"
                   style={{ color: user.tierTextColor }}
@@ -271,7 +264,7 @@ export default function Account() {
               </div>
 
               {/* Mobile: two simple buttons matching Figma */}
-              <div className="mt-6 flex gap-3 md:hidden">
+              <div className="mt-auto pt-6 flex gap-3 md:hidden">
                 <button className="flex-1 rounded-full border-2 border-ink bg-ink px-3 py-2 text-[14px] font-bold text-paper transition-all hover:opacity-80">
                   Atšaukti
                 </button>
@@ -280,7 +273,7 @@ export default function Account() {
                 </button>
               </div>
               {/* Desktop: full button set */}
-              <div className="hidden md:flex flex-col gap-2.5 mt-6">
+              <div className="hidden md:flex flex-col gap-2.5 mt-auto pt-6">
                 <Button
                   className="w-full rounded-full border-2 border-ink bg-ink text-paper font-bold text-[14px] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] transition-all"
                   onClick={() => setShowUpgrade(!showUpgrade)}
@@ -296,7 +289,7 @@ export default function Account() {
                 className="reveal brick-card p-3 md:p-8 lg:col-span-12"
                 style={{ background: '#F5F1EB' }}
               >
-                <p className="label-mono text-ink/50 mb-5">⬢ Keisti planą</p>
+                <h3 className="label-mono text-ink/50 mb-5">⬢ Keisti planą</h3>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
                   {tierOptions.map((t, i) => (
                     <button
@@ -342,143 +335,6 @@ export default function Account() {
 
       {/* ── Achievements ─────────────────────────────────────────────── */}
       <AchievementsSection />
-
-      {/* ── Upcoming drop ────────────────────────────────────────────── */}
-      <section className="bg-ink py-8 md:py-16">
-        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-
-            <div
-              className="flex flex-col gap-3 rounded-2xl md:rounded-3xl border-2 border-paper/15 p-[18px] md:p-9 lg:col-span-8 min-h-[240px]"
-              style={{ background: '#5C4ADE' }}
-            >
-              <p className="label-mono text-paper/50">⬢ Išsiunčiama gegužės 5 d.</p>
-              <h2 className="heading-display text-d-md leading-[.9] text-paper">
-                Produktas № 26 — Mailbox Row + Postman Otto
-              </h2>
-              <p className="text-[15px] leading-[1.6] text-paper/70">
-                Įskaičiuota į tavo Standard dėžutę šį mėnesį. 312 kaladėlių, 2 išskirtiniai miniukai.
-              </p>
-              <Button asChild className="mt-2 w-full md:w-fit rounded-full border-2 border-paper/40 bg-brand-yellow text-ink font-bold hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_rgba(245,241,235,.3)] transition-all">
-                <Link to="/drop/26">Peržiūrėti produktą →</Link>
-              </Button>
-            </div>
-
-            {/* Quick actions — desktop only */}
-            <div
-              className="hidden md:flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-paper/15 p-3 md:p-9 lg:col-span-4"
-              style={{ background: '#001B21' }}
-            >
-              <p className="label-mono text-paper/40">Greiti veiksmai</p>
-              <div className="flex flex-col gap-2.5 mt-4">
-                {[
-                  { label: 'Dovanoti prenumeratą', color: '#FFD731' },
-                  { label: 'Atšaukti prenumeratą', color: '#FB4903' },
-                ].map((a) => (
-                  <button
-                    key={a.label}
-                    className="flex items-center justify-between rounded-2xl border-2 border-paper/20 px-4 py-3 text-[13px] font-semibold text-paper transition-all hover:border-paper/50"
-                  >
-                    <span>{a.label}</span>
-                    <span
-                      className="size-3 rounded-full"
-                      style={{ background: a.color }}
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* ── Billing history ──────────────────────────────────────────── */}
-      <section className="bg-paper py-8 md:py-20">
-        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div ref={billingRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-
-            <div className="reveal lg:col-span-12">
-              <p className="label-mono text-ink/50">⬢ Atsiskaitymas</p>
-              <h2 className="heading-display text-d-lg tracking-[-0.015em] mt-3 text-ink">
-                Mokėjimų istorija.
-              </h2>
-            </div>
-
-            {/* Billing table */}
-            <div
-              className="reveal brick-card overflow-hidden lg:col-span-8"
-              style={{ background: '#F5F1EB' }}
-            >
-              {/* Mobile card layout */}
-              <div className="sm:hidden divide-y divide-dashed divide-ink/20">
-                {billingHistory.map((b, i) => (
-                  <div key={i} className="flex items-center justify-between gap-3 px-5 py-4">
-                    <div className="min-w-0">
-                      <p className="text-[13px] font-semibold text-ink truncate">{b.drop}</p>
-                      <p className="font-mono text-[10px] tracking-[.1em] uppercase text-ink/50">{b.date}</p>
-                    </div>
-                    <div className="flex items-center gap-2.5 shrink-0">
-                      <span className="font-display text-[16px] leading-none" style={{ color: '#001B21' }}>{b.amount}</span>
-                      <span className="rounded-full border border-brand-mint bg-brand-mint/20 px-2.5 py-0.5 font-mono text-[10px] tracking-[.1em] uppercase text-ink">
-                        {b.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Desktop table */}
-              <div className="hidden sm:block">
-                <div className="grid grid-cols-4 border-b-2 border-ink bg-ink">
-                  {['Data', 'Produktas', 'Suma', 'Būsena'].map((h) => (
-                    <div key={h} className="p-4 font-mono text-[10px] tracking-[.18em] uppercase text-paper/60">{h}</div>
-                  ))}
-                </div>
-                {billingHistory.map((b, i) => (
-                  <div
-                    key={i}
-                    className="grid grid-cols-4 border-b border-dashed border-ink/20 last:border-b-0 hover:bg-ink/[.03] transition-colors"
-                  >
-                    <div className="p-4 text-[14px] text-ink/70">{b.date}</div>
-                    <div className="p-4 text-[14px] font-semibold text-ink">{b.drop}</div>
-                    <div className="p-4 font-display text-[18px] text-ink">{b.amount}</div>
-                    <div className="p-4">
-                      <span className="rounded-full border border-brand-mint bg-brand-mint/20 px-2.5 py-0.5 font-mono text-[10px] tracking-[.1em] uppercase text-ink">
-                        {b.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Billing info card */}
-            <div
-              className="reveal flex flex-col justify-between brick-card p-3 md:p-8 lg:col-span-4"
-              style={{ background: '#5DDB9C' }}
-            >
-              <div>
-                <p className="label-mono text-ink/50">Mokėjimo būdas</p>
-                <div className="mt-4 rounded-2xl border-2 border-ink bg-ink/10 p-4">
-                  <p className="font-mono text-[11px] tracking-[.14em] uppercase text-ink/60">Visa baigiasi</p>
-                  <p className="font-display text-[32px] leading-none" style={{ color: '#001B21' }}>·· 4242</p>
-                  <p className="mt-1 font-mono text-[11px] tracking-[.06em] uppercase text-ink/55">Galioja iki 09/28</p>
-                </div>
-              </div>
-              <div className="flex flex-col gap-2 mt-6">
-                <button className="rounded-full border-2 border-ink bg-ink px-5 py-3 text-[13px] font-bold text-paper transition-all hover:shadow-[4px_4px_0_#001B21]">
-                  Atnaujinti mokėjimo būdą
-                </button>
-                <button className="rounded-full border-2 border-ink px-5 py-3 text-[13px] font-semibold text-ink transition-all hover:bg-ink/10">
-                  Atsisiųsti sąskaitas
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
 
       <Footer />
     </div>

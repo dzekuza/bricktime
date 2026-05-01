@@ -131,7 +131,7 @@ export default function Testimonials() {
             className="reveal flex flex-col justify-center rounded-2xl md:rounded-3xl border-2 border-ink p-6 md:p-9 shadow-[6px_6px_0_rgba(245,241,235,.12)] lg:col-span-5 min-h-[220px]"
             style={{ background: '#001B21', transitionDelay: '80ms' }}
           >
-            <p className="label-mono text-paper/50">⬢ Prenumeratoriai</p>
+            <h3 className="label-mono text-paper/50">⬢ Prenumeratoriai</h3>
             <h2 className="mt-3 heading-display text-d-lg text-paper">
               <span
                 className="inline-block border-[3px] border-paper/40 bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(245,241,235,.2)]"

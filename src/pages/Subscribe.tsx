@@ -84,7 +84,7 @@ export default function Subscribe() {
               className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-paper/15 p-6 md:p-9 lg:col-span-7"
               style={{ background: '#001B21', minHeight: 280 }}
             >
-              <p className="label-mono text-paper/40">⬢ Pradėk prenumeratą</p>
+              <h3 className="label-mono text-paper/40">⬢ Pradėk prenumeratą</h3>
               <div>
                 <h1
                   className="mt-4 heading-display text-d-lg text-paper tracking-[-0.015em]"
@@ -119,9 +119,9 @@ export default function Subscribe() {
               className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-paper/15 p-6 md:p-8 lg:col-span-5"
               style={{ background: plan.bg, minHeight: 280 }}
             >
-              <p className="label-mono" style={{ color: `${plan.textColor}60` }}>
+              <h3 className="label-mono" style={{ color: `${plan.textColor}60` }}>
                 Pasirinktas planas
-              </p>
+              </h3>
               <div>
                 <div
                   className="heading-display text-d-lg"
@@ -230,7 +230,7 @@ export default function Subscribe() {
                 className="brick-card p-10 lg:col-span-7"
                 style={{ background: '#F5F1EB' }}
               >
-                <p className="label-mono text-ink/50 mb-7">⬢ Mokėjimo duomenys</p>
+                <h3 className="label-mono text-ink/50 mb-7">⬢ Mokėjimo duomenys</h3>
 
                 <div className="flex flex-col gap-5">
                   {/* Email */}
@@ -315,7 +315,7 @@ export default function Subscribe() {
                   className="brick-card p-6 md:p-8"
                   style={{ background: plan.bg }}
                 >
-                  <p className="label-mono" style={{ color: `${plan.textColor}60` }}>Užsakymo suvestinė</p>
+                  <h3 className="label-mono" style={{ color: `${plan.textColor}60` }}>Užsakymo suvestinė</h3>
                   <div className="mt-5 flex flex-col gap-3 border-b border-dashed border-ink/30 pb-5">
                     <div className="flex justify-between text-[15px]" style={{ color: plan.textColor }}>
                       <span>{plan.name} planas ({billing === 'monthly' ? 'mėnesinis' : 'metinis'})</span>
@@ -348,7 +348,7 @@ export default function Subscribe() {
                   className="brick-card p-6 md:p-7"
                   style={{ background: '#F5F1EB' }}
                 >
-                  <p className="label-mono text-ink/50 mb-4">Ką gausite</p>
+                  <h3 className="label-mono text-ink/50 mb-4">Ką gausite</h3>
                   <ul className="flex flex-col gap-2">
                     {plan.perks.map((p) => (
                       <li key={p} className="flex items-center gap-2.5 text-[14px] text-ink">

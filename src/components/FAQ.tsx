@@ -60,7 +60,7 @@ export default function FAQ() {
           <div
             className="reveal brick-card bg-paper p-6 md:p-9 lg:col-span-7 lg:row-span-2"
           >
-            <p className="label-mono text-ink/50">⬢ D.U.K.</p>
+            <h3 className="label-mono text-ink/50">⬢ D.U.K.</h3>
             <h2 className="mt-3 heading-display text-d-lg text-ink">
               <span
                 className="inline-block border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"

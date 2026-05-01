@@ -66,7 +66,7 @@ export default function WhatsInside() {
           {/* Left — sticky headline */}
           <div className="lg:sticky lg:top-28 lg:self-start">
             <div className="reveal">
-            <p className="label-mono text-ink/50">⬢ Kas viduje</p>
+            <h3 className="label-mono text-ink/50">⬢ Kas viduje</h3>
             <h2
               className="heading-display text-d-xl tracking-[-0.015em] mt-4 text-ink"
             >

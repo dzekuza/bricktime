@@ -65,9 +65,9 @@ export default function BrickDrop() {
       <div className="mx-auto max-w-[1320px] px-7">
         {/* Headline */}
         <div className="mb-16 text-center">
-          <p className="label-mono text-paper/40">
+          <h3 className="label-mono text-paper/40">
             ⬢ Kaladėlė po kaladėlės
-          </p>
+          </h3>
           <h2
             className="mt-4 heading-display text-d-hero text-paper tracking-[-0.02em]"
             style={{ lineHeight: '.86' }}

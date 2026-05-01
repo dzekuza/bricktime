@@ -202,7 +202,7 @@ export default function Drop() {
               <div id="buy" className="mt-8 brick-card bg-ink p-6 md:p-7 text-paper">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="label-mono text-paper/60">⬢ Rent this product</p>
+                    <h3 className="label-mono text-paper/60">⬢ Rent this product</h3>
                     <div className="mt-1 flex items-baseline gap-2">
                       <span className="font-display text-[64px] leading-[.9]">
                         ${tiers[activeTier].price}
@@ -305,7 +305,7 @@ export default function Drop() {
 
             {/* Row 1: Header tile */}
             <div className="flex flex-col justify-center brick-card bg-paper p-6 md:p-8 lg:col-span-5">
-              <p className="label-mono text-ink/50">⬢ What's in the bag</p>
+              <h3 className="label-mono text-ink/50">⬢ What's in the bag</h3>
               <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.01em] mt-3 text-ink">
                 Four parts.<br />One mailbox row.
               </h2>
@@ -375,7 +375,7 @@ export default function Drop() {
 
             {/* Story text tile */}
             <div className="flex flex-col justify-center brick-card bg-paper p-10 lg:col-span-7">
-              <p className="label-mono text-ink/50">⬢ The story</p>
+              <h3 className="label-mono text-ink/50">⬢ The story</h3>
               <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.01em] mt-3 text-ink">
                 Otto has been<br />delivering mail<br />since product 14.
               </h2>
@@ -406,7 +406,7 @@ export default function Drop() {
 
             {/* Header tile */}
             <div className="flex flex-col justify-center brick-card bg-paper p-6 md:p-8 lg:col-span-5">
-              <p className="label-mono text-ink/50">⬢ Exclusive minifigs</p>
+              <h3 className="label-mono text-ink/50">⬢ Exclusive minifigs</h3>
               <h2 className="heading-display text-d-xl leading-[.9] tracking-[-0.01em] mt-3 text-ink">
                 Two new<br />residents.
               </h2>
@@ -452,7 +452,7 @@ export default function Drop() {
 
             {/* Kit list tile — full width second row */}
             <div className="brick-card bg-paper p-6 md:p-8 lg:col-span-12">
-              <p className="label-mono text-ink/50">⬢ Otto's kit</p>
+              <h3 className="label-mono text-ink/50">⬢ Otto's kit</h3>
               <h3 className="heading-display text-d-md leading-[.9] tracking-[-0.01em] mt-3 text-ink">
                 Mail satchel, folding bike, printed lanyard.
               </h3>
@@ -486,7 +486,7 @@ export default function Drop() {
               className="flex flex-col justify-center rounded-2xl md:rounded-3xl border-2 p-6 md:p-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] lg:col-span-5"
               style={{ borderColor: 'rgba(245,241,235,.2)', background: 'rgba(245,241,235,.05)' }}
             >
-              <p className="label-mono text-paper/50">⬢ Universe map</p>
+              <h3 className="label-mono text-paper/50">⬢ Universe map</h3>
               <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.01em] mt-3 text-paper">
                 Slots into three<br />existing products.
               </h2>
@@ -509,7 +509,7 @@ export default function Drop() {
                 className="flex flex-col gap-3.5 rounded-2xl md:rounded-3xl border-2 border-ink p-6 md:p-7 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_rgba(245,241,235,.15)] lg:col-span-4"
                 style={{ background: c.bg, color: '#001B21' }}
               >
-                <p className="label-mono text-ink/50">{c.drop}</p>
+                <h3 className="label-mono text-ink/50">{c.drop}</h3>
                 <h4 className="font-display text-[28px] leading-[.95] uppercase">{c.title}</h4>
                 <p className="text-[14px] leading-[1.5] text-ink/70">{c.desc}</p>
                 <div className="mt-auto h-[100px] rounded-xl border-2 border-dashed border-black/20 bg-black/5 grid place-items-center font-mono text-[10px] tracking-[.14em] uppercase text-black/40">
@@ -528,7 +528,7 @@ export default function Drop() {
 
             {/* Row 1: Header tile */}
             <div className="flex flex-col justify-center brick-card bg-ink p-6 md:p-8 lg:col-span-5">
-              <p className="label-mono text-paper/50">⬢ Early access</p>
+              <h3 className="label-mono text-paper/50">⬢ Early access</h3>
               <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.01em] mt-3 text-paper">
                 From the<br />preview build.
               </h2>
