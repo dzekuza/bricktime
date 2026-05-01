@@ -289,20 +289,6 @@ export default function Subscribe() {
                   </p>
                 )}
               </div>
-              <div className="mt-5 inline-flex items-center gap-1 self-start rounded-full border-2 border-ink bg-paper p-1">
-                {(['monthly', 'annual'] as const).map((v) => (
-                  <button
-                    key={v}
-                    onClick={() => setBilling(v)}
-                    className={[
-                      'rounded-full px-4 py-1.5 font-mono text-[11px] tracking-[.06em] uppercase transition-all',
-                      billing === v ? 'bg-ink text-paper' : 'text-ink/60 hover:text-ink',
-                    ].join(' ')}
-                  >
-                    {v === 'monthly' ? 'Mėnesinis' : 'Metinis −17%'}
-                  </button>
-                ))}
-              </div>
             </div>
 
           </div>
@@ -342,6 +328,18 @@ export default function Subscribe() {
                         ${billing === 'monthly' ? p.monthlyPrice : p.annualPrice}
                       </span>
                       <span className="font-mono text-[11px] tracking-[.06em] uppercase" style={{ color: `${p.textColor}70` }}>/mėn.</span>
+                    </div>
+                    <div className="mt-3 inline-flex items-center gap-0.5 rounded-full border-2 p-0.5" style={{ borderColor: `${p.textColor}30` }} onClick={(e) => e.stopPropagation()}>
+                      {(['monthly', 'annual'] as const).map((v) => (
+                        <button
+                          key={v}
+                          onClick={() => setBilling(v)}
+                          className="rounded-full px-3 py-1 font-mono text-[10px] tracking-[.06em] uppercase transition-all"
+                          style={billing === v ? { background: p.textColor, color: p.bg } : { color: `${p.textColor}70` }}
+                        >
+                          {v === 'monthly' ? 'Mėn.' : '−17%'}
+                        </button>
+                      ))}
                     </div>
                   </div>
                   <ul className="mt-5 flex flex-col gap-2">
