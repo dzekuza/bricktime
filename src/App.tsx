@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Home from '@/pages/Home'
 import Archive from '@/pages/Archive'
-import Plans from '@/pages/Plans'
 import Account from '@/pages/Account'
 import Subscribe from '@/pages/Subscribe'
 import Checkout from '@/pages/Checkout'
@@ -20,7 +19,6 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/archive" element={<Archive />} />
-        <Route path="/plans" element={<Plans />} />
         <Route path="/account" element={<Account />} />
         <Route path="/community" element={<Community />} />
         <Route path="/subscribe" element={<Subscribe />} />
