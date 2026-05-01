@@ -25,16 +25,17 @@ const socials = ['Instagram', 'TikTok', 'Discord']
 
 export default function Footer() {
   return (
-    <footer className="relative bg-ink pt-8 pb-48 md:pb-64 text-paper mt-0 overflow-hidden">
+    <footer className="relative bg-white pt-8 pb-48 md:pb-64 text-ink mt-0 overflow-hidden">
       <img src="/transitions/bottom-forest.png" alt="" aria-hidden="true" className="pointer-events-none absolute bottom-0 left-0 w-full" style={{ zIndex: 2 }} />
-      <div className="pointer-events-none absolute inset-0 w-full h-full" style={{ background: 'linear-gradient(to bottom, #001B21 0%, transparent 100%)', zIndex: 3 }} />
+      <div className="pointer-events-none absolute top-0 left-0 w-full h-40" style={{ background: 'linear-gradient(to bottom, #ffffff 0%, transparent 100%)', zIndex: 3 }} />
+      <div className="pointer-events-none absolute bottom-0 left-0 w-full h-48" style={{ background: 'linear-gradient(to top, #ffffff 0%, transparent 100%)', zIndex: 3 }} />
       <div className="relative z-10 mx-auto max-w-[1320px] px-4 md:px-7">
         {/* Grid */}
         <div className="grid grid-cols-2 gap-12 md:grid-cols-[2fr_1fr_1fr_1fr]">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <img src="/brickwhite.svg" alt="BRICKTIME" className="h-12 w-auto" />
-            <p className="mt-4 max-w-[32ch] text-[14px] leading-relaxed text-paper/75">
+            <img src="/bricktime.svg" alt="BRICKTIME" className="h-12 w-auto" />
+            <p className="mt-4 max-w-[32ch] text-[14px] leading-relaxed text-ink/60">
               Mėnesinė kaladėlių prenumerata suaugusiems, kurie niekada negalutinai nustojo statyti. Pagaminta Vilniuje, pristatoma visame pasaulyje.
             </p>
             <div className="mt-6 flex gap-2.5">
@@ -42,7 +43,7 @@ export default function Footer() {
                 <a
                   key={s}
                   href="#"
-                  className="rounded-full border-2 border-paper px-3.5 py-1.5 text-[13px] font-semibold text-paper transition-colors hover:bg-paper hover:text-ink"
+                  className="rounded-full border-2 border-ink px-3.5 py-1.5 text-[13px] font-semibold text-ink transition-colors hover:bg-ink hover:text-paper"
                 >
                   {s}
                 </a>
@@ -53,7 +54,7 @@ export default function Footer() {
           {/* Links */}
           {Object.entries(footerLinks).map(([section, links]) => (
             <div key={section}>
-              <h4 className="mb-4 label-mono text-paper/60">
+              <h4 className="mb-4 label-mono text-ink/40">
                 {section}
               </h4>
               <ul className="flex flex-col gap-2.5">
@@ -61,7 +62,7 @@ export default function Footer() {
                   <li key={link.label}>
                     <a
                       href={link.href}
-                      className="text-[15px] text-paper/80 transition-colors hover:text-brand-yellow"
+                      className="text-[15px] text-ink/70 transition-colors hover:text-ink"
                     >
                       {link.label}
                     </a>
@@ -72,9 +73,9 @@ export default function Footer() {
           ))}
         </div>
 
-        <Separator className="mt-16 mb-6 bg-paper/[.18]" />
+        <Separator className="mt-16 mb-6 bg-ink/[.18]" />
 
-        <div className="flex flex-wrap justify-between gap-4 font-mono text-[13px] text-paper/70">
+        <div className="flex flex-wrap justify-between gap-4 font-mono text-[13px] text-ink/50">
           <span>© 2026 BRICKTIME UAB</span>
           <span>BRICKTIME™ — originalus prekės ženklas · nesusijęs su jokiu žaislų gamintoju</span>
         </div>

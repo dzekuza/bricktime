@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { achievementDefs, calculatePoints } from '@/data/community'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
-import { Button } from '@/components/ui/button'
+import type { PlanTier } from '@/lib/database.types'
 
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
@@ -18,11 +18,11 @@ const avatarOptions = [
 ]
 
 const tierOptions = [
-  { name: 'Nano',     price: 9,  bg: '#F5F1EB', textColor: '#001B21', level: 1, key: 'nano' },
-  { name: 'Mini',     price: 14, bg: '#FFAEE7', textColor: '#001B21', level: 2, key: 'mini' },
-  { name: 'Standard', price: 24, bg: '#FFD731', textColor: '#001B21', level: 3, key: 'standard' },
-  { name: 'Pro',      price: 35, bg: '#4DA2FF', textColor: '#001B21', level: 4, key: 'pro' },
-  { name: 'Mega',     price: 55, bg: '#FB4903', textColor: '#F5F1EB', level: 5, key: 'mega' },
+  { name: 'Nano',     price: 9,  budget: 50,  productCount: 1,  bg: '#F5F1EB', textColor: '#001B21', level: 1, key: 'nano' as PlanTier },
+  { name: 'Mini',     price: 14, budget: 100, productCount: 4,  bg: '#FFAEE7', textColor: '#001B21', level: 2, key: 'mini' as PlanTier },
+  { name: 'Standard', price: 24, budget: 200, productCount: 7,  bg: '#FFD731', textColor: '#001B21', level: 3, key: 'standard' as PlanTier },
+  { name: 'Pro',      price: 35, budget: 400, productCount: 8,  bg: '#4DA2FF', textColor: '#001B21', level: 4, key: 'pro' as PlanTier },
+  { name: 'Mega',     price: 55, budget: 600, productCount: 9,  bg: '#FB4903', textColor: '#F5F1EB', level: 5, key: 'mega' as PlanTier },
 ]
 
 interface SubscriberData {
@@ -156,6 +156,14 @@ export default function Account() {
     await supabase.from('subscribers').update({ avatar_id: id, avatar_bg: avatarOptions[id].bg }).eq('id', user.id)
   }
 
+  async function handlePlanChange() {
+    if (!user) return
+    const newPlan = tierOptions[selectedTier].key
+    await supabase.from('subscribers').update({ plan: newPlan }).eq('id', user.id)
+    setSubscriber((prev) => prev ? { ...prev, plan: newPlan } : prev)
+    setShowUpgrade(false)
+  }
+
   if (!user) {
     return (
       <div className="min-h-screen bg-paper">
@@ -272,8 +280,8 @@ export default function Account() {
 
             {/* Upgrade plan picker */}
             {showUpgrade && (
-              <div className="brick-card p-3 md:p-8 lg:col-span-12" style={{ background: '#F5F1EB' }}>
-                <h3 className="label-mono text-ink/50 mb-5">⬢ Keisti planą</h3>
+              <div className="brick-card bg-paper p-3 md:p-8 lg:col-span-12">
+                <h3 className="text-[24px] font-semibold text-ink mb-5">Keisti planą</h3>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
                   {tierOptions.map((t, i) => (
                     <button
@@ -294,16 +302,24 @@ export default function Account() {
                         {t.name}
                       </div>
                       <div className="mt-1.5 font-mono text-[11px] tracking-[.06em] uppercase" style={{ color: selectedTier === i ? `${t.textColor}80` : '#001B2180' }}>
-                        ${t.price}/mėn.
+                        €{t.price}/mėn.
+                      </div>
+                      <div className="mt-3 pt-3 border-t border-black/10 flex flex-col gap-1">
+                        <div className="font-mono text-[10px]" style={{ color: selectedTier === i ? t.textColor : '#001B21' }}>
+                          €{t.budget} <span style={{ opacity: 0.5 }}>biudžetas</span>
+                        </div>
+                        <div className="font-mono text-[10px]" style={{ color: selectedTier === i ? t.textColor : '#001B21' }}>
+                          {t.productCount} <span style={{ opacity: 0.5 }}>produktai</span>
+                        </div>
                       </div>
                     </button>
                   ))}
                 </div>
                 <div className="mt-5 flex gap-3">
-                  <Button className="rounded-full border-2 border-ink bg-ink text-paper font-bold hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] transition-all">
+                  <button onClick={handlePlanChange} className="flex-1 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[14px] font-bold text-paper transition-[transform,box-shadow] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]">
                     Patvirtinti keitimą į {tierOptions[selectedTier].name} →
-                  </Button>
-                  <button onClick={() => setShowUpgrade(false)} className="rounded-full border-2 border-ink px-5 py-2.5 text-[14px] font-semibold text-ink transition-all hover:bg-ink/5">
+                  </button>
+                  <button onClick={() => setShowUpgrade(false)} className="rounded-full border-2 border-ink px-5 py-2.5 text-[14px] font-semibold text-ink transition-colors hover:bg-ink/5">
                     Atšaukti
                   </button>
                 </div>

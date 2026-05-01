@@ -14,7 +14,7 @@
 @custom-variant dark (&:is(.dark *));
 
 html, body, #root {
-  background-color: #F5F1EB;
+  background-color: #FFFFFF;
 }
 
 @theme inline {
@@ -76,11 +76,11 @@ html, body, #root {
 }
 
 :root {
-    --background: #F5F1EB;
+    --background: #FFFFFF;
     --foreground: #001B21;
-    --card: #F5F1EB;
+    --card: #FFFFFF;
     --card-foreground: #001B21;
-    --popover: #F5F1EB;
+    --popover: #FFFFFF;
     --popover-foreground: #001B21;
     --primary: #001B21;
     --primary-foreground: #F5F1EB;
@@ -95,7 +95,7 @@ html, body, #root {
     --input: oklch(0.922 0 0);
     --ring: #001B21;
     --radius: 1rem;
-    --sidebar: #F5F1EB;
+    --sidebar: #FFFFFF;
     --sidebar-foreground: #001B21;
     --sidebar-primary: #001B21;
     --sidebar-primary-foreground: #F5F1EB;

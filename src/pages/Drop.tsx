@@ -101,7 +101,7 @@ export default function Drop() {
 
       {/* ── Product Hero ── */}
       <section className="bg-paper py-4">
-        <div className="mx-auto max-w-[1320px] px-7">
+        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           {/* Breadcrumb */}
           <div className="mb-8 flex items-center gap-2.5 font-mono text-[11px] tracking-[.18em] uppercase text-ink/55">
             <Link to="/" className="hover:text-ink transition-colors">BRICKTIME</Link>
@@ -221,7 +221,7 @@ export default function Drop() {
               </div>
 
               {/* Rent box */}
-              <div id="buy" className="mt-8 brick-card bg-ink p-6 md:p-7 text-paper">
+              <div id="buy" className="mt-8 brick-card p-6 md:p-7" style={{ background: '#FB4903' }}>
                 {/* Required plan */}
                 <div className="mt-4 flex items-center gap-3">
                   <div
@@ -230,27 +230,27 @@ export default function Drop() {
                   >
                     {tiers[DROP_REQUIRED_TIER].name}+
                   </div>
-                  <span className="text-[14px] text-paper/60">reikalingas planas</span>
+                  <span className="text-[14px] text-ink/60">reikalingas planas</span>
                 </div>
 
-                <p className="mt-4 text-[14px] leading-[1.6] text-paper/60">
+                <p className="mt-4 text-[14px] leading-[1.6] text-ink/70">
                   Šis produktas įskaičiuotas į tavo prenumeratą — jokio papildomo mokesčio. Tiesiog nuomoki, sustatyk ir grąžink.
                 </p>
 
                 <Button
                   asChild
                   size="lg"
-                  className="mt-6 w-full justify-center rounded-full border-2 border-brand-yellow bg-brand-yellow text-ink text-[16px] font-bold hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.25)] transition-all"
+                  className="mt-6 w-full justify-center rounded-full border-2 border-ink bg-ink text-paper text-[16px] font-bold hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)] transition-all"
                 >
                   <Link to={`/checkout?product=${product?.id}`}>
                     Nuomoti nemokamai →
                   </Link>
                 </Button>
 
-                <div className="mt-5 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] tracking-[.16em] uppercase text-paper/50">
+                <div className="mt-5 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] tracking-[.16em] uppercase text-ink/60">
                   {['Nemokamas pristatymas', 'Atšauk bet kada', '30 d. garantija'].map((s) => (
                     <span key={s} className="flex items-center gap-1.5">
-                      <span className="size-2 rounded-full bg-brand-mint shadow-[0_0_0_2px_rgba(245,241,235,.5)]" />
+                      <span className="size-2 rounded-full bg-ink/40" />
                       {s}
                     </span>
                   ))}
@@ -272,7 +272,7 @@ export default function Drop() {
         const rest = bags.slice(0, bags.length - 1)
         return (
           <section className="bg-paper py-4">
-            <div className="mx-auto max-w-[1320px] px-7">
+            <div className="mx-auto max-w-[1320px] px-4 md:px-7">
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
                 <div className="flex flex-col justify-center brick-card bg-paper p-6 md:p-8 lg:col-span-5">
                   <h3 className="label-mono text-ink/50">⬢ What's in the bag</h3>
@@ -321,7 +321,7 @@ export default function Drop() {
       {/* ── Story ── */}
       {product?.story?.headline && (
         <section className="bg-paper py-4">
-          <div className="mx-auto max-w-[1320px] px-7">
+          <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
               <div
                 className="relative overflow-hidden brick-card lg:col-span-5 min-h-[480px]"
@@ -369,7 +369,7 @@ export default function Drop() {
       {/* ── Minifig ── */}
       {product?.minifig?.name && (
         <section className="bg-paper py-4">
-          <div className="mx-auto max-w-[1320px] px-7">
+          <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
               <div className="flex flex-col justify-center brick-card bg-paper p-6 md:p-8 lg:col-span-5">
                 <h3 className="label-mono text-ink/50">⬢ Exclusive minifig</h3>
@@ -437,7 +437,7 @@ export default function Drop() {
       {/* ── Compatibility ── */}
       {product?.compatibility && product.compatibility.length > 0 && (
         <section className="bg-paper py-4">
-          <div className="mx-auto max-w-[1320px] px-7">
+          <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
               <div className="flex flex-col justify-center brick-card bg-paper p-6 md:p-8 lg:col-span-5">
                 <h3 className="label-mono text-ink/50">⬢ Universe map</h3>
@@ -468,7 +468,7 @@ export default function Drop() {
 
       {/* ── Reviews ── */}
       <section className="bg-paper py-4">
-        <div className="mx-auto max-w-[1320px] px-7">
+        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             {/* Row 1: Header tile */}
@@ -490,27 +490,35 @@ export default function Drop() {
               <small className="mt-2 font-mono text-[12px] tracking-[.16em] uppercase text-ink/70">Based on 86 Mega-tier preview reviews</small>
             </div>
 
-            {/* Row 2+: 4 review cards, 2 per row */}
-            {reviews.map((r, i) => (
-              <Card
-                key={i}
-                className="flex flex-col gap-3.5 brick-card brick-card-hover bg-paper p-3 md:p-6 lg:col-span-6"
+            {/* Row 2+: review cards — carousel on mobile, 2-col grid on desktop */}
+            {/* bleed wrapper — escapes the grid cell horizontally on mobile */}
+            <div className="lg:col-span-12 -mx-4 md:-mx-7 lg:mx-0">
+              <div
+                className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 px-4 md:px-7 lg:px-0 lg:overflow-visible lg:snap-none lg:pb-0 lg:grid lg:grid-cols-2"
+                style={{ scrollbarWidth: 'none' }}
               >
-                <CardContent className="flex flex-col gap-3.5 p-0">
-                  <div className="flex gap-0.5" style={{ color: '#FB4903' }}>{Array.from({ length: r.stars }).map((_, i) => <StarIcon key={i} className="size-4 fill-current" />)}</div>
-                  <p className="font-display text-[22px] leading-[1.05] tracking-[.005em] uppercase">{r.quote}</p>
-                  <div className="mt-auto flex items-center gap-2.5 border-t border-dashed border-ink/18 pt-3">
-                    <Avatar className="size-9 border-2 border-ink">
-                      <AvatarFallback style={{ background: r.avatarColor }} className="text-[12px] font-bold text-ink">{r.initials}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <b className="text-[14px]">{r.name}</b>
-                      <small className="mt-0.5 block font-mono text-[10px] tracking-[.14em] uppercase text-ink/55">{r.meta}</small>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                {reviews.map((r, i) => (
+                  <Card
+                    key={i}
+                    className="flex flex-col gap-3.5 brick-card brick-card-hover bg-paper p-4 md:p-6 snap-start flex-none w-[80vw] sm:w-[60vw] lg:w-auto"
+                  >
+                    <CardContent className="flex flex-col gap-3.5 p-0 h-full">
+                      <div className="flex gap-0.5" style={{ color: '#FB4903' }}>{Array.from({ length: r.stars }).map((_, j) => <StarIcon key={j} className="size-4 fill-current" />)}</div>
+                      <p className="font-display text-[20px] leading-[1.05] tracking-[.005em] uppercase">{r.quote}</p>
+                      <div className="mt-auto flex items-center gap-2.5 border-t border-dashed border-ink/18 pt-3">
+                        <Avatar className="size-9 border-2 border-ink">
+                          <AvatarFallback style={{ background: r.avatarColor }} className="text-[12px] font-bold text-ink">{r.initials}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <b className="text-[14px]">{r.name}</b>
+                          <small className="mt-0.5 block font-mono text-[10px] tracking-[.14em] uppercase text-ink/55">{r.meta}</small>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* FAQ */}

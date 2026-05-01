@@ -30,6 +30,7 @@ interface LiveFeedItem {
   user_name: string
   avatar_id: number
   avatar_bg: string
+  plan: string | null
   parent_id: string | null
   likedByCurrentUser?: boolean
   replies?: LiveFeedItem[]
@@ -124,11 +125,21 @@ function FeedCard({ item, onLike, onComment, isOwn, onDelete }: { item: LiveFeed
             </div>
           </Link>
           <div className="flex-1 min-w-0">
-            <p className="text-[14px] font-bold text-ink leading-tight">
-              <Link to={`/profile/${item.subscriber_id}`} className="hover:underline underline-offset-2">
-                {eventLabel(item.type, item.user_name, null, item.body)}
-              </Link>
-            </p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-[14px] font-bold text-ink leading-tight">
+                <Link to={`/profile/${item.subscriber_id}`} className="hover:underline underline-offset-2">
+                  {eventLabel(item.type, item.user_name, null, item.body)}
+                </Link>
+              </p>
+              {item.plan && (
+                <span
+                  className="shrink-0 rounded-full border border-ink/20 px-2 py-0.5 font-mono text-[9px] tracking-[.1em] uppercase font-bold"
+                  style={{ background: tierColors[item.plan.charAt(0).toUpperCase() + item.plan.slice(1)] ?? '#F5F1EB', color: item.plan === 'mega' ? '#F5F1EB' : '#001B21' }}
+                >
+                  {item.plan}
+                </span>
+              )}
+            </div>
             <p className="font-mono text-[11px] text-ink/40 mt-0.5">{getRelativeTime(item.created_at)}</p>
           </div>
         </div>
