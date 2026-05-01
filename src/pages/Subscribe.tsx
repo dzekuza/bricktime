@@ -514,7 +514,8 @@ export default function Subscribe() {
       <section className="bg-paper py-20">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div ref={faqRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-            <div className="reveal flex flex-col justify-between brick-card p-6 md:p-9 lg:col-span-4 min-h-[280px]" style={{ background: '#5C4ADE' }}>
+            <div className="reveal relative flex flex-col justify-between brick-card p-6 md:p-9 lg:col-span-4 min-h-[280px]" style={{ background: '#5C4ADE' }}>
+              <img src="/br.svg" alt="" className="absolute bottom-6 right-6 w-10 opacity-30 select-none pointer-events-none" />
 <div>
                 <h2 className="heading-display text-d-md tracking-[-0.015em] text-paper">Tai, ko<br />žmonės<br />klausia.</h2>
                 <p className="mt-5 text-[14px] leading-[1.65] text-paper/65">
