@@ -369,7 +369,7 @@ export default function Drop() {
                 backgroundSize: '48px 48px',
               }}
             >
-              <div className="absolute inset-10 grid place-items-center rounded-2xl md:rounded-3xl border-2 border-dashed border-paper/35 text-center font-mono text-[11px] tracking-[.18em] uppercase text-paper/55">
+              <div className="absolute inset-10 grid place-items-center rounded-xl border-2 border-dashed border-paper/35 text-center font-mono text-[11px] tracking-[.18em] uppercase text-paper/55">
                 Editorial photo<br />Otto sketch + photo of finished build on a desk
               </div>
             </div>
