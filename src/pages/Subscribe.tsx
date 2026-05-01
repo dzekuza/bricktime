@@ -320,7 +320,7 @@ export default function Subscribe() {
                   key={p.name}
                   onClick={() => setSelectedPlan(i)}
                   className={[
-                    'relative flex flex-col justify-between shrink-0 w-[72vw] snap-center lg:w-auto lg:flex-1 rounded-2xl md:rounded-3xl border-2 p-6 md:p-7 text-left transition-all duration-200 hover:-translate-y-3 hover:z-10',
+                    'relative flex flex-col justify-between shrink-0 w-[56vw] snap-center lg:w-auto lg:flex-1 rounded-2xl md:rounded-3xl border-2 p-6 md:p-7 text-left transition-all duration-200 hover:-translate-y-3 hover:z-10',
                     selectedPlan === i
                       ? 'border-ink shadow-[6px_6px_0_#001B21] -translate-y-3 z-10'
                       : 'border-ink/40 hover:border-ink hover:shadow-[4px_4px_0_#001B21]',
