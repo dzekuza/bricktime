@@ -101,9 +101,7 @@ const THUMB_BG = ['#5C4ADE', '#5DDB9C', '#FFAEE7', '#FFD731']
 export default function Drop() {
   const { id } = useParams<{ id: string }>()
   const [product, setProduct] = useState<DbProduct | null>(null)
-  const [activeTier, setActiveTier] = useState(1)
   const [activeThumb, setActiveThumb] = useState(0)
-  const countdown = useCountdown(12)
 
   useEffect(() => {
     if (!id) return
@@ -259,88 +257,35 @@ export default function Drop() {
 
               {/* Rent box */}
               <div id="buy" className="mt-8 brick-card bg-ink p-6 md:p-7 text-paper">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="label-mono text-paper/60">⬢ Rent this product</h3>
-                    <div className="mt-1 flex items-baseline gap-2">
-                      <span className="font-display text-[64px] leading-[.9]">
-                        ${tiers[activeTier].price}
-                      </span>
-                      <span className="font-mono text-[12px] tracking-[.06em] uppercase text-paper/50">/mo</span>
-                    </div>
-                    <small className="mt-1 block text-[13px] text-paper/60">
-                      {activeTier < DROP_REQUIRED_TIER
-                        ? `Upgrade to ${tiers[DROP_REQUIRED_TIER].name}+ to unlock`
-                        : `Product №${product?.id} included in your monthly box`}
-                    </small>
+                <h3 className="label-mono text-paper/60">⬢ Rent this product</h3>
+
+                {/* Required plan */}
+                <div className="mt-4 flex items-center gap-3">
+                  <div
+                    className="rounded-full border-2 border-ink px-4 py-2 font-display text-[18px] leading-none"
+                    style={{ background: tiers[DROP_REQUIRED_TIER].bg, color: tiers[DROP_REQUIRED_TIER].textColor }}
+                  >
+                    {tiers[DROP_REQUIRED_TIER].name}+
                   </div>
-                  <div className="flex gap-2 shrink-0">
-                    <CountBox value={countdown.days} label="days" />
-                    <CountBox value={countdown.hrs} label="hrs" />
-                    <CountBox value={countdown.min} label="min" />
-                  </div>
+                  <span className="text-[14px] text-paper/60">reikalingas planas</span>
                 </div>
 
-                {/* Tier picker — all 5 tiers, locked below required */}
-                <div className="mt-5 grid grid-cols-5 gap-1.5">
-                  {tiers.map((t, i) => {
-                    const locked = i < DROP_REQUIRED_TIER
-                    const active = activeTier === i
-                    return (
-                      <button
-                        key={t.name}
-                        onClick={() => setActiveTier(i)}
-                        disabled={false}
-                        className={[
-                          'relative rounded-2xl border-2 p-3 text-left transition-all',
-                          active ? 'border-brand-yellow scale-[1.03] shadow-[4px_4px_0_rgba(245,241,235,.2)]' : 'border-paper/30 hover:border-paper/70',
-                          locked ? 'opacity-40' : '',
-                        ].join(' ')}
-                        style={{ background: active ? t.bg : 'transparent' }}
-                      >
-                        {locked && (
-                          <span className="absolute right-2 top-2 text-[9px] opacity-60">🔒</span>
-                        )}
-                        <b
-                          className="font-display block text-[16px] leading-none"
-                          style={{ color: active ? t.textColor : '#F5F1EB' }}
-                        >
-                          {t.name}
-                        </b>
-                        <small
-                          className="mt-1 block font-mono text-[9px] tracking-[.1em] uppercase"
-                          style={{ color: active ? `${t.textColor}90` : 'rgba(245,241,235,.45)' }}
-                        >
-                          ${t.price}/mo
-                        </small>
-                      </button>
-                    )
-                  })}
-                </div>
+                <p className="mt-4 text-[14px] leading-[1.6] text-paper/60">
+                  Šis produktas įskaičiuotas į tavo prenumeratą — jokio papildomo mokesčio. Tiesiog nuomoki, sustatyk ir grąžink.
+                </p>
 
                 <Button
                   asChild
                   size="lg"
-                  className={[
-                    'mt-5 w-full justify-center rounded-full border-2 text-[16px] font-bold transition-all',
-                    activeTier >= DROP_REQUIRED_TIER
-                      ? 'border-brand-yellow bg-brand-yellow text-ink hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.25)]'
-                      : 'border-paper/40 bg-paper/10 text-paper/60 cursor-not-allowed',
-                  ].join(' ')}
+                  className="mt-6 w-full justify-center rounded-full border-2 border-brand-yellow bg-brand-yellow text-ink text-[16px] font-bold hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.25)] transition-all"
                 >
-                  {activeTier >= DROP_REQUIRED_TIER ? (
-                    <Link to={`/checkout?drop=26&tier=${tiers[activeTier].name.toLowerCase()}`}>
-                      Rent with {tiers[activeTier].name} →
-                    </Link>
-                  ) : (
-                    <Link to={`/subscribe?plan=${tiers[DROP_REQUIRED_TIER].name.toLowerCase()}`}>
-                      🔒 Requires {tiers[DROP_REQUIRED_TIER].name}+
-                    </Link>
-                  )}
+                  <Link to={`/checkout?product=${product?.id}`}>
+                    Nuomoti nemokamai →
+                  </Link>
                 </Button>
 
-                <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] tracking-[.16em] uppercase text-paper/70">
-                  {['Free shipping worldwide', 'Skip any month', 'Cancel any time'].map((s) => (
+                <div className="mt-5 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] tracking-[.16em] uppercase text-paper/50">
+                  {['Nemokamas pristatymas', 'Atšauk bet kada', '30 d. garantija'].map((s) => (
                     <span key={s} className="flex items-center gap-1.5">
                       <span className="size-2 rounded-full bg-brand-mint shadow-[0_0_0_2px_rgba(245,241,235,.5)]" />
                       {s}
