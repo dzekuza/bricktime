@@ -132,8 +132,8 @@ const comparisonRows = [
   { feature: 'Vinilo lipdukai',                 nano: '4',            mini: '8',            standard: '16',         pro: '20',           mega: '24' },
   { feature: 'Pristatymas',                     nano: 'Standartinis', mini: 'Standartinis', standard: 'Skubus',     pro: 'Skubus',       mega: 'Skubus' },
   { feature: 'Keitimų klubo prieiga',           nano: '—',            mini: '—',            standard: '✓',          pro: '✓',            mega: '✓' },
-  { feature: 'Ankstyva prieiga prie produktų',  nano: '—',            mini: '—',            standard: '—',          pro: '✓',            mega: '✓' },
-  { feature: 'Metinė staigmenos dėžutė',        nano: '—',            mini: '—',            standard: '—',          pro: '—',            mega: '✓' },
+  { feature: 'Ankstyva prieiga',                nano: '—',            mini: '—',            standard: '—',          pro: '✓',            mega: '✓' },
+  { feature: 'Staigmenos dėžutė',              nano: '—',            mini: '—',            standard: '—',          pro: '—',            mega: '✓' },
 ]
 
 const trustTiles = [
@@ -461,7 +461,7 @@ export default function Subscribe() {
               <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink">Viskas, greta.</h2>
             </div>
             <div className="reveal brick-card overflow-x-auto lg:col-span-12" style={{ background: '#F5F1EB' }}>
-              <div className="min-w-[720px]">
+              <div className="min-w-[800px]">
                 <div className="grid border-b-2 border-ink" style={{ gridTemplateColumns: '2fr 1fr 1fr 1.4fr 1fr 1fr' }}>
                   <div className="p-3 md:p-5 font-mono text-[11px] tracking-[.18em] uppercase text-ink/40">Savybė</div>
                   {plans.map((p) => (
@@ -473,7 +473,7 @@ export default function Subscribe() {
                 </div>
                 {comparisonRows.map((row) => (
                   <div key={row.feature} className="grid border-b-2 border-dashed border-ink/20 last:border-b-0 hover:bg-ink/[.03] transition-colors" style={{ gridTemplateColumns: '2fr 1fr 1fr 1.4fr 1fr 1fr' }}>
-                    <div className="p-4 text-[13px] font-semibold text-ink/70">{row.feature}</div>
+                    <div className="p-4 text-[13px] font-semibold text-ink/70 whitespace-nowrap">{row.feature}</div>
                     {[row.nano, row.mini, row.standard, row.pro, row.mega].map((val, j) => (
                       <div key={j} className="flex items-center border-l-2 border-dashed border-ink/20 p-4 text-[13px] text-ink">
                         {val === '—' ? <span className="text-ink/25">—</span>
