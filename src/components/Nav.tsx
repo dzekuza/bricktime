@@ -251,7 +251,7 @@ export default function Nav() {
   return (
     <>
       <nav className={['sticky top-0 z-50 pt-3 px-3 transition-colors duration-300', scrolled ? 'bg-paper' : 'bg-transparent'].join(' ')}>
-        <div className={['mx-auto flex h-[84px] max-w-[1320px] items-center justify-between px-7 md:grid md:grid-cols-3 border-2 border-ink rounded-2xl bg-paper transition-shadow duration-300', scrolled ? 'shadow-[6px_6px_0_#001B21]' : 'shadow-none'].join(' ')}>
+        <div className={['mx-auto flex h-[84px] max-w-[1320px] items-center justify-between px-7 md:grid md:grid-cols-3 border-2 border-ink rounded-2xl transition-all duration-300', scrolled ? 'bg-paper shadow-[6px_6px_0_#001B21]' : 'bg-transparent shadow-none'].join(' ')}>
 
           {/* Left — desktop nav links */}
           <div className="hidden items-center gap-7 md:flex">
