@@ -60,7 +60,6 @@ const reviews = [
 ]
 
 // Drop 26 requires Standard tier or above
-const DROP_REQUIRED_TIER = 2 // index into tiers[]
 
 const tiers = [
   { name: 'Nano',     price: 9,  annualPrice: 7,  spec: '60–90 bricks',    bg: '#F5F1EB', textColor: '#001B21' },
@@ -101,7 +100,7 @@ export default function Drop() {
     supabase
       .from('products')
       .select('id, title, subtitle, description, bricks, minifigs, build_time, image_url, gallery, tier, faq')
-      .eq('id', id)
+      .eq('id', Number(id))
       .single()
       .then(({ data }) => { if (data) setProduct(data as unknown as DbProduct) })
   }, [id])
