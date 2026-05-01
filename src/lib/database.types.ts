@@ -179,9 +179,11 @@ export type Database = {
           brick_colors: string[]
           brick_heights: number[]
           bricks: number
+          build_time: string | null
           category: string
           created_at: string
           description: string | null
+          faq: { q: string; a: string }[] | null
           featured: boolean
           gallery: string[]
           id: number
@@ -202,9 +204,11 @@ export type Database = {
           brick_colors?: string[]
           brick_heights?: number[]
           bricks: number
+          build_time?: string | null
           category: string
           created_at?: string
           description?: string | null
+          faq?: { q: string; a: string }[] | null
           featured?: boolean
           gallery?: string[]
           id: number
@@ -229,6 +233,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           featured?: boolean
+          build_time?: string | null
+          faq?: { q: string; a: string }[] | null
           gallery?: string[]
           id?: number
           image_url?: string | null

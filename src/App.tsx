@@ -6,6 +6,7 @@ import Account from '@/pages/Account'
 import Subscribe from '@/pages/Subscribe'
 import Checkout from '@/pages/Checkout'
 import Community from '@/pages/Community'
+import Drop from '@/pages/Drop'
 import UserProfile from '@/pages/UserProfile'
 import LoadingScreen from '@/components/LoadingScreen'
 
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/community" element={<Community />} />
         <Route path="/subscribe" element={<Subscribe />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/drop/:id" element={<Drop />} />
         <Route path="/profile/:userId" element={<UserProfile />} />
       </Routes>
     </>

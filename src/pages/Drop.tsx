@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
+import { supabase } from '@/lib/supabase'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { Badge } from '@/components/ui/badge'
@@ -69,19 +70,57 @@ const tiers = [
   { name: 'Mega',     price: 55, annualPrice: 44, spec: '420–520 bricks',  bg: '#FB4903', textColor: '#F5F1EB' },
 ]
 
-const thumbs = [
-  { label: '[ Front ]',        bg: '#5C4ADE', color: 'rgba(245,241,235,.55)', image: '/images/build-castle.jpg' },
-  { label: '[ Detail ]',       bg: '#5DDB9C', color: 'rgba(0,0,0,.4)',        image: '/images/build-cactus.jpg' },
-  { label: '[ Build spread ]', bg: '#FFAEE7', color: 'rgba(0,0,0,.4)',        image: '/images/build-sailboat.jpg' },
-  { label: '[ Scale view ]',   bg: '#FFD731', color: 'rgba(0,0,0,.4)',        image: '/images/build-spaceship.jpg' },
-]
+type FaqItem = { q: string; a: string }
 
+type DbProduct = {
+  id: number
+  title: string
+  subtitle: string
+  description: string | null
+  bricks: number
+  minifigs: string
+  build_time: string | null
+  image_url: string | null
+  gallery: string[]
+  tier: string
+  faq: FaqItem[] | null
+}
+
+const THUMB_BG = ['#5C4ADE', '#5DDB9C', '#FFAEE7', '#FFD731']
 
 // ── page ───────────────────────────────────────────────────────────────────
 export default function Drop() {
+  const { id } = useParams<{ id: string }>()
+  const [product, setProduct] = useState<DbProduct | null>(null)
   const [activeTier, setActiveTier] = useState(1)
   const [activeThumb, setActiveThumb] = useState(0)
   const countdown = useCountdown(12)
+
+  useEffect(() => {
+    if (!id) return
+    supabase
+      .from('products')
+      .select('id, title, subtitle, description, bricks, minifigs, build_time, image_url, gallery, tier, faq')
+      .eq('id', id)
+      .single()
+      .then(({ data }) => { if (data) setProduct(data as unknown as DbProduct) })
+  }, [id])
+
+  const dropRequiredTierIdx = tiers.findIndex((t) => t.name.toLowerCase() === (product?.tier ?? 'standard'))
+  const DROP_REQUIRED_TIER = dropRequiredTierIdx === -1 ? 2 : dropRequiredTierIdx
+
+  const galleryImages: string[] = product
+    ? [product.image_url, ...(product.gallery ?? [])].filter(Boolean) as string[]
+    : []
+
+  const thumbs = galleryImages.length > 0
+    ? galleryImages.map((image, i) => ({ label: `[ View ${i + 1} ]`, bg: THUMB_BG[i % THUMB_BG.length], image }))
+    : [
+        { label: '[ Front ]',        bg: '#5C4ADE', image: '/images/build-castle.jpg' },
+        { label: '[ Detail ]',       bg: '#5DDB9C', image: '/images/build-cactus.jpg' },
+        { label: '[ Build spread ]', bg: '#FFAEE7', image: '/images/build-sailboat.jpg' },
+        { label: '[ Scale view ]',   bg: '#FFD731', image: '/images/build-spaceship.jpg' },
+      ]
 
   return (
     <>
@@ -176,20 +215,25 @@ export default function Drop() {
               </div>
 
               <h1 className="heading-display text-d-lg tracking-[-0.01em] mt-3.5 text-ink">
-                Mailbox Row<br />+{' '}
+                {product?.title ?? 'Mailbox Row'}<br />+{' '}
                 <span className="inline-block italic text-brand-indigo" style={{ transform: 'skew(-8deg)' }}>
-                  Postman
-                </span>{' '}Otto.
+                  {product?.subtitle ?? 'Postman Otto'}
+                </span>
               </h1>
 
               <p className="mt-6 max-w-[48ch] text-[18px] leading-[1.62] text-ink/80">
-                A five-storey postwar apartment block in mint and cream, complete with a working mailbox door, three planted balconies, and the universe's first scheduled crossover — Otto's bus is the bus from product №14.
+                {product?.description ?? 'A five-storey postwar apartment block in mint and cream, complete with a working mailbox door, three planted balconies, and the universe\'s first scheduled crossover — Otto\'s bus is the bus from product №14.'}
               </p>
 
               {/* Spec grid */}
               <div className="mt-8 overflow-hidden rounded-2xl md:rounded-3xl border-2 border-ink">
                 <div className="grid grid-cols-2 sm:grid-cols-4">
-                  {[['312', 'Bricks'], ['2', 'Minifigs'], ['18', 'Stickers'], ['4–6h', 'Build time']].map(([val, label], i) => (
+                  {[
+                    [String(product?.bricks ?? 312), 'Bricks'],
+                    [product?.minifigs ?? '2', 'Minifigs'],
+                    [product?.build_time ?? '4–6h', 'Build time'],
+                    [product?.tier ? (product.tier.charAt(0).toUpperCase() + product.tier.slice(1)) : 'Standard', 'Min. plan'],
+                  ].map(([val, label], i) => (
                     <div key={i} className={`flex flex-col gap-1 bg-paper p-4 ${i < 3 ? 'border-r-0 sm:border-r-[1.5px] border-ink' : ''} ${i % 2 === 0 ? 'border-b-[1.5px] sm:border-b-0 border-ink' : ''}`} style={{ borderStyle: 'solid', borderColor: '#001B21' }}>
                       <b className="font-display text-[36px] leading-none">{val}</b>
                       <small className="font-mono text-[10px] tracking-[.16em] uppercase text-ink/55">{label}</small>
@@ -567,6 +611,24 @@ export default function Drop() {
               </Card>
             ))}
           </div>
+
+          {/* FAQ */}
+          {(product?.faq ?? []).length > 0 && (
+            <div className="mt-4">
+              <div className="brick-card bg-ink p-6 md:p-8 mb-4">
+                <h3 className="label-mono text-paper/50">⬢ Common questions</h3>
+                <h2 className="heading-display text-d-md leading-[.9] tracking-[-0.01em] mt-3 text-paper">FAQ</h2>
+              </div>
+              <div className="flex flex-col gap-3">
+                {(product?.faq ?? []).map((item, i) => (
+                  <div key={i} className="brick-card bg-paper p-6 md:p-7">
+                    <h4 className="font-display text-[22px] leading-[1] uppercase text-ink">{item.q}</h4>
+                    <p className="mt-3 text-[16px] leading-[1.65] text-ink/75">{item.a}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Prev / Next */}
           <div className="mt-4 overflow-hidden rounded-2xl md:rounded-3xl border-2 border-ink">
