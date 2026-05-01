@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import gsap from 'gsap'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -123,6 +123,14 @@ function onCardLeave(e: React.MouseEvent<HTMLDivElement>) {
 export default function Plans() {
   const ref = useReveal<HTMLDivElement>()
   const spanRef = useRef<HTMLSpanElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    return () => {
+      if (!containerRef.current) return
+      gsap.killTweensOf(containerRef.current.querySelectorAll('*'))
+    }
+  }, [])
 
   function onSpanEnter() {
     gsap.killTweensOf(spanRef.current)
@@ -134,7 +142,7 @@ export default function Plans() {
   }
 
   return (
-    <section id="plans" className="relative bg-paper pt-28 pb-10 md:pt-64 md:pb-20">
+    <section id="plans" ref={containerRef} className="relative bg-paper pt-28 pb-10 md:pt-64 md:pb-20">
       <img src="/transitions/top-lego.png" alt="" aria-hidden="true" className="pointer-events-none absolute top-0 left-0 w-full" style={{ zIndex: 2 }} />
       <div className="relative z-10 mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">

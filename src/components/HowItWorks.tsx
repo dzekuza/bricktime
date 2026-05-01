@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react'
 import gsap from 'gsap'
 import { useReveal } from '@/hooks/useReveal'
 
@@ -60,9 +61,17 @@ function Brick({ color }: { color: string }) {
 
 export default function HowItWorks() {
   const ref = useReveal<HTMLDivElement>()
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    return () => {
+      if (!containerRef.current) return
+      gsap.killTweensOf(containerRef.current.querySelectorAll('*'))
+    }
+  }, [])
 
   return (
-    <section className="bg-paper py-10 md:py-20">
+    <section ref={containerRef} className="bg-paper py-10 md:py-20">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 

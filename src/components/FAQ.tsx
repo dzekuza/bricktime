@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import gsap from 'gsap'
 import {
   Accordion,
@@ -41,6 +41,14 @@ const stats = [
 export default function FAQ() {
   const ref = useReveal<HTMLDivElement>()
   const zeroRiskRef = useRef<HTMLSpanElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    return () => {
+      if (!containerRef.current) return
+      gsap.killTweensOf(containerRef.current.querySelectorAll('*'))
+    }
+  }, [])
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -56,7 +64,7 @@ export default function FAQ() {
   }
 
   return (
-    <section id="faq" className="bg-paper py-10 md:py-20">
+    <section id="faq" ref={containerRef} className="bg-paper py-10 md:py-20">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 

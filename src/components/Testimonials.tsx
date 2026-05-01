@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react'
 import gsap from 'gsap'
 import { StarIcon } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -54,9 +55,17 @@ function onCardLeave(e: React.MouseEvent<HTMLDivElement>) {
 
 export default function Testimonials() {
   const ref = useReveal<HTMLDivElement>()
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    return () => {
+      if (!containerRef.current) return
+      gsap.killTweensOf(containerRef.current.querySelectorAll('*'))
+    }
+  }, [])
 
   return (
-    <section className="bg-paper py-10 md:py-20">
+    <section ref={containerRef} className="bg-paper py-10 md:py-20">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
