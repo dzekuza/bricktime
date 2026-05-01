@@ -256,8 +256,6 @@ export default function Drop() {
 
               {/* Rent box */}
               <div id="buy" className="mt-8 brick-card bg-ink p-6 md:p-7 text-paper">
-                <h3 className="label-mono text-paper/60">⬢ Rent this product</h3>
-
                 {/* Required plan */}
                 <div className="mt-4 flex items-center gap-3">
                   <div
