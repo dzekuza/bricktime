@@ -7,10 +7,11 @@ import Account from '@/pages/Account'
 import Subscribe from '@/pages/Subscribe'
 import Checkout from '@/pages/Checkout'
 import Community from '@/pages/Community'
+import UserProfile from '@/pages/UserProfile'
 import LoadingScreen from '@/components/LoadingScreen'
 
 export default function App() {
-  const [loaded, setLoaded] = useState(false)
+  const [loaded, setLoaded] = useState(() => window.location.pathname !== '/')
   const handleDone = useCallback(() => setLoaded(true), [])
 
   return (
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/community" element={<Community />} />
         <Route path="/subscribe" element={<Subscribe />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/profile/:userId" element={<UserProfile />} />
       </Routes>
     </>
   )

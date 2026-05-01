@@ -9,7 +9,10 @@ export default function BigCTA() {
   const tileRef = useRef<HTMLDivElement>(null)
   const spanRef = useRef<HTMLSpanElement>(null)
 
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
   function onEnter() {
+    if (reduced) return
     gsap.killTweensOf(spanRef.current)
     gsap.to(spanRef.current, {
       rotate: 4,
@@ -21,6 +24,7 @@ export default function BigCTA() {
   }
 
   function onLeave() {
+    if (reduced) return
     gsap.killTweensOf(spanRef.current)
     gsap.to(spanRef.current, {
       rotate: -2,
@@ -44,23 +48,25 @@ export default function BigCTA() {
             onMouseEnter={onEnter}
             onMouseLeave={onLeave}
           >
-            <h3 className="label-mono tracking-[.24em] text-paper/70">⬢ Paskutinė galimybė</h3>
+            <h3 className="label-mono tracking-[.24em] text-paper/70">⬢ Katalogas</h3>
             <div>
               <h2 className="heading-display text-d-hero text-paper tracking-[-0.015em] leading-[.86]">
-                Produktas № 26
+                Šimtai
                 <br />
-                išsiunčiamas po{' '}
+                produktų.{' '}
                 <span
                   ref={spanRef}
                   className="inline-block border-[3px] border-ink bg-brand-yellow px-[.15em] text-ink"
                   style={{ transform: 'rotate(-2deg)', transformOrigin: 'center' }}
                 >
-                  12 dienų
+                  Vienas
                 </span>
+                <br />
+                biudžetas.
               </h2>
             </div>
             <p className="mt-4 max-w-[44ch] text-[16px] leading-[1.65] text-paper/80">
-              Prenumeruok iki gegužės 1 d. ir gauk kitą produktą. Po to — laukiamajame sąraše.
+              Pasirink planą ir naršyk katalogą jau šiandien. Grąžink bet kada — be papildomų mokesčių.
             </p>
           </div>
 
@@ -96,7 +102,7 @@ export default function BigCTA() {
               <Button
                 asChild
                 size="lg"
-                className="w-full rounded-full border-2 border-paper/30 bg-brand-yellow text-ink font-bold text-[16px] hover:bg-brand-yellow hover:text-ink hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.2)] transition-all"
+                className="w-full rounded-full border-2 border-paper/30 bg-brand-yellow text-ink font-bold text-[16px] hover:bg-brand-yellow hover:text-ink hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.2)] active:scale-[0.97] active:translate-x-0 active:translate-y-0 active:shadow-none transition-[transform,box-shadow] duration-150 ease-out"
               >
                 <a href="#plans">Pradėti prenumeratą <ArrowRightIcon data-icon="inline-end" /></a>
               </Button>
@@ -104,7 +110,7 @@ export default function BigCTA() {
                 asChild
                 variant="outline"
                 size="lg"
-                className="w-full rounded-full border-2 border-paper/30 bg-transparent text-paper text-[15px] font-semibold hover:bg-transparent hover:text-paper hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all"
+                className="w-full rounded-full border-2 border-paper/30 bg-transparent text-paper text-[15px] font-semibold hover:bg-transparent hover:text-paper hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.15)] active:scale-[0.97] active:translate-x-0 active:translate-y-0 active:shadow-none transition-[transform,box-shadow] duration-150 ease-out"
               >
                 <a href="/drop">Peržiūrėti produktą № 26</a>
               </Button>

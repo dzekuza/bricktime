@@ -25,13 +25,15 @@ const socials = ['Instagram', 'TikTok', 'Discord']
 
 export default function Footer() {
   return (
-    <footer className="bg-ink pb-8 pt-8 md:pt-20 text-paper mt-0">
-      <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+    <footer className="relative bg-ink pt-8 pb-48 md:pb-64 text-paper mt-0 overflow-hidden">
+      <img src="/transitions/bottom-forest.png" alt="" aria-hidden="true" className="pointer-events-none absolute bottom-0 left-0 w-full" style={{ zIndex: 2 }} />
+      <div className="pointer-events-none absolute inset-0 w-full h-full" style={{ background: 'linear-gradient(to bottom, #001B21 0%, transparent 100%)', zIndex: 3 }} />
+      <div className="relative z-10 mx-auto max-w-[1320px] px-4 md:px-7">
         {/* Grid */}
         <div className="grid grid-cols-2 gap-12 md:grid-cols-[2fr_1fr_1fr_1fr]">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <img src="/brickwhite.svg" alt="BRICKTIME" className="h-8 w-auto" />
+            <img src="/brickwhite.svg" alt="BRICKTIME" className="h-12 w-auto" />
             <p className="mt-4 max-w-[32ch] text-[14px] leading-relaxed text-paper/75">
               Mėnesinė kaladėlių prenumerata suaugusiems, kurie niekada negalutinai nustojo statyti. Pagaminta Vilniuje, pristatoma visame pasaulyje.
             </p>

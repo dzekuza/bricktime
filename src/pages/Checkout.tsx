@@ -221,7 +221,6 @@ export default function Checkout() {
                   </h3>
                   <p className="mt-3 text-[14px] leading-[1.6] text-paper/65">
                     Produktas № {dropNum} reikalauja <b className="text-paper">{requiredTier.name}+</b> prenumeratos.
-                    Nuo <b className="text-paper">${requiredTier.price}/mėn.</b>
                   </p>
                 </div>
               )}
@@ -246,12 +245,6 @@ export default function Checkout() {
                     </div>
                   ))}
                 </div>
-
-                <div className="mt-5 flex items-baseline justify-between">
-                  <span className="text-[15px] font-bold text-ink">Mokėti šiandien</span>
-                  <span className="font-display text-d-sm leading-none" style={{ color: '#001B21' }}>$0</span>
-                </div>
-                <p className="mt-1 label-mono text-ink/40">Padengta tavo prenumeratos</p>
 
                 {isEligible ? (
                   <Button
@@ -284,38 +277,6 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {/* Tier eligibility ladder */}
-              <div
-                className="brick-card p-6 md:p-7"
-                style={{ background: '#001B21' }}
-              >
-                <h3 className="label-mono text-paper/40 mb-4">Kurie planai apima šį produktą</h3>
-                <div className="grid grid-cols-5 gap-1.5">
-                  {tiers.map((t) => {
-                    const eligible = t.level >= requiredTier.level
-                    return (
-                      <div
-                        key={t.name}
-                        className={[
-                          'flex flex-col items-center gap-1.5 rounded-2xl border-2 p-3 text-center transition-all',
-                          eligible ? 'border-ink' : 'border-paper/15 opacity-35',
-                        ].join(' ')}
-                        style={{ background: eligible ? t.bg : 'transparent' }}
-                      >
-                        {eligible && (
-                          <span className="text-[12px]" style={{ color: t.textColor }}>✓</span>
-                        )}
-                        <span
-                          className="block font-mono text-[10px] tracking-[.1em] uppercase"
-                          style={{ color: eligible ? t.textColor : 'rgba(245,241,235,.35)' }}
-                        >
-                          {t.name}
-                        </span>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
 
             </div>
 

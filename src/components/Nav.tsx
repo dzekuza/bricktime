@@ -7,6 +7,15 @@ import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import { avatarSrc } from '@/lib/avatars'
 
+const PLAN_BUDGETS: Record<string, number> = { nano: 50, mini: 100, standard: 200, pro: 400, mega: 600 }
+const PLAN_COLORS: Record<string, { bg: string; text: string }> = {
+  nano:     { bg: '#F5F1EB', text: '#001B21' },
+  mini:     { bg: '#FFAEE7', text: '#001B21' },
+  standard: { bg: '#FFD731', text: '#001B21' },
+  pro:      { bg: '#4DA2FF', text: '#001B21' },
+  mega:     { bg: '#FB4903', text: '#F5F1EB' },
+}
+
 const links = [
   { label: 'Pradžia', to: '/' },
   { label: 'Produktai', to: '/archive' },
@@ -15,27 +24,84 @@ const links = [
   { label: 'Paskyra', to: '/account' },
 ]
 
-// ── Sign-in form inside popover ───────────────────────────────────────────────
+// ── Auth form (sign in + register) ───────────────────────────────────────────
 
-function SignInForm({ onClose }: { onClose: () => void }) {
+function AuthForm({ onClose }: { onClose: () => void }) {
+  const [mode, setMode] = useState<'signin' | 'register'>('signin')
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
+    setSuccess('')
     setLoading(true)
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    setLoading(false)
-    if (error) setError(error.message)
-    else onClose()
+
+    if (mode === 'signin') {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      setLoading(false)
+      if (error) setError(error.message)
+      else onClose()
+    } else {
+      const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { name } } })
+      if (!error && data.user) {
+        // upsert subscriber profile
+        await supabase.from('subscribers').upsert({
+          id: data.user.id,
+          name: name || email.split('@')[0],
+          email,
+          avatar_id: Math.floor(Math.random() * 5),
+          avatar_bg: ['#FFD731','#FB4903','#4DA2FF','#5DDB9C','#FFAEE7'][Math.floor(Math.random() * 5)],
+        })
+      }
+      setLoading(false)
+      if (error) setError(error.message)
+      else {
+        setSuccess('Paskyra sukurta! Patikrink el. paštą arba prisijunk.')
+        setMode('signin')
+      }
+    }
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-1">
-      <p className="font-bold text-[14px] text-ink">Prisijungti</p>
+      {/* Tab toggle */}
+      <div className="flex rounded-xl border-2 border-ink/15 overflow-hidden">
+        {(['signin', 'register'] as const).map((m) => (
+          <button
+            key={m}
+            type="button"
+            onClick={() => { setMode(m); setError(''); setSuccess('') }}
+            className={`flex-1 py-1.5 font-mono text-[11px] font-bold transition-colors ${mode === m ? 'bg-ink text-paper' : 'text-ink/40 hover:text-ink'}`}
+          >
+            {m === 'signin' ? 'Prisijungti' : 'Registruotis'}
+          </button>
+        ))}
+      </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateRows: mode === 'register' ? '1fr' : '0fr',
+          opacity: mode === 'register' ? 1 : 0,
+          transition: 'grid-template-rows 0.2s ease-out, opacity 0.2s ease-out',
+        }}
+      >
+        <div style={{ overflow: 'hidden' }}>
+          <input
+            type="text"
+            placeholder="Vardas"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required={mode === 'register'}
+            className="mb-0 w-full rounded-xl border-2 border-ink/20 bg-paper px-3 py-2 font-mono text-[13px] text-ink outline-none focus:border-ink transition-colors"
+          />
+        </div>
+      </div>
       <input
         type="email"
         placeholder="El. paštas"
@@ -50,15 +116,19 @@ function SignInForm({ onClose }: { onClose: () => void }) {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
+        minLength={6}
         className="rounded-xl border-2 border-ink/20 bg-paper px-3 py-2 font-mono text-[13px] text-ink outline-none focus:border-ink transition-colors"
       />
+
       {error && <p className="font-mono text-[11px] text-red-500">{error}</p>}
+      {success && <p className="font-mono text-[11px] text-green-600">{success}</p>}
+
       <button
         type="submit"
         disabled={loading}
         className="rounded-xl border-2 border-ink bg-ink py-2 font-mono text-[12px] font-bold text-paper hover:opacity-80 disabled:opacity-40 transition-all"
       >
-        {loading ? '…' : 'Prisijungti'}
+        {loading ? '…' : mode === 'signin' ? 'Prisijungti' : 'Sukurti paskyrą'}
       </button>
     </form>
   )
@@ -88,7 +158,7 @@ function AvatarPopover() {
         </button>
       </PopoverTrigger>
 
-      <PopoverContent align="end" className="w-64 rounded-2xl border-2 border-ink p-4 shadow-[6px_6px_0_#001B21] bg-paper">
+      <PopoverContent align="end" className="w-64 rounded-2xl border-2 border-ink p-4 shadow-[6px_6px_0_#001B21] bg-paper" style={{ transformOrigin: 'var(--radix-popover-content-transform-origin)' }}>
         {user && profile ? (
           <div className="flex flex-col gap-3">
             {/* Profile row */}
@@ -122,10 +192,40 @@ function AvatarPopover() {
             </button>
           </div>
         ) : (
-          <SignInForm onClose={() => setOpen(false)} />
+          <AuthForm onClose={() => setOpen(false)} />
         )}
       </PopoverContent>
     </Popover>
+  )
+}
+
+// ── Plan chip (shown when subscribed) ────────────────────────────────────────
+
+function PlanChip({ plan }: { plan: string }) {
+  const budget = PLAN_BUDGETS[plan] ?? 0
+  const colors = PLAN_COLORS[plan] ?? { bg: '#F5F1EB', text: '#001B21' }
+
+  return (
+    <Link
+      to="/account"
+      className="hidden md:flex items-center gap-2.5 rounded-full border-2 border-ink px-3 py-1.5 brick-hover-sm"
+      style={{ background: colors.bg }}
+    >
+      <span className="font-mono text-[11px] font-bold tracking-[.12em] uppercase" style={{ color: colors.text }}>
+        {plan.charAt(0).toUpperCase() + plan.slice(1)}
+      </span>
+      <div className="flex items-center gap-1.5">
+        <div className="h-[6px] w-[52px] rounded-full overflow-hidden border border-black/20">
+          <div
+            className="h-full rounded-full"
+            style={{ width: '100%', background: colors.text === '#001B21' ? '#001B21' : '#F5F1EB', opacity: 0.25 }}
+          />
+        </div>
+        <span className="font-mono text-[10px]" style={{ color: `${colors.text}99` }}>
+          €{budget}
+        </span>
+      </div>
+    </Link>
   )
 }
 
@@ -133,6 +233,7 @@ function AvatarPopover() {
 
 export default function Nav() {
   const { pathname } = useLocation()
+  const { user, profile } = useAuth()
   const [open, setOpen] = useState(false)
 
   useEffect(() => { setOpen(false) }, [pathname])
@@ -143,8 +244,8 @@ export default function Nav() {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-white">
-        <div className="mx-auto flex h-[84px] max-w-[1320px] items-center justify-between px-7 md:grid md:grid-cols-3">
+      <nav className="sticky top-0 z-50 pt-3 px-3 bg-paper">
+        <div className="mx-auto flex h-[84px] max-w-[1320px] items-center justify-between px-7 md:grid md:grid-cols-3 border-2 border-ink rounded-2xl shadow-[6px_6px_0_#001B21] bg-paper">
 
           {/* Left — desktop nav links */}
           <div className="hidden items-center gap-7 md:flex">
@@ -168,13 +269,17 @@ export default function Nav() {
 
           {/* Right — CTA + avatar + hamburger */}
           <div className="flex items-center justify-end gap-3">
-            <Button
-              asChild
-              size="sm"
-              className="hidden rounded-full border-2 border-ink bg-ink text-paper font-bold brick-hover-sm md:inline-flex"
-            >
-              <Link to="/subscribe">Prenumeruoti <ArrowRightIcon data-icon="inline-end" /></Link>
-            </Button>
+            {user && profile?.plan ? (
+              <PlanChip plan={profile.plan} />
+            ) : (
+              <Button
+                asChild
+                size="sm"
+                className="hidden rounded-full border-2 border-ink bg-ink text-paper font-bold brick-hover-sm md:inline-flex"
+              >
+                <Link to="/subscribe">Prenumeruoti <ArrowRightIcon data-icon="inline-end" /></Link>
+              </Button>
+            )}
 
             <AvatarPopover />
 
@@ -197,7 +302,7 @@ export default function Nav() {
           onClick={() => setOpen(false)}
         />
         <div
-          className="absolute left-0 top-0 w-full flex flex-col border-b-2 border-ink bg-white"
+          className="absolute left-0 top-0 w-full flex flex-col border-b-2 border-ink bg-paper"
           style={{
             transform: open ? 'translateY(0)' : 'translateY(-100%)',
             transition: 'transform 0.28s cubic-bezier(0.32, 0, 0.16, 1)',
@@ -214,7 +319,7 @@ export default function Nav() {
                   style={{
                     opacity: open ? 1 : 0,
                     transform: open ? 'translateY(0)' : 'translateY(-10px)',
-                    transition: `opacity 0.22s ease ${i * 40}ms, transform 0.22s ease ${i * 40}ms`,
+                    transition: `opacity 0.22s cubic-bezier(.22,1,.36,1) ${i * 40}ms, transform 0.22s cubic-bezier(.22,1,.36,1) ${i * 40}ms`,
                   }}
                 >
                   {l.label}
@@ -224,21 +329,23 @@ export default function Nav() {
             })}
           </nav>
 
-          <div
-            className="border-t-2 border-ink p-6"
-            style={{
-              opacity: open ? 1 : 0,
-              transform: open ? 'translateY(0)' : 'translateY(-8px)',
-              transition: 'opacity 0.25s ease 220ms, transform 0.25s ease 220ms',
-            }}
-          >
-            <Link
-              to="/subscribe"
-              className="flex w-full items-center justify-center rounded-full border-2 border-ink bg-ink py-4 text-center font-bold text-[16px] text-paper"
+          {!(user && profile?.plan) && (
+            <div
+              className="border-t-2 border-ink p-6"
+              style={{
+                opacity: open ? 1 : 0,
+                transform: open ? 'translateY(0)' : 'translateY(-8px)',
+                transition: 'opacity 0.25s cubic-bezier(.22,1,.36,1) 220ms, transform 0.25s cubic-bezier(.22,1,.36,1) 220ms',
+              }}
             >
-              Prenumeruoti <ArrowRightIcon className="inline size-4 ml-1" />
-            </Link>
-          </div>
+              <Link
+                to="/subscribe"
+                className="flex w-full items-center justify-center rounded-full border-2 border-ink bg-ink py-4 text-center font-bold text-[16px] text-paper"
+              >
+                Prenumeruoti <ArrowRightIcon className="inline size-4 ml-1" />
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </>

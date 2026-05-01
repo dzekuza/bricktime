@@ -1,13 +1,16 @@
 import { useState, useRef, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { useReveal } from '@/hooks/useReveal'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import { avatarSrc } from '@/lib/avatars'
+import { ImageIcon, Heart, MessageCircle, Trash2 } from 'lucide-react'
 import {
   achievementDefs,
   leaderboard,
+  drops,
   getRelativeTime,
   type FeedEventType,
 } from '@/data/community'
@@ -27,7 +30,9 @@ interface LiveFeedItem {
   user_name: string
   avatar_id: number
   avatar_bg: string
+  parent_id: string | null
   likedByCurrentUser?: boolean
+  replies?: LiveFeedItem[]
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -63,9 +68,10 @@ function LikeButton({ liked, count, onToggle }: { liked: boolean; count: number;
   return (
     <button
       onClick={onToggle}
-      className="flex items-center gap-1.5 text-[13px] font-mono text-ink/50 transition-all hover:text-ink active:scale-110"
+      className="flex items-center gap-1.5 font-mono text-[13px] transition-all hover:scale-105 active:scale-95"
+      style={{ color: liked ? '#FB4903' : 'rgba(0,27,33,.4)' }}
     >
-      <span className={liked ? 'text-[#FB4903]' : ''}>{liked ? '❤️' : '🤍'}</span>
+      <Heart size={15} fill={liked ? '#FB4903' : 'none'} strokeWidth={2} />
       {count > 0 && <span>{count}</span>}
     </button>
   )
@@ -73,7 +79,22 @@ function LikeButton({ liked, count, onToggle }: { liked: boolean; count: number;
 
 // ── FeedCard ──────────────────────────────────────────────────────────────────
 
-function FeedCard({ item, onLike }: { item: LiveFeedItem; onLike: () => void }) {
+function FeedCard({ item, onLike, onComment, isOwn, onDelete }: { item: LiveFeedItem; onLike: () => void; onComment: (text: string) => Promise<void>; isOwn: boolean; onDelete: () => void }) {
+  const [showComment, setShowComment] = useState(false)
+  const [commentText, setCommentText] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  async function submitComment() {
+    if (!commentText.trim()) return
+    setSubmitting(true)
+    try {
+      await onComment(commentText.trim())
+      setCommentText('')
+      setShowComment(false)
+    } finally {
+      setSubmitting(false)
+    }
+  }
   const def = item.achievement_id ? achievementDefs.find((a) => a.id === item.achievement_id) : null
 
   const accentColor =
@@ -94,15 +115,19 @@ function FeedCard({ item, onLike }: { item: LiveFeedItem; onLike: () => void }) 
 
       <div className="p-3 md:p-5">
         <div className="flex items-center gap-3">
-          <div
-            className="size-9 shrink-0 rounded-full border-2 border-ink overflow-hidden"
-            style={{ background: item.avatar_bg }}
-          >
-            <img src={avatarSrc(item.avatar_id)} alt={item.user_name} className="h-full w-full object-cover" />
-          </div>
+          <Link to={`/profile/${item.subscriber_id}`} className="shrink-0">
+            <div
+              className="size-9 rounded-full border-2 border-ink overflow-hidden hover:opacity-80 transition-opacity"
+              style={{ background: item.avatar_bg }}
+            >
+              <img src={avatarSrc(item.avatar_id)} alt={item.user_name} className="h-full w-full object-cover" />
+            </div>
+          </Link>
           <div className="flex-1 min-w-0">
             <p className="text-[14px] font-bold text-ink leading-tight">
-              {eventLabel(item.type, item.user_name, null, item.body)}
+              <Link to={`/profile/${item.subscriber_id}`} className="hover:underline underline-offset-2">
+                {eventLabel(item.type, item.user_name, null, item.body)}
+              </Link>
             </p>
             <p className="font-mono text-[11px] text-ink/40 mt-0.5">{getRelativeTime(item.created_at)}</p>
           </div>
@@ -152,13 +177,67 @@ function FeedCard({ item, onLike }: { item: LiveFeedItem; onLike: () => void }) 
         )}
 
         <div className="mt-4 flex items-center justify-between">
-          <LikeButton liked={!!item.likedByCurrentUser} count={item.like_count} onToggle={onLike} />
+          <div className="flex items-center gap-3">
+            <LikeButton liked={!!item.likedByCurrentUser} count={item.like_count} onToggle={onLike} />
+            <button
+              onClick={() => setShowComment((v) => !v)}
+              className="flex items-center gap-1.5 font-mono text-[13px] transition-all hover:scale-105 active:scale-95"
+              style={{ color: showComment ? '#001B21' : 'rgba(0,27,33,.4)' }}
+            >
+              <MessageCircle size={15} strokeWidth={2} />
+            </button>
+            {isOwn && (
+              <button
+                onClick={onDelete}
+                className="flex items-center transition-all hover:scale-105 active:scale-95 text-ink/25 hover:text-[#FB4903]"
+              >
+                <Trash2 size={14} strokeWidth={2} />
+              </button>
+            )}
+          </div>
           {item.drop_num && (
             <span className="font-mono text-[10px] tracking-widest uppercase text-ink/30">
               Produktas № {item.drop_num}
             </span>
           )}
         </div>
+
+        {(item.replies && item.replies.length > 0) && (
+          <div className="mt-3 border-t border-dashed border-ink/10 pt-3 flex flex-col gap-2.5">
+            {item.replies.map((reply) => (
+              <div key={reply.id} className="flex gap-2.5">
+                <div className="size-6 shrink-0 rounded-full border border-ink/20 overflow-hidden mt-0.5" style={{ background: reply.avatar_bg }}>
+                  <img src={avatarSrc(reply.avatar_id)} alt={reply.user_name} className="h-full w-full object-cover" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[12px] font-bold text-ink">{reply.user_name} </span>
+                  <span className="text-[13px] text-ink/70">{reply.body}</span>
+                  <p className="font-mono text-[10px] text-ink/30 mt-0.5">{getRelativeTime(reply.created_at)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {showComment && (
+          <div className="mt-3 flex gap-2 border-t border-dashed border-ink/10 pt-3">
+            <input
+              autoFocus
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitComment() } }}
+              placeholder="Parašyk komentarą…"
+              className="flex-1 rounded-xl border border-ink/20 bg-transparent px-3 py-1.5 font-mono text-[13px] text-ink placeholder:text-ink/30 outline-none focus:border-ink/50"
+            />
+            <button
+              onClick={submitComment}
+              disabled={submitting || !commentText.trim()}
+              className="rounded-xl border-2 border-ink bg-ink px-3 py-1.5 font-mono text-[12px] font-bold text-paper disabled:opacity-30 transition-all"
+            >
+              {submitting ? '…' : '↑'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -169,7 +248,7 @@ function FeedCard({ item, onLike }: { item: LiveFeedItem; onLike: () => void }) 
 interface ComposeBoxProps {
   avatarId: number
   avatarBg: string
-  onPost: (text: string, imageFile?: File) => Promise<void>
+  onPost: (text: string, imageFile?: File, dropNum?: number) => Promise<void>
 }
 
 function ComposeBox({ avatarId, avatarBg, onPost }: ComposeBoxProps) {
@@ -178,6 +257,8 @@ function ComposeBox({ avatarId, avatarBg, onPost }: ComposeBoxProps) {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [posting, setPosting] = useState(false)
+  const [dropNum, setDropNum] = useState<string>("")
+  const [showDropPicker, setShowDropPicker] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -198,9 +279,10 @@ function ComposeBox({ avatarId, avatarBg, onPost }: ComposeBoxProps) {
     if (!text.trim() && !imageFile) return
     setPosting(true)
     try {
-      await onPost(text.trim(), imageFile ?? undefined)
+      await onPost(text.trim(), imageFile ?? undefined, dropNum ? parseInt(dropNum) : undefined)
       setText('')
       removeImage()
+      setDropNum("")
       setFocused(false)
     } finally {
       setPosting(false)
@@ -239,12 +321,53 @@ function ComposeBox({ avatarId, avatarBg, onPost }: ComposeBoxProps) {
         </div>
       )}
 
+      <input id="compose-file" ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+
       {expanded && (
         <div className="mt-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <label className="flex cursor-pointer items-center gap-1.5 font-mono text-[11px] text-ink/40 hover:text-ink transition-colors">
-              <span>🖼</span> Pridėti nuotrauką
-              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+            <div className="relative">
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => setShowDropPicker((v) => !v)}
+                className={`flex items-center gap-1 rounded-lg border px-2 py-1 font-mono text-[11px] transition-colors ${dropNum ? 'border-ink bg-ink text-paper' : 'border-ink/20 text-ink/40 hover:text-ink hover:border-ink/40'}`}
+              >
+                {dropNum ? `№ ${dropNum}` : '№ produktas'}
+              </button>
+              {showDropPicker && (
+                <div className="absolute bottom-full left-0 mb-2 z-50 rounded-2xl border-2 border-ink bg-paper shadow-[4px_4px_0_#001B21] p-3 w-64">
+                  <p className="font-mono text-[9px] tracking-widest uppercase text-ink/40 mb-2">Pasirink produktą</p>
+                  <div className="flex flex-col gap-1">
+                    {drops.map((d) => (
+                      <button
+                        key={d.id}
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => { setDropNum(String(d.id)); setShowDropPicker(false) }}
+                        className={`flex items-center gap-2.5 rounded-xl border px-2.5 py-1.5 text-left transition-all hover:scale-[1.01] ${String(d.id) === dropNum ? 'border-ink bg-ink text-paper' : 'border-ink/15 hover:border-ink/40'}`}
+                      >
+                        <span className="size-5 shrink-0 rounded-md border border-ink/20" style={{ background: d.bg }} />
+                        <span className="flex-1 font-bold text-[12px] truncate" style={{ color: String(d.id) === dropNum ? '#F5F1EB' : '#001B21' }}>{d.title}</span>
+                        <span className="font-mono text-[10px] shrink-0" style={{ color: String(d.id) === dropNum ? 'rgba(245,241,235,.5)' : 'rgba(0,27,33,.3)' }}>№{d.id}</span>
+                      </button>
+                    ))}
+                  </div>
+                  {dropNum && (
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => { setDropNum(''); setShowDropPicker(false) }}
+                      className="mt-2 w-full rounded-lg border border-dashed border-ink/20 py-1 font-mono text-[10px] text-ink/40 hover:text-ink hover:border-ink/40 transition-colors"
+                    >
+                      Išvalyti
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+            <label htmlFor="compose-file" className="flex cursor-pointer items-center gap-1.5 font-mono text-[11px] text-ink/40 hover:text-ink transition-colors" onMouseDown={(e) => e.preventDefault()}>
+              <ImageIcon size={14} /> Pridėti nuotrauką
             </label>
             <p className="font-mono text-[10px] text-ink/30">⌘+Enter siųsti</p>
           </div>
@@ -284,10 +407,19 @@ function FeedPanel() {
     const { data } = await supabase
       .from('community_feed')
       .select('*')
-      .order('created_at', { ascending: false })
-      .limit(50)
+      .order('created_at', { ascending: true })
+      .limit(200)
 
-    if (data) setItems(data as LiveFeedItem[])
+    if (data) {
+      const all = data as LiveFeedItem[]
+      const top = all.filter((i) => !i.parent_id).reverse()
+      const replies = all.filter((i) => i.parent_id)
+      const withReplies = top.map((post) => ({
+        ...post,
+        replies: replies.filter((r) => r.parent_id === post.id),
+      }))
+      setItems(withReplies)
+    }
     setLoading(false)
   }
 
@@ -311,7 +443,7 @@ function FeedPanel() {
     )
   }
 
-  async function addPost(text: string, imageFile?: File) {
+  async function addPost(text: string, imageFile?: File, dropNum?: number) {
     if (!user || !profile) return
 
     let imageUrl: string | null = null
@@ -331,8 +463,27 @@ function FeedPanel() {
       type: imageFile ? 'build_photo' : 'comment',
       body: text || null,
       image_url: imageUrl,
+      drop_num: dropNum ?? null,
     })
 
+    await fetchFeed()
+  }
+
+  async function deletePost(item: LiveFeedItem) {
+    await supabase.from('feed_items').delete().eq('id', item.id)
+    setItems((prev) => prev.filter((i) => i.id !== item.id))
+  }
+
+  async function addComment(text: string, parentId: string) {
+    if (!user || !profile) return
+    await supabase.from('feed_items').insert({
+      subscriber_id: user.id,
+      type: 'comment',
+      body: text,
+      image_url: null,
+      drop_num: null,
+      parent_id: parentId,
+    })
     await fetchFeed()
   }
 
@@ -364,7 +515,7 @@ function FeedPanel() {
         </div>
       )}
       {items.map((item) => (
-        <FeedCard key={item.id} item={item} onLike={() => toggleLike(item)} />
+        <FeedCard key={item.id} item={item} onLike={() => toggleLike(item)} onComment={(text) => addComment(text, item.id)} isOwn={!!user && item.subscriber_id === user.id} onDelete={() => deletePost(item)} />
       ))}
       {items.length === 0 && (
         <p className="text-center font-mono text-[13px] text-ink/40 py-8">Kol kas tuščia. Būk pirmas!</p>
@@ -380,7 +531,7 @@ function LeaderboardPanel() {
   const rest = leaderboard.slice(3)
 
   return (
-    <div>
+    <div className="pr-2 pb-2">
       <div className="grid grid-cols-3 gap-3 mb-4">
         {[top3[1], top3[0], top3[2]].map((entry, podiumIdx) => {
           const isCenter = podiumIdx === 1
@@ -427,7 +578,7 @@ function LeaderboardPanel() {
                 {entry.isCurrentUser && <span className="ml-1 font-mono text-[9px] text-ink/40">→ Tu</span>}
               </span>
             </div>
-            <div>
+            <div >
               <span className="rounded-full px-1.5 py-px text-[9px] font-bold border border-ink/15" style={{ background: tierColors[entry.tier] ?? '#F5F1EB', color: '#001B21' }}>
                 {entry.tier}
               </span>
@@ -450,26 +601,25 @@ export default function Community() {
     <>
       <Nav />
 
-      <section className="bg-paper py-4 md:py-6">
+      <section className="bg-paper pt-6 pb-4">
         <div ref={heroRef} className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="rounded-2xl md:rounded-3xl border-2 border-ink bg-ink overflow-hidden p-6 md:p-10">
-            <h3 className="label-mono text-paper/40">⬢ Bendruomenė</h3>
             <h1 className="heading-display text-d-xl tracking-[-0.02em] mt-3 text-paper">Bendruomenė.</h1>
             <p className="mt-5 font-mono text-[15px] text-paper/50 tracking-[.04em]">Žaisk. Statyk. Dalinkis.</p>
           </div>
         </div>
       </section>
 
-      <section className="bg-paper py-16">
+      <section className="bg-paper pt-4 pb-20">
         <div ref={contentRef} className="mx-auto max-w-[1320px] px-7">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[40%_60%]">
 
             <div className="md:sticky md:self-start md:max-h-[calc(100dvh-120px)] md:overflow-y-auto" style={{ top: '120px' }}>
-              <h3 className="label-mono text-ink/50 mb-6">⬢ Lyderiai</h3>
+              <h3 className="text-xl font-bold text-ink mb-6">Lyderiai</h3>
               <LeaderboardPanel />
             </div>
 
-            <div>
+            <div >
               <h3 className="label-mono text-ink/50 mb-6">⬢ Srautas</h3>
               <FeedPanel />
             </div>

@@ -19,7 +19,7 @@ const plans = [
     ctaBg: '#001B21',
     ctaText: '#F5F1EB',
     perks: [
-      { label: '60–90 aukštos kokybės ABS kaladėlių', included: true },
+      { label: 'Iki €50 vertės produktai vienu metu', included: true },
       { label: 'Surinkimo kortelė', included: true },
       { label: '4 vinilo lipdukai', included: true },
       { label: 'Nemokamas standartinis pristatymas', included: true },
@@ -42,7 +42,7 @@ const plans = [
     ctaBg: '#001B21',
     ctaText: '#F5F1EB',
     perks: [
-      { label: '120–180 aukštos kokybės ABS kaladėlių', included: true },
+      { label: 'Iki €100 vertės produktai vienu metu', included: true },
       { label: '1 išskirtinis miniukas', included: true },
       { label: 'Surinkimo kortelė + 8 vinilo lipdukai', included: true },
       { label: 'Nemokamas standartinis pristatymas', included: true },
@@ -64,7 +64,7 @@ const plans = [
     ctaBg: '#001B21',
     ctaText: '#F5F1EB',
     perks: [
-      { label: '240–320 aukštos kokybės ABS kaladėlių', included: true },
+      { label: 'Iki €200 vertės produktai vienu metu', included: true },
       { label: '2 išskirtiniai miniukai', included: true },
       { label: 'Surinkimo kortelė + 16 vinilo lipdukų', included: true },
       { label: 'Nemokamas skubus pristatymas', included: true },
@@ -86,7 +86,7 @@ const plans = [
     ctaBg: '#001B21',
     ctaText: '#F5F1EB',
     perks: [
-      { label: '340–400 aukštos kokybės ABS kaladėlių', included: true },
+      { label: 'Iki €350 vertės produktai vienu metu', included: true },
       { label: '2 išskirtiniai miniukai + alternatyvi spalva', included: true },
       { label: 'Surinkimo kortelė + 20 vinilo lipdukų', included: true },
       { label: 'Nemokamas skubus pristatymas', included: true },
@@ -108,7 +108,7 @@ const plans = [
     ctaBg: '#F5F1EB',
     ctaText: '#001B21',
     perks: [
-      { label: '420–520 aukštos kokybės ABS kaladėlių', included: true },
+      { label: 'Iki €600 vertės produktai vienu metu', included: true },
       { label: '3 išskirtiniai miniukai + retas variantas', included: true },
       { label: 'Kieta surinkimo knyga', included: true },
       { label: 'Nemokamas skubus pristatymas', included: true },
@@ -124,12 +124,12 @@ const plans = [
 const trustTiles = [
   { label: 'Atšauk bet kada', body: 'Jokių mokesčių, jokio trinties. Vienas paspaudimas tavo paskyros skydelyje.', bg: '#5DDB9C', num: '01' },
   { label: 'Praleisk bet kurį mėnesį', body: 'Vyksti atostogų? Per metus galima praleisti iki 3 mėnesių, mokėjimas sustabdomas.', bg: '#FFAEE7', num: '02' },
-  { label: '30 dienų garantija', body: 'Nepatiko pirmoji dėžutė — grąžinsime visą sumą, be jokių klausimų.', bg: '#4DA2FF', num: '03' },
+  { label: '30 dienų garantija', body: 'Nepatiko pirmasis mėnuo — grąžinsime visą sumą, be jokių klausimų.', bg: '#4DA2FF', num: '03' },
   { label: 'Nemokamas pristatymas visame pasaulyje', body: 'Standartinis visuose planuose. Skubus Standard, Pro ir Mega planuose.', bg: '#FFD731', num: '04' },
 ]
 
 const faqs = [
-  { q: 'Kada išsiunčiama pirmoji dėžutė?', a: 'Užsakymai, pateikti iki mėnesio 15 d., išsiunčiami su einamojo mėnesio produktu. Po 15 d. — su kito mėnesio produktu.' },
+  { q: 'Kaip veikia mėnesinis biudžetas?', a: 'Kiekvienas planas suteikia fiksuotą € biudžetą produktams iš katalogo. Galite turėti kelis produktus vienu metu, kol bendra jų vertė neviršija biudžeto. Biudžetas atsinaujina kas mėnesį.' },
   { q: 'Ar galiu keisti planą prenumeratos metu?', a: 'Taip — paaukštink arba sumažink planą bet kada iš savo skydelio. Pakeitimai įsigalioja nuo kito atsiskaitymo ciklo.' },
   { q: 'Kokius mokėjimo būdus priimate?', a: 'Priimame visas pagrindines kredito ir debeto korteles (Visa, Mastercard, Amex), PayPal ir Apple Pay.' },
   { q: 'Kaip veikia metinio atsiskaitymo nuolaida?', a: 'Metinis atsiskaitymas apmokestina už 10 mėnesių iš anksto ir suteikia 12 mėnesių produktų — iš esmės 2 mėnesiai nemokamai. Rodoma kaina yra mėnesio ekvivalentas.' },
@@ -138,7 +138,7 @@ const faqs = [
 ]
 
 const comparisonRows = [
-  { feature: 'Kaladėlių per produktą',   nano: '60–90',    mini: '120–180', standard: '240–320', pro: '340–400',   mega: '420–520' },
+  { feature: 'Mėnesinis biudžetas',      nano: '€50',      mini: '€100',    standard: '€200',    pro: '€350',     mega: '€600' },
   { feature: 'Išskirtiniai miniukai',   nano: '—',        mini: '1',       standard: '2',       pro: '2 + alt',  mega: '3 + variantas' },
   { feature: 'Surinkimo kortelė',       nano: '✓',        mini: '✓',       standard: '✓',       pro: '✓',        mega: 'Kieta knyga' },
   { feature: 'Vinilo lipdukai',         nano: '4',        mini: '8',       standard: '16',      pro: '20',       mega: '24' },
@@ -211,7 +211,7 @@ export default function PlansPage() {
       <Nav />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="bg-paper py-6">
+      <section className="bg-paper pt-6 pb-4">
         <div className="mx-auto max-w-[1320px] px-7">
           <div ref={heroRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
@@ -223,9 +223,7 @@ export default function PlansPage() {
               <div>
                 <h3 className="label-mono text-paper/50">⬢ Planai ir kainos</h3>
                 <h1 className="heading-display text-d-xl tracking-[-0.015em] mt-5 text-paper">
-                  Kaladėlės kiekvieną
-                  <br />
-                  mėnesį.{' '}
+                  Naršyk katalogą.{' '}
                   <span
                     className="inline-block bg-brand-yellow px-[.1em] text-ink"
                     style={{ transform: 'rotate(-1.5deg)' }}
@@ -233,10 +231,10 @@ export default function PlansPage() {
                     Rinkis
                   </span>
                   <br />
-                  savo lygį.
+                  pagal biudžetą.
                 </h1>
                 <p className="mt-6 max-w-[48ch] text-[17px] leading-[1.65] text-paper/70">
-                  Penki planai — nuo pradedančiojo iki kolekcionieriaus. Jokių įsipareigojimų — atšauk, praleisk ar keisk bet kurį mėnesį.
+                  Penki planai — nuo pradedančiojo iki kolekcionieriaus. Kiekvienas su mėnesiniu biudžetu produktams iš katalogo. Atšauk bet kada.
                 </p>
               </div>
               <div className="mt-8">
@@ -299,7 +297,7 @@ export default function PlansPage() {
                   30 dienų pinigų grąžinimo garantija
                 </p>
                 <p className="mt-2 text-[14px] leading-[1.6] text-ink/65">
-                  Nepatiko pirmoji dėžutė? Grąžinsime visą sumą — be klausimų, be formų.
+                  Nepatiko pirmasis mėnuo? Grąžinsime visą sumą — be klausimų, be formų.
                 </p>
               </div>
             </div>
@@ -408,7 +406,7 @@ export default function PlansPage() {
                   style={{ background: plan.ctaBg, color: plan.ctaText }}
                   asChild
                 >
-                  <a href="#">Pradėti su {plan.name} <ArrowRightIcon data-icon="inline-end" /></a>
+                  <a href="/subscribe">Pradėti su {plan.name} <ArrowRightIcon data-icon="inline-end" /></a>
                 </Button>
               </div>
             ))}
@@ -571,17 +569,17 @@ export default function PlansPage() {
               className="flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-paper/20 p-10 lg:col-span-8 min-h-[300px]"
               style={{ background: '#FB4903' }}
             >
-              <h3 className="label-mono text-paper/60">⬢ Produktas № 26 — išsiunčiama gegužės 5 d.</h3>
+              <h3 className="label-mono text-paper/60">⬢ Katalogas</h3>
               <div>
                 <h2 className="heading-display text-d-lg tracking-[-0.015em] text-paper">
-                  Užsisakyk iki
+                  Šimtai
                   <br />
-                  gegužės 15 — gauk
+                  produktų.
                   <br />
-                  Mailbox Row.
+                  Vienas biudžetas.
                 </h2>
                 <p className="mt-5 max-w-[44ch] text-[16px] leading-[1.6] text-paper/75">
-                  Produktas № 26 — tai Mailbox Row + Postman Otto. 312 kaladėlių, 2 miniukai, vienas labai tenkinantis surinkimas.
+                  Pasirink planą ir naršyk katalogą jau šiandien. Pasiimk produktus pagal savo biudžetą, grąžink ir keisk bet kada.
                 </p>
               </div>
             </div>
@@ -605,7 +603,7 @@ export default function PlansPage() {
                   className="w-full rounded-full border-2 border-paper/40 bg-brand-yellow text-ink font-bold text-[15px] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_rgba(245,241,235,.3)] transition-all"
                   asChild
                 >
-                  <a href="#">Pradėti prenumeratą <ArrowRightIcon data-icon="inline-end" /></a>
+                  <a href="/subscribe">Pradėti prenumeratą <ArrowRightIcon data-icon="inline-end" /></a>
                 </Button>
                 <Button
                   variant="outline"

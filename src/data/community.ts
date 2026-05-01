@@ -319,3 +319,15 @@ export function getRelativeTime(iso: string): string {
   if (days === 1) return 'vakar'
   return `prieš ${days} d.`
 }
+
+export const drops: { id: number; title: string; bg: string }[] = [
+  { id: 26, title: 'Mailbox row',    bg: '#5C4ADE' },
+  { id: 25, title: 'The greenhouse', bg: '#5DDB9C' },
+  { id: 24, title: 'Donut diner',    bg: '#FFAEE7' },
+  { id: 23, title: 'Pocket sub',     bg: '#FFD731' },
+  { id: 22, title: 'Lander №7',      bg: '#FB4903' },
+  { id: 21, title: 'Lighthouse',     bg: '#4DA2FF' },
+  { id: 20, title: 'The big wheel',  bg: '#001B21' },
+  { id: 19, title: 'Field tractor',  bg: '#5DDB9C' },
+  { id: 18, title: 'Record shop',    bg: '#FFAEE7' },
+]

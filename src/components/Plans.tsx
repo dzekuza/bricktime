@@ -134,8 +134,9 @@ export default function Plans() {
   }
 
   return (
-    <section id="plans" className="bg-ink py-10 md:py-20">
-      <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+    <section id="plans" className="relative bg-paper pt-28 pb-10 md:pt-64 md:pb-20">
+      <img src="/transitions/top-lego.png" alt="" aria-hidden="true" className="pointer-events-none absolute top-0 left-0 w-full" style={{ zIndex: 2 }} />
+      <div className="relative z-10 mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
           {/* Tagline tile — full width */}
@@ -229,7 +230,7 @@ export default function Plans() {
                 className="mt-7 w-full rounded-full border-2 border-ink font-bold text-[14px] tracking-[.02em] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] transition-all"
                 style={{ background: plan.ctaBg, color: plan.ctaText }}
               >
-                <a href="#">{plan.cta}</a>
+                <a href="/subscribe">{plan.cta}</a>
               </Button>
             </div>
           ))}

@@ -14,20 +14,20 @@ const faqs = [
     a: 'Aukštos kokybės ABS plastikas prie pramoninio standarto 1,6 mm tolerancijos. Visiškai suderinamos su bet kokios suderinamos markės kaladėlėmis — užsispaudžia, laiko ir išsiskiria švariai.',
   },
   {
-    q: 'Ar galiu praleisti mėnesį?',
-    a: 'Taip. Valdymo skydelyje spausk Praleisti iki mėnesio 1 d. Kitą ciklą vėl apmokesinsime, jokių klausimų.',
+    q: 'Kaip veikia mėnesinis biudžetas?',
+    a: 'Kiekvienas planas suteikia fiksuotą € biudžetą. Galite turėti kelis produktus vienu metu — kol bendra vertė neviršija biudžeto. Biudžetas atsinaujina kas mėnesį.',
   },
   {
-    q: 'Ar produktai jungiasi tarpusavyje?',
-    a: 'Kiekvienas produktas yra BRICKTIME visatos dalis — 12 mėnesių sujungtų kūrinių, sudarančių visą gatvę, transporto parką ar pasaulį. Prisijunk bet kurį mėnesį, statyk į priekį.',
+    q: 'Ar produktai skiriasi pagal planą?',
+    a: 'Taip. Kai kurie produktai prieinami tik aukštesnio lygio prenumeratoriams. Nano ir Mini planai suteikia prieigą prie bazinio katalogo, Standard+ atveria išskirtinius produktus.',
   },
   {
     q: 'Kur pristatote?',
     a: 'Visame pasaulyje. Nemokamas standartinis pristatymas ES, JK ir JAV. Skubus lygis pristato per 2 darbo dienas.',
   },
   {
-    q: 'Ką daryti gavus dublikatą miniuką?',
-    a: 'Atidaryk BRICKTIME keitimų klubą valdymo skydelyje. Dublikatai — tai įprasta valiuta, keisk su kitu prenumeratoriumi nemokamai.',
+    q: 'Kaip grąžinti produktą?',
+    a: 'Iš paskyros skydelio užsakyk nemokamą grąžinimo etiketę, supakuok produktą ir išsiųsk. Kai tik grąžinimas patvirtinamas — biudžetas atsinaujina ir gali rinktis naujus produktus.',
   },
 ]
 
@@ -42,11 +42,15 @@ export default function FAQ() {
   const ref = useReveal<HTMLDivElement>()
   const zeroRiskRef = useRef<HTMLSpanElement>(null)
 
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
   function onCtaEnter() {
+    if (reduced) return
     gsap.killTweensOf(zeroRiskRef.current)
     gsap.to(zeroRiskRef.current, { rotate: 3, scale: 1.1, duration: 0.2, ease: 'back.out(2.5)' })
   }
   function onCtaLeave() {
+    if (reduced) return
     gsap.killTweensOf(zeroRiskRef.current)
     gsap.to(zeroRiskRef.current, { rotate: -1.5, scale: 1, duration: 0.28, ease: 'elastic.out(1, 0.55)' })
   }
@@ -60,7 +64,6 @@ export default function FAQ() {
           <div
             className="reveal brick-card bg-paper p-6 md:p-9 lg:col-span-7 lg:row-span-2"
           >
-            <h3 className="label-mono text-ink/50">⬢ D.U.K.</h3>
             <h2 className="mt-3 heading-display text-d-lg text-ink">
               <span
                 className="inline-block border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
@@ -72,16 +75,16 @@ export default function FAQ() {
               klausimai.
             </h2>
 
-            <Accordion type="single" collapsible defaultValue="item-0" className="mt-8">
+            <Accordion type="single" collapsible defaultValue="item-0" className="mt-6">
               {faqs.map((faq, i) => (
-                <AccordionItem key={i} value={`item-${i}`} className="border-b-2 border-ink py-0.5">
+                <AccordionItem key={i} value={`item-${i}`} className="py-0.5">
                   <AccordionTrigger
-                    className="heading-display text-d-xs leading-none py-5 text-left hover:no-underline"
+                    className="text-[16px] font-bold leading-snug py-4 text-left hover:no-underline"
                   >
                     {faq.q}
                   </AccordionTrigger>
                   <AccordionContent>
-                    <p className="max-w-[58ch] pb-5 text-[15px] leading-[1.65] text-ink/70">{faq.a}</p>
+                    <p className="max-w-[58ch] pb-4 text-[15px] leading-[1.65] text-ink/70">{faq.a}</p>
                   </AccordionContent>
                 </AccordionItem>
               ))}

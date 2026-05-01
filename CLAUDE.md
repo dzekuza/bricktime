@@ -35,6 +35,15 @@ Both apps: **React 19 + Vite 7 + TypeScript + Tailwind CSS v4 + shadcn/ui**
 
 **Landing page + customer flow.** No backend — all data is static/mocked.
 
+**Service model** — BRICKTIME is a LEGO rental subscription:
+- Users subscribe to a tier (Nano / Mini / Standard / Pro / Mega)
+- Each tier gives a monthly **€ budget** (Nano €50 → Mega €600)
+- Users **browse the product catalog** (`/archive`) and claim products within their budget
+- Products are **tier-gated** — some require Standard+ or Pro+ to access
+- Users can hold multiple products simultaneously as long as total value ≤ budget
+- To get new products they must **return** current ones (prepaid label)
+- Higher tier = larger budget + access to higher-value/exclusive products
+
 Routes in `App.tsx`:
 - `/` → `Home` — assembles all landing sections (Nav, Hero, Marquee, HowItWorks, WhatsInside, Plans, Testimonials, FAQ, BigCTA, Footer, FloatingVideoWidget)
 - `/archive` → products listing

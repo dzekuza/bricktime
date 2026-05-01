@@ -1,14 +1,27 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { XIcon } from 'lucide-react'
 
 export default function FloatingVideoWidget() {
   const [visible, setVisible] = useState(false)
   const [dismissed, setDismissed] = useState(false)
+  const [expanded, setExpanded] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 2200)
     return () => clearTimeout(t)
   }, [])
+
+  function toggleExpand() {
+    const next = !expanded
+    setExpanded(next)
+    if (videoRef.current) videoRef.current.muted = !next
+  }
+
+  function dismiss() {
+    setVisible(false)
+    setTimeout(() => setDismissed(true), 400)
+  }
 
   if (dismissed) return null
 
@@ -18,7 +31,7 @@ export default function FloatingVideoWidget() {
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(24px)',
-        transition: 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1)',
+        transition: 'opacity 0.4s cubic-bezier(0.22,1,0.36,1), transform 0.4s cubic-bezier(0.34,1.56,0.64,1)',
         pointerEvents: visible ? 'all' : 'none',
       }}
     >
@@ -28,7 +41,6 @@ export default function FloatingVideoWidget() {
         style={{ background: '#001B21' }}
       >
         Sveiki! 👋
-        {/* Tail */}
         <span
           className="absolute -bottom-[6px] right-4 h-0 w-0"
           style={{
@@ -40,9 +52,17 @@ export default function FloatingVideoWidget() {
       </div>
 
       {/* Video card */}
-      <div className="relative overflow-hidden rounded-xl border-2 border-ink shadow-[4px_4px_0_#001B21]" style={{ width: 130 }}>
+      <div
+        className="relative overflow-hidden rounded-xl border-2 border-ink shadow-[4px_4px_0_#001B21] cursor-pointer"
+        style={{
+          width: expanded ? 220 : 130,
+          transition: 'width 0.35s cubic-bezier(0.34,1.56,0.64,1)',
+        }}
+        onClick={toggleExpand}
+      >
         <video
-          src="/loader.mp4"
+          ref={videoRef}
+          src="/promo.mp4"
           autoPlay
           loop
           muted
@@ -53,8 +73,8 @@ export default function FloatingVideoWidget() {
 
         {/* Close button */}
         <button
-          onClick={() => setDismissed(true)}
-          className="absolute right-1.5 top-1.5 grid size-5 place-items-center rounded-full bg-ink text-paper transition-transform hover:scale-110"
+          onClick={(e) => { e.stopPropagation(); dismiss() }}
+          className="absolute right-1.5 top-1.5 grid size-5 place-items-center rounded-full bg-ink text-paper transition-transform hover:scale-110 active:scale-95"
           aria-label="Uždaryti"
         >
           <XIcon className="size-3" />

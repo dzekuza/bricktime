@@ -13,6 +13,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+html, body, #root {
+  background-color: #F5F1EB;
+}
+
 @theme inline {
     /* Brand fonts */
     --font-display: 'Bricolage Grotesque', 'Impact', sans-serif;
@@ -129,12 +133,24 @@
 
   /* Interactive card hover lift */
   .brick-card-hover {
-    @apply transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21];
+    transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        transform: translate(-3px, -3px);
+        box-shadow: 10px 10px 0 #001B21;
+      }
+    }
   }
 
   /* Small element hover (buttons, nav items) */
   .brick-hover-sm {
-    @apply transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#001B21];
+    transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 4px 4px 0 #001B21;
+      }
+    }
   }
 
   /* Section / tile mono label */
@@ -198,4 +214,15 @@
 }
 .marquee-track {
   animation: marquee-scroll 30s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
+  .marquee-track {
+    animation: none;
+  }
 }

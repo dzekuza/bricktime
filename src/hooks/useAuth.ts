@@ -7,6 +7,7 @@ export interface AuthProfile {
   name: string
   avatarId: number
   avatarBg: string
+  plan: string | null
 }
 
 export function useAuth() {
@@ -34,11 +35,11 @@ export function useAuth() {
     }
     supabase
       .from('subscribers')
-      .select('id, name, avatar_id, avatar_bg')
+      .select('id, name, avatar_id, avatar_bg, plan')
       .eq('id', user.id)
       .single()
       .then(({ data }) => {
-        if (data) setProfile({ id: data.id, name: data.name, avatarId: data.avatar_id, avatarBg: data.avatar_bg })
+        if (data) setProfile({ id: data.id, name: data.name, avatarId: data.avatar_id, avatarBg: data.avatar_bg, plan: data.plan ?? null })
         setLoading(false)
       })
   }, [user])

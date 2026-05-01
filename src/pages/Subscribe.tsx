@@ -2,17 +2,17 @@ import { useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
-import { ArrowRightIcon } from 'lucide-react'
+import { ArrowRightIcon, ShieldCheckIcon, CalendarXIcon, RefreshCcwIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useReveal } from '@/hooks/useReveal'
 
 const plans = [
-  { name: 'Nano',     monthlyPrice: 9,  annualPrice: 7,  bg: '#F5F1EB', textColor: '#001B21', accentColor: '#5DDB9C', perks: ['60–90 kaladėlių', 'Surinkimo kortelė', '4 lipdukų', 'Nemokamas pristatymas'] },
-  { name: 'Mini',     monthlyPrice: 14, annualPrice: 11, bg: '#FFAEE7', textColor: '#001B21', accentColor: '#001B21', perks: ['120–180 kaladėlių', '1 išskirtinis miniukas', 'Surinkimo kortelė + 8 lipdukų', 'Nemokamas pristatymas'] },
-  { name: 'Standard', monthlyPrice: 24, annualPrice: 19, bg: '#FFD731', textColor: '#001B21', accentColor: '#001B21', perks: ['240–320 kaladėlių', '2 išskirtiniai miniukai', '16 lipdukų', 'Keitimų klubo prieiga', 'Skubus pristatymas'] },
-  { name: 'Pro',      monthlyPrice: 35, annualPrice: 28, bg: '#4DA2FF', textColor: '#001B21', accentColor: '#001B21', perks: ['340–400 kaladėlių', '2 miniukai + alt spalva', '20 lipdukų', 'Ankstyva prieiga prie produktų', 'Skubus pristatymas'] },
-  { name: 'Mega',     monthlyPrice: 55, annualPrice: 44, bg: '#FB4903', textColor: '#F5F1EB', accentColor: '#FFD731', perks: ['420–520 kaladėlių', '3 miniukai + retas variantas', 'Kietu viršeliu surinkimo knyga', 'Metinė siurprizų dėžutė', 'Visiška prieiga'] },
+  { name: 'Nano',     monthlyPrice: 9,  annualPrice: 7,  bg: '#F5F1EB', textColor: '#001B21', accentColor: '#5DDB9C', perks: ['Iki €50 vertės produktai', 'Surinkimo kortelė', '4 lipdukų', 'Nemokamas pristatymas'] },
+  { name: 'Mini',     monthlyPrice: 14, annualPrice: 11, bg: '#FFAEE7', textColor: '#001B21', accentColor: '#001B21', perks: ['Iki €100 vertės produktai', '1 išskirtinis miniukas', 'Surinkimo kortelė + 8 lipdukų', 'Nemokamas pristatymas'] },
+  { name: 'Standard', monthlyPrice: 24, annualPrice: 19, bg: '#FFD731', textColor: '#001B21', accentColor: '#001B21', perks: ['Iki €200 vertės produktai', '2 išskirtiniai miniukai', '16 lipdukų', 'Keitimų klubo prieiga', 'Skubus pristatymas'] },
+  { name: 'Pro',      monthlyPrice: 35, annualPrice: 28, bg: '#4DA2FF', textColor: '#001B21', accentColor: '#001B21', perks: ['Iki €350 vertės produktai', '2 miniukai + alt spalva', '20 lipdukų', 'Ankstyva prieiga prie produktų', 'Skubus pristatymas'] },
+  { name: 'Mega',     monthlyPrice: 55, annualPrice: 44, bg: '#FB4903', textColor: '#F5F1EB', accentColor: '#FFD731', perks: ['Iki €600 vertės produktai', '3 miniukai + retas variantas', 'Kietu viršeliu surinkimo knyga', 'Metinė siurprizų dėžutė', 'Visiška prieiga'] },
 ]
 
 const planIndex: Record<string, number> = { nano: 0, mini: 1, standard: 2, pro: 3, mega: 4 }
@@ -51,11 +51,11 @@ export default function Subscribe() {
                   Tu klube.
                 </h1>
                 <p className="mt-5 max-w-[42ch] text-[17px] leading-[1.65] text-ink/70">
-                  Sveiki BRICKTIME {plan.name}. Pirmoji dėžutė išsiunčiama su Produktas № 26 — Mailbox Row.
+                  Sveiki BRICKTIME {plan.name}. Katalogas atidarytas — naršyk produktus ir pasirink pagal savo {plan.name} biudžetą.
                   Patvirtinimas išsiųstas į <b>{form.email || 'jūsų el. paštą'}</b>.
                 </p>
                 <div className="mt-10 flex flex-wrap gap-4 justify-center">
-                  <Button asChild className="rounded-full border-2 border-ink bg-ink text-paper font-bold text-[15px] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] transition-all">
+                  <Button asChild className="rounded-full border-2 border-ink bg-ink text-paper font-bold text-[15px] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#4da8b8] transition-all">
                     <Link to="/account">Eiti į paskyrą <ArrowRightIcon data-icon="inline-end" /></Link>
                   </Button>
                   <Button asChild variant="outline" className="rounded-full border-2 border-ink bg-transparent text-ink font-bold text-[15px] hover:bg-ink/5 transition-all">
@@ -76,22 +76,21 @@ export default function Subscribe() {
       <Nav />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="bg-ink py-20">
+      <section className="bg-paper pt-6 pb-4">
         <div className="mx-auto max-w-[1320px] px-7">
           <div ref={heroRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
             <div
-              className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-paper/15 p-6 md:p-9 lg:col-span-7"
+              className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-[#1e4048] p-6 md:p-9 lg:col-span-7"
               style={{ background: '#001B21', minHeight: 280 }}
             >
-              <h3 className="label-mono text-paper/40">⬢ Pradėk prenumeratą</h3>
-              <div>
+<div>
                 <h1
                   className="mt-4 heading-display text-d-lg text-paper tracking-[-0.015em]"
                 >
                   {step === 'plan' ? 'Pasirink planą.' : 'Užbaik užsakymą.'}
                 </h1>
-                <p className="mt-5 max-w-[46ch] text-[16px] leading-[1.65] text-paper/65">
+                <p className="mt-5 max-w-[46ch] text-[16px] leading-[1.65] text-[#8aabb2]">
                   {step === 'plan'
                     ? 'Penki lygiai. Atšauk bet kurį mėnesį. Išsiunčiama per 5 dienas po registracijos.'
                     : `Tik vienas žingsnis iki pirmosios BRICKTIME ${plan.name} dėžutės.`}
@@ -103,12 +102,12 @@ export default function Subscribe() {
                   <div key={s} className="flex items-center gap-3">
                     <div className={[
                       'flex items-center gap-2 rounded-full border-2 px-4 py-1.5 font-mono text-[11px] tracking-[.08em] uppercase transition-all',
-                      (step === 'plan' ? i === 0 : i === 1) ? 'border-brand-yellow bg-brand-yellow text-ink' : 'border-paper/30 text-paper/40',
+                      (step === 'plan' ? i === 0 : i === 1) ? 'border-brand-yellow bg-brand-yellow text-ink' : 'border-[#2d5560] text-[#5a7e87]',
                     ].join(' ')}>
                       <span>{i + 1}</span>
                       <span>{s}</span>
                     </div>
-                    {i === 0 && <ArrowRightIcon className="size-4 text-paper/30" />}
+                    {i === 0 && <ArrowRightIcon className="size-4 text-[#2d5560]" />}
                   </div>
                 ))}
               </div>
@@ -116,10 +115,10 @@ export default function Subscribe() {
 
             {/* Order summary tile */}
             <div
-              className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-paper/15 p-6 md:p-8 lg:col-span-5"
+              className="reveal flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 border-[#1e4048] p-6 md:p-8 lg:col-span-5"
               style={{ background: plan.bg, minHeight: 280 }}
             >
-              <h3 className="label-mono" style={{ color: `${plan.textColor}60` }}>
+              <h3 className="text-2xl text-ink/50 font-semibold">
                 Pasirinktas planas
               </h3>
               <div>
@@ -164,20 +163,20 @@ export default function Subscribe() {
 
       {step === 'plan' ? (
         /* ── Plan selection ─────────────────────────────────────────── */
-        <section className="bg-paper py-20">
+        <section className="bg-paper pt-4 pb-20">
           <div className="mx-auto max-w-[1320px] px-7">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="flex flex-col lg:flex-row lg:-space-x-4">
               {plans.map((p, i) => (
                 <button
                   key={p.name}
                   onClick={() => setSelectedPlan(i)}
                   className={[
-                    'relative flex flex-col justify-between rounded-2xl md:rounded-3xl border-2 p-6 md:p-7 text-left transition-all',
+                    'relative flex flex-col justify-between flex-1 rounded-2xl md:rounded-3xl border-2 p-6 md:p-7 text-left transition-all duration-200 hover:-translate-y-3 hover:z-10',
                     selectedPlan === i
-                      ? 'border-ink shadow-[6px_6px_0_#001B21] scale-[1.02]'
+                      ? 'border-ink shadow-[6px_6px_0_#001B21] -translate-y-3 z-10'
                       : 'border-ink/40 hover:border-ink hover:shadow-[4px_4px_0_#001B21]',
                   ].join(' ')}
-                  style={{ background: p.bg, minHeight: 320 }}
+                  style={{ background: p.bg, minHeight: 320, zIndex: i + 1 }}
                 >
                   {i === 2 && (
                     <Badge className="absolute -top-3.5 right-5 rotate-1 rounded border-2 border-ink px-2.5 py-0.5 font-mono text-[10px] tracking-[.08em] uppercase" style={{ background: '#001B21', color: '#F5F1EB' }}>
@@ -211,7 +210,7 @@ export default function Subscribe() {
             <div className="mt-8 flex justify-center">
               <Button
                 size="lg"
-                className="rounded-full border-2 border-ink bg-ink text-paper font-bold text-[16px] hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21] transition-all"
+                className="rounded-full border-2 border-ink bg-ink text-paper font-bold text-[16px] hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#4da8b8] transition-all"
                 onClick={() => setStep('payment')}
               >
                 Tęsti su {plan.name} <ArrowRightIcon data-icon="inline-end" />
@@ -221,7 +220,7 @@ export default function Subscribe() {
         </section>
       ) : (
         /* ── Payment form ───────────────────────────────────────────── */
-        <section className="bg-paper py-20">
+        <section className="bg-paper pt-4 pb-20">
           <div className="mx-auto max-w-[1320px] px-7">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
@@ -230,7 +229,7 @@ export default function Subscribe() {
                 className="brick-card p-10 lg:col-span-7"
                 style={{ background: '#F5F1EB' }}
               >
-                <h3 className="label-mono text-ink/50 mb-7">⬢ Mokėjimo duomenys</h3>
+                <h3 className="text-2xl text-ink/50 font-semibold mb-7">Mokėjimo duomenys</h3>
 
                 <div className="flex flex-col gap-5">
                   {/* Email */}
@@ -297,16 +296,18 @@ export default function Subscribe() {
                 <div className="mt-8 flex gap-3">
                   <Button
                     size="lg"
-                    className="flex-1 rounded-full border-2 border-ink bg-ink text-paper font-bold text-[16px] hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21] transition-all"
+                    className="flex-1 rounded-full border-2 border-ink bg-ink text-paper font-bold text-[16px] hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#4da8b8] transition-all"
                     onClick={() => setSubmitted(true)}
                   >
                     Pradėti {plan.name} — ${billing === 'annual' ? `${total} šiandien` : `${price}/mėn.`} →
                   </Button>
                 </div>
 
-                <p className="mt-4 text-center label-mono text-ink/40">
-                  SSL šifravimas · atšauk bet kada · 30 dienų pinigų grąžinimo garantija
-                </p>
+                <div className="mt-4 flex flex-wrap justify-center items-center gap-x-5 gap-y-2 font-mono text-[11px] tracking-[.08em] uppercase text-ink/40">
+                  <span className="flex items-center gap-1.5"><ShieldCheckIcon size={13} />SSL šifravimas</span>
+                  <span className="flex items-center gap-1.5"><CalendarXIcon size={13} />Atšauk bet kada</span>
+                  <span className="flex items-center gap-1.5"><RefreshCcwIcon size={13} />30 dienų grąžinimo garantija</span>
+                </div>
               </div>
 
               {/* Order summary */}
@@ -315,7 +316,7 @@ export default function Subscribe() {
                   className="brick-card p-6 md:p-8"
                   style={{ background: plan.bg }}
                 >
-                  <h3 className="label-mono" style={{ color: `${plan.textColor}60` }}>Užsakymo suvestinė</h3>
+                  <h3 className="text-2xl text-ink/50 font-semibold">Užsakymo suvestinė</h3>
                   <div className="mt-5 flex flex-col gap-3 border-b border-dashed border-ink/30 pb-5">
                     <div className="flex justify-between text-[15px]" style={{ color: plan.textColor }}>
                       <span>{plan.name} planas ({billing === 'monthly' ? 'mėnesinis' : 'metinis'})</span>
@@ -344,22 +345,7 @@ export default function Subscribe() {
                   </div>
                 </div>
 
-                <div
-                  className="brick-card p-6 md:p-7"
-                  style={{ background: '#F5F1EB' }}
-                >
-                  <h3 className="label-mono text-ink/50 mb-4">Ką gausite</h3>
-                  <ul className="flex flex-col gap-2">
-                    {plan.perks.map((p) => (
-                      <li key={p} className="flex items-center gap-2.5 text-[14px] text-ink">
-                        <span className="size-2 shrink-0 rounded-full bg-brand-mint" />
-                        {p}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <button
+<button
                   onClick={() => setStep('plan')}
                   className="text-center font-mono text-[12px] tracking-[.14em] uppercase text-ink/50 hover:text-ink transition-colors"
                 >
