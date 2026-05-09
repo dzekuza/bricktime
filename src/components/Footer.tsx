@@ -25,11 +25,8 @@ const socials = ['Instagram', 'TikTok', 'Discord']
 
 export default function Footer() {
   return (
-    <footer className="relative bg-white pt-8 pb-48 md:pb-64 text-ink mt-0 overflow-hidden">
-      <img src="/transitions/bottom-forest.png" alt="" aria-hidden="true" className="pointer-events-none absolute bottom-0 left-0 w-full" style={{ zIndex: 2 }} />
-      <div className="pointer-events-none absolute top-0 left-0 w-full h-40" style={{ background: 'linear-gradient(to bottom, #ffffff 0%, transparent 100%)', zIndex: 3 }} />
-      <div className="pointer-events-none absolute bottom-0 left-0 w-full h-48" style={{ background: 'linear-gradient(to top, #ffffff 0%, transparent 100%)', zIndex: 3 }} />
-      <div className="relative z-10 mx-auto max-w-[1320px] px-4 md:px-7">
+    <footer className="bg-white pt-8 pb-16 text-ink mt-0">
+      <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         {/* Grid */}
         <div className="grid grid-cols-2 gap-12 md:grid-cols-[2fr_1fr_1fr_1fr]">
           {/* Brand */}

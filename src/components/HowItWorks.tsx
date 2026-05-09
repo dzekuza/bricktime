@@ -77,7 +77,7 @@ export default function HowItWorks() {
 
           {/* Header tile — full width */}
           <div
-            className="reveal brick-card flex flex-col justify-center bg-paper p-6 md:p-9 lg:col-span-12"
+            className="reveal flex flex-col justify-center bg-paper p-6 md:p-9 lg:col-span-12"
           >
             <h2
               className="heading-display text-d-lg mt-3 text-ink"

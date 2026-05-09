@@ -149,8 +149,7 @@ export default function Plans() {
 
           {/* Tagline tile — full width */}
           <div
-            className="reveal brick-card flex items-end justify-between p-6 md:p-9 shadow-[6px_6px_0_rgba(245,241,235,.12)] lg:col-span-12"
-            style={{ background: '#FFD731' }}
+            className="reveal flex items-end justify-between p-6 md:p-9 lg:col-span-12"
           >
             <h2
               className="heading-display text-d-lg tracking-[-0.015em] text-ink"

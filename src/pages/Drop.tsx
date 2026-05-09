@@ -205,19 +205,21 @@ export default function Drop() {
               </p>
 
               {/* Spec grid */}
-              <div className="mt-8 overflow-hidden rounded-2xl md:rounded-3xl border-2 border-ink">
-                <div className="grid grid-cols-3">
-                  {[
-                    [String(product?.bricks ?? 312), 'Bricks'],
-                    [product?.build_time ?? '—', 'Build time'],
-                    [product?.tier ? (product.tier.charAt(0).toUpperCase() + product.tier.slice(1)) : 'Standard', 'Min. plan'],
-                  ].map(([val, label], i) => (
-                    <div key={i} className={`flex flex-col gap-1 bg-paper p-4 ${i < 2 ? 'border-r-[1.5px] border-ink' : ''}`} style={{ borderStyle: 'solid', borderColor: '#001B21' }}>
-                      <b className="font-display text-[36px] leading-none">{val}</b>
-                      <small className="font-mono text-[10px] tracking-[.16em] uppercase text-ink/55">{label}</small>
-                    </div>
-                  ))}
-                </div>
+              <div className="mt-8 flex gap-2">
+                {[
+                  { val: String(product?.bricks ?? 312), label: 'Bricks', bg: '#FFD731', text: '#001B21' },
+                  { val: product?.build_time ?? '—', label: 'Build time', bg: '#FFAEE7', text: '#001B21' },
+                  { val: product?.tier ? (product.tier.charAt(0).toUpperCase() + product.tier.slice(1)) : 'Standard', label: 'Min. plan', bg: '#4DA2FF', text: '#001B21' },
+                ].map(({ val, label, bg, text }) => (
+                  <div
+                    key={label}
+                    className="brick-card flex flex-col gap-0.5 px-4 py-3"
+                    style={{ background: bg, color: text }}
+                  >
+                    <span className="font-display text-[28px] leading-none font-black">{val}</span>
+                    <span className="font-mono text-[10px] tracking-[.18em] uppercase opacity-60">{label}</span>
+                  </div>
+                ))}
               </div>
 
               {/* Rent box */}
@@ -492,7 +494,7 @@ export default function Drop() {
 
             {/* Row 2+: review cards — carousel on mobile, 2-col grid on desktop */}
             {/* bleed wrapper — escapes the grid cell horizontally on mobile */}
-            <div className="lg:col-span-12 -mx-4 md:-mx-7 lg:mx-0">
+            <div className="lg:col-span-12">
               <div
                 className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 px-4 md:px-7 lg:px-0 lg:overflow-visible lg:snap-none lg:pb-0 lg:grid lg:grid-cols-2"
                 style={{ scrollbarWidth: 'none' }}
