@@ -142,7 +142,7 @@ export default function Plans() {
   }
 
   return (
-    <section id="plans" ref={containerRef} className="relative bg-paper pt-28 pb-10 md:pt-64 md:pb-20">
+    <section id="plans" ref={containerRef} className="relative bg-paper py-10 md:py-20">
       <div className="relative z-10 mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 

@@ -43,13 +43,13 @@ const testimonials = [
 function onCardEnter(e: React.MouseEvent<HTMLDivElement>) {
   gsap.killTweensOf(e.currentTarget.querySelector('.stars'))
   gsap.to(e.currentTarget.querySelector('.stars'), {
-    scale: 1.3, y: -4, duration: 0.2, ease: 'back.out(2.5)',
+    scale: 1.3, y: -4, duration: 0.2, ease: 'back.out(2.5)', transformOrigin: 'left center',
   })
 }
 function onCardLeave(e: React.MouseEvent<HTMLDivElement>) {
   gsap.killTweensOf(e.currentTarget.querySelector('.stars'))
   gsap.to(e.currentTarget.querySelector('.stars'), {
-    scale: 1, y: 0, duration: 0.3, ease: 'elastic.out(1, 0.55)',
+    scale: 1, y: 0, duration: 0.3, ease: 'elastic.out(1, 0.55)', transformOrigin: 'left center',
   })
 }
 
