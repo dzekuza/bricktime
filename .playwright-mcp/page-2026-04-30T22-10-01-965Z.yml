@@ -1,0 +1,302 @@
+- generic [ref=e7]:
+  - navigation [ref=e8]:
+    - generic [ref=e9]:
+      - link [ref=e10] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e12]:
+        - link "Paskyra" [ref=e13] [cursor=pointer]:
+          - /url: /account
+          - img "Paskyra" [ref=e14]
+        - button "Atidaryti meniu" [ref=e15]
+  - generic:
+    - generic:
+      - generic:
+        - generic: Meniu
+        - button "Uždaryti meniu": ✕
+      - navigation:
+        - link "Pradžia":
+          - /url: /
+        - link "Produktai":
+          - /url: /archive
+        - link "Planai":
+          - /url: /plans
+        - link "Bendruomenė":
+          - /url: /community
+        - link "Paskyra":
+          - /url: /account
+          - text: Paskyra
+      - generic:
+        - link "Prenumeruoti →":
+          - /url: /subscribe
+        - paragraph: Atšauk bet kada · Nemokamas pristatymas
+  - generic [ref=e21]:
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - button "Keisti avataras" [ref=e25]:
+          - img "Klasikinis" [ref=e26]
+          - generic [ref=e28]: Keisti
+        - generic [ref=e29]:
+          - paragraph [ref=e30]: ⬢ Mano paskyra
+          - heading "Alex Kim" [level=1] [ref=e31]
+          - paragraph [ref=e32]: alex.kim@example.com
+      - generic [ref=e33]:
+        - generic [ref=e34]:
+          - generic [ref=e35]: "14"
+          - generic [ref=e36]: Gauti produktai
+        - generic [ref=e37]:
+          - generic [ref=e38]: 3/5
+          - generic [ref=e39]: Plano lygis
+        - generic [ref=e40]:
+          - generic [ref=e41]: 14 mėn.
+          - generic [ref=e42]: Narys
+        - generic [ref=e43]:
+          - generic [ref=e44]: "70"
+          - generic [ref=e45]: Taškai
+      - paragraph [ref=e46]: Narys nuo Produktas № 12 · kovas 2025
+    - generic [ref=e47]:
+      - generic [ref=e48]:
+        - paragraph [ref=e49]: Aktyvi prenumerata
+        - generic [ref=e50]: Standard
+        - generic [ref=e51]:
+          - generic [ref=e52]: $24
+          - generic [ref=e53]: /mėn.
+        - paragraph [ref=e54]: "Kitas mokėjimas: Birželio 5, 2026"
+      - generic [ref=e55]:
+        - button "Paaukštinti / Keisti planą" [ref=e56]
+        - generic [ref=e57]:
+          - button "Praleisti mėnesį" [ref=e58]
+          - button "Pristabdyti" [ref=e59]
+  - generic [ref=e62]:
+    - generic [ref=e63]:
+      - paragraph [ref=e64]: ⬢ Mano produktai
+      - heading "Tavo nuomoti produktai." [level=2] [ref=e65]
+    - link "№ 26 Išsiunčiama geg. 5 Mailbox Row 312 kaladėlių Žiūrėti produktą →" [ref=e66] [cursor=pointer]:
+      - /url: /drop/26
+      - generic [ref=e67]:
+        - generic [ref=e68]: № 26
+        - generic [ref=e69]: Išsiunčiama geg. 5
+      - generic [ref=e70]:
+        - heading "Mailbox Row" [level=3] [ref=e71]
+        - paragraph [ref=e72]: 312 kaladėlių
+        - generic [ref=e73]:
+          - generic [ref=e74]: Žiūrėti produktą
+          - generic [ref=e75]: →
+    - link "№ 25 Pristatyta The Greenhouse 268 kaladėlių Žiūrėti produktą →" [ref=e76] [cursor=pointer]:
+      - /url: /drop/25
+      - generic [ref=e77]:
+        - generic [ref=e78]: № 25
+        - generic [ref=e79]: Pristatyta
+      - generic [ref=e80]:
+        - heading "The Greenhouse" [level=3] [ref=e81]
+        - paragraph [ref=e82]: 268 kaladėlių
+        - generic [ref=e83]:
+          - generic [ref=e84]: Žiūrėti produktą
+          - generic [ref=e85]: →
+    - link "№ 24 Pristatyta Donut Diner 295 kaladėlių Žiūrėti produktą →" [ref=e86] [cursor=pointer]:
+      - /url: /drop/24
+      - generic [ref=e87]:
+        - generic [ref=e88]: № 24
+        - generic [ref=e89]: Pristatyta
+      - generic [ref=e90]:
+        - heading "Donut Diner" [level=3] [ref=e91]
+        - paragraph [ref=e92]: 295 kaladėlių
+        - generic [ref=e93]:
+          - generic [ref=e94]: Žiūrėti produktą
+          - generic [ref=e95]: →
+    - link "№ 21 Pristatyta Lighthouse 292 kaladėlių Žiūrėti produktą →" [ref=e96] [cursor=pointer]:
+      - /url: /drop/21
+      - generic [ref=e97]:
+        - generic [ref=e98]: № 21
+        - generic [ref=e99]: Pristatyta
+      - generic [ref=e100]:
+        - heading "Lighthouse" [level=3] [ref=e101]
+        - paragraph [ref=e102]: 292 kaladėlių
+        - generic [ref=e103]:
+          - generic [ref=e104]: Žiūrėti produktą
+          - generic [ref=e105]: →
+    - link "+ Naršyti daugiau produktų 26 prieinami su Standard+" [ref=e106] [cursor=pointer]:
+      - /url: /archive
+      - generic [ref=e107]: +
+      - paragraph [ref=e108]: Naršyti daugiau produktų
+      - paragraph [ref=e109]: 26 prieinami su Standard+
+  - generic [ref=e111]:
+    - paragraph [ref=e112]: ⬢ Pažymėjimai
+    - heading "Tavo ženkleliai." [level=2] [ref=e113]
+    - generic [ref=e114]:
+      - generic [ref=e116]:
+        - paragraph [ref=e117]: "70"
+        - paragraph [ref=e118]: Taškai iš viso
+        - generic [ref=e119]:
+          - paragraph [ref=e120]: Lyderių lentelė
+          - paragraph [ref=e121]: "# 5 vieta"
+        - link "Žiūrėti lyderių lentelę →" [ref=e122] [cursor=pointer]:
+          - /url: /community
+      - generic [ref=e124]:
+        - generic [ref=e125]:
+          - paragraph [ref=e126]: ☀️
+          - paragraph [ref=e127]: Kasdienė apsilankymas
+          - paragraph [ref=e128]: +10 taškai
+        - generic [ref=e129]:
+          - paragraph [ref=e130]: 🔥
+          - paragraph [ref=e131]: 7 dienų serija
+          - paragraph [ref=e132]: +50 taškai
+        - generic [ref=e133]:
+          - paragraph [ref=e134]: 🏛️
+          - paragraph [ref=e135]: Senas bičas
+          - paragraph [ref=e136]: +75 taškai
+        - generic [ref=e137]:
+          - paragraph [ref=e138]: 📦
+          - paragraph [ref=e139]: Pirmasis produktas
+          - paragraph [ref=e140]: +25 taškai
+        - generic [ref=e141]:
+          - paragraph [ref=e142]: 🧱
+          - paragraph [ref=e143]: Kolekcionierius
+          - paragraph [ref=e144]: +100 taškai
+        - generic [ref=e145]:
+          - paragraph [ref=e146]: 📸
+          - paragraph [ref=e147]: Statybų fotografas
+          - paragraph [ref=e148]: +30 taškai
+        - generic [ref=e149]:
+          - paragraph [ref=e150]: 💬
+          - paragraph [ref=e151]: Komentatorius
+          - paragraph [ref=e152]: +20 taškai
+        - generic [ref=e153]:
+          - paragraph [ref=e154]: ❤️
+          - paragraph [ref=e155]: Entuziastas
+          - paragraph [ref=e156]: +15 taškai
+        - generic [ref=e157]:
+          - paragraph [ref=e158]: ⚡
+          - paragraph [ref=e159]: Trijų serija
+          - paragraph [ref=e160]: +60 taškai
+  - generic [ref=e163]:
+    - generic [ref=e164]:
+      - paragraph [ref=e165]: ⬢ Išsiunčiama gegužės 5 d.
+      - generic [ref=e166]:
+        - heading "Produktas № 26 — Mailbox Row + Postman Otto" [level=2] [ref=e167]
+        - paragraph [ref=e168]: Įskaičiuota į tavo Standard dėžutę šį mėnesį. 312 kaladėlių, 2 išskirtiniai miniukai.
+      - link "Peržiūrėti produktą →" [ref=e169] [cursor=pointer]:
+        - /url: /drop/26
+    - generic [ref=e170]:
+      - paragraph [ref=e171]: Greiti veiksmai
+      - generic [ref=e172]:
+        - button "Praleisti birželio produktą" [ref=e173]:
+          - generic [ref=e174]: Praleisti birželio produktą
+        - button "Pristabdyti prenumeratą" [ref=e176]:
+          - generic [ref=e177]: Pristabdyti prenumeratą
+        - button "Dovanoti prenumeratą" [ref=e179]:
+          - generic [ref=e180]: Dovanoti prenumeratą
+        - button "Atšaukti prenumeratą" [ref=e182]:
+          - generic [ref=e183]: Atšaukti prenumeratą
+  - generic [ref=e187]:
+    - generic [ref=e188]:
+      - paragraph [ref=e189]: ⬢ Atsiskaitymas
+      - heading "Mokėjimų istorija." [level=2] [ref=e190]
+    - generic [ref=e192]:
+      - generic [ref=e193]:
+        - generic [ref=e194]:
+          - paragraph [ref=e195]: Produktas № 26
+          - paragraph [ref=e196]: Geg. 5, 2026
+        - generic [ref=e197]:
+          - generic [ref=e198]: $24
+          - generic [ref=e199]: Apmokėta
+      - generic [ref=e200]:
+        - generic [ref=e201]:
+          - paragraph [ref=e202]: Produktas № 25
+          - paragraph [ref=e203]: Bal. 5, 2026
+        - generic [ref=e204]:
+          - generic [ref=e205]: $24
+          - generic [ref=e206]: Apmokėta
+      - generic [ref=e207]:
+        - generic [ref=e208]:
+          - paragraph [ref=e209]: Produktas № 24
+          - paragraph [ref=e210]: Kov. 5, 2026
+        - generic [ref=e211]:
+          - generic [ref=e212]: $24
+          - generic [ref=e213]: Apmokėta
+      - generic [ref=e214]:
+        - generic [ref=e215]:
+          - paragraph [ref=e216]: Produktas № 23
+          - paragraph [ref=e217]: Vas. 5, 2026
+        - generic [ref=e218]:
+          - generic [ref=e219]: $24
+          - generic [ref=e220]: Apmokėta
+      - generic [ref=e221]:
+        - generic [ref=e222]:
+          - paragraph [ref=e223]: Produktas № 22
+          - paragraph [ref=e224]: Sau. 5, 2026
+        - generic [ref=e225]:
+          - generic [ref=e226]: $24
+          - generic [ref=e227]: Apmokėta
+    - generic [ref=e228]:
+      - generic [ref=e229]:
+        - paragraph [ref=e230]: Mokėjimo būdas
+        - generic [ref=e231]:
+          - paragraph [ref=e232]: Visa baigiasi
+          - paragraph [ref=e233]: ·· 4242
+          - paragraph [ref=e234]: Galioja iki 09/28
+      - generic [ref=e235]:
+        - button "Atnaujinti mokėjimo būdą" [ref=e236]
+        - button "Atsisiųsti sąskaitas" [ref=e237]
+  - contentinfo [ref=e238]:
+    - generic [ref=e239]:
+      - generic [ref=e240]:
+        - generic [ref=e241]:
+          - generic [ref=e242]:
+            - generic [ref=e243]: B!
+            - text: BRICKTIME
+          - paragraph [ref=e244]: Mėnesinė kaladėlių prenumerata suaugusiems, kurie niekada negalutinai nustojo statyti. Pagaminta Vilniuje, pristatoma visame pasaulyje.
+          - generic [ref=e245]:
+            - link "Instagram" [ref=e246] [cursor=pointer]:
+              - /url: "#"
+            - link "TikTok" [ref=e247] [cursor=pointer]:
+              - /url: "#"
+            - link "Discord" [ref=e248] [cursor=pointer]:
+              - /url: "#"
+        - generic [ref=e249]:
+          - heading "Prenumerata" [level=4] [ref=e250]
+          - list [ref=e251]:
+            - listitem [ref=e252]:
+              - link "Planai" [ref=e253] [cursor=pointer]:
+                - /url: "#plans"
+            - listitem [ref=e254]:
+              - link "Šis mėnuo" [ref=e255] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e256]:
+              - link "Archyvas" [ref=e257] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e258]:
+              - link "Dovanų kortelės" [ref=e259] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e260]:
+          - heading "Pagalba" [level=4] [ref=e261]
+          - list [ref=e262]:
+            - listitem [ref=e263]:
+              - link "D.U.K." [ref=e264] [cursor=pointer]:
+                - /url: "#faq"
+            - listitem [ref=e265]:
+              - link "Praleisti / pristabdyti" [ref=e266] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e267]:
+              - link "Pristatymas" [ref=e268] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e269]:
+              - link "Grąžinimai" [ref=e270] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e271]:
+          - heading "Įmonė" [level=4] [ref=e272]
+          - list [ref=e273]:
+            - listitem [ref=e274]:
+              - link "Apie mus" [ref=e275] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e276]:
+              - link "Spauda" [ref=e277] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e278]:
+              - link "Keitimų klubas" [ref=e279] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e280]:
+              - link "Karjera" [ref=e281] [cursor=pointer]:
+                - /url: "#"
+      - generic [ref=e282]:
+        - generic [ref=e283]: © 2026 BRICKTIME UAB
+        - generic [ref=e284]: BRICKTIME™ — originalus prekės ženklas · nesusijęs su jokiu žaislų gamintoju

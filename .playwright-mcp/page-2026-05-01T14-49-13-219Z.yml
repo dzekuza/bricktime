@@ -1,0 +1,348 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - link "Pradžia" [ref=e6] [cursor=pointer]:
+            - /url: /
+          - link "Produktai" [ref=e7] [cursor=pointer]:
+            - /url: /archive
+          - link "Planai" [ref=e8] [cursor=pointer]:
+            - /url: /subscribe
+          - link "Bendruomenė" [ref=e9] [cursor=pointer]:
+            - /url: /community
+          - link "Paskyra" [ref=e10] [cursor=pointer]:
+            - /url: /account
+        - link [ref=e11] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e13]:
+          - link "Prenumeruoti" [ref=e14] [cursor=pointer]:
+            - /url: /subscribe
+            - text: Prenumeruoti
+            - img
+          - button "Paskyra" [ref=e15]:
+            - img [ref=e16]
+    - generic [ref=e20]:
+      - generic [ref=e21]:
+        - link "BRICKTIME" [ref=e22] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e23]: /
+        - link "Products" [ref=e24] [cursor=pointer]:
+          - /url: /archive
+        - generic [ref=e25]: /
+        - generic [ref=e26]: Product № —
+      - generic [ref=e27]:
+        - generic [ref=e29]:
+          - generic [ref=e30]:
+            - img "[ Front ]" [ref=e31]
+            - generic [ref=e33]: Product №
+            - generic [ref=e34]: "[ Front ]"
+          - generic [ref=e35]:
+            - button "[ Front ] Front" [ref=e36]:
+              - img "[ Front ]" [ref=e37]
+              - generic [ref=e39]: Front
+            - button "[ Detail ] Detail" [ref=e40]:
+              - img "[ Detail ]" [ref=e41]
+              - generic [ref=e43]: Detail
+            - button "[ Build spread ] Build spread" [ref=e44]:
+              - img "[ Build spread ]" [ref=e45]
+              - generic [ref=e47]: Build spread
+            - button "[ Scale view ] Scale view" [ref=e48]:
+              - img "[ Scale view ]" [ref=e49]
+              - generic [ref=e51]: Scale view
+        - generic [ref=e52]:
+          - generic [ref=e54]: №
+          - heading "Mailbox Row + Postman Otto" [level=1] [ref=e55]:
+            - text: Mailbox Row
+            - text: +
+            - generic [ref=e56]: Postman Otto
+          - paragraph [ref=e57]: A five-storey postwar apartment block in mint and cream, complete with a working mailbox door, three planted balconies, and the universe's first scheduled crossover — Otto's bus is the bus from product №14.
+          - generic [ref=e59]:
+            - generic [ref=e60]:
+              - generic [ref=e61]: "312"
+              - generic [ref=e62]: Bricks
+            - generic [ref=e63]:
+              - generic [ref=e64]: —
+              - generic [ref=e65]: Build time
+            - generic [ref=e66]:
+              - generic [ref=e67]: Standard
+              - generic [ref=e68]: Min. plan
+          - generic [ref=e69]:
+            - generic [ref=e70]:
+              - generic [ref=e71]: Standard+
+              - generic [ref=e72]: reikalingas planas
+            - paragraph [ref=e73]: Šis produktas įskaičiuotas į tavo prenumeratą — jokio papildomo mokesčio. Tiesiog nuomoki, sustatyk ir grąžink.
+            - link "Nuomoti nemokamai →" [ref=e74] [cursor=pointer]:
+              - /url: /checkout?product=undefined
+            - generic [ref=e75]:
+              - generic [ref=e76]: Nemokamas pristatymas
+              - generic [ref=e78]: Atšauk bet kada
+              - generic [ref=e80]: 30 d. garantija
+          - paragraph [ref=e82]: Already a subscriber? Product № is included in your box.
+    - generic [ref=e85]:
+      - generic [ref=e86]:
+        - heading "⬢ What's in the bag" [level=3] [ref=e87]
+        - heading "Four parts. One mailbox row." [level=2] [ref=e88]:
+          - text: Four parts.
+          - text: One mailbox row.
+        - paragraph [ref=e89]: Tear the seal, scan the QR, and you'll find these four bagged sub-builds — each one a self-contained section of the model.
+      - generic [ref=e90]:
+        - generic [ref=e91]: Bag 04
+        - generic [ref=e92]: "04"
+        - heading "Otto + Mrs. Petrov" [level=4] [ref=e93]:
+          - generic [ref=e94]: Otto
+          - generic [ref=e95]: + Mrs. Petrov
+        - paragraph [ref=e96]: 40 bricks. The two minifigs, Otto's satchel, a folding bicycle, and 18 vinyl stickers.
+      - generic [ref=e97]:
+        - generic [ref=e98]: Bag 01
+        - generic [ref=e99]: "01"
+        - heading "Foundation + Mailbox" [level=4] [ref=e100]:
+          - generic [ref=e101]: Foundation
+          - generic [ref=e102]: + Mailbox
+        - paragraph [ref=e103]: 62 bricks. Working pull-down mailbox door, brass hinge piece, and the building's address tile (№ 26).
+      - generic [ref=e104]:
+        - generic [ref=e105]: Bag 02
+        - generic [ref=e106]: "02"
+        - heading "Floors 1 – 3" [level=4] [ref=e107]:
+          - generic [ref=e108]: Floors
+          - generic [ref=e109]: 1 – 3
+        - paragraph [ref=e110]: 114 bricks. Three storeys with planted balconies, a pigeon, and a window cat.
+      - generic [ref=e111]:
+        - generic [ref=e112]: Bag 03
+        - generic [ref=e113]: "03"
+        - heading "Floors 4 – 5 + roof" [level=4] [ref=e114]:
+          - generic [ref=e115]: Floors
+          - generic [ref=e116]: 4 – 5 + roof
+        - paragraph [ref=e117]: 96 bricks. Skylight, antenna, drying laundry on a printed banner piece.
+    - generic [ref=e120]:
+      - generic [ref=e122]:
+        - text: Editorial photo
+        - text: Otto sketch + photo of finished build on a desk
+      - generic [ref=e123]:
+        - heading "⬢ The story" [level=3] [ref=e124]
+        - heading "Otto has been delivering mail since product 14." [level=2] [ref=e125]:
+          - text: Otto has been
+          - text: delivering mail
+          - text: since product 14.
+        - paragraph [ref=e126]: You may have spotted Otto first as the bus driver in our spring-2025 transit product. He's been quietly background-fielding bus routes ever since — but in May 2026 we're giving him his own building.
+        - paragraph [ref=e127]: "Mailbox Row is the first BRICKTIME product with a designed crossover: the fixed brass hinge under the mailbox is the same pin used in Otto's bus from product 14. Slot them together, and the whole street starts to make sense."
+        - generic [ref=e128]:
+          - generic [ref=e130]: MP
+          - generic [ref=e131]:
+            - text: Designed by Marek Polčák
+            - generic [ref=e132]: Senior brick designer · Vilnius studio
+    - generic [ref=e135]:
+      - generic [ref=e136]:
+        - heading "⬢ Exclusive minifigs" [level=3] [ref=e137]
+        - heading "Two new residents." [level=2] [ref=e138]:
+          - text: Two new
+          - text: residents.
+        - paragraph [ref=e139]: Numbered, never re-released, tradeable inside the BRICKTIME club. Otto comes with his satchel; Mrs. Petrov with a watering can and a tabby cat.
+      - generic [ref=e140]:
+        - generic [ref=e141]:
+          - text: № 26 / 1
+          - text: 3,500 PRESSED
+        - generic [ref=e142]:
+          - text: EXCL.
+          - text: MINIFIG
+        - generic [ref=e151]: P
+        - generic [ref=e154]:
+          - generic [ref=e155]: Designed by guest artist Hanae Mori
+          - text: Postman Otto
+      - generic [ref=e156]:
+        - heading "⬢ Otto's kit" [level=3] [ref=e157]
+        - heading "Mail satchel, folding bike, printed lanyard." [level=3] [ref=e158]
+        - list [ref=e159]:
+          - listitem [ref=e160]:
+            - generic [ref=e161]: ✓
+            - generic [ref=e162]:
+              - generic [ref=e163]: Removable satchel piece
+              - generic [ref=e164]: First time we've used the new fabric-look ABS — the satchel actually flexes when Otto sits down.
+          - listitem [ref=e165]:
+            - generic [ref=e166]: ✓
+            - generic [ref=e167]:
+              - generic [ref=e168]: Folding bicycle (8 pieces)
+              - generic [ref=e169]: Designed to fit on the bus from product 14. Otto can ride to work, or take the bus, or both.
+          - listitem [ref=e170]:
+            - generic [ref=e171]: ✓
+            - generic [ref=e172]:
+              - generic [ref=e173]: Hand-numbered base plate
+              - generic [ref=e174]: Each base is laser-numbered 1/3,500 to 3,500/3,500. Yours arrives with a random number, registered on the BRICKTIME ledger.
+    - generic [ref=e177]:
+      - generic [ref=e178]:
+        - heading "⬢ Universe map" [level=3] [ref=e179]
+        - heading "Slots into three existing products." [level=2] [ref=e180]:
+          - text: Slots into three
+          - text: existing products.
+      - paragraph [ref=e182]: Every BRICKTIME product is part of one growing universe. Mailbox Row connects directly with these previous products via shared pins, scale, and color set.
+      - generic [ref=e183]:
+        - heading "PRODUKTAS № 14 — JUL 2025" [level=3] [ref=e184]
+        - heading "Otto's bus" [level=4] [ref=e185]
+        - paragraph [ref=e186]: The bus depot from product 14 docks against Mailbox Row's east wall using the same brass hinge.
+        - generic [ref=e187]: "[ Connection diagram ]"
+      - generic [ref=e188]:
+        - heading "PRODUKTAS № 09 — FEB 2025" [level=3] [ref=e189]
+        - heading "Bakery corner" [level=4] [ref=e190]
+        - paragraph [ref=e191]: Place the bakery to the north — the awning lines up with Mailbox Row's ground-floor entrance.
+        - generic [ref=e192]: "[ Connection diagram ]"
+      - generic [ref=e193]:
+        - heading "PRODUKTAS № 21 — DEC 2025" [level=3] [ref=e194]
+        - heading "Lighthouse" [level=4] [ref=e195]
+        - paragraph [ref=e196]: "Optional: route Otto's bike past the lighthouse using the path tiles included in this product's bag 4."
+        - generic [ref=e197]: "[ Connection diagram ]"
+    - generic [ref=e199]:
+      - generic [ref=e200]:
+        - generic [ref=e201]:
+          - heading "⬢ Early access" [level=3] [ref=e202]
+          - heading "From the preview build." [level=2] [ref=e203]:
+            - text: From the
+            - text: preview build.
+        - generic [ref=e204]:
+          - generic [ref=e205]: 4.92/5
+          - generic [ref=e206]: Based on 86 Mega-tier preview reviews
+        - generic [ref=e208]:
+          - generic [ref=e209]:
+            - img [ref=e210]
+            - img [ref=e212]
+            - img [ref=e214]
+            - img [ref=e216]
+            - img [ref=e218]
+          - paragraph [ref=e220]: "\"The hinge crossover with the bus is genuinely clever. My street has a postal route now.\""
+          - generic [ref=e221]:
+            - generic [ref=e223]: DK
+            - generic [ref=e224]:
+              - text: Daniel K.
+              - generic [ref=e225]: Mega · Subscriber since product 02
+        - generic [ref=e227]:
+          - generic [ref=e228]:
+            - img [ref=e229]
+            - img [ref=e231]
+            - img [ref=e233]
+            - img [ref=e235]
+            - img [ref=e237]
+          - paragraph [ref=e239]: "\"Otto's satchel actually flexes. I can't explain how delightful that is until you hold it.\""
+          - generic [ref=e240]:
+            - generic [ref=e242]: PN
+            - generic [ref=e243]:
+              - text: Priya N.
+              - generic [ref=e244]: Standard · 11 months
+        - generic [ref=e246]:
+          - generic [ref=e247]:
+            - img [ref=e248]
+            - img [ref=e250]
+            - img [ref=e252]
+            - img [ref=e254]
+            - img [ref=e256]
+          - paragraph [ref=e258]: "\"Finished it in one evening. The mint+cream colour pairing is the best of the year.\""
+          - generic [ref=e259]:
+            - generic [ref=e261]: LF
+            - generic [ref=e262]:
+              - text: Lucia F.
+              - generic [ref=e263]: Standard · 6 months
+        - generic [ref=e265]:
+          - generic [ref=e266]:
+            - img [ref=e267]
+            - img [ref=e269]
+            - img [ref=e271]
+            - img [ref=e273]
+          - paragraph [ref=e275]: "\"Build is great. Sticker sheet is generous. Wish there was a third minifig — that's my one nit.\""
+          - generic [ref=e276]:
+            - generic [ref=e278]: TW
+            - generic [ref=e279]:
+              - text: Theo W.
+              - generic [ref=e280]: Mega · 22 months
+      - generic [ref=e282]:
+        - link "← Previous · April 2026 № 25 — Greenhouse" [ref=e283] [cursor=pointer]:
+          - /url: /drop/25
+          - generic [ref=e284]: ← Previous · April 2026
+          - generic [ref=e285]: № 25 — Greenhouse
+        - link "Next · June 2026 → № 27 — TBA" [ref=e286] [cursor=pointer]:
+          - /url: /drop/27
+          - generic [ref=e287]: Next · June 2026 →
+          - generic [ref=e288]: № 27 — TBA
+    - contentinfo [ref=e289]:
+      - img
+      - generic [ref=e290]:
+        - generic [ref=e291]:
+          - generic [ref=e292]:
+            - img "BRICKTIME" [ref=e293]
+            - paragraph [ref=e294]: Mėnesinė kaladėlių prenumerata suaugusiems, kurie niekada negalutinai nustojo statyti. Pagaminta Vilniuje, pristatoma visame pasaulyje.
+            - generic [ref=e295]:
+              - link "Instagram" [ref=e296] [cursor=pointer]:
+                - /url: "#"
+              - link "TikTok" [ref=e297] [cursor=pointer]:
+                - /url: "#"
+              - link "Discord" [ref=e298] [cursor=pointer]:
+                - /url: "#"
+          - generic [ref=e299]:
+            - heading "Prenumerata" [level=4] [ref=e300]
+            - list [ref=e301]:
+              - listitem [ref=e302]:
+                - link "Planai" [ref=e303] [cursor=pointer]:
+                  - /url: "#plans"
+              - listitem [ref=e304]:
+                - link "Šis mėnuo" [ref=e305] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e306]:
+                - link "Archyvas" [ref=e307] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e308]:
+                - link "Dovanų kortelės" [ref=e309] [cursor=pointer]:
+                  - /url: "#"
+          - generic [ref=e310]:
+            - heading "Pagalba" [level=4] [ref=e311]
+            - list [ref=e312]:
+              - listitem [ref=e313]:
+                - link "D.U.K." [ref=e314] [cursor=pointer]:
+                  - /url: "#faq"
+              - listitem [ref=e315]:
+                - link "Praleisti / pristabdyti" [ref=e316] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e317]:
+                - link "Pristatymas" [ref=e318] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e319]:
+                - link "Grąžinimai" [ref=e320] [cursor=pointer]:
+                  - /url: "#"
+          - generic [ref=e321]:
+            - heading "Įmonė" [level=4] [ref=e322]
+            - list [ref=e323]:
+              - listitem [ref=e324]:
+                - link "Apie mus" [ref=e325] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e326]:
+                - link "Spauda" [ref=e327] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e328]:
+                - link "Keitimų klubas" [ref=e329] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e330]:
+                - link "Karjera" [ref=e331] [cursor=pointer]:
+                  - /url: "#"
+        - generic [ref=e332]:
+          - generic [ref=e333]: © 2026 BRICKTIME UAB
+          - generic [ref=e334]: BRICKTIME™ — originalus prekės ženklas · nesusijęs su jokiu žaislų gamintoju
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - button "Select element":
+                      - img
+                - generic:
+                  - generic:
+                    - button "Open comments":
+                      - generic:
+                        - img
+                - generic:
+                  - generic:
+                    - button "Copy all comments":
+                      - img
+              - generic:
+                - button "Disable React Grab" [pressed]
+          - button "Collapse toolbar":
+            - img
