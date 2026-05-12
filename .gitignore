@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Environment — never commit secrets
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Playwright
+.playwright-mcp/
+
+# Misc
+*.png
+*.jpg
+*.jpeg
+brand.css
+index.html
