@@ -21,7 +21,6 @@ const links = [
   { label: 'Produktai', to: '/archive' },
   { label: 'Planai', to: '/subscribe' },
   { label: 'Bendruomenė', to: '/community' },
-  { label: 'Paskyra', to: '/account' },
 ]
 
 // ── Auth form (sign in + register) ───────────────────────────────────────────

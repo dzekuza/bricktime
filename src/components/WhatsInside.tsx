@@ -92,7 +92,6 @@ export default function WhatsInside() {
 
   return (
     <section ref={containerRef} className="relative bg-paper pt-10 pb-48 md:pt-20 md:pb-64">
-      <img src="/transitions/bottom-lego.png" alt="" aria-hidden="true" className="pointer-events-none absolute bottom-0 left-0 w-full" style={{ zIndex: 2 }} />
       <div className="relative z-10 mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:gap-20">
 
