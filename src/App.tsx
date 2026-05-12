@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { useState, useCallback, useEffect } from 'react'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import Home from '@/pages/Home'
 import Archive from '@/pages/Archive'
 import Account from '@/pages/Account'
@@ -13,6 +13,12 @@ import LoadingScreen from '@/components/LoadingScreen'
 export default function App() {
   const [loaded, setLoaded] = useState(() => window.location.pathname !== '/')
   const handleDone = useCallback(() => setLoaded(true), [])
+  const location = useLocation()
+
+  // If user navigates away from '/' before the loading screen finishes, dismiss it immediately
+  useEffect(() => {
+    if (location.pathname !== '/') setLoaded(true)
+  }, [location.pathname])
 
   return (
     <>
