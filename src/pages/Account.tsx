@@ -234,11 +234,18 @@ export default function Account() {
   )
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
   async function payPenalty() {
-    if (!user) return
-    await supabase
-      .from("subscribers")
-      .update({ penalty_amount: null, penalty_reason: null })
-      .eq("id", user.id)
+    if (!user?.email) return
+    await Promise.all([
+      supabase
+        .from("subscribers")
+        .update({ penalty_amount: null, penalty_reason: null })
+        .eq("id", user.id),
+      supabase
+        .from("subscriber_penalties")
+        .update({ status: "paid", resolved_at: new Date().toISOString() })
+        .eq("subscriber_email", user.email)
+        .eq("status", "pending"),
+    ])
     setSubscriber((s) => s ? { ...s, penalty_amount: null, penalty_reason: null } : s)
   }
 
@@ -612,7 +619,7 @@ export default function Account() {
 
       {/* ── Penalty banner ───────────────────────────────────────────── */}
       {subscriber?.penalty_amount != null && (
-        <section className="bg-paper pt-2 pb-0">
+        <section className="bg-paper py-2">
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <div className="brick-card flex flex-col gap-4 border-red-500 bg-red-50 p-5 md:p-7 md:flex-row md:items-center md:justify-between shadow-[6px_6px_0_#ef4444]">
               <div className="flex flex-col gap-1">

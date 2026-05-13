@@ -350,6 +350,36 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriber_penalties: {
+        Row: {
+          id: string
+          subscriber_email: string
+          amount: number
+          reason: string | null
+          status: 'pending' | 'paid' | 'forgiven'
+          created_at: string
+          resolved_at: string | null
+        }
+        Insert: {
+          id?: string
+          subscriber_email: string
+          amount: number
+          reason?: string | null
+          status?: 'pending' | 'paid' | 'forgiven'
+          created_at?: string
+          resolved_at?: string | null
+        }
+        Update: {
+          id?: string
+          subscriber_email?: string
+          amount?: number
+          reason?: string | null
+          status?: 'pending' | 'paid' | 'forgiven'
+          created_at?: string
+          resolved_at?: string | null
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           achievement_id: string
