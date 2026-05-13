@@ -1,5 +1,8 @@
 import { useState } from "react"
 import { useSearchParams, Link } from "react-router-dom"
+import { useAuth } from "@/hooks/useAuth"
+import { supabase } from "@/lib/supabase"
+import type { PlanTier } from "@/lib/database.types"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import {
@@ -342,6 +345,7 @@ function FAQItem({
 export default function Subscribe() {
   const [params] = useSearchParams()
   const initialPlan = planIndex[params.get("plan") ?? "standard"] ?? 2
+  const { user } = useAuth()
 
   const [selectedPlan, setSelectedPlan] = useState(initialPlan)
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly")
@@ -354,7 +358,69 @@ export default function Subscribe() {
     name: "",
   })
   const [submitted, setSubmitted] = useState(false)
+  const [purchasing, setPurchasing] = useState(false)
+  const [purchaseError, setPurchaseError] = useState("")
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [couponInput, setCouponInput] = useState('')
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string
+    discount_type: 'percentage' | 'fixed'
+    discount_value: number
+    duration_months: number | null
+  } | null>(null)
+  const [couponError, setCouponError] = useState<string | null>(null)
+  const [couponLoading, setCouponLoading] = useState(false)
+
+  async function handlePurchase() {
+    if (!user) { setPurchaseError("Prisijunk prie paskyros prieš perkant."); return }
+    setPurchasing(true)
+    setPurchaseError("")
+    const planKey = plan.key as PlanTier
+    const { error } = await supabase
+      .from("subscribers")
+      .upsert({
+        id: user.id,
+        email: user.email ?? form.email,
+        name: user.email?.split("@")[0] ?? "Subscriber",
+        plan: planKey,
+        status: "active",
+      }, { onConflict: "id" })
+    setPurchasing(false)
+    if (error) { setPurchaseError(error.message); return }
+    setSubmitted(true)
+  }
+
+  async function applyCoupon() {
+    const code = couponInput.trim().toUpperCase()
+    if (!code) return
+    setCouponLoading(true)
+    setCouponError(null)
+    const { data, error } = await supabase
+      .from('coupons')
+      .select('code, discount_type, discount_value, duration_months, max_uses, uses_count, expires_at, active')
+      .eq('code', code)
+      .single()
+    setCouponLoading(false)
+    if (error || !data) { setCouponError('Code not found'); return }
+    if (!data.active) { setCouponError('This code is inactive'); return }
+    if (data.expires_at && new Date(data.expires_at) < new Date()) { setCouponError('This code has expired'); return }
+    if (data.max_uses != null && data.uses_count >= data.max_uses) { setCouponError('This code has reached its usage limit'); return }
+    setAppliedCoupon({
+      code: data.code,
+      discount_type: data.discount_type as 'percentage' | 'fixed',
+      duration_months: data.duration_months,
+      discount_value: Number(data.discount_value),
+    })
+    setCouponInput('')
+  }
+
+  function getDiscountedPrice(basePrice: number): number {
+    if (!appliedCoupon) return basePrice
+    if (appliedCoupon.discount_type === 'percentage') {
+      return Math.max(0, basePrice * (1 - appliedCoupon.discount_value / 100))
+    }
+    return Math.max(0, basePrice - appliedCoupon.discount_value)
+  }
 
   const plan = plans[selectedPlan]
   const price = billing === "monthly" ? plan.monthlyPrice : plan.annualPrice
@@ -729,17 +795,19 @@ export default function Subscribe() {
                   </div>
                 </div>
 
+                {purchaseError && (
+                  <p className="mt-4 font-mono text-[12px] text-red-500">{purchaseError}</p>
+                )}
                 <div className="mt-8 flex gap-3">
                   <Button
                     size="lg"
-                    className="brick-hover-sm flex-1 rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper"
-                    onClick={() => setSubmitted(true)}
+                    disabled={purchasing}
+                    className="brick-hover-sm flex-1 rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper disabled:opacity-50"
+                    onClick={handlePurchase}
                   >
-                    Pradėti {plan.name} — $
-                    {billing === "annual"
-                      ? `${total} šiandien`
-                      : `${price}/mėn.`}{" "}
-                    →
+                    {purchasing
+                      ? "Apdorojama…"
+                      : `Pradėti ${plan.name} — $${billing === "annual" ? `${total} šiandien` : `${price}/mėn.`} →`}
                   </Button>
                 </div>
 
@@ -786,7 +854,17 @@ export default function Subscribe() {
                         {billing === "monthly" ? "mėnesinis" : "metinis"})
                       </span>
                       <span className="font-display text-xl">
-                        ${price}/mėn.
+                        {appliedCoupon ? (
+                          <>
+                            <span className="line-through opacity-40">${price}</span>{" "}
+                            <span className="text-green-600">
+                              ${getDiscountedPrice(price).toFixed(2)}
+                            </span>
+                          </>
+                        ) : (
+                          <>${price}</>
+                        )}
+                        /mėn.
                       </span>
                     </div>
                     {billing === "annual" && (
@@ -816,6 +894,48 @@ export default function Subscribe() {
                       <span>Nemokamas</span>
                     </div>
                   </div>
+                  <div className="mt-4 flex flex-col gap-2">
+                    {appliedCoupon ? (
+                      <div className="flex items-center gap-2 rounded-xl border-2 border-ink bg-green-50 px-4 py-3 text-sm font-semibold text-ink">
+                        <span className="flex-1">
+                          ✓ {appliedCoupon.code} —{" "}
+                          {appliedCoupon.discount_type === "percentage"
+                            ? `${appliedCoupon.discount_value}% off`
+                            : `$${appliedCoupon.discount_value} off`}
+                          {appliedCoupon.duration_months != null
+                            ? ` for ${appliedCoupon.duration_months} month${appliedCoupon.duration_months > 1 ? "s" : ""}`
+                            : " forever"}
+                        </span>
+                        <button
+                          className="label-mono text-ink/50 hover:text-ink"
+                          onClick={() => setAppliedCoupon(null)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          className="flex-1 rounded-xl border-2 border-ink bg-paper px-4 py-2.5 font-mono text-[13px] uppercase placeholder:normal-case placeholder:text-ink/30 focus:outline-none"
+                          placeholder="Coupon code"
+                          value={couponInput}
+                          onChange={(e) => { setCouponInput(e.target.value); setCouponError(null) }}
+                          onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
+                        />
+                        <Button
+                          variant="outline"
+                          className="rounded-xl border-2 border-ink font-semibold"
+                          onClick={applyCoupon}
+                          disabled={couponLoading || !couponInput.trim()}
+                        >
+                          {couponLoading ? "…" : "Apply"}
+                        </Button>
+                      </div>
+                    )}
+                    {couponError && (
+                      <p className="label-mono text-[11px] text-red-500">{couponError}</p>
+                    )}
+                  </div>
                   <div
                     className="mt-4 flex items-baseline justify-between"
                     style={{ color: plan.textColor }}
@@ -824,7 +944,9 @@ export default function Subscribe() {
                       Mokėti šiandien
                     </span>
                     <span className="font-display text-[40px] leading-none">
-                      ${billing === "annual" ? total : price}
+                      ${appliedCoupon
+                        ? getDiscountedPrice(billing === "annual" ? total : price).toFixed(2)
+                        : billing === "annual" ? total : price}
                     </span>
                   </div>
                 </div>
