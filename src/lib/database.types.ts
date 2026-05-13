@@ -20,6 +20,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      coupons: {
+        Row: {
+          id: string
+          code: string
+          discount_type: 'percentage' | 'fixed'
+          discount_value: number
+          duration_months: number | null
+          max_uses: number | null
+          uses_count: number
+          expires_at: string | null
+          active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          code: string
+          discount_type: 'percentage' | 'fixed'
+          discount_value: number
+          duration_months?: number | null
+          max_uses?: number | null
+          uses_count?: number
+          expires_at?: string | null
+          active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          code?: string
+          discount_type?: 'percentage' | 'fixed'
+          discount_value?: number
+          duration_months?: number | null
+          max_uses?: number | null
+          uses_count?: number
+          expires_at?: string | null
+          active?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
       achievements: {
         Row: {
           category: Database["public"]["Enums"]["achievement_category"]
@@ -117,6 +156,7 @@ export type Database = {
           due_date: string
           id: string
           product_id: number
+          return_note: string | null
           start_date: string
           status: Database["public"]["Enums"]["order_status"]
           subscriber_id: string
@@ -128,6 +168,7 @@ export type Database = {
           due_date: string
           id?: string
           product_id: number
+          return_note?: string | null
           start_date: string
           status?: Database["public"]["Enums"]["order_status"]
           subscriber_id: string
@@ -139,6 +180,7 @@ export type Database = {
           due_date?: string
           id?: string
           product_id?: number
+          return_note?: string | null
           start_date?: string
           status?: Database["public"]["Enums"]["order_status"]
           subscriber_id?: string
@@ -409,7 +451,7 @@ export type Database = {
         | "achievement"
         | "first_drop"
         | "streak"
-      order_status: "processing" | "active" | "overdue" | "returned"
+      order_status: "processing" | "active" | "overdue" | "returned" | "return_requested" | "return_declined"
       plan_tier: "nano" | "mini" | "standard" | "pro" | "mega"
       product_status: "available" | "limited" | "sold_out"
       subscriber_status: "active" | "paused" | "cancelled"
