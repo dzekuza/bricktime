@@ -316,6 +316,8 @@ export type Database = {
           id: string
           joined_at: string
           name: string
+          penalty_amount: number | null
+          penalty_reason: string | null
           plan: Database["public"]["Enums"]["plan_tier"]
           status: Database["public"]["Enums"]["subscriber_status"]
           updated_at: string
@@ -327,6 +329,8 @@ export type Database = {
           id: string
           joined_at?: string
           name: string
+          penalty_amount?: number | null
+          penalty_reason?: string | null
           plan?: Database["public"]["Enums"]["plan_tier"]
           status?: Database["public"]["Enums"]["subscriber_status"]
           updated_at?: string
@@ -338,6 +342,8 @@ export type Database = {
           id?: string
           joined_at?: string
           name?: string
+          penalty_amount?: number | null
+          penalty_reason?: string | null
           plan?: Database["public"]["Enums"]["plan_tier"]
           status?: Database["public"]["Enums"]["subscriber_status"]
           updated_at?: string

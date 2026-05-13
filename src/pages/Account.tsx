@@ -90,6 +90,8 @@ interface SubscriberData {
   status: string
   email: string
   joined_at: string
+  penalty_amount: number | null
+  penalty_reason: string | null
 }
 
 interface AchievementRecord {
@@ -231,19 +233,13 @@ export default function Account() {
     profile?.avatarId ?? 0
   )
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
-  const [penalty, setPenalty] = useState<{ amount: number; reason: string; setAt: string } | null>(null)
-
-  useEffect(() => {
-    if (user?.email) {
-      const stored = localStorage.getItem(`admin_penalty_${user.email}`)
-      setPenalty(stored ? JSON.parse(stored) : null)
-    }
-  }, [user?.email])
-
-  function payPenalty() {
-    if (!user?.email) return
-    localStorage.removeItem(`admin_penalty_${user.email}`)
-    setPenalty(null)
+  async function payPenalty() {
+    if (!user) return
+    await supabase
+      .from("subscribers")
+      .update({ penalty_amount: null, penalty_reason: null })
+      .eq("id", user.id)
+    setSubscriber((s) => s ? { ...s, penalty_amount: null, penalty_reason: null } : s)
   }
 
   useEffect(() => {
@@ -255,7 +251,7 @@ export default function Account() {
     Promise.all([
       supabase
         .from("subscribers")
-        .select("plan, status, email, joined_at")
+        .select("plan, status, email, joined_at, penalty_amount, penalty_reason")
         .eq("id", user.id)
         .single(),
       supabase
@@ -615,17 +611,17 @@ export default function Account() {
       </section>
 
       {/* ── Penalty banner ───────────────────────────────────────────── */}
-      {penalty && (
+      {subscriber?.penalty_amount != null && (
         <section className="bg-paper pt-2 pb-0">
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <div className="brick-card flex flex-col gap-4 border-red-500 bg-red-50 p-5 md:p-7 md:flex-row md:items-center md:justify-between shadow-[6px_6px_0_#ef4444]">
               <div className="flex flex-col gap-1">
                 <p className="label-mono text-red-600">Nesumokėta bauda</p>
                 <p className="font-display text-d-sm text-red-700">
-                  €{penalty.amount.toFixed(2)}
+                  €{subscriber.penalty_amount.toFixed(2)}
                 </p>
-                {penalty.reason && (
-                  <p className="mt-1 text-[14px] text-red-600/80">{penalty.reason}</p>
+                {subscriber.penalty_reason && (
+                  <p className="mt-1 text-[14px] text-red-600/80">{subscriber.penalty_reason}</p>
                 )}
               </div>
               <button
