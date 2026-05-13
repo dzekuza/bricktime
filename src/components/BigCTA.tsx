@@ -94,12 +94,12 @@ export default function BigCTA() {
               </p>
               <div className="text-d-md font-display leading-[.9] text-paper">
                 <div className="mb-1 flex items-baseline gap-2">
-                  <span className="text-brand-yellow">Builder</span>
+                  <span className="text-brand-yellow">Advanced</span>
                   <span className="text-2xl text-paper/40">—</span>
                   <span>$14/mėn.</span>
                 </div>
                 <div className="mb-1 flex items-baseline gap-2">
-                  <span className="text-brand-yellow">Advanced</span>
+                  <span className="text-brand-yellow">Builder</span>
                   <span className="text-2xl text-paper/40">—</span>
                   <span>$24/mėn.</span>
                 </div>

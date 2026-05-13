@@ -11,8 +11,8 @@ const PLAN_BRANDING = {
     },
   },
   mini: {
-    displayName: "Builder",
-    brickImage: "/plans/builder.svg",
+    displayName: "Advanced",
+    brickImage: "/plans/advanced.svg",
     theme: {
       bg: "#5C4ADE",
       textColor: "#F5F1EB",
@@ -22,8 +22,8 @@ const PLAN_BRANDING = {
     },
   },
   standard: {
-    displayName: "Advanced",
-    brickImage: "/plans/advanced.svg",
+    displayName: "Builder",
+    brickImage: "/plans/builder.svg",
     theme: {
       bg: "#55DB9C",
       textColor: "#001B21",

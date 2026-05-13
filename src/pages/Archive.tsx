@@ -429,8 +429,8 @@ export default function Archive() {
               <SelectContent>
                 <SelectItem value="all">Visi planai</SelectItem>
                 <SelectItem value="nano">Starter+</SelectItem>
-                <SelectItem value="mini">Builder+</SelectItem>
-                <SelectItem value="standard">Advanced+</SelectItem>
+                <SelectItem value="mini">Advanced+</SelectItem>
+                <SelectItem value="standard">Builder+</SelectItem>
                 <SelectItem value="pro">Master+</SelectItem>
                 <SelectItem value="mega">Tik Legend</SelectItem>
               </SelectContent>

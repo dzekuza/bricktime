@@ -26,7 +26,7 @@ const testimonials = [
     quote:
       '"Praleidau mėnesį, jokios dramos. Grįžau į koralinio rifo produktą. Tobula."',
     name: "Yuki S.",
-    meta: "Advanced lygis",
+    meta: "Builder lygis",
     avatarColor: "#5DDB9C",
     initials: "YS",
     bg: "#FFAEE7",

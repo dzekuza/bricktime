@@ -19,7 +19,7 @@ const faqs = [
   },
   {
     q: "Ar produktai skiriasi pagal planą?",
-    a: "Taip. Kai kurie produktai prieinami tik aukštesnio lygio prenumeratoriams. Starter ir Builder planai suteikia prieigą prie bazinio katalogo, Advanced+ atveria išskirtinius produktus.",
+    a: "Taip. Kai kurie produktai prieinami tik aukštesnio lygio prenumeratoriams. Starter ir Advanced planai suteikia prieigą prie bazinio katalogo, Builder+ atveria išskirtinius produktus.",
   },
   {
     q: "Kur pristatote?",

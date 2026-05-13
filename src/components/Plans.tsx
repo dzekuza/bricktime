@@ -181,7 +181,7 @@ export default function Plans() {
               <br />
               <span
                 ref={spanRef}
-                className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-[#FB4903] px-[.12em] text-paper shadow-[5px_5px_0_rgba(0,27,33,.15)]"
+                className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.15)]"
                 style={{ transformOrigin: "center" }}
                 onMouseEnter={onSpanEnter}
                 onMouseLeave={onSpanLeave}
