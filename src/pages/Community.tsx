@@ -408,7 +408,11 @@ function FeedPanel() {
     const channel = supabase
       .channel('community_feed_changes')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'feed_items' }, () => fetchFeed())
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'feed_items' }, () => fetchFeed())
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'feed_items' }, (payload) => {
+        setItems((prev) =>
+          prev.map((i) => i.id === payload.new.id ? { ...i, ...(payload.new as LiveFeedItem) } : i)
+        )
+      })
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
@@ -437,14 +441,7 @@ function FeedPanel() {
   async function toggleLike(item: LiveFeedItem) {
     if (!user) return
 
-    if (item.likedByCurrentUser) {
-      await supabase.from('feed_likes').delete().match({ feed_item_id: item.id, subscriber_id: user.id })
-      await supabase.from('feed_items').update({ like_count: Math.max(0, item.like_count - 1) }).eq('id', item.id)
-    } else {
-      await supabase.from('feed_likes').insert({ feed_item_id: item.id, subscriber_id: user.id })
-      await supabase.from('feed_items').update({ like_count: item.like_count + 1 }).eq('id', item.id)
-    }
-
+    // Optimistic update first, then atomic RPC (no race condition on like_count)
     setItems((prev) =>
       prev.map((i) =>
         i.id === item.id
@@ -452,6 +449,8 @@ function FeedPanel() {
           : i
       )
     )
+
+    await supabase.rpc('toggle_like', { p_feed_item_id: item.id, p_subscriber_id: user.id })
   }
 
   async function addPost(text: string, imageFile?: File, dropNum?: number) {

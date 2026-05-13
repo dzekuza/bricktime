@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react'
 import gsap from 'gsap'
 import { useReveal } from '@/hooks/useReveal'
+import { getPlanBrickImage } from '@/lib/plan-branding'
 
 const steps = [
   {
@@ -8,21 +9,21 @@ const steps = [
     title: 'Pasirink\nplaną',
     body: 'Pasirink lygį pagal biudžetą. Keisk bet kada — daugiau biudžeto, daugiau pasirinkimų.',
     bg: '#5DDB9C',
-    bricks: ['#FB4903', '#001B21'],
+    bricks: ['nano', 'mini'],
   },
   {
     num: '02',
     title: 'Naršyk\nir pasiimk',
     body: 'Peržiūrėk katalogą. Rinkis produktus pagal savo plano biudžetą — vienu metu.',
     bg: '#FFAEE7',
-    bricks: ['#4DA2FF', '#F5F1EB'],
+    bricks: ['standard', 'pro'],
   },
   {
     num: '03',
     title: 'Grąžink,\nkeisk, kartok',
     body: 'Grąžink produktus ir pasiimk naujus iš katalogo — be papildomų mokesčių.',
     bg: '#FFD731',
-    bricks: ['#5C4ADE', '#FB4903'],
+    bricks: ['mega', 'nano'],
   },
 ]
 
@@ -41,21 +42,17 @@ function onCardLeave(e: React.MouseEvent<HTMLDivElement>) {
   gsap.to(bricks, { y: 0, rotate: 0, duration: 0.35, ease: 'elastic.out(1, 0.5)', stagger: 0.04 })
 }
 
-function Brick({ color }: { color: string }) {
+function Brick({ plan }: { plan: string }) {
+  const image = getPlanBrickImage(plan)
+
+  if (!image) return null
+
   return (
-    <div
-      className="brick-el relative rounded border-[3px] border-ink"
-      style={{ width: 54, height: 38, background: color, boxShadow: 'inset 0 -6px 0 rgba(0,0,0,.18)' }}
-    >
-      <span
-        className="absolute -top-[11px] left-[10px] size-[20px] rounded-full border-[3px] border-ink"
-        style={{ background: color, boxShadow: 'inset 0 -2px 0 rgba(0,0,0,.18)' }}
-      />
-      <span
-        className="absolute -top-[11px] right-[10px] size-[20px] rounded-full border-[3px] border-ink"
-        style={{ background: color, boxShadow: 'inset 0 -2px 0 rgba(0,0,0,.18)' }}
-      />
-    </div>
+    <img
+      src={image}
+      alt=""
+      className="brick-el pointer-events-none h-12 w-auto select-none object-contain sm:h-14"
+    />
   )
 }
 
@@ -121,8 +118,8 @@ export default function HowItWorks() {
                 <p className="mt-3 text-[14px] leading-[1.6] text-ink/75">{step.body}</p>
               </div>
               <div className="mt-5 flex gap-2">
-                {step.bricks.map((c, j) => (
-                  <Brick key={j} color={c} />
+                {step.bricks.map((plan, j) => (
+                  <Brick key={`${step.num}-${plan}-${j}`} plan={plan} />
                 ))}
               </div>
             </div>

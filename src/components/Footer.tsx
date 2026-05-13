@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Separator } from '@/components/ui/separator'
 
 const footerLinks = {
@@ -8,10 +9,10 @@ const footerLinks = {
     { label: 'Dovanų kortelės', href: '#' },
   ],
   Pagalba: [
-    { label: 'D.U.K.', href: '#faq' },
-    { label: 'Praleisti / pristabdyti', href: '#' },
-    { label: 'Pristatymas', href: '#' },
-    { label: 'Grąžinimai', href: '#' },
+    { label: 'D.U.K.', href: '/duk' },
+    { label: 'Praleisti / pristabdyti', href: '/praleisti-pristabdyti' },
+    { label: 'Pristatymas', href: '/pristatymas' },
+    { label: 'Grąžinimai', href: '/grazinimai' },
   ],
   Įmonė: [
     { label: 'Apie mus', href: '#' },
@@ -57,12 +58,12 @@ export default function Footer() {
               <ul className="flex flex-col gap-2.5">
                 {links.map((link) => (
                   <li key={link.label}>
-                    <a
-                      href={link.href}
+                    <Link
+                      to={link.href}
                       className="text-[15px] text-ink/70 transition-colors hover:text-ink"
                     >
                       {link.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>

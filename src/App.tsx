@@ -8,12 +8,17 @@ import Checkout from '@/pages/Checkout'
 import Community from '@/pages/Community'
 import Drop from '@/pages/Drop'
 import UserProfile from '@/pages/UserProfile'
+import { FAQPage, PausePage, ReturnsPage, ShippingPage } from '@/pages/HelpPages'
 import LoadingScreen from '@/components/LoadingScreen'
 
 export default function App() {
   const [loaded, setLoaded] = useState(() => window.location.pathname !== '/')
   const handleDone = useCallback(() => setLoaded(true), [])
   const location = useLocation()
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }, [location.pathname, location.search])
 
   // If user navigates away from '/' before the loading screen finishes, dismiss it immediately
   useEffect(() => {
@@ -32,6 +37,10 @@ export default function App() {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/drop/:id" element={<Drop />} />
         <Route path="/profile/:userId" element={<UserProfile />} />
+        <Route path="/duk" element={<FAQPage />} />
+        <Route path="/praleisti-pristabdyti" element={<PausePage />} />
+        <Route path="/pristatymas" element={<ShippingPage />} />
+        <Route path="/grazinimai" element={<ReturnsPage />} />
       </Routes>
     </>
   )

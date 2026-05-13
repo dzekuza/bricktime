@@ -3,49 +3,36 @@ import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ArrowRightIcon, StarIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { getPlanBrickImage } from '@/lib/plan-branding'
 
 gsap.registerPlugin(useGSAP)
 
 const avatarColors = ['#5DDB9C', '#FFAEE7', '#FB4903', '#4DA2FF']
 
 interface BrickProps {
-  color: string
-  studs?: 1 | 2 | 3
+  plan: 'nano' | 'mini' | 'standard' | 'pro' | 'mega'
   rotate?: number
   size?: number
 }
 
-function Brick({ color, studs = 2, rotate = 0, size = 1 }: BrickProps) {
-  const w = studs === 1 ? 52 : studs === 2 ? 88 : 124
-  const h = 58
-  const studW = 28
-  const studH = 13
-  const studGap = 36
-  const bodyY = studH - 3
-  const shade = 'rgba(0,0,0,0.18)'
-  const highlight = 'rgba(255,255,255,0.15)'
-  const studPositions =
-    studs === 1
-      ? [12]
-      : studs === 2
-        ? [8, 8 + studGap]
-        : [6, 6 + studGap, 6 + studGap * 2]
+function Brick({ plan, rotate = 0, size = 1 }: BrickProps) {
+  const image = getPlanBrickImage(plan)
+
+  if (!image) return null
 
   return (
-    <svg
-      viewBox={`0 0 ${w} ${h}`}
-      width={w * size}
-      height={h * size}
-      fill="none"
-      style={{ transform: `rotate(${rotate}deg)`, display: 'block', flexShrink: 0 }}
-    >
-      {studPositions.map((x, i) => (
-        <rect key={i} x={x} y={0} width={studW} height={studH} rx={6} fill={color} />
-      ))}
-      <rect x={0} y={bodyY} width={w} height={h - bodyY} rx={7} fill={color} />
-      <rect x={6} y={bodyY + 8} width={w - 12} height={h - bodyY - 16} rx={4} fill={shade} />
-      <rect x={0} y={bodyY} width={w} height={4} fill={highlight} />
-    </svg>
+    <img
+      src={image}
+      alt=""
+      className="brick-el select-none object-contain"
+      style={{
+        transform: `rotate(${rotate}deg) scale(${size})`,
+        display: 'block',
+        flexShrink: 0,
+        width: 110,
+        height: 'auto',
+      }}
+    />
   )
 }
 
@@ -58,14 +45,14 @@ interface BrickEntry extends BrickProps {
 // Scattered around the heading like a loose orbit — different heights on each side
 // landOn: 'video' drops onto the video surface, 'floor' falls to section bottom
 const bricks: BrickEntry[] = [
-  { color: '#FFD731', studs: 2, rotate: -8,  size: 1.1,  left: '3%',  top: '8%',  landOn: 'floor' },  // top-left → falls past video
-  { color: '#FB4903', studs: 1, rotate: 6,   size: 0.85, left: '82%', top: '6%',  landOn: 'video' },  // top-right → lands on video
-  { color: '#4DA2FF', studs: 3, rotate: -4,  size: 1.0,  left: '1%',  top: '40%', landOn: 'floor' },  // mid-left → floor
-  { color: '#5DDB9C', studs: 2, rotate: 10,  size: 1.15, left: '85%', top: '35%', landOn: 'floor' },  // mid-right → floor
-  { color: '#5C4ADE', studs: 1, rotate: -12, size: 0.95, left: '6%',  top: '68%', landOn: 'floor' },  // low-left → floor
-  { color: '#FFAEE7', studs: 3, rotate: 5,   size: 1.05, left: '78%', top: '62%', landOn: 'video' },  // low-right → video
-  { color: '#FB4903', studs: 2, rotate: -6,  size: 0.9,  left: '30%', top: '22%', landOn: 'video' },  // center-left → video
-  { color: '#FFD731', studs: 1, rotate: 13,  size: 0.8,  left: '60%', top: '18%', landOn: 'video' },  // center-right → video
+  { plan: 'standard', rotate: -8,  size: 0.9,  left: '3%',  top: '8%',  landOn: 'floor' },
+  { plan: 'nano',     rotate: 6,   size: 0.72, left: '82%', top: '6%',  landOn: 'video' },
+  { plan: 'mega',     rotate: -4,  size: 0.92, left: '1%',  top: '40%', landOn: 'floor' },
+  { plan: 'standard', rotate: 10,  size: 0.96, left: '85%', top: '35%', landOn: 'floor' },
+  { plan: 'mini',     rotate: -12, size: 0.78, left: '6%',  top: '68%', landOn: 'floor' },
+  { plan: 'pro',      rotate: 5,   size: 0.9,  left: '78%', top: '62%', landOn: 'video' },
+  { plan: 'nano',     rotate: -6,  size: 0.82, left: '30%', top: '22%', landOn: 'video' },
+  { plan: 'standard', rotate: 13,  size: 0.72, left: '60%', top: '18%', landOn: 'video' },
 ]
 
 // Gentle bob amplitude while floating at scattered positions
@@ -92,77 +79,64 @@ export default function Hero() {
       const container = bricksRef.current
       if (!container) return
       const items = Array.from(container.querySelectorAll(':scope > div')) as HTMLElement[]
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-      const mm = gsap.matchMedia()
+      if (prefersReducedMotion) {
+        gsap.set(items, { autoAlpha: 1, y: 0 })
+        return
+      }
 
-      mm.add(
-        {
-          motion: '(prefers-reduced-motion: no-preference)',
-          reduced: '(prefers-reduced-motion: reduce)',
-        },
-        (ctx) => {
-          const { reduced } = ctx.conditions as { motion: boolean; reduced: boolean }
+      // Appear in place with a slight upward nudge, then settle
+      gsap.set(items, { autoAlpha: 0, y: -20 })
+      gsap.to(items, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.55,
+        ease: 'power2.out',
+        stagger: 0.07,
+      })
 
-          if (reduced) {
-            gsap.set(items, { autoAlpha: 1, y: 0 })
-            return
-          }
-
-          // Appear in place with a slight upward nudge, then settle
-          gsap.set(items, { autoAlpha: 0, y: -20 })
-          gsap.to(items, {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.55,
-            ease: 'power2.out',
-            stagger: 0.07,
-          })
-
-          // Gentle independent bob at each brick's scattered position
-          const bobTweens = items.map((item, i) =>
-            gsap.to(item, {
-              y: -FLOAT_AMP,
-              duration: 1.2 + i * 0.09,
-              ease: 'sine.inOut',
-              repeat: -1,
-              yoyo: true,
-              delay: i * 0.15,
-            })
-          )
-
-          // After DROP_DELAY seconds: drop bricks — some onto video surface, rest to floor
-          const dropCall = gsap.delayedCall(
-            DROP_DELAY,
-            contextSafe!(() => {
-              bobTweens.forEach((t) => t.kill())
-              const containerH = container.offsetHeight
-              const containerTop = container.getBoundingClientRect().top
-              const videoTop = videoWrapRef.current
-                ? videoWrapRef.current.getBoundingClientRect().top - containerTop
-                : containerH
-
-              items.forEach((item, i) => {
-                const floorY = containerH - item.offsetTop - item.offsetHeight
-                const videoY = videoTop - item.offsetTop - item.offsetHeight
-                const targetY = bricks[i].landOn === 'video' ? videoY : floorY
-                gsap.to(item, {
-                  y: targetY,
-                  duration: 0.9 + (i % 4) * 0.08,
-                  ease: 'bounce.out',
-                  delay: i * 0.06,
-                })
-              })
-            })
-          )
-
-          return () => {
-            bobTweens.forEach((t) => t.kill())
-            dropCall.kill()
-          }
-        }
+      // Gentle independent bob at each brick's scattered position
+      const bobTweens = items.map((item, i) =>
+        gsap.to(item, {
+          y: -FLOAT_AMP,
+          duration: 1.2 + i * 0.09,
+          ease: 'sine.inOut',
+          repeat: -1,
+          yoyo: true,
+          delay: i * 0.15,
+        })
       )
 
-      return () => mm.revert()
+      // After DROP_DELAY seconds: drop bricks — some onto video surface, rest to floor
+      const dropCall = gsap.delayedCall(
+        DROP_DELAY,
+        contextSafe!(() => {
+          bobTweens.forEach((t) => t.kill())
+          const containerH = container.offsetHeight
+          const containerTop = container.getBoundingClientRect().top
+          const videoTop = videoWrapRef.current
+            ? videoWrapRef.current.getBoundingClientRect().top - containerTop
+            : containerH
+
+          items.forEach((item, i) => {
+            const floorY = containerH - item.offsetTop - item.offsetHeight
+            const videoY = videoTop - item.offsetTop - item.offsetHeight
+            const targetY = bricks[i].landOn === 'video' ? videoY : floorY
+            gsap.to(item, {
+              y: targetY,
+              duration: 0.9 + (i % 4) * 0.08,
+              ease: 'bounce.out',
+              delay: i * 0.06,
+            })
+          })
+        })
+      )
+
+      return () => {
+        bobTweens.forEach((t) => t.kill())
+        dropCall.kill()
+      }
     },
     { scope: bricksRef }
   )
@@ -246,10 +220,8 @@ export default function Hero() {
             muted
             loop
             playsInline
-            poster="/hero-video-poster.jpeg"
           >
             <source src="/hero-video.mp4" type="video/mp4" />
-            <img src="/hero-video-poster.jpeg" alt="" className="h-full w-full object-cover" />
           </video>
         </div>
       </div>
