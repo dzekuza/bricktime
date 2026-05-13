@@ -391,7 +391,13 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      toggle_like: {
+        Args: {
+          p_feed_item_id: string
+          p_subscriber_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       achievement_category: "activity" | "social" | "collector" | "loyalty"
