@@ -285,7 +285,7 @@ export default function Checkout() {
                   <Button
                     asChild
                     size="lg"
-                    className="brick-hover-sm w-full rounded-full border-2 border-ink bg-ink text-[15px] font-bold text-paper"
+                    className="brick-hover-sm h-12 w-full rounded-full border-2 border-ink bg-ink text-[15px] font-bold text-paper"
                   >
                     <Link to="/account">Žiūrėti mano produktus →</Link>
                   </Button>
@@ -293,7 +293,7 @@ export default function Checkout() {
                     asChild
                     variant="outline"
                     size="lg"
-                    className="w-full rounded-full border-2 border-ink bg-transparent text-[15px] font-bold text-ink transition-all hover:bg-ink/5"
+                    className="h-12 w-full rounded-full border-2 border-ink bg-transparent text-[15px] font-bold text-ink transition-all hover:bg-ink/5"
                   >
                     <Link to="/archive">Naršyti daugiau produktų</Link>
                   </Button>
