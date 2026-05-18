@@ -75,6 +75,9 @@ type DbProduct = {
   gallery: string[]
   tier: string
   value: number | null
+  year: number | null
+  category: string | null
+  rating: string | null
 }
 
 export default function Checkout() {
@@ -96,7 +99,7 @@ export default function Checkout() {
     if (!productId) { setLoading(false); return }
     supabase
       .from("products")
-      .select("id, title, subtitle, description, bricks, minifigs, build_time, image_url, gallery, tier, value")
+      .select("id, title, subtitle, description, bricks, minifigs, build_time, image_url, gallery, tier, value, year, category, rating")
       .eq("id", Number(productId))
       .single()
       .then(({ data }) => { setProduct(data as DbProduct | null); setLoading(false) })
@@ -247,15 +250,18 @@ export default function Checkout() {
                   <div className="border-t-2 border-dashed border-ink/10" />
 
                   {/* Stats */}
-                  <div className="grid grid-cols-3 divide-x-2 divide-ink/10">
+                  <div className="grid grid-cols-3 gap-x-3 gap-y-2.5">
                     {[
-                      ["Kaladėlių", product.bricks],
-                      ["Miniukai", product.minifigs],
-                      ["Laikas", product.build_time ?? "—"],
+                      ["Detalės", product.bricks],
+                      ["Metai", product.year ?? "—"],
+                      ["Amžius", product.rating ?? "—"],
+                      ["Kaina", product.value != null ? `€${product.value}` : "—"],
+                      ["Kategorija", product.category ?? "—"],
+                      ["Planas", requiredTier.name + "+"],
                     ].map(([label, val]) => (
-                      <div key={label as string} className="px-3 first:pl-0 last:pr-0">
-                        <p className="label-mono text-ink/40">{label}</p>
-                        <p className="mt-0.5 font-display text-[17px] leading-tight text-ink">{val}</p>
+                      <div key={label as string}>
+                        <p className="label-mono text-[9px] text-ink/40">{label}</p>
+                        <p className="font-mono text-[12px] font-bold text-ink capitalize">{val}</p>
                       </div>
                     ))}
                   </div>
