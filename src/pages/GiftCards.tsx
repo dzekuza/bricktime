@@ -118,36 +118,32 @@ export default function GiftCards() {
       {/* Hero */}
       <section className="bg-paper py-4 md:py-6">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div className="overflow-hidden rounded-2xl border-2 border-ink bg-ink p-4 md:rounded-3xl md:p-6">
-            <div className="brick-card brick-card-hover flex min-h-[320px] flex-col justify-between bg-ink p-6 md:p-9">
-              <div className="label-mono mb-6 flex items-center gap-2.5">
-                <Link to="/" className="text-paper/50 transition-colors hover:text-paper">
-                  BRICKTIME
-                </Link>
-                <span className="text-paper/30">/</span>
-                <span className="text-paper/50">Dovanų kortelės</span>
-              </div>
+          <div className="brick-card flex min-h-[320px] flex-col justify-between bg-ink p-6 md:p-9">
+            <div className="label-mono mb-6 flex items-center gap-2.5">
+              <Link to="/" className="text-paper/50 transition-colors hover:text-paper">
+                BRICKTIME
+              </Link>
+              <span className="text-paper/30">/</span>
+              <span className="text-paper/50">Dovanų kortelės</span>
+            </div>
 
-              <div className="flex flex-1 flex-col justify-center">
-                <h1 className="heading-display text-d-xl max-w-[18ch] tracking-[-0.015em] text-paper">
-                  DOVANK{' '}
-                  <span
-                    className="inline-block text-brand-yellow italic [transform:skew(-8deg)]"
-                  >
-                    LEGO džiaugsmą.
-                  </span>
-                </h1>
-                <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-paper/70">
-                  Dovanos kortelę galima panaudoti užsisakant prenumeratą arba įsigyjant merch.
-                  Galioja vienerius metus.
-                </p>
-              </div>
+            <div className="flex flex-1 flex-col justify-center">
+              <h1 className="heading-display text-d-xl max-w-[18ch] tracking-[-0.015em] text-paper">
+                DOVANK{' '}
+                <span className="inline-block text-brand-yellow italic [transform:skew(-8deg)]">
+                  LEGO džiaugsmą.
+                </span>
+              </h1>
+              <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-paper/70">
+                Dovanos kortelę galima panaudoti užsisakant prenumeratą arba įsigyjant merch.
+                Galioja vienerius metus.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-paper pb-24 pt-4">
+      <section className="bg-paper pb-12 pt-4 md:pb-24">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
 
           {/* Success state */}
@@ -158,11 +154,11 @@ export default function GiftCards() {
           ) : null}
 
           {!paymentSuccess && (
-            <>
-              {/* Denomination grid */}
-              <div className="mb-8">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
+              {/* Left — denomination picker */}
+              <div>
                 <span className="label-mono mb-5 inline-block text-ink/50">Pasirink sumą</span>
-                <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-6">
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
                   {DENOMINATIONS.map((d) => {
                     const isSelected = selected === d.cents
                     return (
@@ -176,14 +172,10 @@ export default function GiftCards() {
                             : 'bg-paper brick-card-hover',
                         ].join(' ')}
                       >
-                        <span
-                          className={`font-display text-[32px] font-bold uppercase leading-none ${isSelected ? 'text-paper' : 'text-ink'}`}
-                        >
+                        <span className={`font-display text-[32px] font-bold uppercase leading-none ${isSelected ? 'text-paper' : 'text-ink'}`}>
                           €{d.amount}
                         </span>
-                        <span
-                          className={`font-mono text-[11px] leading-snug ${isSelected ? 'text-paper/60' : 'text-ink/40'}`}
-                        >
+                        <span className={`font-mono text-[11px] leading-snug ${isSelected ? 'text-paper/60' : 'text-ink/40'}`}>
                           {d.tagline}
                         </span>
                       </button>
@@ -192,83 +184,90 @@ export default function GiftCards() {
                 </div>
               </div>
 
-              {/* Purchase form — appears when a denomination is selected */}
-              {selected !== null && (
-                <div className="brick-card bg-paper p-6 md:p-9">
-                  <div className="mb-6 flex items-center gap-3">
-                    <span className="heading-display text-d-sm text-ink">
-                      €{selectedDenom?.amount} dovanų kortelė
-                    </span>
-                    <button
-                      onClick={() => setSelected(null)}
-                      className="label-mono ml-auto text-ink/30 transition-colors hover:text-ink"
-                    >
-                      Keisti
-                    </button>
-                  </div>
-
-                  <div className="flex flex-col gap-5 md:max-w-[560px]">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="label-mono text-ink/50">
-                        Gavėjo el. paštas <span className="text-red-400">*</span>
-                      </label>
-                      <input
-                        type="email"
-                        placeholder="gavėjas@example.com"
-                        value={recipientEmail}
-                        onChange={(e) => setRecipientEmail(e.target.value)}
-                        className="rounded-xl border-2 border-ink/20 bg-paper px-4 py-3 font-mono text-[14px] text-ink outline-none transition-colors focus:border-ink"
-                      />
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                      <label className="label-mono text-ink/50">
-                        Asmeninis sveikinimas (neprivaloma)
-                      </label>
-                      <textarea
-                        placeholder="Linkiu nuostabios kelionės su LEGO!"
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value.slice(0, 140))}
-                        rows={3}
-                        className="resize-none rounded-xl border-2 border-ink/20 bg-paper px-4 py-3 font-mono text-[14px] text-ink outline-none transition-colors focus:border-ink"
-                      />
-                      <span className="label-mono text-right text-ink/30">
-                        {message.length}/140
+              {/* Right — purchase form */}
+              <div>
+                {selected !== null ? (
+                  <div className="brick-card bg-paper p-6 md:p-9">
+                    <div className="mb-6 flex items-center gap-3">
+                      <span className="heading-display text-d-sm text-ink">
+                        €{selectedDenom?.amount} dovanų kortelė
                       </span>
+                      <button
+                        onClick={() => setSelected(null)}
+                        className="label-mono ml-auto text-ink/30 transition-colors hover:text-ink"
+                      >
+                        Keisti
+                      </button>
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="label-mono text-ink/50">
-                        Tavo el. paštas (kvitui) <span className="text-red-400">*</span>
-                      </label>
-                      <input
-                        type="email"
-                        placeholder="tavo@example.com"
-                        value={buyerEmail}
-                        onChange={(e) => setBuyerEmail(e.target.value)}
-                        className="rounded-xl border-2 border-ink/20 bg-paper px-4 py-3 font-mono text-[14px] text-ink outline-none transition-colors focus:border-ink"
-                      />
+                    <div className="flex flex-col gap-5">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="label-mono text-ink/50">
+                          Gavėjo el. paštas <span className="text-red-400">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          placeholder="gavėjas@example.com"
+                          value={recipientEmail}
+                          onChange={(e) => setRecipientEmail(e.target.value)}
+                          className="rounded-xl border-2 border-ink/20 bg-paper px-4 py-3 font-mono text-[14px] text-ink outline-none transition-colors focus:border-ink"
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="label-mono text-ink/50">
+                          Asmeninis sveikinimas (neprivaloma)
+                        </label>
+                        <textarea
+                          placeholder="Linkiu nuostabios kelionės su LEGO!"
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value.slice(0, 140))}
+                          rows={3}
+                          className="resize-none rounded-xl border-2 border-ink/20 bg-paper px-4 py-3 font-mono text-[14px] text-ink outline-none transition-colors focus:border-ink"
+                        />
+                        <span className="label-mono text-right text-ink/30">
+                          {message.length}/140
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="label-mono text-ink/50">
+                          Tavo el. paštas (kvitui) <span className="text-red-400">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          placeholder="tavo@example.com"
+                          value={buyerEmail}
+                          onChange={(e) => setBuyerEmail(e.target.value)}
+                          className="rounded-xl border-2 border-ink/20 bg-paper px-4 py-3 font-mono text-[14px] text-ink outline-none transition-colors focus:border-ink"
+                        />
+                      </div>
+
+                      {formError && (
+                        <p className="font-mono text-[12px] text-red-500">{formError}</p>
+                      )}
+
+                      <button
+                        disabled={!recipientEmail || !buyerEmail || loading}
+                        onClick={handleBuy}
+                        className="rounded-xl border-2 border-ink bg-ink py-4 font-mono text-[14px] font-bold uppercase tracking-[.08em] text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_#001B21] disabled:cursor-not-allowed disabled:opacity-30"
+                      >
+                        {loading ? 'Kraunama…' : `Pirkti €${selectedDenom?.amount} dovanų kortelę →`}
+                      </button>
+
+                      <p className="font-mono text-[11px] text-ink/35">
+                        Mokėjimas apdorojamas saugiai per Stripe. Kortelė galioja 1 metus.
+                      </p>
                     </div>
-
-                    {formError && (
-                      <p className="font-mono text-[12px] text-red-500">{formError}</p>
-                    )}
-
-                    <button
-                      disabled={!recipientEmail || !buyerEmail || loading}
-                      onClick={handleBuy}
-                      className="rounded-xl border-2 border-ink bg-ink py-4 font-mono text-[14px] font-bold uppercase tracking-[.08em] text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_#001B21] disabled:cursor-not-allowed disabled:opacity-30"
-                    >
-                      {loading ? 'Kraunama…' : `Pirkti €${selectedDenom?.amount} dovanų kortelę →`}
-                    </button>
-
-                    <p className="font-mono text-[11px] text-ink/35">
-                      Mokėjimas apdorojamas saugiai per Stripe. Kortelė galioja 1 metus.
-                    </p>
                   </div>
-                </div>
-              )}
-            </>
+                ) : (
+                  <div className="brick-card flex min-h-[200px] flex-col items-center justify-center gap-3 bg-paper p-8 text-center">
+                    <span className="font-display text-[48px] leading-none text-ink/10">€</span>
+                    <p className="label-mono text-ink/30">Pasirink sumą kairėje</p>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
         </div>
       </section>

@@ -1,14 +1,16 @@
+import { lazy, Suspense } from 'react'
 import Nav from '@/components/Nav'
 import Hero from '@/components/Hero'
 import Marquee from '@/components/Marquee'
 import { NextDrop } from '@/components/NextDrop'
-import HowItWorks from '@/components/HowItWorks'
-import WhatsInside from '@/components/WhatsInside'
-import Plans from '@/components/Plans'
-import Testimonials from '@/components/Testimonials'
-import FAQ from '@/components/FAQ'
-import Footer from '@/components/Footer'
-import FloatingVideoWidget from '@/components/FloatingVideoWidget'
+
+const HowItWorks = lazy(() => import('@/components/HowItWorks'))
+const WhatsInside = lazy(() => import('@/components/WhatsInside'))
+const Plans = lazy(() => import('@/components/Plans'))
+const Testimonials = lazy(() => import('@/components/Testimonials'))
+const FAQ = lazy(() => import('@/components/FAQ'))
+const Footer = lazy(() => import('@/components/Footer'))
+const FloatingVideoWidget = lazy(() => import('@/components/FloatingVideoWidget'))
 
 export default function Home() {
   return (
@@ -18,14 +20,18 @@ export default function Home() {
         <Hero />
         <Marquee />
         <NextDrop />
-        <HowItWorks />
-        <WhatsInside />
-        <Plans />
-        <Testimonials />
-        <FAQ />
+        <Suspense fallback={null}>
+          <HowItWorks />
+          <WhatsInside />
+          <Plans />
+          <Testimonials />
+          <FAQ />
+        </Suspense>
       </main>
-      <Footer />
-      <FloatingVideoWidget />
+      <Suspense fallback={null}>
+        <Footer />
+        <FloatingVideoWidget />
+      </Suspense>
     </>
   )
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useSearchParams, Link } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase"
@@ -116,7 +116,7 @@ function FAQItem({
         className="overflow-hidden"
         style={{
           transition: "max-height .25s, opacity .2s",
-          maxHeight: open ? 200 : 0,
+          maxHeight: open ? 600 : 0,
           opacity: open ? 1 : 0,
         }}
       >
@@ -133,8 +133,10 @@ export default function Subscribe() {
   const { user, profile } = useAuth()
   const { plans, loading: plansLoading } = usePlans()
 
-  // Build planIndex dynamically once plans are loaded
-  const planIndex = Object.fromEntries(plans.map((p, i) => [p.id, i]))
+  const planIndex = useMemo(
+    () => Object.fromEntries(plans.map((p, i) => [p.id, i])),
+    [plans]
+  )
 
   // Resolve initial plan from URL param; default to index 1 (second plan) if "standard" not found
   const initialPlan =
@@ -147,6 +149,8 @@ export default function Subscribe() {
   const [step, setStep] = useState<"plan" | "payment">("plan")
   const [form, setForm] = useState({ email: "", name: "" })
   const [submitted, setSubmitted] = useState(false)
+
+  const plan = plans[selectedPlan] ?? plans[0]
 
   // Sync selectedPlan when plans load (URL param resolution)
   useEffect(() => {
@@ -186,8 +190,6 @@ export default function Subscribe() {
   } | null>(null)
   const [couponError, setCouponError] = useState<string | null>(null)
   const [couponLoading, setCouponLoading] = useState(false)
-
-  const plan = plans[selectedPlan] ?? plans[0]
 
   async function handlePurchase() {
     if (!user) {
@@ -314,9 +316,9 @@ export default function Subscribe() {
   const isHomeDeliveryEligible = HOME_DELIVERY_PLANS.includes(plan?.id ?? '') && billing === "monthly"
   const deliveryFee = isHomeDeliveryEligible && homeDelivery ? HOME_DELIVERY_FEE : 0
 
-  // Build comparison feature keys from all plans' comparison_data
-  const comparisonFeatures = Array.from(
-    new Set(plans.flatMap((p) => Object.keys(p.comparison_data ?? {}))),
+  const comparisonFeatures = useMemo(
+    () => Array.from(new Set(plans.flatMap((p) => Object.keys(p.comparison_data ?? {})))),
+    [plans]
   )
 
   const heroRef = useReveal<HTMLDivElement>()

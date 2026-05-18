@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { supabase } from "@/lib/supabase"
 import { getPlanDisplayName } from "@/lib/plan-branding"
 
@@ -124,8 +124,14 @@ export default function Checkout() {
       })
   }, [user])
 
-  const requiredTier = tierByName[product?.tier ?? tierParam] ?? tiers[2]
-  const isEligible = userSub !== null && userSub.level >= requiredTier.level
+  const requiredTier = useMemo(
+    () => tierByName[product?.tier ?? tierParam] ?? tiers[2],
+    [product?.tier, tierParam]
+  )
+  const isEligible = useMemo(
+    () => userSub !== null && userSub.level >= requiredTier.level,
+    [userSub, requiredTier]
+  )
 
   async function handleConfirm() {
     if (!user || !product) return

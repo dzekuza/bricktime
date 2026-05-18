@@ -14,6 +14,7 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<AuthProfile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -38,8 +39,12 @@ export function useAuth() {
       .select('id, name, avatar_id, avatar_bg, plan')
       .eq('id', user.id)
       .single()
-      .then(({ data }) => {
-        if (data) setProfile({ id: data.id, name: data.name, avatarId: data.avatar_id, avatarBg: data.avatar_bg, plan: data.plan ?? null })
+      .then(({ data, error: err }) => {
+        if (err) {
+          setError(err.message)
+        } else if (data) {
+          setProfile({ id: data.id, name: data.name, avatarId: data.avatar_id, avatarBg: data.avatar_bg, plan: data.plan ?? null })
+        }
         setLoading(false)
       })
   }, [user])
@@ -48,5 +53,5 @@ export function useAuth() {
     await supabase.auth.signOut()
   }
 
-  return { user, profile, loading, signOut }
+  return { user, profile, loading, error, signOut }
 }

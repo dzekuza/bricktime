@@ -131,6 +131,9 @@ type DbProduct = {
   image_url: string | null
   gallery: string[]
   tier: string
+  year: number | null
+  value: number | null
+  rating: string | null
   faq: FaqItem[] | null
   bags: BagItem[]
   story: StorySection | null
@@ -173,7 +176,7 @@ export default function Drop() {
     supabase
       .from("products")
       .select(
-        "id, title, subtitle, description, category, bricks, minifigs, build_time, image_url, gallery, tier, faq, bags, story, minifig, compatibility, release_date"
+        "id, title, subtitle, description, category, bricks, minifigs, build_time, image_url, gallery, tier, year, value, rating, faq, bags, story, minifig, compatibility, release_date"
       )
       .eq("id", Number(id))
       .single()
@@ -361,33 +364,23 @@ export default function Drop() {
               </p>
 
               {/* Spec grid */}
-              <div className="mt-8 flex gap-2">
+              <div className="mt-8 grid grid-cols-3 gap-2">
                 {[
-                  {
-                    val: String(product?.bricks ?? 312),
-                    label: "Bricks",
-                    bg: "#FFD731",
-                    text: "#001B21",
-                  },
-                  {
-                    val: product?.build_time ?? "—",
-                    label: "Build time",
-                    bg: "#FFAEE7",
-                    text: "#001B21",
-                  },
-                  {
-                    val: getPlanDisplayName(product?.tier ?? "standard"),
-                    label: "Min. plan",
-                    bg: "#4DA2FF",
-                    text: "#001B21",
-                  },
+                  { val: String(product?.bricks ?? "—"), label: "Kaladėlių", bg: "#FFD731", text: "#001B21" },
+                  { val: product?.minifigs ?? "—", label: "Miniukai", bg: "#FFAEE7", text: "#001B21" },
+                  { val: product?.build_time ?? "—", label: "Laikas", bg: "#5DDB9C", text: "#001B21" },
+                  { val: product?.year ? String(product.year) : "—", label: "Metai", bg: "#F5F1EB", text: "#001B21" },
+                  { val: product?.rating ?? "—", label: "Amžius", bg: "#F5F1EB", text: "#001B21" },
+                  { val: product?.value != null ? `€${product.value}` : "—", label: "Kaina", bg: "#4DA2FF", text: "#001B21" },
+                  { val: product?.category ?? "—", label: "Kategorija", bg: "#F5F1EB", text: "#001B21" },
+                  { val: getPlanDisplayName(product?.tier ?? "standard") + "+", label: "Planas", bg: "#001B21", text: "#F5F1EB" },
                 ].map(({ val, label, bg, text }) => (
                   <div
                     key={label}
                     className="brick-card flex flex-col gap-0.5 px-4 py-3"
                     style={{ background: bg, color: text }}
                   >
-                    <span className="font-display text-[28px] leading-none font-black">
+                    <span className="font-display text-[22px] leading-none font-black">
                       {val}
                     </span>
                     <span className="font-mono text-[10px] tracking-[.18em] uppercase opacity-60">
