@@ -20,7 +20,6 @@ const links = [
   { label: 'Produktai', to: '/archive' },
   { label: 'Merch', to: '/merch' },
   { label: 'Dovanų kortelės', to: '/gift-cards' },
-  { label: 'Planai', to: '/subscribe' },
   { label: 'Bendruomenė', to: '/community' },
 ]
 
@@ -250,6 +249,12 @@ export default function Nav() {
 
           {/* Right — CTA + avatar + hamburger */}
           <div className="flex items-center justify-end gap-3">
+            <Link
+              to="/subscribe"
+              className="hidden md:flex label-mono items-center gap-1.5 text-ink/60 transition-opacity hover:opacity-70 hover:text-ink"
+            >
+              Planai
+            </Link>
             {user && profile?.plan ? (
               <PlanChip plan={profile.plan} />
             ) : (
