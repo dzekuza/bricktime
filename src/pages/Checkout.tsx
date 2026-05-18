@@ -211,15 +211,6 @@ export default function Checkout() {
                   <span>✓</span>
                   <span>Pridėta į dėžutę</span>
                 </div>
-                <div className="absolute bottom-5 left-5 right-5">
-                  <p className="label-mono text-ink/60">Produktas № {product.id}</p>
-                  <p className="heading-display text-d-sm mt-1 text-ink drop-shadow-sm">
-                    {product.title}
-                    {product.subtitle && (
-                      <> <span className="opacity-60">{product.subtitle}</span></>
-                    )}
-                  </p>
-                </div>
               </div>
 
               {/* Right — order summary */}
