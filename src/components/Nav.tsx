@@ -17,7 +17,6 @@ const PLAN_COLORS: Record<string, { bg: string; text: string }> = {
 }
 
 const links = [
-  { label: 'Pradžia', to: '/' },
   { label: 'Produktai', to: '/archive' },
   { label: 'Merch', to: '/merch' },
   { label: 'Dovanų kortelės', to: '/gift-cards' },
