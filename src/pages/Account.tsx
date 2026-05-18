@@ -7,6 +7,7 @@ import type { PlanTier } from "@/lib/database.types"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase"
 import { getPlanDisplayName } from "@/lib/plan-branding"
+import { MissingPartDialog } from "@/components/MissingPartDialog"
 
 // ── predefined avatars ──────────────────────────────────────────────────────
 const avatarOptions = [
@@ -225,17 +226,51 @@ export default function Account() {
   const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set())
   const [postCount, setPostCount] = useState(0)
   const [showUpgrade, setShowUpgrade] = useState(false)
+  const [planChanging, setPlanChanging] = useState(false)
+  const [planChangeError, setPlanChangeError] = useState("")
   const [rentedOrders, setRentedOrders] = useState<RentedOrder[]>([])
   const [ordersLoading, setOrdersLoading] = useState(true)
   const [requestingReturn, setRequestingReturn] = useState<Set<string>>(new Set())
+  const [penaltyHistory, setPenaltyHistory] = useState<Array<{
+    id: string; amount: number; reason: string | null; status: string; created_at: string; resolved_at: string | null
+  }>>([])
+  const [stripeInvoices, setStripeInvoices] = useState<Array<{
+    id: string; amount: number; currency: string; description: string; date: number; status: string | null; pdf: string | null
+  }>>([])
+  const [billingLoading, setBillingLoading] = useState(false)
+  const [portalLoading, setPortalLoading] = useState(false)
+  const [portalError, setPortalError] = useState("")
   const [selectedTier, setSelectedTier] = useState(2)
+  const [missingPartOrder, setMissingPartOrder] = useState<RentedOrder | null>(null)
   const [selectedAvatarId, setSelectedAvatarId] = useState(
     profile?.avatarId ?? 0
   )
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
   async function payPenalty() {
-    if (!user?.email) return
-    await Promise.all([
+    if (!user?.email || !subscriber?.penalty_amount) return
+    const origin = window.location.origin
+    const { data, error } = await supabase.functions.invoke("create-penalty-checkout", {
+      body: {
+        userId: user.id,
+        userEmail: user.email,
+        amount: subscriber.penalty_amount,
+        reason: subscriber.penalty_reason ?? undefined,
+        successUrl: `${origin}/account?penalty_paid=true`,
+        cancelUrl: `${origin}/account`,
+      },
+    })
+    if (error || !data?.url) {
+      console.error("Penalty checkout failed:", error?.message)
+      return
+    }
+    window.location.href = data.url
+  }
+
+  // handle Stripe penalty-paid redirect: ?penalty_paid=true
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search)
+    if (q.get("penalty_paid") !== "true" || !user?.email) return
+    Promise.all([
       supabase
         .from("subscribers")
         .update({ penalty_amount: null, penalty_reason: null })
@@ -245,9 +280,28 @@ export default function Account() {
         .update({ status: "paid", resolved_at: new Date().toISOString() })
         .eq("subscriber_email", user.email)
         .eq("status", "pending"),
-    ])
-    setSubscriber((s) => s ? { ...s, penalty_amount: null, penalty_reason: null } : s)
-  }
+    ]).then(() => {
+      setSubscriber((s) => (s ? { ...s, penalty_amount: null, penalty_reason: null } : s))
+      window.history.replaceState({}, "", "/account")
+    })
+  }, [user])
+
+  // handle Stripe plan-change redirect: ?plan_changed=true&plan=xxx
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search)
+    if (q.get("plan_changed") !== "true" || !user) return
+    const planKey = q.get("plan") as PlanTier | null
+    if (!planKey) return
+    supabase
+      .from("subscribers")
+      .update({ plan: planKey, status: "active" })
+      .eq("id", user.id)
+      .then(() => {
+        setSubscriber((s) => (s ? { ...s, plan: planKey } : s))
+        setShowUpgrade(false)
+        window.history.replaceState({}, "", "/account")
+      })
+  }, [user])
 
   useEffect(() => {
     if (profile) setSelectedAvatarId(profile.avatarId)
@@ -282,6 +336,24 @@ export default function Account() {
         )
       setPostCount(count ?? 0)
     })
+  }, [user])
+
+  useEffect(() => {
+    if (!user?.email) return
+    supabase
+      .from("subscriber_penalties")
+      .select("id, amount, reason, status, created_at, resolved_at")
+      .eq("subscriber_email", user.email)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => { if (data) setPenaltyHistory(data) })
+
+    setBillingLoading(true)
+    supabase.functions
+      .invoke("get-billing-history", { body: { userEmail: user.email } })
+      .then(({ data }) => {
+        if (data?.invoices) setStripeInvoices(data.invoices)
+        setBillingLoading(false)
+      })
   }, [user])
 
   useEffect(() => {
@@ -334,13 +406,44 @@ export default function Account() {
 
   async function handlePlanChange() {
     if (!user) return
-    const newPlan = tierOptions[selectedTier].key
-    await supabase
-      .from("subscribers")
-      .update({ plan: newPlan })
-      .eq("id", user.id)
-    setSubscriber((prev) => (prev ? { ...prev, plan: newPlan } : prev))
-    setShowUpgrade(false)
+    const newTier = tierOptions[selectedTier]
+    if (newTier.key === subscriber?.plan) {
+      setPlanChangeError("Jau esi šiame plane.")
+      return
+    }
+    setPlanChanging(true)
+    setPlanChangeError("")
+    const origin = window.location.origin
+    const { data, error } = await supabase.functions.invoke("create-checkout", {
+      body: {
+        planKey: newTier.key,
+        userId: user.id,
+        userEmail: user.email ?? "",
+        successUrl: `${origin}/account?plan_changed=true&plan=${newTier.key}`,
+        cancelUrl: `${origin}/account`,
+      },
+    })
+    setPlanChanging(false)
+    if (error || !data?.url) {
+      setPlanChangeError(error?.message ?? "Nepavyko. Bandyk dar kartą.")
+      return
+    }
+    window.location.href = data.url
+  }
+
+  async function openBillingPortal() {
+    if (!user?.email) return
+    setPortalLoading(true)
+    setPortalError("")
+    const { data, error } = await supabase.functions.invoke("create-billing-portal", {
+      body: { userEmail: user.email, returnUrl: window.location.href },
+    })
+    setPortalLoading(false)
+    if (error || !data?.url) {
+      setPortalError(data?.error ?? error?.message ?? "Nepavyko atidaryti. Bandyk dar kartą.")
+      return
+    }
+    window.location.href = data.url
   }
 
   async function handleRequestReturn(orderId: string) {
@@ -597,19 +700,25 @@ export default function Account() {
                     </button>
                   ))}
                 </div>
-                <div className="mt-5 flex gap-3">
-                  <button
-                    onClick={handlePlanChange}
-                    className="flex-1 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[14px] font-bold text-paper transition-[transform,box-shadow] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
-                  >
-                    Patvirtinti keitimą į {tierOptions[selectedTier].name} →
-                  </button>
-                  <button
-                    onClick={() => setShowUpgrade(false)}
-                    className="rounded-full border-2 border-ink px-5 py-2.5 text-[14px] font-semibold text-ink transition-colors hover:bg-ink/5"
-                  >
-                    Atšaukti
-                  </button>
+                <div className="mt-5 flex flex-col gap-3">
+                  {planChangeError && (
+                    <p className="font-mono text-[11px] text-red-500">{planChangeError}</p>
+                  )}
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handlePlanChange}
+                      disabled={planChanging}
+                      className="flex-1 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[14px] font-bold text-paper transition-[transform,box-shadow] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] disabled:opacity-50 disabled:pointer-events-none"
+                    >
+                      {planChanging ? "Kraunama…" : `Patvirtinti keitimą į ${tierOptions[selectedTier].name} →`}
+                    </button>
+                    <button
+                      onClick={() => { setShowUpgrade(false); setPlanChangeError("") }}
+                      className="rounded-full border-2 border-ink px-5 py-2.5 text-[14px] font-semibold text-ink transition-colors hover:bg-ink/5"
+                    >
+                      Atšaukti
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -732,6 +841,14 @@ export default function Account() {
                           : "Prašyti grąžinimo"}
                       </button>
                     )}
+                    {(order.status === "active" || order.status === "overdue") && (
+                      <button
+                        onClick={() => setMissingPartOrder(order)}
+                        className="mt-2 w-full rounded-full border-2 border-ink/30 bg-transparent px-4 py-2.5 text-[13px] font-bold text-ink/60 transition-all hover:border-ink hover:text-ink"
+                      >
+                        Pranešti apie trūkstamą detalę
+                      </button>
+                    )}
                     {order.status === "return_requested" && (
                       <div className="w-full rounded-full border-2 border-amber-300 bg-amber-50 px-4 py-2.5 text-center text-[13px] font-bold text-amber-700">
                         Laukiama administratoriaus
@@ -750,6 +867,126 @@ export default function Account() {
         </div>
       </section>
 
+      {/* ── Mokėjimai ────────────────────────────────────────────────── */}
+      <section className="bg-paper pt-4 pb-8">
+        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+          <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.02em] text-ink">
+            Mokėjimai.
+          </h2>
+
+          <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-12">
+            {/* Current subscription card */}
+            <div className="brick-card p-6 md:p-8 lg:col-span-5">
+              <p className="label-mono text-ink/40">Aktyvi prenumerata</p>
+              <div className="mt-3 flex items-end justify-between">
+                <div>
+                  <p className="font-display text-d-md leading-none uppercase" style={{ color: activeTier.textColor !== "#001B21" ? activeTier.bg : undefined }}>
+                    {activeTier.name}
+                  </p>
+                  <p className="mt-1 font-mono text-[13px] text-ink/60">
+                    €{activeTier.price}/mėn. · kasmet atnaujinama
+                  </p>
+                </div>
+                <span
+                  className="rounded-full border-2 border-ink px-3 py-1 font-mono text-[10px] tracking-[.14em] uppercase"
+                  style={{ background: activeTier.bg, color: activeTier.textColor }}
+                >
+                  {subscriber?.status ?? "–"}
+                </span>
+              </div>
+              <div className="mt-6 border-t border-ink/10 pt-5 flex flex-col gap-2">
+                {portalError && (
+                  <p className="font-mono text-[11px] text-red-500">{portalError}</p>
+                )}
+                <button
+                  onClick={openBillingPortal}
+                  disabled={portalLoading}
+                  className="brick-hover-sm w-full rounded-xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[11px] tracking-[.14em] text-paper uppercase transition-all disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  {portalLoading ? "Kraunama…" : "Tvarkyti prenumeratą →"}
+                </button>
+                <p className="text-center font-mono text-[10px] text-ink/30">
+                  Kortelė · istorija · atšaukimas
+                </p>
+              </div>
+            </div>
+
+            {/* Payment history */}
+            <div className="brick-card p-6 md:p-8 lg:col-span-7">
+              <p className="label-mono text-ink/40">Mokėjimų istorija</p>
+              {billingLoading ? (
+                <div className="mt-6 py-8 text-center">
+                  <p className="font-mono text-[11px] text-ink/30">Kraunama…</p>
+                </div>
+              ) : stripeInvoices.length === 0 && penaltyHistory.length === 0 ? (
+                <div className="mt-6 flex flex-col items-center justify-center py-8 text-center">
+                  <p className="font-display text-[32px] leading-none text-ink/10 uppercase">Tuščia</p>
+                  <p className="mt-2 font-mono text-[11px] text-ink/30">Mokėjimų istorija bus rodoma čia</p>
+                </div>
+              ) : (
+                <div className="mt-4 flex flex-col divide-y divide-ink/8">
+                  {stripeInvoices.map((inv) => (
+                    <div key={inv.id} className="flex items-center justify-between py-3.5">
+                      <div className="flex flex-col gap-0.5">
+                        <p className="text-[14px] font-medium text-ink">{inv.description}</p>
+                        <p className="font-mono text-[11px] text-ink/40">
+                          {new Date(inv.date * 1000).toLocaleDateString("lt-LT", {
+                            year: "numeric", month: "short", day: "numeric",
+                          })}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-display text-[20px] leading-none text-ink">
+                          {inv.currency.toUpperCase() === "EUR" ? "€" : inv.currency.toUpperCase()}
+                          {inv.amount.toFixed(2)}
+                        </span>
+                        {inv.pdf ? (
+                          <a
+                            href={inv.pdf}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-full border border-ink/20 px-2.5 py-0.5 font-mono text-[9px] tracking-[.12em] text-ink/50 uppercase transition-colors hover:border-ink hover:text-ink"
+                          >
+                            PDF
+                          </a>
+                        ) : (
+                          <span className="rounded-full border border-green-400 bg-green-50 px-2.5 py-0.5 font-mono text-[9px] tracking-[.12em] text-green-600 uppercase">
+                            Sumokėta
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {penaltyHistory.map((p) => (
+                    <div key={p.id} className="flex items-center justify-between py-3.5">
+                      <div className="flex flex-col gap-0.5">
+                        <p className="text-[14px] font-medium text-ink">{p.reason ?? "Bauda"}</p>
+                        <p className="font-mono text-[11px] text-ink/40">
+                          {new Date(p.created_at).toLocaleDateString("lt-LT", {
+                            year: "numeric", month: "short", day: "numeric",
+                          })}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-display text-[20px] leading-none text-ink">€{p.amount.toFixed(2)}</span>
+                        <span className={[
+                          "rounded-full border px-2.5 py-0.5 font-mono text-[9px] tracking-[.12em] uppercase",
+                          p.status === "paid" ? "border-green-400 bg-green-50 text-green-600"
+                            : p.status === "forgiven" ? "border-ink/20 bg-ink/5 text-ink/40"
+                            : "border-red-400 bg-red-50 text-red-500",
+                        ].join(" ")}>
+                          {p.status === "paid" ? "Bauda sumokėta" : p.status === "forgiven" ? "Atleista" : "Laukiama"}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Achievements ─────────────────────────────────────────────── */}
       <AchievementsSection
         unlockedIds={unlockedIds}
@@ -757,6 +994,17 @@ export default function Account() {
       />
 
       <Footer />
+
+      {missingPartOrder && user && (
+        <MissingPartDialog
+          open={missingPartOrder !== null}
+          onOpenChange={(open) => { if (!open) setMissingPartOrder(null) }}
+          orderId={missingPartOrder.id}
+          productId={missingPartOrder.productId}
+          productTitle={missingPartOrder.productTitle}
+          subscriberId={user.id}
+        />
+      )}
     </div>
   )
 }
