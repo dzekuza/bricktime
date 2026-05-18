@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { MenuIcon, XIcon, ArrowRightIcon, LogOutIcon, UserIcon } from 'lucide-react'
+import { MenuIcon, XIcon, ArrowRightIcon, UserIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useAuth } from '@/hooks/useAuth'
@@ -19,6 +19,7 @@ const PLAN_COLORS: Record<string, { bg: string; text: string }> = {
 const links = [
   { label: 'Pradžia', to: '/' },
   { label: 'Produktai', to: '/archive' },
+  { label: 'Merch', to: '/merch' },
   { label: 'Planai', to: '/subscribe' },
   { label: 'Bendruomenė', to: '/community' },
 ]
@@ -136,11 +137,24 @@ function AuthForm({ onClose }: { onClose: () => void }) {
 // ── Avatar button ─────────────────────────────────────────────────────────────
 
 function AvatarPopover() {
-  const { user, profile, signOut } = useAuth()
+  const { user, profile } = useAuth()
   const [open, setOpen] = useState(false)
 
   const avatarId = profile?.avatarId ?? 0
   const avatarBg = profile?.avatarBg ?? '#FFD731'
+
+  if (user) {
+    return (
+      <Link
+        to="/account"
+        className="flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-ink brick-hover-sm"
+        style={{ background: avatarBg }}
+        aria-label="Paskyra"
+      >
+        <img src={avatarSrc(avatarId)} alt="Paskyra" className="h-full w-full object-cover" />
+      </Link>
+    )
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -148,51 +162,13 @@ function AvatarPopover() {
         <button
           className="flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-ink brick-hover-sm"
           style={{ background: avatarBg }}
-          aria-label="Paskyra"
+          aria-label="Prisijungti"
         >
-          {user
-            ? <img src={avatarSrc(avatarId)} alt="Paskyra" className="h-full w-full object-cover" />
-            : <UserIcon className="size-4 text-ink" />
-          }
+          <UserIcon className="size-4 text-ink" />
         </button>
       </PopoverTrigger>
-
       <PopoverContent align="end" className="w-64 rounded-2xl border-2 border-ink p-4 shadow-[6px_6px_0_#001B21] bg-paper" style={{ transformOrigin: 'var(--radix-popover-content-transform-origin)' }}>
-        {user && profile ? (
-          <div className="flex flex-col gap-3">
-            {/* Profile row */}
-            <div className="flex items-center gap-3">
-              <div className="size-10 shrink-0 overflow-hidden rounded-full border-2 border-ink" style={{ background: avatarBg }}>
-                <img src={avatarSrc(avatarId)} alt={profile.name} className="h-full w-full object-cover" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[14px] font-bold text-ink leading-tight truncate">{profile.name}</p>
-                <p className="font-mono text-[11px] text-ink/40 truncate">{user.email}</p>
-              </div>
-            </div>
-
-            <div className="h-px bg-ink/10" />
-
-            <Link
-              to="/account"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 rounded-xl px-3 py-2 text-[13px] font-semibold text-ink hover:bg-ink/5 transition-colors"
-            >
-              <UserIcon className="size-4 text-ink/50" />
-              Paskyra
-            </Link>
-
-            <button
-              onClick={async () => { await signOut(); setOpen(false) }}
-              className="flex items-center gap-2 rounded-xl px-3 py-2 text-[13px] font-semibold text-ink hover:bg-red-50 hover:text-red-600 transition-colors"
-            >
-              <LogOutIcon className="size-4" />
-              Atsijungti
-            </button>
-          </div>
-        ) : (
-          <AuthForm onClose={() => setOpen(false)} />
-        )}
+        <AuthForm onClose={() => setOpen(false)} />
       </PopoverContent>
     </Popover>
   )

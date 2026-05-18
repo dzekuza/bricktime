@@ -9,6 +9,7 @@ import Community from '@/pages/Community'
 import Drop from '@/pages/Drop'
 import UserProfile from '@/pages/UserProfile'
 import { FAQPage, PausePage, ReturnsPage, ShippingPage } from '@/pages/HelpPages'
+import MerchPage from '@/pages/Merch'
 import LoadingScreen from '@/components/LoadingScreen'
 
 export default function App() {
@@ -37,6 +38,7 @@ export default function App() {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/drop/:id" element={<Drop />} />
         <Route path="/profile/:userId" element={<UserProfile />} />
+        <Route path="/merch" element={<MerchPage />} />
         <Route path="/duk" element={<FAQPage />} />
         <Route path="/praleisti-pristabdyti" element={<PausePage />} />
         <Route path="/pristatymas" element={<ShippingPage />} />
