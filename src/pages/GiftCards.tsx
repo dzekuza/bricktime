@@ -62,9 +62,7 @@ export default function GiftCards() {
   const [searchParams] = useSearchParams()
   const paymentSuccess = searchParams.get('payment') === 'success'
   const successCode = searchParams.get('code') ?? ''
-  const [recipientEmailFromUrl] = useState(() => {
-    return sessionStorage.getItem('gc_recipient') ?? ''
-  })
+  const recipientEmailFromUrl = searchParams.get('recipient') ?? ''
 
   const [selected, setSelected] = useState<number | null>(null)
   const [recipientEmail, setRecipientEmail] = useState('')
@@ -82,10 +80,8 @@ export default function GiftCards() {
     if (!denom) { setLoading(false); return }
 
     const origin = window.location.origin
-    const successUrl = `${origin}/gift-cards?payment=success&code={CODE}&session={SESSION_ID}`
+    const successUrl = `${origin}/gift-cards?payment=success&code={CODE}&session={SESSION_ID}&recipient=${encodeURIComponent(recipientEmail)}`
     const cancelUrl = `${origin}/gift-cards`
-
-    sessionStorage.setItem('gc_recipient', recipientEmail)
 
     const { data, error } = await supabase.functions.invoke('create-gift-card-checkout', {
       body: {
