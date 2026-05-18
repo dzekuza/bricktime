@@ -13,10 +13,9 @@ const corsHeaders = {
 
 function generateCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-  const raw = Array.from(
-    { length: 12 },
-    () => chars[Math.floor(Math.random() * chars.length)],
-  ).join("")
+  const buf = new Uint8Array(12)
+  crypto.getRandomValues(buf)
+  const raw = Array.from(buf, (b) => chars[b % chars.length]).join("")
   return `${raw.slice(0, 4)}-${raw.slice(4, 8)}-${raw.slice(8, 12)}`
 }
 
@@ -55,6 +54,7 @@ Deno.serve(async (req) => {
       code = generateCode()
       attempts++
     }
+    if (attempts >= 5) throw new Error("Failed to generate a unique gift card code")
 
     const amountEur = amountCents / 100
 
