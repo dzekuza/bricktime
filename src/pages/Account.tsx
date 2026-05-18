@@ -246,6 +246,14 @@ export default function Account() {
     profile?.avatarId ?? 0
   )
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
+  const [giftCards, setGiftCards] = useState<Array<{
+    id: string; code: string; amount_cents: number; recipient_email: string
+    buyer_email: string; message: string | null; status: string
+    expires_at: string; created_at: string
+  }>>([])
+  const [giftCardsLoading, setGiftCardsLoading] = useState(true)
+  const [copiedCode, setCopiedCode] = useState<string | null>(null)
+
   async function payPenalty() {
     if (!user?.email || !subscriber?.penalty_amount) return
     const origin = window.location.origin
@@ -379,6 +387,26 @@ export default function Account() {
       setOrdersLoading(false)
     })
   }, [user])
+
+  useEffect(() => {
+    if (!user?.email) return
+    supabase
+      .from('gift_cards')
+      .select('id, code, amount_cents, recipient_email, buyer_email, message, status, expires_at, created_at')
+      .or(`recipient_email.eq.${user.email},buyer_email.eq.${user.email}`)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        setGiftCards((data as typeof giftCards) ?? [])
+        setGiftCardsLoading(false)
+      })
+  }, [user])
+
+  function copyCode(code: string) {
+    navigator.clipboard.writeText(code).then(() => {
+      setCopiedCode(code)
+      setTimeout(() => setCopiedCode(null), 2000)
+    })
+  }
 
   const activeTier = subscriber
     ? (tierOptions.find((t) => t.key === subscriber.plan) ?? tierOptions[2])
@@ -986,6 +1014,72 @@ export default function Account() {
           </div>
         </div>
       </section>
+
+      {/* ── Gift Cards ───────────────────────────────────────────────── */}
+      {(giftCardsLoading || giftCards.length > 0) && (
+        <section className="bg-paper pt-4 pb-8">
+          <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+            <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.02em] text-ink">
+              Dovanų kortelės.
+            </h2>
+
+            <div className="mt-8">
+              {giftCardsLoading ? (
+                <div className="brick-card flex items-center justify-center py-10">
+                  <p className="font-mono text-[11px] text-ink/30">Kraunama…</p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {giftCards.map((gc) => {
+                    const isBuyer = gc.buyer_email === user?.email
+                    const isRecipient = gc.recipient_email === user?.email
+                    const role = isBuyer && isRecipient ? 'Nupirkta sau' : isBuyer ? 'Nupirkta' : 'Gauta'
+                    const isActive = gc.status === 'active'
+                    const isUsed = gc.status === 'used'
+                    const expires = new Date(gc.expires_at).toLocaleDateString('lt-LT', { year: 'numeric', month: 'short', day: 'numeric' })
+
+                    return (
+                      <div key={gc.id} className="brick-card flex flex-col gap-4 bg-paper p-5 md:p-6 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex flex-col gap-1.5">
+                          <div className="flex items-center gap-2.5">
+                            <span className="label-mono text-ink/40">{role}</span>
+                            <span className={[
+                              'rounded-full border px-2.5 py-0.5 font-mono text-[9px] tracking-[.12em] uppercase',
+                              isActive ? 'border-green-400 bg-green-50 text-green-600'
+                                : isUsed ? 'border-ink/20 bg-ink/5 text-ink/40'
+                                : 'border-red-300 bg-red-50 text-red-400',
+                            ].join(' ')}>
+                              {isActive ? 'Aktyvus' : isUsed ? 'Panaudotas' : 'Pasibaigęs'}
+                            </span>
+                          </div>
+                          <span className="font-mono text-[22px] font-bold tracking-[.1em] text-ink">
+                            {gc.code}
+                          </span>
+                          <p className="font-mono text-[11px] text-ink/40">
+                            €{gc.amount_cents / 100} · Galioja iki {expires}
+                          </p>
+                          {gc.message && (
+                            <p className="mt-1 max-w-[40ch] text-[13px] italic text-ink/55">"{gc.message}"</p>
+                          )}
+                        </div>
+
+                        {isActive && (
+                          <button
+                            onClick={() => copyCode(gc.code)}
+                            className="brick-hover-sm self-start rounded-xl border-2 border-ink px-4 py-2.5 font-mono text-[11px] font-bold uppercase tracking-[.1em] text-ink transition-all sm:self-auto"
+                          >
+                            {copiedCode === gc.code ? '✓ Nukopijuota' : 'Kopijuoti kodą'}
+                          </button>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── Achievements ─────────────────────────────────────────────── */}
       <AchievementsSection
