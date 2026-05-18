@@ -13,6 +13,9 @@ import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { getPlanDisplayName } from "@/lib/plan-branding"
 
+const HOME_DELIVERY_PLANS = ['pro', 'mega', 'mystery_s', 'mystery_m']
+const HOME_DELIVERY_FEE = 3
+
 // ── tier config ──────────────────────────────────────────────────────────────
 const tiers = [
   {
@@ -87,6 +90,7 @@ export default function Checkout() {
   const [confirmed, setConfirmed] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [showModal, setShowModal] = useState(false)
+  const [homeDelivery, setHomeDelivery] = useState(false)
 
   useEffect(() => {
     if (!productId) { setLoading(false); return }
@@ -102,12 +106,18 @@ export default function Checkout() {
     if (!user) { setUserSub(null); return }
     supabase
       .from("subscribers")
-      .select("plan, status")
+      .select("plan, status, home_delivery")
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
-        if (data?.status === "active") setUserSub(tierByName[data.plan] ?? null)
-        else setUserSub(null)
+        if (data?.status === "active") {
+          setUserSub(tierByName[data.plan] ?? null)
+          if (HOME_DELIVERY_PLANS.includes(data.plan)) {
+            setHomeDelivery(data.home_delivery ?? false)
+          }
+        } else {
+          setUserSub(null)
+        }
       })
   }, [user])
 
@@ -128,6 +138,7 @@ export default function Checkout() {
       start_date: fmt(today),
       due_date: fmt(due),
       status: "processing",
+      home_delivery: homeDelivery,
     })
     setConfirming(false)
     if (!error) setConfirmed(true)
@@ -536,17 +547,62 @@ export default function Checkout() {
               </div>
             </div>
 
-            <div className="mt-3 flex items-center gap-6 border-t-2 border-ink/8 pt-3">
+            <div className="mt-3 border-t-2 border-ink/8 pt-3 flex flex-col gap-3">
               {userSub && (
-                <div>
-                  <p className="label-mono text-ink/40">Planas</p>
-                  <p className="mt-0.5 font-display text-[15px] text-ink">{userSub.name}</p>
+                <div className="flex items-center gap-6">
+                  <div>
+                    <p className="label-mono text-ink/40">Planas</p>
+                    <p className="mt-0.5 font-display text-[15px] text-ink">{userSub.name}</p>
+                  </div>
+                  <div>
+                    <p className="label-mono text-ink/40">Papildomas mokestis</p>
+                    <p className="mt-0.5 font-display text-[15px] text-brand-mint">€0</p>
+                  </div>
                 </div>
               )}
-              <div>
-                <p className="label-mono text-ink/40">Papildomas mokestis</p>
-                <p className="mt-0.5 font-display text-[15px] text-brand-mint">€0</p>
-              </div>
+
+              {/* Shipping selector — only for eligible plans */}
+              {userSub && HOME_DELIVERY_PLANS.includes(userSub.key) && (
+                <div className="flex flex-col gap-2">
+                  <p className="label-mono text-ink/40">Pristatymo būdas</p>
+                  <div className="flex flex-col gap-1.5">
+                    {[
+                      { value: false, label: "Paštomatas", sub: "Nemokamas" },
+                      { value: true, label: "Į duris", sub: `+€${HOME_DELIVERY_FEE}/užsakymui` },
+                    ].map(({ value, label, sub }) => (
+                      <button
+                        key={String(value)}
+                        type="button"
+                        onClick={() => setHomeDelivery(value)}
+                        className={[
+                          "flex items-center justify-between rounded-xl border-2 px-4 py-2.5 text-left transition-colors",
+                          homeDelivery === value
+                            ? "border-ink bg-ink/5"
+                            : "border-ink/20 hover:border-ink/40",
+                        ].join(" ")}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className={[
+                            "flex size-4 items-center justify-center rounded-full border-2",
+                            homeDelivery === value ? "border-ink bg-ink" : "border-ink/30",
+                          ].join(" ")}>
+                            {homeDelivery === value && (
+                              <span className="size-1.5 rounded-full bg-paper" />
+                            )}
+                          </span>
+                          <span className="text-[14px] font-semibold text-ink">{label}</span>
+                        </div>
+                        <span className={[
+                          "font-mono text-[12px]",
+                          value ? "text-ink/60" : "text-brand-mint font-semibold",
+                        ].join(" ")}>
+                          {sub}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
