@@ -37,7 +37,7 @@ export function usePlans() {
         if (err) {
           setError(err.message)
         } else {
-          setPlans((data ?? []) as DbPlan[])
+          setPlans((data ?? []) as unknown as DbPlan[])
         }
         setLoading(false)
       })

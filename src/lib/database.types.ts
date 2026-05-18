@@ -454,6 +454,7 @@ export type Database = {
           amount: number
           created_at: string
           due_date: string
+          home_delivery: boolean
           id: string
           product_id: number
           return_note: string | null
@@ -466,6 +467,7 @@ export type Database = {
           amount: number
           created_at?: string
           due_date: string
+          home_delivery?: boolean
           id?: string
           product_id: number
           return_note?: string | null
@@ -478,6 +480,7 @@ export type Database = {
           amount?: number
           created_at?: string
           due_date?: string
+          home_delivery?: boolean
           id?: string
           product_id?: number
           return_note?: string | null
@@ -724,6 +727,7 @@ export type Database = {
           avatar_bg: string
           avatar_id: number
           email: string
+          home_delivery: boolean
           id: string
           joined_at: string
           name: string
@@ -737,6 +741,7 @@ export type Database = {
           avatar_bg?: string
           avatar_id?: number
           email: string
+          home_delivery?: boolean
           id: string
           joined_at?: string
           name: string
@@ -750,6 +755,7 @@ export type Database = {
           avatar_bg?: string
           avatar_id?: number
           email?: string
+          home_delivery?: boolean
           id?: string
           joined_at?: string
           name?: string
