@@ -451,6 +451,20 @@ export default function Checkout() {
                     </div>
                   ))}
                 </div>
+                <div className="grid grid-cols-3 gap-x-3 gap-y-2.5 border-b-2 border-ink pb-4">
+                  {[
+                    ["Metai", product.year ?? "—"],
+                    ["Amžius", product.rating ?? "—"],
+                    ["Kaina", product.value != null ? `€${product.value}` : "—"],
+                    ["Kategorija", product.category ?? "—"],
+                    ["Planas", requiredTier.name + "+"],
+                  ].map(([label, val]) => (
+                    <div key={label as string}>
+                      <div className="label-mono text-[9px] text-ink/40">{label}</div>
+                      <div className="font-mono text-[12px] font-bold text-ink capitalize">{val}</div>
+                    </div>
+                  ))}
+                </div>
 
                 {/* Value badge if set */}
                 {product.value != null && product.value > 0 && (
