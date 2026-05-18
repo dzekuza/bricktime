@@ -18,6 +18,9 @@ import { usePlans } from "@/hooks/usePlans"
 
 // ── static data ────────────────────────────────────────────────────────────
 
+const HOME_DELIVERY_PLANS = ['pro', 'mega', 'mystery_s', 'mystery_m']
+const HOME_DELIVERY_FEE = 3
+
 const trustTiles = [
   {
     label: "Atšauk bet kada",
@@ -163,6 +166,13 @@ export default function Subscribe() {
     }))
   }, [user, profile])
 
+  const [homeDelivery, setHomeDelivery] = useState(false)
+
+  // reset home delivery toggle when switching to an ineligible plan
+  useEffect(() => {
+    if (!HOME_DELIVERY_PLANS.includes(plan?.id ?? '')) setHomeDelivery(false)
+  }, [plan?.id])
+
   const [purchasing, setPurchasing] = useState(false)
   const [purchaseError, setPurchaseError] = useState("")
   const [openFaq, setOpenFaq] = useState<number | null>(null)
@@ -197,10 +207,11 @@ export default function Subscribe() {
         planKey,
         userId: user.id,
         userEmail: user.email ?? form.email,
-        successUrl: `${origin}/subscribe?success=true&plan=${planKey}`,
+        successUrl: `${origin}/subscribe?success=true&plan=${planKey}${homeDelivery ? '&home_delivery=1' : ''}`,
         cancelUrl: `${origin}/subscribe?plan=${planKey}`,
         ...(hasDiscount && { discountedAmount: discountedPrice }),
         ...(appliedCoupon?.giftCardCode && { giftCardCode: appliedCoupon.giftCardCode }),
+        homeDelivery,
       },
     })
     setPurchasing(false)
@@ -216,6 +227,7 @@ export default function Subscribe() {
     if (params.get("success") !== "true") return
     const planKey = params.get("plan") as PlanTier | null
     if (!planKey || !user) return
+    const hasHomeDelivery = params.get("home_delivery") === "1"
     supabase
       .from("subscribers")
       .upsert(
@@ -225,6 +237,7 @@ export default function Subscribe() {
           name: user.email?.split("@")[0] ?? "Subscriber",
           plan: planKey,
           status: "active",
+          home_delivery: hasHomeDelivery,
         },
         { onConflict: "id" },
       )
@@ -298,6 +311,8 @@ export default function Subscribe() {
   const annualPrice = plan?.annual_price ?? monthlyPrice
   const price = billing === "monthly" ? monthlyPrice : annualPrice
   const total = billing === "monthly" ? price : price * 10
+  const isHomeDeliveryEligible = HOME_DELIVERY_PLANS.includes(plan?.id ?? '') && billing === "monthly"
+  const deliveryFee = isHomeDeliveryEligible && homeDelivery ? HOME_DELIVERY_FEE : 0
 
   // Build comparison feature keys from all plans' comparison_data
   const comparisonFeatures = Array.from(
@@ -651,7 +666,7 @@ export default function Subscribe() {
                   >
                     {purchasing
                       ? "Apdorojama…"
-                      : `Pradėti ${plan?.name ?? ""} — €${billing === "annual" ? `${total} šiandien` : `${price}/mėn.`} →`}
+                      : `Pradėti ${plan?.name ?? ""} — €${billing === "annual" ? `${total} šiandien` : `${price + deliveryFee}/mėn.`} →`}
                   </Button>
                 </div>
 
@@ -736,9 +751,46 @@ export default function Subscribe() {
                         className="flex justify-between text-[13px]"
                         style={{ color: `${plan.text_color}70` }}
                       >
-                        <span>Pristatymas</span>
+                        <span>Standartinis pristatymas</span>
                         <span>Nemokamas</span>
                       </div>
+                      {isHomeDeliveryEligible && (
+                        <div
+                          className="flex items-center justify-between rounded-xl border-2 px-3 py-2.5 transition-colors"
+                          style={{
+                            borderColor: homeDelivery ? plan.text_color : `${plan.text_color}30`,
+                            background: homeDelivery ? `${plan.text_color}10` : 'transparent',
+                          }}
+                        >
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-[13px] font-semibold" style={{ color: plan.text_color }}>
+                              Pristatymas į duris
+                            </span>
+                            <span className="font-mono text-[11px]" style={{ color: `${plan.text_color}60` }}>
+                              +€{HOME_DELIVERY_FEE}/mėn.
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            role="switch"
+                            aria-checked={homeDelivery}
+                            onClick={() => setHomeDelivery((v) => !v)}
+                            className="relative h-6 w-11 shrink-0 rounded-full border-2 transition-colors"
+                            style={{
+                              borderColor: plan.text_color,
+                              background: homeDelivery ? plan.text_color : `${plan.text_color}20`,
+                            }}
+                          >
+                            <span
+                              className="absolute top-0.5 h-4 w-4 rounded-full border-2 bg-paper transition-transform"
+                              style={{
+                                borderColor: plan.text_color,
+                                transform: homeDelivery ? 'translateX(20px)' : 'translateX(2px)',
+                              }}
+                            />
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <div className="mt-4 flex flex-col gap-2">
                       {appliedCoupon ? (
@@ -799,12 +851,10 @@ export default function Subscribe() {
                       <span className="font-display text-[40px] leading-none">
                         €
                         {appliedCoupon
-                          ? getDiscountedPrice(
-                              billing === "annual" ? total : price,
-                            ).toFixed(2)
+                          ? (getDiscountedPrice(billing === "annual" ? total : price) + deliveryFee).toFixed(2)
                           : billing === "annual"
                             ? total
-                            : price}
+                            : price + deliveryFee}
                       </span>
                     </div>
                   </div>
