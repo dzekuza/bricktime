@@ -177,44 +177,138 @@ export default function Checkout() {
   }
 
   // ── confirmed ────────────────────────────────────────────────────────────
+  const coverImage = product.image_url ?? product.gallery?.[0] ?? null
+
   if (confirmed) {
     return (
       <div className="min-h-screen bg-paper">
         <Nav />
         <section className="py-10 md:py-20">
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-            <div
-              className="brick-card flex min-h-[420px] flex-col items-center justify-center p-16 text-center"
-              style={{ background: "#5DDB9C" }}
-            >
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+
+              {/* Left — product image */}
               <div
-                className="font-display text-[80px] leading-none"
-                style={{ color: "#001B21" }}
+                className="brick-card relative overflow-hidden"
+                style={{ minHeight: 420, background: requiredTier.bg }}
               >
-                ✓
+                {coverImage ? (
+                  <img
+                    src={coverImage}
+                    alt={product.title}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 opacity-20"
+                    style={{
+                      backgroundImage: "radial-gradient(circle at 16px 16px, rgba(255,255,255,.4) 4px, transparent 5px)",
+                      backgroundSize: "40px 40px",
+                    }}
+                  />
+                )}
+                {/* Overlay badge */}
+                <div className="absolute top-5 left-5 flex items-center gap-2 rounded-full border-2 border-ink bg-brand-mint px-4 py-2 font-mono text-[13px] font-bold text-ink shadow-[3px_3px_0_#001B21]">
+                  <span>✓</span>
+                  <span>Pridėta į dėžutę</span>
+                </div>
+                <div className="absolute bottom-5 left-5 right-5">
+                  <p className="label-mono text-ink/60">Produktas № {product.id}</p>
+                  <p className="heading-display text-d-sm mt-1 text-ink drop-shadow-sm">
+                    {product.title}
+                    {product.subtitle && (
+                      <> <span className="opacity-60">{product.subtitle}</span></>
+                    )}
+                  </p>
+                </div>
               </div>
-              <h2 className="heading-display text-d-lg mt-6 text-ink">
-                Produktas № {product.id} pridėtas į tavo dėžutę!
-              </h2>
-              <p className="mt-5 max-w-[40ch] text-[17px] leading-[1.65] text-ink/70">
-                <b>{product.title}</b> eilėje tavo {userSub?.name}{" "}
-                prenumeratoje. Įtrauksime į kitą siuntą.
-              </p>
-              <div className="mt-10 flex flex-wrap justify-center gap-4">
-                <Button
-                  asChild
-                  className="brick-hover-sm rounded-full border-2 border-ink bg-ink text-[15px] font-bold text-paper"
-                >
-                  <Link to="/account">Žiūrėti mano produktus →</Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="rounded-full border-2 border-ink bg-transparent text-[15px] font-bold text-ink transition-all hover:bg-ink/5"
-                >
-                  <Link to="/archive">Naršyti daugiau produktų</Link>
-                </Button>
+
+              {/* Right — order summary */}
+              <div className="brick-card flex flex-col gap-6 bg-paper p-7">
+                <div>
+                  <p className="label-mono text-ink/40">Užsakymas patvirtintas</p>
+                  <h2 className="heading-display text-d-sm mt-2 text-ink">Viskas paruošta!</h2>
+                  <p className="mt-3 text-[15px] leading-[1.65] text-ink/60">
+                    Produktas pridėtas į eilę. Išsiųsime su kita siunta.
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-3 rounded-2xl border-2 border-ink/10 bg-ink/[.03] p-5">
+                  {/* Product row */}
+                  <div className="flex items-center gap-3">
+                    {coverImage && (
+                      <img
+                        src={coverImage}
+                        alt={product.title}
+                        className="size-16 shrink-0 rounded-xl border-2 border-ink object-cover"
+                      />
+                    )}
+                    <div className="min-w-0">
+                      <p className="label-mono text-ink/40">Produktas</p>
+                      <p className="mt-0.5 truncate font-display text-[18px] leading-tight text-ink">
+                        {product.title}
+                      </p>
+                      {product.subtitle && (
+                        <p className="truncate text-[12px] text-ink/50">{product.subtitle}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-t-2 border-dashed border-ink/10" />
+
+                  {/* Stats */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <p className="label-mono text-ink/40">Planas</p>
+                      <p className="mt-0.5 font-display text-[15px] text-ink">{userSub?.name ?? "—"}</p>
+                    </div>
+                    <div>
+                      <p className="label-mono text-ink/40">Kaladėlės</p>
+                      <p className="mt-0.5 font-display text-[15px] text-ink">{product.bricks}</p>
+                    </div>
+                    <div>
+                      <p className="label-mono text-ink/40">Laikas</p>
+                      <p className="mt-0.5 font-display text-[15px] text-ink">{product.build_time ?? "—"}</p>
+                    </div>
+                  </div>
+
+                  <div className="border-t-2 border-dashed border-ink/10" />
+
+                  {/* Delivery */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="label-mono text-ink/40">Pristatymas</p>
+                      <p className="mt-0.5 font-display text-[15px] text-ink">
+                        {homeDelivery ? "Į duris" : "Paštomatas"}
+                      </p>
+                    </div>
+                    <span className={[
+                      "rounded-full border-2 border-ink px-3 py-1.5 font-mono text-[11px] font-bold tracking-[.1em] uppercase",
+                      homeDelivery ? "bg-brand-yellow text-ink" : "bg-brand-mint text-ink",
+                    ].join(" ")}>
+                      {homeDelivery ? `+€${HOME_DELIVERY_FEE}` : "Nemokamas"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-auto flex flex-col gap-2">
+                  <Button
+                    asChild
+                    size="lg"
+                    className="brick-hover-sm w-full rounded-full border-2 border-ink bg-ink text-[15px] font-bold text-paper"
+                  >
+                    <Link to="/account">Žiūrėti mano produktus →</Link>
+                  </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="lg"
+                    className="w-full rounded-full border-2 border-ink bg-transparent text-[15px] font-bold text-ink transition-all hover:bg-ink/5"
+                  >
+                    <Link to="/archive">Naršyti daugiau produktų</Link>
+                  </Button>
+                </div>
               </div>
+
             </div>
           </div>
         </section>
@@ -224,7 +318,6 @@ export default function Checkout() {
   }
 
   // ── main ─────────────────────────────────────────────────────────────────
-  const coverImage = product.image_url ?? product.gallery?.[0] ?? null
 
   return (
     <div className="min-h-screen bg-paper">
