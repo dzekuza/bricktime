@@ -20,6 +20,7 @@ const links = [
   { label: 'Pradžia', to: '/' },
   { label: 'Produktai', to: '/archive' },
   { label: 'Merch', to: '/merch' },
+  { label: 'Dovanų kortelės', to: '/gift-cards' },
   { label: 'Planai', to: '/subscribe' },
   { label: 'Bendruomenė', to: '/community' },
 ]

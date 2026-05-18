@@ -11,6 +11,7 @@ import UserProfile from '@/pages/UserProfile'
 import { FAQPage, PausePage, ReturnsPage, ShippingPage } from '@/pages/HelpPages'
 import MerchPage from '@/pages/Merch'
 import MerchDrop from '@/pages/MerchDrop'
+import GiftCards from '@/pages/GiftCards'
 import LoadingScreen from '@/components/LoadingScreen'
 
 export default function App() {
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="/profile/:userId" element={<UserProfile />} />
         <Route path="/merch" element={<MerchPage />} />
         <Route path="/merch/:slug" element={<MerchDrop />} />
+        <Route path="/gift-cards" element={<GiftCards />} />
         <Route path="/duk" element={<FAQPage />} />
         <Route path="/praleisti-pristabdyti" element={<PausePage />} />
         <Route path="/pristatymas" element={<ShippingPage />} />
