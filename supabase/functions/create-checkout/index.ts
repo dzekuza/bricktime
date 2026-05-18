@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { planKey, userId, userEmail, successUrl, cancelUrl, discountedAmount, giftCardCode } =
+    const { planKey, userId, userEmail, successUrl, cancelUrl, discountedAmount, giftCardCode, homeDelivery } =
       await req.json()
 
     const plan = PLAN_CONFIG[planKey]
@@ -48,6 +48,15 @@ Deno.serve(async (req) => {
           },
           quantity: 1,
         },
+        ...(homeDelivery ? [{
+          price_data: {
+            currency: "eur",
+            product_data: { name: "Pristatymas į duris" },
+            unit_amount: 300,
+            recurring: { interval: "month" },
+          },
+          quantity: 1,
+        }] : []),
       ],
       customer_email: userEmail ?? undefined,
       client_reference_id: userId,
