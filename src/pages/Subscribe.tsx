@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useSearchParams, Link } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase"
@@ -14,226 +14,9 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useReveal } from "@/hooks/useReveal"
-import {
-  getPlanBrickImage,
-  getPlanDisplayName,
-  getPlanTheme,
-} from "@/lib/plan-branding"
+import { usePlans } from "@/hooks/usePlans"
 
-const nanoTheme = getPlanTheme("nano")!
-const miniTheme = getPlanTheme("mini")!
-const standardTheme = getPlanTheme("standard")!
-const proTheme = getPlanTheme("pro")!
-const megaTheme = getPlanTheme("mega")!
-
-// ── data ───────────────────────────────────────────────────────────────────
-
-const plans = [
-  {
-    key: "nano",
-    name: getPlanDisplayName("nano"),
-    brickImage: getPlanBrickImage("nano"),
-    tagline: "Išbandyk vieną produktą.",
-    monthlyPrice: 9,
-    annualPrice: 7,
-    ...nanoTheme,
-    featured: false,
-    perks: [
-      { label: "Iki €50 vertės produktai vienu metu", included: true },
-      { label: "Surinkimo kortelė", included: true },
-      { label: "4 vinilo lipdukai", included: true },
-      { label: "Nemokamas standartinis pristatymas", included: true },
-      { label: "Išskirtinis miniukas", included: false },
-      { label: "Keitimų klubo prieiga", included: false },
-      { label: "Ankstyva prieiga prie produktų", included: false },
-      { label: "Metinė staigmenos dėžutė", included: false },
-    ],
-    simplifiedPerks: [
-      "Iki €50 vertės produktai",
-      "Surinkimo kortelė",
-      "4 lipdukų",
-      "Nemokamas pristatymas",
-    ],
-  },
-  {
-    key: "mini",
-    name: getPlanDisplayName("mini"),
-    brickImage: getPlanBrickImage("mini"),
-    tagline: "Pilnas patyrimas.",
-    monthlyPrice: 14,
-    annualPrice: 11,
-    ...miniTheme,
-    featured: false,
-    perks: [
-      { label: "Iki €100 vertės produktai vienu metu", included: true },
-      { label: "1 išskirtinis miniukas", included: true },
-      { label: "Surinkimo kortelė + 8 vinilo lipdukai", included: true },
-      { label: "Nemokamas standartinis pristatymas", included: true },
-      { label: "Keitimų klubo prieiga", included: false },
-      { label: "Ankstyva prieiga prie produktų", included: false },
-      { label: "Metinė staigmenos dėžutė", included: false },
-    ],
-    simplifiedPerks: [
-      "Iki €100 vertės produktai",
-      "1 išskirtinis miniukas",
-      "Surinkimo kortelė + 8 lipdukų",
-      "Nemokamas pristatymas",
-    ],
-  },
-  {
-    key: "standard",
-    name: getPlanDisplayName("standard"),
-    brickImage: getPlanBrickImage("standard"),
-    tagline: "Mėgėjų pasirinkimas.",
-    monthlyPrice: 24,
-    annualPrice: 19,
-    ...standardTheme,
-    featured: true,
-    perks: [
-      { label: "Iki €200 vertės produktai vienu metu", included: true },
-      { label: "2 išskirtiniai miniukai", included: true },
-      { label: "16 vinilo lipdukų", included: true },
-      { label: "Keitimų klubo prieiga", included: true },
-      { label: "Skubus pristatymas", included: true },
-      { label: "Ankstyva prieiga prie produktų", included: false },
-      { label: "Metinė staigmenos dėžutė", included: false },
-    ],
-    simplifiedPerks: [
-      "Iki €200 vertės produktai",
-      "2 išskirtiniai miniukai",
-      "16 lipdukų",
-      "Keitimų klubo prieiga",
-      "Skubus pristatymas",
-    ],
-  },
-  {
-    key: "pro",
-    name: getPlanDisplayName("pro"),
-    brickImage: getPlanBrickImage("pro"),
-    tagline: "Rimtiems statytojams.",
-    monthlyPrice: 35,
-    annualPrice: 28,
-    ...proTheme,
-    featured: false,
-    perks: [
-      { label: "Iki €350 vertės produktai vienu metu", included: true },
-      { label: "2 miniukai + alt spalva", included: true },
-      { label: "20 vinilo lipdukų", included: true },
-      { label: "Keitimų klubo prieiga", included: true },
-      { label: "Ankstyva prieiga prie produktų", included: true },
-      { label: "Skubus pristatymas", included: true },
-      { label: "Metinė staigmenos dėžutė", included: false },
-    ],
-    simplifiedPerks: [
-      "Iki €350 vertės produktai",
-      "2 miniukai + alt spalva",
-      "20 lipdukų",
-      "Ankstyva prieiga prie produktų",
-      "Skubus pristatymas",
-    ],
-  },
-  {
-    key: "mega",
-    name: getPlanDisplayName("mega"),
-    brickImage: getPlanBrickImage("mega"),
-    tagline: "Visa visata.",
-    monthlyPrice: 55,
-    annualPrice: 44,
-    ...megaTheme,
-    featured: false,
-    perks: [
-      { label: "Iki €600 vertės produktai vienu metu", included: true },
-      { label: "3 miniukai + retas variantas", included: true },
-      { label: "Kietu viršeliu surinkimo knyga", included: true },
-      { label: "Keitimų klubo prieiga", included: true },
-      { label: "Ankstyva prieiga prie produktų", included: true },
-      { label: "Metinė staigmenos dėžutė", included: true },
-      { label: "Skubus pristatymas", included: true },
-    ],
-    simplifiedPerks: [
-      "Iki €600 vertės produktai",
-      "3 miniukai + retas variantas",
-      "Kietu viršeliu surinkimo knyga",
-      "Metinė staigmenos dėžutė",
-      "Visiška prieiga",
-    ],
-  },
-]
-
-const planIndex: Record<string, number> = {
-  nano: 0,
-  mini: 1,
-  standard: 2,
-  pro: 3,
-  mega: 4,
-}
-
-const comparisonRows = [
-  {
-    feature: "Mėnesinis biudžetas",
-    nano: "€50",
-    mini: "€100",
-    standard: "€200",
-    pro: "€350",
-    mega: "€600",
-  },
-  {
-    feature: "Išskirtiniai miniukai",
-    nano: "—",
-    mini: "1",
-    standard: "2",
-    pro: "2 + alt",
-    mega: "3 + variantas",
-  },
-  {
-    feature: "Surinkimo kortelė",
-    nano: "✓",
-    mini: "✓",
-    standard: "✓",
-    pro: "✓",
-    mega: "Kieta knyga",
-  },
-  {
-    feature: "Vinilo lipdukai",
-    nano: "4",
-    mini: "8",
-    standard: "16",
-    pro: "20",
-    mega: "24",
-  },
-  {
-    feature: "Pristatymas",
-    nano: "Standartinis",
-    mini: "Standartinis",
-    standard: "Skubus",
-    pro: "Skubus",
-    mega: "Skubus",
-  },
-  {
-    feature: "Keitimų klubo prieiga",
-    nano: "—",
-    mini: "—",
-    standard: "✓",
-    pro: "✓",
-    mega: "✓",
-  },
-  {
-    feature: "Ankstyva prieiga",
-    nano: "—",
-    mini: "—",
-    standard: "—",
-    pro: "✓",
-    mega: "✓",
-  },
-  {
-    feature: "Staigmenos dėžutė",
-    nano: "—",
-    mini: "—",
-    standard: "—",
-    pro: "—",
-    mega: "✓",
-  },
-]
+// ── static data ────────────────────────────────────────────────────────────
 
 const trustTiles = [
   {
@@ -344,51 +127,109 @@ function FAQItem({
 
 export default function Subscribe() {
   const [params] = useSearchParams()
-  const initialPlan = planIndex[params.get("plan") ?? "standard"] ?? 2
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
+  const { plans, loading: plansLoading } = usePlans()
+
+  // Build planIndex dynamically once plans are loaded
+  const planIndex = Object.fromEntries(plans.map((p, i) => [p.id, i]))
+
+  // Resolve initial plan from URL param; default to index 1 (second plan) if "standard" not found
+  const initialPlan =
+    planIndex[params.get("plan") ?? "standard"] ??
+    planIndex["standard"] ??
+    1
 
   const [selectedPlan, setSelectedPlan] = useState(initialPlan)
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly")
   const [step, setStep] = useState<"plan" | "payment">("plan")
-  const [form, setForm] = useState({
-    email: "",
-    card: "",
-    expiry: "",
-    cvc: "",
-    name: "",
-  })
+  const [form, setForm] = useState({ email: "", name: "" })
   const [submitted, setSubmitted] = useState(false)
+
+  // Sync selectedPlan when plans load (URL param resolution)
+  useEffect(() => {
+    if (plans.length === 0) return
+    const paramPlan = params.get("plan")
+    if (paramPlan && planIndex[paramPlan] !== undefined) {
+      setSelectedPlan(planIndex[paramPlan])
+    }
+  }, [plans]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // pre-fill form from auth profile
+  useEffect(() => {
+    setForm((f) => ({
+      ...f,
+      email: user?.email ?? f.email,
+      name: profile?.name || user?.email?.split("@")[0] || f.name,
+    }))
+  }, [user, profile])
+
   const [purchasing, setPurchasing] = useState(false)
   const [purchaseError, setPurchaseError] = useState("")
   const [openFaq, setOpenFaq] = useState<number | null>(null)
-  const [couponInput, setCouponInput] = useState('')
+  const [couponInput, setCouponInput] = useState("")
   const [appliedCoupon, setAppliedCoupon] = useState<{
     code: string
-    discount_type: 'percentage' | 'fixed'
+    discount_type: "percentage" | "fixed"
     discount_value: number
     duration_months: number | null
+    giftCardCode?: string
   } | null>(null)
   const [couponError, setCouponError] = useState<string | null>(null)
   const [couponLoading, setCouponLoading] = useState(false)
 
+  const plan = plans[selectedPlan] ?? plans[0]
+
   async function handlePurchase() {
-    if (!user) { setPurchaseError("Prisijunk prie paskyros prieš perkant."); return }
+    if (!user) {
+      setPurchaseError("Prisijunk prie paskyros prieš perkant.")
+      return
+    }
+    if (!plan) return
     setPurchasing(true)
     setPurchaseError("")
-    const planKey = plan.key as PlanTier
-    const { error } = await supabase
-      .from("subscribers")
-      .upsert({
-        id: user.id,
-        email: user.email ?? form.email,
-        name: user.email?.split("@")[0] ?? "Subscriber",
-        plan: planKey,
-        status: "active",
-      }, { onConflict: "id" })
+    const planKey = plan.id as PlanTier
+    const basePrice = billing === "annual" ? (plan.annual_price ?? plan.price) : plan.price
+    const discountedPrice = getDiscountedPrice(basePrice)
+    const hasDiscount = appliedCoupon != null && discountedPrice < basePrice
+    const origin = window.location.origin
+    const { data, error } = await supabase.functions.invoke("create-checkout", {
+      body: {
+        planKey,
+        userId: user.id,
+        userEmail: user.email ?? form.email,
+        successUrl: `${origin}/subscribe?success=true&plan=${planKey}`,
+        cancelUrl: `${origin}/subscribe?plan=${planKey}`,
+        ...(hasDiscount && { discountedAmount: discountedPrice }),
+        ...(appliedCoupon?.giftCardCode && { giftCardCode: appliedCoupon.giftCardCode }),
+      },
+    })
     setPurchasing(false)
-    if (error) { setPurchaseError(error.message); return }
-    setSubmitted(true)
+    if (error || !data?.url) {
+      setPurchaseError(error?.message ?? "Checkout nepavyko. Bandyk dar kartą.")
+      return
+    }
+    window.location.href = data.url
   }
+
+  // handle Stripe success redirect: ?success=true&plan=xxx
+  useEffect(() => {
+    if (params.get("success") !== "true") return
+    const planKey = params.get("plan") as PlanTier | null
+    if (!planKey || !user) return
+    supabase
+      .from("subscribers")
+      .upsert(
+        {
+          id: user.id,
+          email: user.email ?? "",
+          name: user.email?.split("@")[0] ?? "Subscriber",
+          plan: planKey,
+          status: "active",
+        },
+        { onConflict: "id" },
+      )
+      .then(() => setSubmitted(true))
+  }, [user, params])
 
   async function applyCoupon() {
     const code = couponInput.trim().toUpperCase()
@@ -396,42 +237,79 @@ export default function Subscribe() {
     setCouponLoading(true)
     setCouponError(null)
     const { data, error } = await supabase
-      .from('coupons')
-      .select('code, discount_type, discount_value, duration_months, max_uses, uses_count, expires_at, active')
-      .eq('code', code)
+      .from("coupons")
+      .select(
+        "code, discount_type, discount_value, duration_months, max_uses, uses_count, expires_at, active",
+      )
+      .eq("code", code)
       .single()
     setCouponLoading(false)
-    if (error || !data) { setCouponError('Code not found'); return }
-    if (!data.active) { setCouponError('This code is inactive'); return }
-    if (data.expires_at && new Date(data.expires_at) < new Date()) { setCouponError('This code has expired'); return }
-    if (data.max_uses != null && data.uses_count >= data.max_uses) { setCouponError('This code has reached its usage limit'); return }
+    if (error || !data) {
+      // Not a coupon — try as a gift card
+      setCouponLoading(true)
+      const { data: gcData, error: gcError } = await supabase.functions.invoke('verify-gift-card', {
+        body: { code },
+      })
+      setCouponLoading(false)
+      if (gcError || !gcData?.valid) {
+        setCouponError(gcData?.error ?? "Kodas nerastas")
+        return
+      }
+      setAppliedCoupon({
+        code,
+        discount_type: "fixed",
+        discount_value: gcData.amountCents / 100,
+        duration_months: null,
+        giftCardCode: code,
+      })
+      setCouponInput("")
+      return
+    }
+    if (!data.active) {
+      setCouponError("This code is inactive")
+      return
+    }
+    if (data.expires_at && new Date(data.expires_at) < new Date()) {
+      setCouponError("This code has expired")
+      return
+    }
+    if (data.max_uses != null && data.uses_count >= data.max_uses) {
+      setCouponError("This code has reached its usage limit")
+      return
+    }
     setAppliedCoupon({
       code: data.code,
-      discount_type: data.discount_type as 'percentage' | 'fixed',
+      discount_type: data.discount_type as "percentage" | "fixed",
       duration_months: data.duration_months,
       discount_value: Number(data.discount_value),
     })
-    setCouponInput('')
+    setCouponInput("")
   }
 
   function getDiscountedPrice(basePrice: number): number {
     if (!appliedCoupon) return basePrice
-    if (appliedCoupon.discount_type === 'percentage') {
+    if (appliedCoupon.discount_type === "percentage") {
       return Math.max(0, basePrice * (1 - appliedCoupon.discount_value / 100))
     }
     return Math.max(0, basePrice - appliedCoupon.discount_value)
   }
 
-  const plan = plans[selectedPlan]
-  const price = billing === "monthly" ? plan.monthlyPrice : plan.annualPrice
+  const monthlyPrice = plan?.price ?? 0
+  const annualPrice = plan?.annual_price ?? monthlyPrice
+  const price = billing === "monthly" ? monthlyPrice : annualPrice
   const total = billing === "monthly" ? price : price * 10
+
+  // Build comparison feature keys from all plans' comparison_data
+  const comparisonFeatures = Array.from(
+    new Set(plans.flatMap((p) => Object.keys(p.comparison_data ?? {}))),
+  )
 
   const heroRef = useReveal<HTMLDivElement>()
   const compareRef = useReveal<HTMLDivElement>()
   const trustRef = useReveal<HTMLDivElement>()
   const faqRef = useReveal<HTMLDivElement>()
 
-  if (submitted) {
+  if (submitted && plan) {
     return (
       <div className="min-h-screen bg-paper">
         <Nav />
@@ -504,28 +382,30 @@ export default function Subscribe() {
                     <p className="mt-5 max-w-[46ch] text-[16px] leading-[1.65] text-[#8aabb2]">
                       {step === "plan"
                         ? "Penki lygiai. Atšauk bet kurį mėnesį. Išsiunčiama per 5 dienas po registracijos."
-                        : `Tik vienas žingsnis iki pirmosios BRICKTIME ${plan.name} dėžutės.`}
+                        : `Tik vienas žingsnis iki pirmosios BRICKTIME ${plan?.name ?? ""} dėžutės.`}
                     </p>
                   </div>
                   <div className="mt-8 flex items-center gap-3">
-                    {(["Pasirinkti planą", "Mokėjimas"] as const).map((s, i) => (
-                      <div key={s} className="flex items-center gap-3">
-                        <div
-                          className={[
-                            "flex items-center gap-2 rounded-full border-2 px-4 py-1.5 font-mono text-[11px] tracking-[.08em] uppercase transition-all",
-                            (step === "plan" ? i === 0 : i === 1)
-                              ? "border-brand-yellow bg-brand-yellow text-ink"
-                              : "border-[#2d5560] text-[#5a7e87]",
-                          ].join(" ")}
-                        >
-                          <span>{i + 1}</span>
-                          <span>{s}</span>
+                    {(["Pasirinkti planą", "Mokėjimas"] as const).map(
+                      (s, i) => (
+                        <div key={s} className="flex items-center gap-3">
+                          <div
+                            className={[
+                              "flex items-center gap-2 rounded-full border-2 px-4 py-1.5 font-mono text-[11px] tracking-[.08em] uppercase transition-all",
+                              (step === "plan" ? i === 0 : i === 1)
+                                ? "border-brand-yellow bg-brand-yellow text-ink"
+                                : "border-[#2d5560] text-[#5a7e87]",
+                            ].join(" ")}
+                          >
+                            <span>{i + 1}</span>
+                            <span>{s}</span>
+                          </div>
+                          {i === 0 && (
+                            <ArrowRightIcon className="size-4 text-[#2d5560]" />
+                          )}
                         </div>
-                        {i === 0 && (
-                          <ArrowRightIcon className="size-4 text-[#2d5560]" />
-                        )}
-                      </div>
-                    ))}
+                      ),
+                    )}
                   </div>
                 </div>
 
@@ -558,7 +438,6 @@ export default function Subscribe() {
                 <div className="inline-flex items-center gap-1 rounded-full border-2 border-ink bg-paper p-1 shadow-[4px_4px_0_#001B21]">
                   {(["monthly", "annual"] as const).map((value) => {
                     const active = billing === value
-
                     return (
                       <button
                         key={value}
@@ -566,10 +445,10 @@ export default function Subscribe() {
                         onClick={() => setBilling(value)}
                         className="rounded-full px-4 py-2 font-mono text-[11px] tracking-[.08em] uppercase transition-all"
                         style={
-                          active
+                          active && plan
                             ? {
-                                background: plan.ctaBg,
-                                color: plan.ctaText,
+                                background: plan.cta_bg,
+                                color: plan.cta_text,
                               }
                             : {
                                 color: "#001B2199",
@@ -585,103 +464,132 @@ export default function Subscribe() {
             </div>
 
             {/* mobile: horizontal scroll carousel; desktop: overlapping flex row */}
-            <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-0 lg:-space-x-4 lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden">
-              {plans.map((p, i) => (
-                <div
-                  key={p.name}
-                  onClick={() => setSelectedPlan(i)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault()
-                      setSelectedPlan(i)
-                    }
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  aria-pressed={selectedPlan === i}
-                  className={[
-                    "relative flex w-[56vw] shrink-0 snap-center flex-col justify-between rounded-2xl border-2 p-6 text-left transition-all duration-200 hover:z-10 hover:-translate-y-3 md:rounded-3xl md:p-7 lg:w-auto lg:flex-1",
-                    selectedPlan === i
-                      ? "z-10 -translate-y-3 border-ink shadow-[6px_6px_0_#001B21]"
-                      : "border-ink/40 hover:border-ink hover:shadow-[4px_4px_0_#001B21]",
-                  ].join(" ")}
-                  style={{ background: p.bg, zIndex: i + 1 }}
-                >
-                  {p.featured && (
-                    <Badge
-                      className="absolute -top-3.5 right-5 rotate-1 rounded border-2 border-ink px-2.5 py-0.5 font-mono text-[10px] tracking-[.08em] uppercase"
-                      style={{ background: "#001B21", color: "#F5F1EB" }}
-                    >
-                      Populiarus
-                    </Badge>
-                  )}
-                  {selectedPlan === i && (
-                    <span className="absolute top-4 right-4 grid size-6 place-items-center rounded-full border-2 border-ink bg-ink text-[11px] font-bold text-paper">
-                      ✓
-                    </span>
-                  )}
-                  <div>
-                    <div className="flex items-start justify-between gap-3">
-                      <div
-                        className="font-display text-3xl leading-[.88]"
-                        style={{ color: p.textColor }}
-                      >
-                        {p.name}
+            {plansLoading ? (
+              <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 lg:gap-0 lg:-space-x-4 lg:overflow-visible lg:pb-0">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="relative flex w-[56vw] shrink-0 snap-center flex-col justify-between rounded-2xl border-2 border-ink/20 p-6 lg:w-auto lg:flex-1"
+                    style={{ background: "#e5e0da", zIndex: i + 1 }}
+                  >
+                    <div className="animate-pulse space-y-4">
+                      <div className="h-7 w-2/3 rounded bg-ink/10" />
+                      <div className="h-10 w-1/2 rounded bg-ink/10" />
+                      <div className="mt-5 space-y-2">
+                        {Array.from({ length: 5 }).map((_, j) => (
+                          <div key={j} className="h-4 w-full rounded bg-ink/10" />
+                        ))}
                       </div>
-                      {p.brickImage && (
-                        <img
-                          src={p.brickImage}
-                          alt=""
-                          className="pointer-events-none h-12 w-auto shrink-0 object-contain select-none md:h-14"
-                        />
-                      )}
-                    </div>
-                    <div className="mt-2 flex items-baseline gap-1">
-                      <span
-                        className="text-d-sm font-display leading-[.9]"
-                        style={{ color: p.textColor }}
-                      >
-                        $
-                        {billing === "monthly" ? p.monthlyPrice : p.annualPrice}
-                      </span>
-                      <span
-                        className="font-mono text-[11px] tracking-[.06em] uppercase"
-                        style={{ color: `${p.textColor}70` }}
-                      >
-                        /mėn.
-                      </span>
                     </div>
                   </div>
-                  <ul className="mt-5 flex flex-col gap-2">
-                    {p.simplifiedPerks.map((perk) => (
-                      <li
-                        key={perk}
-                        className="flex items-start gap-2 text-[13px]"
+                ))}
+              </div>
+            ) : (
+              <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-0 lg:-space-x-4 lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden">
+                {plans.map((p, i) => (
+                  <div
+                    key={p.id}
+                    onClick={() => setSelectedPlan(i)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault()
+                        setSelectedPlan(i)
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={selectedPlan === i}
+                    className={[
+                      "relative flex w-[56vw] shrink-0 snap-center flex-col justify-between rounded-2xl border-2 p-6 text-left transition-all duration-200 hover:z-10 hover:-translate-y-3 md:rounded-3xl md:p-7 lg:w-auto lg:flex-1",
+                      selectedPlan === i
+                        ? "z-10 -translate-y-3 border-ink shadow-[6px_6px_0_#001B21]"
+                        : "border-ink/40 hover:border-ink hover:shadow-[4px_4px_0_#001B21]",
+                    ].join(" ")}
+                    style={{ background: p.bg_color, zIndex: i + 1 }}
+                  >
+                    {p.featured && (
+                      <Badge
+                        className="absolute -top-3.5 right-5 rotate-1 rounded border-2 border-ink px-2.5 py-0.5 font-mono text-[10px] tracking-[.08em] uppercase"
+                        style={{ background: "#001B21", color: "#F5F1EB" }}
                       >
+                        Populiarus
+                      </Badge>
+                    )}
+                    {selectedPlan === i && (
+                      <span className="absolute top-4 right-4 grid size-6 place-items-center rounded-full border-2 border-ink bg-ink text-[11px] font-bold text-paper">
+                        ✓
+                      </span>
+                    )}
+                    <div>
+                      <div className="flex items-start justify-between gap-3">
+                        <div
+                          className="font-display text-3xl leading-[.88]"
+                          style={{ color: p.text_color }}
+                        >
+                          {p.name}
+                        </div>
+                        {p.brick_image && (
+                          <img
+                            src={p.brick_image}
+                            alt=""
+                            className="pointer-events-none h-12 w-auto shrink-0 object-contain select-none md:h-14"
+                          />
+                        )}
+                      </div>
+                      <div className="mt-2 flex items-baseline gap-1">
                         <span
-                          className="mt-[3px] size-2.5 shrink-0 rounded-full border-[1.5px]"
-                          style={{
-                            background: p.accentColor,
-                            borderColor: p.textColor,
-                          }}
-                        />
-                        <span style={{ color: `${p.textColor}cc` }}>
-                          {perk}
+                          className="text-d-sm font-display leading-[.9]"
+                          style={{ color: p.text_color }}
+                        >
+                          €
+                          {billing === "monthly"
+                            ? p.price
+                            : (p.annual_price ?? p.price)}
                         </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
+                        <span
+                          className="font-mono text-[11px] tracking-[.06em] uppercase"
+                          style={{ color: `${p.text_color}70` }}
+                        >
+                          /mėn.
+                        </span>
+                      </div>
+                    </div>
+                    <ul className="mt-5 flex flex-col gap-2">
+                      {p.perks
+                        .filter((perk) => perk.included)
+                        .slice(0, 5)
+                        .map((perk) => (
+                          <li
+                            key={perk.label}
+                            className="flex items-start gap-2 text-[13px]"
+                          >
+                            <span
+                              className="mt-[3px] size-2.5 shrink-0 rounded-full border-[1.5px]"
+                              style={{
+                                background: p.accent_color,
+                                borderColor: p.text_color,
+                              }}
+                            />
+                            <span style={{ color: `${p.text_color}cc` }}>
+                              {perk.label}
+                            </span>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div className="mt-8 flex justify-center">
               <Button
                 size="lg"
                 className="brick-hover-sm rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper"
                 onClick={() => setStep("payment")}
+                disabled={!plan}
               >
-                Tęsti su {plan.name} <ArrowRightIcon data-icon="inline-end" />
+                Tęsti su {plan?.name ?? "…"}{" "}
+                <ArrowRightIcon data-icon="inline-end" />
               </Button>
             </div>
           </div>
@@ -727,87 +635,23 @@ export default function Subscribe() {
                       className="w-full rounded-2xl border-2 border-ink bg-paper px-5 py-3.5 text-[15px] text-ink transition-shadow placeholder:text-ink/30 focus:shadow-[4px_4px_0_#001B21] focus:outline-none"
                     />
                   </div>
-                  <div>
-                    <label className="label-mono mb-2 block text-ink/60">
-                      Kortelės numeris
-                    </label>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      placeholder="1234 5678 9012 3456"
-                      value={form.card}
-                      maxLength={19}
-                      onChange={(e) => {
-                        const digits = e.target.value
-                          .replace(/\D/g, "")
-                          .slice(0, 16)
-                        const formatted = digits
-                          .replace(/(.{4})/g, "$1 ")
-                          .trimEnd()
-                        setForm({ ...form, card: formatted })
-                      }}
-                      className="w-full rounded-2xl border-2 border-ink bg-paper px-5 py-3.5 text-[15px] tracking-widest text-ink transition-shadow placeholder:text-ink/30 focus:shadow-[4px_4px_0_#001B21] focus:outline-none"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="label-mono mb-2 block text-ink/60">
-                        Galiojimo laikas
-                      </label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="MM / YY"
-                        value={form.expiry}
-                        maxLength={7}
-                        onChange={(e) => {
-                          const digits = e.target.value
-                            .replace(/\D/g, "")
-                            .slice(0, 4)
-                          const formatted =
-                            digits.length > 2
-                              ? `${digits.slice(0, 2)} / ${digits.slice(2)}`
-                              : digits
-                          setForm({ ...form, expiry: formatted })
-                        }}
-                        className="w-full rounded-2xl border-2 border-ink bg-paper px-5 py-3.5 text-[15px] text-ink transition-shadow placeholder:text-ink/30 focus:shadow-[4px_4px_0_#001B21] focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="label-mono mb-2 block text-ink/60">
-                        CVC
-                      </label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="···"
-                        value={form.cvc}
-                        maxLength={4}
-                        onChange={(e) =>
-                          setForm({
-                            ...form,
-                            cvc: e.target.value.replace(/\D/g, "").slice(0, 4),
-                          })
-                        }
-                        className="w-full rounded-2xl border-2 border-ink bg-paper px-5 py-3.5 text-[15px] text-ink transition-shadow placeholder:text-ink/30 focus:shadow-[4px_4px_0_#001B21] focus:outline-none"
-                      />
-                    </div>
-                  </div>
                 </div>
 
                 {purchaseError && (
-                  <p className="mt-4 font-mono text-[12px] text-red-500">{purchaseError}</p>
+                  <p className="mt-4 font-mono text-[12px] text-red-500">
+                    {purchaseError}
+                  </p>
                 )}
                 <div className="mt-8 flex gap-3">
                   <Button
                     size="lg"
-                    disabled={purchasing}
+                    disabled={purchasing || !plan}
                     className="brick-hover-sm flex-1 rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper disabled:opacity-50"
                     onClick={handlePurchase}
                   >
                     {purchasing
                       ? "Apdorojama…"
-                      : `Pradėti ${plan.name} — $${billing === "annual" ? `${total} šiandien` : `${price}/mėn.`} →`}
+                      : `Pradėti ${plan?.name ?? ""} — €${billing === "annual" ? `${total} šiandien` : `${price}/mėn.`} →`}
                   </Button>
                 </div>
 
@@ -828,128 +672,143 @@ export default function Subscribe() {
               </div>
 
               <div className="flex flex-col gap-4 lg:col-span-5">
-                <div
-                  className="brick-card p-6 md:p-8"
-                  style={{ background: plan.bg }}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <h3 className="text-2xl font-semibold text-ink/50">
-                      Užsakymo suvestinė
-                    </h3>
-                    {plan.brickImage && (
-                      <img
-                        src={plan.brickImage}
-                        alt=""
-                        className="pointer-events-none h-14 w-auto shrink-0 object-contain select-none"
-                      />
-                    )}
-                  </div>
-                  <div className="mt-5 flex flex-col gap-3 border-b border-dashed border-ink/30 pb-5">
-                    <div
-                      className="flex justify-between text-[15px]"
-                      style={{ color: plan.textColor }}
-                    >
-                      <span>
-                        {plan.name} planas (
-                        {billing === "monthly" ? "mėnesinis" : "metinis"})
-                      </span>
-                      <span className="font-display text-xl">
-                        {appliedCoupon ? (
-                          <>
-                            <span className="line-through opacity-40">${price}</span>{" "}
-                            <span className="text-green-600">
-                              ${getDiscountedPrice(price).toFixed(2)}
-                            </span>
-                          </>
-                        ) : (
-                          <>${price}</>
-                        )}
-                        /mėn.
-                      </span>
+                {plan && (
+                  <div
+                    className="brick-card p-6 md:p-8"
+                    style={{ background: plan.bg_color }}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <h3 className="text-2xl font-semibold text-ink/50">
+                        Užsakymo suvestinė
+                      </h3>
+                      {plan.brick_image && (
+                        <img
+                          src={plan.brick_image}
+                          alt=""
+                          className="pointer-events-none h-14 w-auto shrink-0 object-contain select-none"
+                        />
+                      )}
                     </div>
-                    {billing === "annual" && (
+                    <div className="mt-5 flex flex-col gap-3 border-b border-dashed border-ink/30 pb-5">
+                      <div
+                        className="flex justify-between text-[15px]"
+                        style={{ color: plan.text_color }}
+                      >
+                        <span>
+                          {plan.name} planas (
+                          {billing === "monthly" ? "mėnesinis" : "metinis"})
+                        </span>
+                        <span className="font-display text-xl">
+                          {appliedCoupon ? (
+                            <>
+                              <span className="line-through opacity-40">
+                                €{price}
+                              </span>{" "}
+                              <span className="text-green-600">
+                                €{getDiscountedPrice(price).toFixed(2)}
+                              </span>
+                            </>
+                          ) : (
+                            <>€{price}</>
+                          )}
+                          /mėn.
+                        </span>
+                      </div>
+                      {billing === "annual" && (
+                        <div
+                          className="flex justify-between text-[13px]"
+                          style={{ color: `${plan.text_color}70` }}
+                        >
+                          <span>Mokama metiškai (10 mėnesių)</span>
+                          <span>
+                            −€{(monthlyPrice - annualPrice) * 12} taupoma
+                          </span>
+                        </div>
+                      )}
                       <div
                         className="flex justify-between text-[13px]"
-                        style={{ color: `${plan.textColor}70` }}
+                        style={{ color: `${plan.text_color}70` }}
                       >
-                        <span>Mokama metiškai (10 mėnesių)</span>
-                        <span>
-                          −${(plan.monthlyPrice - plan.annualPrice) * 12}{" "}
-                          taupoma
-                        </span>
+                        <span>Produktas № 26 (šis mėnuo)</span>
+                        <span>Įskaičiuota</span>
                       </div>
-                    )}
-                    <div
-                      className="flex justify-between text-[13px]"
-                      style={{ color: `${plan.textColor}70` }}
-                    >
-                      <span>Produktas № 26 (šis mėnuo)</span>
-                      <span>Įskaičiuota</span>
+                      <div
+                        className="flex justify-between text-[13px]"
+                        style={{ color: `${plan.text_color}70` }}
+                      >
+                        <span>Pristatymas</span>
+                        <span>Nemokamas</span>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex flex-col gap-2">
+                      {appliedCoupon ? (
+                        <div className="flex items-center gap-2 rounded-xl border-2 border-ink bg-green-50 px-4 py-3 text-sm font-semibold text-ink">
+                          <span className="flex-1">
+                            ✓ {appliedCoupon.code} —{" "}
+                            {appliedCoupon.discount_type === "percentage"
+                              ? `${appliedCoupon.discount_value}% off`
+                              : `€${appliedCoupon.discount_value} off`}
+                            {appliedCoupon.duration_months != null
+                              ? ` for ${appliedCoupon.duration_months} month${appliedCoupon.duration_months > 1 ? "s" : ""}`
+                              : " forever"}
+                          </span>
+                          <button
+                            className="label-mono text-ink/50 hover:text-ink"
+                            onClick={() => setAppliedCoupon(null)}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <input
+                            className="flex-1 rounded-xl border-2 border-ink bg-paper px-4 py-2.5 font-mono text-[13px] uppercase placeholder:normal-case placeholder:text-ink/30 focus:outline-none"
+                            placeholder="Coupon code"
+                            value={couponInput}
+                            onChange={(e) => {
+                              setCouponInput(e.target.value)
+                              setCouponError(null)
+                            }}
+                            onKeyDown={(e) =>
+                              e.key === "Enter" && applyCoupon()
+                            }
+                          />
+                          <Button
+                            variant="outline"
+                            className="rounded-xl border-2 border-ink font-semibold"
+                            onClick={applyCoupon}
+                            disabled={couponLoading || !couponInput.trim()}
+                          >
+                            {couponLoading ? "…" : "Apply"}
+                          </Button>
+                        </div>
+                      )}
+                      {couponError && (
+                        <p className="label-mono text-[11px] text-red-500">
+                          {couponError}
+                        </p>
+                      )}
                     </div>
                     <div
-                      className="flex justify-between text-[13px]"
-                      style={{ color: `${plan.textColor}70` }}
+                      className="mt-4 flex items-baseline justify-between"
+                      style={{ color: plan.text_color }}
                     >
-                      <span>Pristatymas</span>
-                      <span>Nemokamas</span>
+                      <span className="text-[15px] font-bold">
+                        Mokėti šiandien
+                      </span>
+                      <span className="font-display text-[40px] leading-none">
+                        €
+                        {appliedCoupon
+                          ? getDiscountedPrice(
+                              billing === "annual" ? total : price,
+                            ).toFixed(2)
+                          : billing === "annual"
+                            ? total
+                            : price}
+                      </span>
                     </div>
                   </div>
-                  <div className="mt-4 flex flex-col gap-2">
-                    {appliedCoupon ? (
-                      <div className="flex items-center gap-2 rounded-xl border-2 border-ink bg-green-50 px-4 py-3 text-sm font-semibold text-ink">
-                        <span className="flex-1">
-                          ✓ {appliedCoupon.code} —{" "}
-                          {appliedCoupon.discount_type === "percentage"
-                            ? `${appliedCoupon.discount_value}% off`
-                            : `$${appliedCoupon.discount_value} off`}
-                          {appliedCoupon.duration_months != null
-                            ? ` for ${appliedCoupon.duration_months} month${appliedCoupon.duration_months > 1 ? "s" : ""}`
-                            : " forever"}
-                        </span>
-                        <button
-                          className="label-mono text-ink/50 hover:text-ink"
-                          onClick={() => setAppliedCoupon(null)}
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex gap-2">
-                        <input
-                          className="flex-1 rounded-xl border-2 border-ink bg-paper px-4 py-2.5 font-mono text-[13px] uppercase placeholder:normal-case placeholder:text-ink/30 focus:outline-none"
-                          placeholder="Coupon code"
-                          value={couponInput}
-                          onChange={(e) => { setCouponInput(e.target.value); setCouponError(null) }}
-                          onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
-                        />
-                        <Button
-                          variant="outline"
-                          className="rounded-xl border-2 border-ink font-semibold"
-                          onClick={applyCoupon}
-                          disabled={couponLoading || !couponInput.trim()}
-                        >
-                          {couponLoading ? "…" : "Apply"}
-                        </Button>
-                      </div>
-                    )}
-                    {couponError && (
-                      <p className="label-mono text-[11px] text-red-500">{couponError}</p>
-                    )}
-                  </div>
-                  <div
-                    className="mt-4 flex items-baseline justify-between"
-                    style={{ color: plan.textColor }}
-                  >
-                    <span className="text-[15px] font-bold">
-                      Mokėti šiandien
-                    </span>
-                    <span className="font-display text-[40px] leading-none">
-                      ${appliedCoupon
-                        ? getDiscountedPrice(billing === "annual" ? total : price).toFixed(2)
-                        : billing === "annual" ? total : price}
-                    </span>
-                  </div>
-                </div>
+                )}
                 <button
                   onClick={() => setStep("plan")}
                   className="text-center font-mono text-[12px] tracking-[.14em] text-ink/50 uppercase transition-colors hover:text-ink"
@@ -978,67 +837,76 @@ export default function Subscribe() {
               className="reveal brick-card overflow-x-auto lg:col-span-12"
               style={{ background: "#F5F1EB" }}
             >
-              <div className="min-w-[800px]">
-                <div
-                  className="grid border-b-2 border-ink"
-                  style={{ gridTemplateColumns: "2fr 1fr 1fr 1.4fr 1fr 1fr" }}
-                >
-                  <div className="p-3 font-mono text-[11px] tracking-[.18em] text-ink/40 uppercase md:p-5">
-                    Savybė
-                  </div>
-                  {plans.map((p) => (
-                    <div
-                      key={p.name}
-                      className="flex items-center justify-between border-l-2 border-ink p-4"
-                      style={{ background: p.bg }}
-                    >
-                      <span
-                        className="font-display text-[18px] leading-none uppercase"
-                        style={{ color: p.textColor }}
+              {plans.length > 0 && (
+                <div className="min-w-[800px]">
+                  <div
+                    className="grid border-b-2 border-ink"
+                    style={{
+                      gridTemplateColumns:
+                        "2fr " + plans.map(() => "1fr").join(" "),
+                    }}
+                  >
+                    <div className="p-3 font-mono text-[11px] tracking-[.18em] text-ink/40 uppercase md:p-5">
+                      Savybė
+                    </div>
+                    {plans.map((p) => (
+                      <div
+                        key={p.id}
+                        className="flex items-center justify-between border-l-2 border-ink p-4"
+                        style={{ background: p.bg_color }}
                       >
-                        {p.name}
-                      </span>
-                      {p.featured && (
                         <span
-                          className="font-mono text-[9px] tracking-[.1em] uppercase"
-                          style={{ color: `${p.textColor}60` }}
+                          className="font-display text-[18px] leading-none uppercase"
+                          style={{ color: p.text_color }}
                         >
-                          Populiarus
+                          {p.name}
                         </span>
-                      )}
+                        {p.featured && (
+                          <span
+                            className="font-mono text-[9px] tracking-[.1em] uppercase"
+                            style={{ color: `${p.text_color}60` }}
+                          >
+                            Populiarus
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  {comparisonFeatures.map((feature) => (
+                    <div
+                      key={feature}
+                      className="grid border-b-2 border-dashed border-ink/20 transition-colors last:border-b-0 hover:bg-ink/[.03]"
+                      style={{
+                        gridTemplateColumns:
+                          "2fr " + plans.map(() => "1fr").join(" "),
+                      }}
+                    >
+                      <div className="p-4 text-[13px] font-semibold whitespace-nowrap text-ink/70">
+                        {feature}
+                      </div>
+                      {plans.map((p) => {
+                        const val = p.comparison_data?.[feature] ?? "—"
+                        return (
+                          <div
+                            key={p.id}
+                            className="flex items-center border-l-2 border-dashed border-ink/20 p-4 text-[13px] text-ink"
+                          >
+                            {val === "—" ? (
+                              <span className="text-ink/25">—</span>
+                            ) : val === "✓" ? (
+                              <span className="grid size-5 place-items-center rounded-full border-2 border-ink bg-brand-mint text-[11px] font-bold text-ink">
+                                ✓
+                              </span>
+                            ) : (
+                              val
+                            )}
+                          </div>
+                        )
+                      })}
                     </div>
                   ))}
                 </div>
-                {comparisonRows.map((row) => (
-                  <div
-                    key={row.feature}
-                    className="grid border-b-2 border-dashed border-ink/20 transition-colors last:border-b-0 hover:bg-ink/[.03]"
-                    style={{ gridTemplateColumns: "2fr 1fr 1fr 1.4fr 1fr 1fr" }}
-                  >
-                    <div className="p-4 text-[13px] font-semibold whitespace-nowrap text-ink/70">
-                      {row.feature}
-                    </div>
-                    {[row.nano, row.mini, row.standard, row.pro, row.mega].map(
-                      (val, j) => (
-                        <div
-                          key={j}
-                          className="flex items-center border-l-2 border-dashed border-ink/20 p-4 text-[13px] text-ink"
-                        >
-                          {val === "—" ? (
-                            <span className="text-ink/25">—</span>
-                          ) : val === "✓" ? (
-                            <span className="grid size-5 place-items-center rounded-full border-2 border-ink bg-brand-mint text-[11px] font-bold text-ink">
-                              ✓
-                            </span>
-                          ) : (
-                            val
-                          )}
-                        </div>
-                      )
-                    )}
-                  </div>
-                ))}
-              </div>
+              )}
             </div>
           </div>
         </div>

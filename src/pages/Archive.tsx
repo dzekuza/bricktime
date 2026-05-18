@@ -2,20 +2,23 @@ import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
-import { ArrowRightIcon } from "lucide-react"
+import { ArrowRightIcon, ChevronDownIcon, CheckIcon, XIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { supabase } from "@/lib/supabase"
 import { getPlanDisplayName } from "@/lib/plan-branding"
+import { SERIES } from "@/lib/series"
+import { NextDrop } from "@/components/NextDrop"
 
 // ── types ──────────────────────────────────────────────────────────────────
-type Tier = "nano" | "mini" | "standard" | "pro" | "mega"
+type Tier =
+  | "nano"
+  | "mini"
+  | "standard"
+  | "pro"
+  | "mega"
+  | "mystery_s"
+  | "mystery_m"
 
 interface Product {
   id: number
@@ -34,6 +37,8 @@ interface Product {
   brickColors: string[]
   brickHeights: number[]
   requiredTier: Tier
+  minAge?: number | null
+  price?: number | null
   image?: string
 }
 
@@ -42,52 +47,31 @@ const tierConfig: Record<
   Tier,
   { label: string; bg: string; textColor: string; level: number }
 > = {
-  nano: {
-    label: getPlanDisplayName("nano"),
-    bg: "#F5F1EB",
-    textColor: "#001B21",
-    level: 1,
-  },
-  mini: {
-    label: getPlanDisplayName("mini"),
-    bg: "#FFAEE7",
-    textColor: "#001B21",
-    level: 2,
-  },
-  standard: {
-    label: getPlanDisplayName("standard"),
-    bg: "#FFD731",
-    textColor: "#001B21",
-    level: 3,
-  },
-  pro: {
-    label: getPlanDisplayName("pro"),
-    bg: "#4DA2FF",
-    textColor: "#001B21",
-    level: 4,
-  },
-  mega: {
-    label: getPlanDisplayName("mega"),
-    bg: "#FB4903",
-    textColor: "#F5F1EB",
-    level: 5,
-  },
+  nano:      { label: getPlanDisplayName("nano"),     bg: "#F5F1EB", textColor: "#001B21", level: 1 },
+  mini:      { label: getPlanDisplayName("mini"),     bg: "#FFAEE7", textColor: "#001B21", level: 2 },
+  standard:  { label: getPlanDisplayName("standard"), bg: "#FFD731", textColor: "#001B21", level: 3 },
+  pro:       { label: getPlanDisplayName("pro"),      bg: "#4DA2FF", textColor: "#001B21", level: 4 },
+  mega:      { label: getPlanDisplayName("mega"),     bg: "#FB4903", textColor: "#F5F1EB", level: 5 },
+  mystery_s: { label: "Mystery Box S",               bg: "#1C1C2E", textColor: "#F5F1EB", level: 0 },
+  mystery_m: { label: "Mystery Box M",               bg: "#1C1C2E", textColor: "#F5F1EB", level: 0 },
 }
 
-// ── data ───────────────────────────────────────────────────────────────────
+// ── filter constants ────────────────────────────────────────────────────────
+const SUBSCRIPTION_CHIPS = [
+  { key: "nano",      label: "Mėgėjas" },
+  { key: "mini",      label: "Kūrėjas" },
+  { key: "standard",  label: "Masteris" },
+  { key: "mega",      label: "Legenda" },
+  { key: "mystery_s", label: "Mystery Box S" },
+  { key: "mystery_m", label: "Mystery Box M" },
+] as const
+
+const AGE_CHIPS = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18] as const
+
+// ── helpers ─────────────────────────────────────────────────────────────────
 const LT_MONTHS = [
-  "sausis",
-  "vasaris",
-  "kovas",
-  "balandis",
-  "gegužė",
-  "birželis",
-  "liepa",
-  "rugpjūtis",
-  "rugsėjis",
-  "spalis",
-  "lapkritis",
-  "gruodis",
+  "sausis", "vasaris", "kovas", "balandis", "gegužė", "birželis",
+  "liepa", "rugpjūtis", "rugsėjis", "spalis", "lapkritis", "gruodis",
 ]
 
 function formatReleaseDate(iso: string | null): string {
@@ -127,11 +111,104 @@ function dbToProduct(row: Record<string, unknown>): Product {
     brickColors: row.brick_colors as string[],
     brickHeights: row.brick_heights as number[],
     requiredTier: row.tier as Tier,
+    minAge: row.min_age as number | null | undefined,
+    price: row.value as number | null | undefined,
     image: row.image_url as string | undefined,
   }
 }
 
 // ── sub-components ─────────────────────────────────────────────────────────
+function FilterPopover({
+  label,
+  options,
+  selected,
+  onChange,
+}: {
+  label: string
+  options: { value: string; label: string }[]
+  selected: string[]
+  onChange: (next: string[]) => void
+}) {
+  const active = selected.length > 0
+
+  function toggle(value: string) {
+    onChange(
+      selected.includes(value)
+        ? selected.filter((v) => v !== value)
+        : [...selected, value]
+    )
+  }
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          className={[
+            "inline-flex items-center gap-1.5 rounded-full border-2 border-ink px-4 py-1.5 font-mono text-[11px] tracking-[.06em] uppercase font-bold transition-all select-none",
+            active
+              ? "bg-ink text-paper"
+              : "bg-paper text-ink hover:bg-ink/5",
+          ].join(" ")}
+        >
+          {label}
+          {active && (
+            <span className="flex size-4 items-center justify-center rounded-full bg-paper/20 text-[10px] font-bold leading-none">
+              {selected.length}
+            </span>
+          )}
+          <ChevronDownIcon className="size-3 opacity-60" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        sideOffset={8}
+        className="w-56 rounded-2xl border-2 border-ink p-2 shadow-[4px_4px_0_#001B21]"
+      >
+        <div className="max-h-64 overflow-y-auto">
+          {options.map(({ value, label: optLabel }) => {
+            const checked = selected.includes(value)
+            return (
+              <button
+                key={value}
+                onClick={() => toggle(value)}
+                className={[
+                  "flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left font-mono text-[11px] tracking-[.04em] uppercase font-semibold transition-colors",
+                  checked
+                    ? "bg-ink text-paper"
+                    : "text-ink hover:bg-ink/5",
+                ].join(" ")}
+              >
+                <span
+                  className={[
+                    "flex size-4 shrink-0 items-center justify-center rounded border-2 transition-colors",
+                    checked
+                      ? "border-paper/40 bg-transparent"
+                      : "border-ink/30",
+                  ].join(" ")}
+                >
+                  {checked && <CheckIcon className="size-2.5" />}
+                </span>
+                {optLabel}
+              </button>
+            )
+          })}
+        </div>
+        {selected.length > 0 && (
+          <div className="mt-1 border-t border-ink/10 pt-1">
+            <button
+              onClick={() => onChange([])}
+              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 font-mono text-[10px] tracking-[.06em] uppercase text-ink/40 transition-colors hover:text-ink"
+            >
+              <XIcon className="size-3" />
+              Išvalyti
+            </button>
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 function MockModel({
   colors,
   heights,
@@ -208,24 +285,9 @@ function StudBg({
   )
 }
 
-function TierBadge({ tier }: { tier: Tier }) {
-  const t = tierConfig[tier]
-  const isTop = tier === "mega"
-  return (
-    <span
-      className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink px-3 py-1 font-mono text-[10px] font-bold tracking-[.12em] uppercase"
-      style={{ background: t.bg, color: t.textColor }}
-    >
-      {isTop ? "🔒 " : ""}
-      {t.label}
-      {isTop ? " tik" : "+"}
-    </span>
-  )
-}
-
 function ProductCard({
   product,
-  featured = false,
+  featured: _featured = false,
 }: {
   product: Product
   featured?: boolean
@@ -242,18 +304,13 @@ function ProductCard({
   return (
     <Link
       to={`/drop/${product.id}`}
-      className={[
-        "group brick-card brick-card-hover flex flex-col overflow-hidden bg-paper text-ink no-underline",
-        "",
-      ].join(" ")}
+      className="group brick-card brick-card-hover flex flex-col overflow-hidden bg-paper text-ink no-underline"
     >
-      {/* Visual */}
       <StudBg
         color={product.bg}
         image={product.image}
-        className={`relative h-[280px] border-b-2 border-ink`}
+        className="relative h-[280px] border-b-2 border-ink"
       >
-        {/* Badge */}
         {product.badge && (
           <div
             className="absolute top-[18px] right-[18px] z-10 grid size-[78px] -rotate-12 place-items-center rounded-full border-2 border-ink p-2 text-center font-display text-[13px] leading-none shadow-[3px_3px_0_#001B21]"
@@ -276,7 +333,6 @@ function ProductCard({
         )}
       </StudBg>
 
-      {/* Body */}
       <div className="flex flex-1 flex-col gap-3 p-4 md:p-5">
         <div>
           <h3
@@ -290,23 +346,33 @@ function ProductCard({
           </p>
         </div>
 
-        <p className="line-clamp-2 text-[13px] leading-[1.5] text-ink/60">
-          {featured
-            ? "Penkių aukštų daugiabutis su veikiančiomis pašto dėžutėmis, trimis balkonais ir kryžminio personažo minifigūrėle."
-            : `${product.bricks} detalės · ${product.minifigs}${product.rating ? " · " + product.rating.split(" ").pop() : ""}`}
-        </p>
-
-        {/* Tier + rating row */}
-        <div className="flex flex-wrap items-center gap-2">
-          <TierBadge tier={product.requiredTier} />
-          {product.rating && (
-            <span className="inline-flex items-center gap-1 rounded-full border-[1.5px] border-ink px-2.5 py-1 font-mono text-[10px] tracking-[.08em] text-ink">
-              ★ {product.rating.split(" ").pop()}
-            </span>
-          )}
+        <div className="grid grid-cols-3 gap-x-3 gap-y-2.5 border-t border-ink/10 pt-3">
+          <div>
+            <p className="label-mono text-ink/40 text-[9px]">Detalės</p>
+            <p className="font-mono text-[12px] font-bold text-ink">{product.bricks}</p>
+          </div>
+          <div>
+            <p className="label-mono text-ink/40 text-[9px]">Metai</p>
+            <p className="font-mono text-[12px] font-bold text-ink">{product.year}</p>
+          </div>
+          <div>
+            <p className="label-mono text-ink/40 text-[9px]">Amžius</p>
+            <p className="font-mono text-[12px] font-bold text-ink">{product.minAge ? `${product.minAge}+` : '—'}</p>
+          </div>
+          <div>
+            <p className="label-mono text-ink/40 text-[9px]">Kaina</p>
+            <p className="font-mono text-[12px] font-bold text-ink">{product.price ? `€${product.price}` : '—'}</p>
+          </div>
+          <div>
+            <p className="label-mono text-ink/40 text-[9px]">Kategorija</p>
+            <p className="font-mono text-[12px] font-bold text-ink capitalize">{product.category || '—'}</p>
+          </div>
+          <div>
+            <p className="label-mono text-ink/40 text-[9px]">Planas</p>
+            <p className="font-mono text-[12px] font-bold text-ink">{tier.label}+</p>
+          </div>
         </div>
 
-        {/* Footer CTA */}
         <div
           className="mt-auto flex items-center justify-between rounded-xl border-2 border-ink px-4 py-2.5 text-[13px] font-bold transition-all group-hover:shadow-[4px_4px_0_#001B21]"
           style={{ background: tier.bg, color: tier.textColor }}
@@ -321,8 +387,9 @@ function ProductCard({
 
 // ── page ───────────────────────────────────────────────────────────────────
 export default function Archive() {
-  const [tierFilter, setTierFilter] = useState("all")
-  const [categoryFilter, setCategoryFilter] = useState("all")
+  const [tierFilter, setTierFilter] = useState<string[]>([])
+  const [seriesFilter, setSeriesFilter] = useState<string[]>([])
+  const [ageFilter, setAgeFilter] = useState<string[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -337,27 +404,35 @@ export default function Archive() {
       })
   }, [])
 
-  const tierOrder: Tier[] = ["nano", "mini", "standard", "pro", "mega"]
-  const categories = [...new Set(products.map((p) => p.category))].sort()
-
   const filteredProducts = products.filter((p) => {
-    const tierOk =
-      tierFilter === "all" ||
-      tierOrder.indexOf(p.requiredTier) >= tierOrder.indexOf(tierFilter as Tier)
-    const catOk = categoryFilter === "all" || p.category === categoryFilter
-    return tierOk && catOk
+    const tierOk = tierFilter.length === 0 || tierFilter.includes(p.requiredTier)
+    const seriesOk = seriesFilter.length === 0 || seriesFilter.includes(p.category)
+    const ageOk =
+      ageFilter.length === 0 ||
+      p.minAge == null ||
+      ageFilter.includes(String(p.minAge))
+    return tierOk && seriesOk && ageOk
   })
+
+  const hasActiveFilter =
+    tierFilter.length > 0 || seriesFilter.length > 0 || ageFilter.length > 0
+
+  function clearFilters() {
+    setTierFilter([])
+    setSeriesFilter([])
+    setAgeFilter([])
+  }
 
   return (
     <>
       <Nav />
+      <NextDrop />
 
       {/* ── Hero ── */}
       <section className="bg-paper py-4 md:py-6">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="overflow-hidden rounded-2xl border-2 border-ink bg-ink p-4 md:rounded-3xl md:p-6">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-              {/* Left tile */}
               <div className="brick-card brick-card-hover flex min-h-[420px] flex-col justify-between bg-ink p-6 md:p-9 lg:col-span-8">
                 <div className="label-mono mb-6 flex items-center gap-2.5">
                   <Link
@@ -391,7 +466,6 @@ export default function Archive() {
                 </div>
               </div>
 
-              {/* Right tile — stats */}
               <div className="brick-card brick-card-hover flex min-h-[420px] flex-col justify-around bg-brand-orange p-6 md:p-9 lg:col-span-4">
                 {[
                   ["26", "Rinkinių katalogas"],
@@ -421,45 +495,45 @@ export default function Archive() {
       <section className="bg-paper pt-4 pb-16">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           {/* Filters */}
-          <div className="mb-8 flex flex-wrap gap-3">
-            <Select value={tierFilter} onValueChange={setTierFilter}>
-              <SelectTrigger className="w-[180px] rounded-full border-2 border-ink text-[14px] font-semibold">
-                <SelectValue placeholder="Planas" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Visi planai</SelectItem>
-                <SelectItem value="nano">Starter+</SelectItem>
-                <SelectItem value="mini">Advanced+</SelectItem>
-                <SelectItem value="standard">Builder+</SelectItem>
-                <SelectItem value="pro">Master+</SelectItem>
-                <SelectItem value="mega">Tik Legend</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-[180px] rounded-full border-2 border-ink text-[14px] font-semibold">
-                <SelectValue placeholder="Kategorija" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Visos kategorijos</SelectItem>
-                {categories.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {c}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {(tierFilter !== "all" || categoryFilter !== "all") && (
-              <button
-                onClick={() => {
-                  setTierFilter("all")
-                  setCategoryFilter("all")
-                }}
-                className="rounded-full border-2 border-ink/30 px-4 py-2 text-[13px] font-semibold text-ink/50 transition-all hover:border-ink hover:text-ink"
-              >
-                Išvalyti
-              </button>
+          <div className="mb-8 flex flex-wrap items-center gap-2">
+            <FilterPopover
+              label="Serija"
+              options={SERIES.map((s) => ({ value: s, label: s }))}
+              selected={seriesFilter}
+              onChange={setSeriesFilter}
+            />
+            <FilterPopover
+              label="Prenumerata"
+              options={SUBSCRIPTION_CHIPS.map(({ key, label }) => ({
+                value: key,
+                label,
+              }))}
+              selected={tierFilter}
+              onChange={setTierFilter}
+            />
+            <FilterPopover
+              label="Amžius"
+              options={AGE_CHIPS.map((age) => ({
+                value: String(age),
+                label: `${age}+`,
+              }))}
+              selected={ageFilter}
+              onChange={setAgeFilter}
+            />
+            {hasActiveFilter && (
+              <>
+                <span className="mx-1 h-5 w-px bg-ink/20" />
+                <span className="font-mono text-[11px] tracking-[.06em] uppercase text-ink/50">
+                  {filteredProducts.length} iš {products.length}
+                </span>
+                <button
+                  onClick={clearFilters}
+                  className="inline-flex items-center gap-1 font-mono text-[11px] tracking-[.06em] uppercase text-ink/40 transition-colors hover:text-ink"
+                >
+                  <XIcon className="size-3" />
+                  Išvalyti
+                </button>
+              </>
             )}
           </div>
 
@@ -488,7 +562,6 @@ export default function Archive() {
                 ))}
           </div>
 
-          {/* Load more */}
           <div className="py-20 text-center">
             <Button
               variant="outline"
@@ -498,7 +571,7 @@ export default function Archive() {
               Rodyti daugiau ↓
             </Button>
             <p className="label-mono mt-3.5 text-ink/55">
-              Rodoma {filteredProducts.length} iš 26 · Naujausi pirmiausia
+              Rodoma {filteredProducts.length} iš {products.length} · Naujausi pirmiausia
             </p>
           </div>
         </div>

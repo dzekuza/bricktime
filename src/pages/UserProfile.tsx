@@ -66,7 +66,7 @@ export default function UserProfile() {
         .select("achievement_id")
         .eq("subscriber_id", userId),
     ]).then(([{ data: prof }, { data: feedData }, { data: achData }]) => {
-      if (prof) setProfile(prof as UserProfile)
+      if (prof) setProfile(prof as unknown as UserProfile)
       if (feedData) setPosts(feedData as FeedPost[])
       if (achData)
         setUnlockedIds(

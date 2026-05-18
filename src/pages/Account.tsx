@@ -232,7 +232,7 @@ export default function Account() {
   const [ordersLoading, setOrdersLoading] = useState(true)
   const [requestingReturn, setRequestingReturn] = useState<Set<string>>(new Set())
   const [penaltyHistory, setPenaltyHistory] = useState<Array<{
-    id: string; amount: number; reason: string | null; status: string; created_at: string; resolved_at: string | null
+    id: string; amount: number; reason: string | null; status: string; created_at: string | null; resolved_at: string | null
   }>>([])
   const [stripeInvoices, setStripeInvoices] = useState<Array<{
     id: string; amount: number; currency: string; description: string; date: number; status: string | null; pdf: string | null
@@ -990,7 +990,7 @@ export default function Account() {
                       <div className="flex flex-col gap-0.5">
                         <p className="text-[14px] font-medium text-ink">{p.reason ?? "Bauda"}</p>
                         <p className="font-mono text-[11px] text-ink/40">
-                          {new Date(p.created_at).toLocaleDateString("lt-LT", {
+                          {new Date(p.created_at ?? "").toLocaleDateString("lt-LT", {
                             year: "numeric", month: "short", day: "numeric",
                           })}
                         </p>
