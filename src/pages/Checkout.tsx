@@ -247,19 +247,17 @@ export default function Checkout() {
                   <div className="border-t-2 border-dashed border-ink/10" />
 
                   {/* Stats */}
-                  <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <p className="label-mono text-ink/40">Planas</p>
-                      <p className="mt-0.5 font-display text-[15px] text-ink">{userSub?.name ?? "—"}</p>
-                    </div>
-                    <div>
-                      <p className="label-mono text-ink/40">Kaladėlės</p>
-                      <p className="mt-0.5 font-display text-[15px] text-ink">{product.bricks}</p>
-                    </div>
-                    <div>
-                      <p className="label-mono text-ink/40">Laikas</p>
-                      <p className="mt-0.5 font-display text-[15px] text-ink">{product.build_time ?? "—"}</p>
-                    </div>
+                  <div className="grid grid-cols-3 divide-x-2 divide-ink/10">
+                    {[
+                      ["Kaladėlių", product.bricks],
+                      ["Miniukai", product.minifigs],
+                      ["Laikas", product.build_time ?? "—"],
+                    ].map(([label, val]) => (
+                      <div key={label as string} className="px-3 first:pl-0 last:pr-0">
+                        <p className="label-mono text-ink/40">{label}</p>
+                        <p className="mt-0.5 font-display text-[17px] leading-tight text-ink">{val}</p>
+                      </div>
+                    ))}
                   </div>
 
                   <div className="border-t-2 border-dashed border-ink/10" />
