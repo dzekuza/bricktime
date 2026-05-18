@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/hooks/useAuth'
 import type { MerchItem } from './Merch'
 
 const TYPE_LABEL: Record<string, string> = {
@@ -29,10 +30,15 @@ function ClothingIcon({ type }: { type: string }) {
 
 export default function MerchDrop() {
   const { slug } = useParams<{ slug: string }>()
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [item, setItem] = useState<MerchItem | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
+  const [buying, setBuying] = useState(false)
+
+  const paymentSuccess = searchParams.get('payment') === 'success'
 
   useEffect(() => {
     if (!slug) return
@@ -74,6 +80,26 @@ export default function MerchDrop() {
   if (!item) return null
 
   const isComingSoon = item.status === 'coming-soon' || item.stock === 0
+
+  async function handleBuy() {
+    if (!selectedSize || !item) return
+    setBuying(true)
+    const origin = window.location.origin
+    const { data, error } = await supabase.functions.invoke('create-merch-checkout', {
+      body: {
+        itemId: item.id,
+        size: selectedSize,
+        userEmail: user?.email ?? undefined,
+        successUrl: `${origin}/merch/${item.slug}?payment=success`,
+        cancelUrl: `${origin}/merch/${item.slug}`,
+      },
+    })
+    if (error || !data?.url) {
+      setBuying(false)
+      return
+    }
+    window.location.href = data.url
+  }
   const isDark = item.bg === '#001B21' || item.bg.toLowerCase() === '#001b21'
   const contentColor = isDark ? 'text-paper/30' : 'text-ink/30'
 
@@ -149,31 +175,38 @@ export default function MerchDrop() {
                 </div>
               </div>
 
+              {/* Success banner */}
+              {paymentSuccess && (
+                <div className="brick-card flex flex-col gap-2 bg-[#5DDB9C] p-5">
+                  <p className="font-display text-[22px] font-bold uppercase text-ink">✓ Užsakymas gautas!</p>
+                  <p className="text-[14px] leading-relaxed text-ink/70">
+                    Ačiū! Patvirtinimą gausite el. paštu. Produktas bus išsiųstas per 3–5 d. d.
+                  </p>
+                </div>
+              )}
+
               {/* CTA */}
-              <div className="mt-2">
-                {isComingSoon ? (
-                  <div className="brick-card flex flex-col gap-3 bg-ink/[0.03] p-6">
-                    <p className="label-mono text-ink/40">Dar ne parduotuvėje</p>
-                    <p className="text-[15px] leading-relaxed text-ink/55">
-                      Šis produktas kol kas ruošiamas. Prenumeruok BRICKTIME ir sužinok pirmasis,
-                      kai merch atsiras parduotuvėje.
-                    </p>
-                    <Link
-                      to="/subscribe"
-                      className="mt-1 inline-flex items-center gap-2 rounded-xl border-2 border-ink bg-ink px-6 py-3 font-mono text-[13px] font-bold uppercase tracking-[.08em] text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_#001B21]"
+              {!paymentSuccess && (
+                <div className="mt-2">
+                  {isComingSoon ? (
+                    <div className="brick-card flex flex-col gap-3 bg-ink/[0.03] p-6">
+                      <p className="label-mono text-ink/40">Dar ne parduotuvėje</p>
+                      <p className="text-[15px] leading-relaxed text-ink/55">
+                        Šis produktas kol kas ruošiamas. Seki BRICKTIME naujienoms ir sužinok pirmasis,
+                        kai merch atsiras parduotuvėje.
+                      </p>
+                    </div>
+                  ) : (
+                    <button
+                      disabled={!selectedSize || buying}
+                      onClick={handleBuy}
+                      className="w-full rounded-xl border-2 border-ink bg-ink py-4 font-mono text-[14px] font-bold uppercase tracking-[.08em] text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_#001B21] disabled:cursor-not-allowed disabled:opacity-30"
                     >
-                      Prenumeruoti →
-                    </Link>
-                  </div>
-                ) : (
-                  <button
-                    disabled={!selectedSize}
-                    className="w-full rounded-xl border-2 border-ink bg-ink py-4 font-mono text-[14px] font-bold uppercase tracking-[.08em] text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_#001B21] disabled:cursor-not-allowed disabled:opacity-30"
-                  >
-                    {selectedSize ? `Pirkti — ${selectedSize}` : 'Pasirink dydį'}
-                  </button>
-                )}
-              </div>
+                      {buying ? 'Kraunama…' : selectedSize ? `Pirkti — ${selectedSize}` : 'Pasirink dydį'}
+                    </button>
+                  )}
+                </div>
+              )}
 
               {/* Back */}
               <Link
