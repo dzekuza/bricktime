@@ -566,6 +566,22 @@ function LeaderboardPanel() {
         })}
       </div>
 
+      {/* Prizes */}
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        {([
+          { rank: '#1', emoji: '🧱', prize: 'LEGO rinkinys', sub: 'Tavo pasirinkimas' },
+          { rank: '#2', emoji: '🧥', prize: 'BRICKTIME džemperis', sub: 'Mūsų kolekcija' },
+          { rank: '#3', emoji: '🎟', prize: '€20 čekis', sub: 'BRICKTIME eshop' },
+        ] as const).map(({ rank, emoji, prize, sub }) => (
+          <div key={rank} className="rounded-xl border-2 border-ink/10 bg-ink/[.03] px-2 py-2.5 flex flex-col items-center text-center gap-0.5">
+            <span className="font-mono text-[9px] uppercase tracking-widest text-ink/30">{rank}</span>
+            <span className="text-[18px] leading-none mt-0.5">{emoji}</span>
+            <p className="font-bold text-[10px] text-ink leading-tight mt-1">{prize}</p>
+            <p className="font-mono text-[8px] uppercase tracking-wider text-ink/40">{sub}</p>
+          </div>
+        ))}
+      </div>
+
       <div className="brick-card overflow-hidden">
         <div className="grid grid-cols-[28px_1fr_60px_44px] bg-ink px-4 py-2.5 gap-3">
           {['#', 'Narys', 'Planas', 'pts'].map((col) => (

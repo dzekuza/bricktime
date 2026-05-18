@@ -1,6 +1,6 @@
 const PLAN_BRANDING = {
   nano: {
-    displayName: "Starter",
+    displayName: "Mėgėjas",
     brickImage: "/plans/starter.svg",
     theme: {
       bg: "#FB4903",
@@ -11,7 +11,7 @@ const PLAN_BRANDING = {
     },
   },
   mini: {
-    displayName: "Advanced",
+    displayName: "Kūrėjas",
     brickImage: "/plans/advanced.svg",
     theme: {
       bg: "#5C4ADE",
@@ -22,7 +22,7 @@ const PLAN_BRANDING = {
     },
   },
   standard: {
-    displayName: "Builder",
+    displayName: "Meistras",
     brickImage: "/plans/builder.svg",
     theme: {
       bg: "#55DB9C",
@@ -33,7 +33,7 @@ const PLAN_BRANDING = {
     },
   },
   pro: {
-    displayName: "Master",
+    displayName: "Pro",
     brickImage: "/plans/master.svg",
     theme: {
       bg: "#FFAEE7",
@@ -44,7 +44,7 @@ const PLAN_BRANDING = {
     },
   },
   mega: {
-    displayName: "Legend",
+    displayName: "Legenda",
     brickImage: "/plans/legend.svg",
     theme: {
       bg: "#4DA2FF",

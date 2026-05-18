@@ -1,6 +1,7 @@
 import Nav from '@/components/Nav'
 import Hero from '@/components/Hero'
 import Marquee from '@/components/Marquee'
+import { NextDrop } from '@/components/NextDrop'
 import HowItWorks from '@/components/HowItWorks'
 import WhatsInside from '@/components/WhatsInside'
 import Plans from '@/components/Plans'
@@ -16,6 +17,7 @@ export default function Home() {
       <main>
         <Hero />
         <Marquee />
+        <NextDrop />
         <HowItWorks />
         <WhatsInside />
         <Plans />

@@ -1,7 +1,14 @@
 import { useSearchParams, Link } from "react-router-dom"
+import { useAuth } from "@/hooks/useAuth"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { getPlanDisplayName } from "@/lib/plan-branding"
@@ -69,38 +76,63 @@ type DbProduct = {
 
 export default function Checkout() {
   const [params] = useSearchParams()
+  const { user } = useAuth()
   // support both ?product= and legacy ?drop=
   const productId = params.get("product") ?? params.get("drop") ?? ""
   const tierParam = params.get("tier") ?? "standard"
-  const subParam = params.get("sub")
 
   const [product, setProduct] = useState<DbProduct | null>(null)
   const [loading, setLoading] = useState(true)
+  const [userSub, setUserSub] = useState<(typeof tiers)[0] | null>(null)
   const [confirmed, setConfirmed] = useState(false)
-
-  // Mock: user is subscribed to Advanced unless ?sub=none
-  const [userSub] = useState(subParam === "none" ? null : tiers[2])
+  const [confirming, setConfirming] = useState(false)
+  const [showModal, setShowModal] = useState(false)
 
   useEffect(() => {
-    if (!productId) {
-      setLoading(false)
-      return
-    }
+    if (!productId) { setLoading(false); return }
     supabase
       .from("products")
-      .select(
-        "id, title, subtitle, description, bricks, minifigs, build_time, image_url, gallery, tier, value"
-      )
+      .select("id, title, subtitle, description, bricks, minifigs, build_time, image_url, gallery, tier, value")
       .eq("id", Number(productId))
       .single()
-      .then(({ data }) => {
-        setProduct(data as DbProduct | null)
-        setLoading(false)
-      })
+      .then(({ data }) => { setProduct(data as DbProduct | null); setLoading(false) })
   }, [productId])
+
+  useEffect(() => {
+    if (!user) { setUserSub(null); return }
+    supabase
+      .from("subscribers")
+      .select("plan, status")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data?.status === "active") setUserSub(tierByName[data.plan] ?? null)
+        else setUserSub(null)
+      })
+  }, [user])
 
   const requiredTier = tierByName[product?.tier ?? tierParam] ?? tiers[2]
   const isEligible = userSub !== null && userSub.level >= requiredTier.level
+
+  async function handleConfirm() {
+    if (!user || !product) return
+    setConfirming(true)
+    const today = new Date()
+    const due = new Date(today)
+    due.setDate(due.getDate() + 30)
+    const fmt = (d: Date) => d.toISOString().slice(0, 10)
+    const { error } = await supabase.from("orders").insert({
+      subscriber_id: user.id,
+      product_id: product.id,
+      amount: userSub?.price ?? 0,
+      start_date: fmt(today),
+      due_date: fmt(due),
+      status: "processing",
+    })
+    setConfirming(false)
+    if (!error) setConfirmed(true)
+    else console.error("Order insert failed:", error.message)
+  }
 
   // ── loading ──────────────────────────────────────────────────────────────
   if (loading) {
@@ -389,7 +421,7 @@ export default function Checkout() {
                     <Button
                       size="lg"
                       className="brick-hover-sm w-full rounded-full border-2 border-ink bg-brand-orange text-[15px] font-bold text-paper"
-                      onClick={() => setConfirmed(true)}
+                      onClick={() => setShowModal(true)}
                     >
                       Patvirtinti →
                     </Button>
@@ -438,7 +470,7 @@ export default function Checkout() {
               <Button
                 size="lg"
                 className="brick-hover-sm w-full rounded-full border-2 border-ink bg-brand-orange text-[15px] font-bold text-paper"
-                onClick={() => setConfirmed(true)}
+                onClick={() => setShowModal(true)}
               >
                 Patvirtinti →
               </Button>
@@ -471,6 +503,78 @@ export default function Checkout() {
           </div>
         </div>
       </div>
+
+      {/* Confirmation modal */}
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="brick-card w-[calc(100vw-2rem)] max-w-[400px] gap-0 border-0 bg-paper p-5 shadow-none sm:p-6">
+          {/* Header */}
+          <DialogTitle className="heading-display text-d-xs text-ink">
+            Patvirtinti užsakymą?
+          </DialogTitle>
+          <DialogDescription className="mt-1.5 text-[13px] leading-[1.6] text-ink/50">
+            Produktas bus pridėtas į tavo dėžutę ir įtrauktas į kitą siuntą.
+          </DialogDescription>
+
+          {/* Summary card */}
+          <div className="mt-4 rounded-2xl border-2 border-ink/10 bg-ink/[.03] p-4">
+            <div className="flex items-center gap-3">
+              {coverImage && (
+                <img
+                  src={coverImage}
+                  alt={product.title}
+                  className="size-14 shrink-0 rounded-xl border-2 border-ink object-cover"
+                />
+              )}
+              <div className="min-w-0">
+                <p className="label-mono text-ink/40">Produktas</p>
+                <p className="mt-0.5 truncate font-display text-[17px] leading-tight text-ink">
+                  {product.title}
+                </p>
+                {product.subtitle && (
+                  <p className="truncate text-[12px] text-ink/50">{product.subtitle}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-3 flex items-center gap-6 border-t-2 border-ink/8 pt-3">
+              {userSub && (
+                <div>
+                  <p className="label-mono text-ink/40">Planas</p>
+                  <p className="mt-0.5 font-display text-[15px] text-ink">{userSub.name}</p>
+                </div>
+              )}
+              <div>
+                <p className="label-mono text-ink/40">Papildomas mokestis</p>
+                <p className="mt-0.5 font-display text-[15px] text-brand-mint">€0</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="mt-4 flex flex-col gap-2">
+            <Button
+              size="lg"
+              className="brick-hover-sm w-full rounded-full border-2 border-ink bg-brand-orange text-[15px] font-bold text-paper"
+              disabled={confirming}
+              onClick={async () => {
+                await handleConfirm()
+                setShowModal(false)
+              }}
+            >
+              {confirming ? "Apdorojama…" : "Taip, patvirtinti →"}
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full rounded-full border-2 border-ink bg-transparent text-[15px] font-bold text-ink hover:bg-ink/5"
+              onClick={() => setShowModal(false)}
+              disabled={confirming}
+            >
+              Atšaukti
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
