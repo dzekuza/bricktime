@@ -33,7 +33,7 @@ function CopyButton({ text }: { text: string }) {
 
 function SuccessBanner({ code, recipientEmail }: { code: string; recipientEmail: string }) {
   return (
-    <div className="brick-card flex flex-col gap-5 bg-[#5DDB9C] p-6 md:p-9">
+    <div className="brick-card flex flex-col gap-5 bg-brand-mint p-6 md:p-9">
       <div>
         <p className="label-mono mb-3 text-ink/60">Dovanų kortelė išsiųsta</p>
         <h2 className="heading-display text-d-md text-ink">✓ Mokėjimas gautas!</h2>
@@ -73,6 +73,11 @@ export default function GiftCards() {
 
   async function handleBuy() {
     if (selected === null || !recipientEmail || !buyerEmail) return
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(recipientEmail) || !emailRegex.test(buyerEmail)) {
+      setFormError('Įvesk teisingus el. pašto adresus.')
+      return
+    }
     setFormError('')
     setLoading(true)
 
@@ -127,8 +132,7 @@ export default function GiftCards() {
                 <h1 className="heading-display text-d-xl max-w-[18ch] tracking-[-0.015em] text-paper">
                   DOVANK{' '}
                   <span
-                    className="inline-block text-brand-yellow italic"
-                    style={{ transform: 'skew(-8deg)' }}
+                    className="inline-block text-brand-yellow italic [transform:skew(-8deg)]"
                   >
                     LEGO džiaugsmą.
                   </span>
