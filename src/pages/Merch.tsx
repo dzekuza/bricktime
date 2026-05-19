@@ -53,7 +53,7 @@ function MerchCard({ item }: { item: MerchItem }) {
     <Link to={`/merch/${item.slug}`} className="brick-card brick-card-hover flex flex-col overflow-hidden bg-paper group">
       {/* Visual */}
       <div
-        className="relative flex min-h-[300px] items-center justify-center p-10"
+        className="relative flex min-h-[300px] items-center justify-center p-6 md:p-10"
         style={{ background: item.bg }}
       >
         <span className={`label-mono absolute left-4 top-4 rounded-full border-2 ${chipBorder} px-3 py-1 ${labelColor}`}>

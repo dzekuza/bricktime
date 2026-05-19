@@ -144,7 +144,7 @@ export default function Hero() {
   return (
     <section className="relative bg-paper overflow-hidden min-h-[88vh]">
       {/* Text content */}
-      <div className="mx-auto max-w-[1320px] px-4 md:px-7 pt-10 md:pt-14 pb-16 text-center">
+      <div className="relative z-10 mx-auto max-w-[1320px] px-4 md:px-7 pt-10 md:pt-14 pb-16 text-center">
         {/* Social proof */}
         <div className="mb-8 flex items-center justify-center gap-3">
           <div className="flex">
@@ -206,7 +206,7 @@ export default function Hero() {
             asChild
             variant="outline"
             size="lg"
-            className="flex-1 md:flex-none rounded-full border-2 border-ink bg-transparent text-ink text-[16px] font-bold hover:bg-transparent hover:text-ink brick-hover-sm"
+            className="flex-1 md:flex-none rounded-full border-2 border-ink bg-white text-ink text-[16px] font-bold hover:bg-white hover:text-ink brick-hover-sm"
           >
             <a href="/archive"><span className="md:hidden">Produktai</span><span className="hidden md:inline">Žiūrėti ankstesnius produktus</span></a>
           </Button>

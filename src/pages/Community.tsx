@@ -637,7 +637,7 @@ export default function Community() {
       </section>
 
       <section className="bg-paper pt-4 pb-20">
-        <div ref={contentRef} className="mx-auto max-w-[1320px] px-7">
+        <div ref={contentRef} className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[40%_60%]">
 
             <div className="md:sticky md:self-start md:max-h-[calc(100dvh-120px)] md:overflow-y-auto" style={{ top: '120px' }}>

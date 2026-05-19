@@ -50,7 +50,7 @@ export default function BigCTA() {
           {/* Urgency copy — col-span-7 */}
           <div
             ref={tileRef}
-            className="reveal brick-card flex min-h-[340px] flex-col justify-between p-10 lg:col-span-7"
+            className="reveal brick-card flex min-h-[340px] flex-col justify-between p-6 md:p-10 lg:col-span-7"
             style={{ background: "#FB4903" }}
             onMouseEnter={onEnter}
             onMouseLeave={onLeave}
@@ -85,7 +85,7 @@ export default function BigCTA() {
 
           {/* CTA actions — col-span-5 */}
           <div
-            className="reveal flex min-h-[340px] flex-col justify-between rounded-2xl border-2 border-ink p-10 shadow-[6px_6px_0_rgba(245,241,235,.08)] md:rounded-3xl lg:col-span-5"
+            className="reveal flex min-h-[340px] flex-col justify-between rounded-2xl border-2 border-ink p-6 md:p-10 shadow-[6px_6px_0_rgba(245,241,235,.08)] md:rounded-3xl lg:col-span-5"
             style={{ background: "#001B21" }}
           >
             <div>

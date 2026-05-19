@@ -558,7 +558,7 @@ export default function Drop() {
                   </div>
                 )}
               </div>
-              <div className="brick-card flex flex-col justify-center bg-paper p-10 lg:col-span-7">
+              <div className="brick-card flex flex-col justify-center bg-paper p-6 md:p-10 lg:col-span-7">
                 <h3 className="label-mono text-ink/50">⬢ The story</h3>
                 <h2 className="heading-display text-d-lg mt-3 leading-[.9] tracking-[-0.01em] text-ink">
                   {product.story.headline}

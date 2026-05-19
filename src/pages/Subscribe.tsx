@@ -331,10 +331,10 @@ export default function Subscribe() {
       <div className="min-h-screen bg-paper">
         <Nav />
         <section className="py-20">
-          <div className="mx-auto max-w-[1320px] px-7">
+          <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
               <div
-                className="brick-card flex min-h-[420px] flex-col items-center justify-center p-16 text-center lg:col-span-12"
+                className="brick-card flex min-h-[420px] flex-col items-center justify-center p-8 md:p-16 text-center lg:col-span-12"
                 style={{ background: "#5DDB9C" }}
               >
                 <div
@@ -482,7 +482,7 @@ export default function Subscribe() {
 
             {/* mobile: horizontal scroll carousel; desktop: overlapping flex row */}
             {plansLoading ? (
-              <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 lg:gap-0 lg:-space-x-4 lg:overflow-visible lg:pb-0">
+              <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-visible pt-5 pb-2 lg:gap-0 lg:-space-x-4 lg:overflow-visible lg:pt-5 lg:pb-0">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div
                     key={i}
@@ -502,7 +502,7 @@ export default function Subscribe() {
                 ))}
               </div>
             ) : (
-              <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-0 lg:-space-x-4 lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden">
+              <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-visible pt-5 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-0 lg:-space-x-4 lg:overflow-visible lg:pt-5 lg:pb-0 [&::-webkit-scrollbar]:hidden">
                 {plans.map((p, i) => (
                   <div
                     key={p.id}
@@ -617,7 +617,7 @@ export default function Subscribe() {
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
               <div
-                className="brick-card p-10 lg:col-span-7"
+                className="brick-card p-6 md:p-10 lg:col-span-7"
                 style={{ background: "#F5F1EB" }}
               >
                 <h3 className="mb-7 text-2xl font-semibold text-ink/50">
@@ -666,9 +666,18 @@ export default function Subscribe() {
                     className="brick-hover-sm flex-1 rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper disabled:opacity-50"
                     onClick={handlePurchase}
                   >
-                    {purchasing
-                      ? "Apdorojama…"
-                      : `Pradėti ${plan?.name ?? ""} — €${billing === "annual" ? `${total} šiandien` : `${price + deliveryFee}/mėn.`} →`}
+                    {purchasing ? (
+                      "Apdorojama…"
+                    ) : (
+                      <>
+                        <span className="sm:hidden">
+                          {`Pradėti — €${billing === "annual" ? `${total} šiandien` : `${price + deliveryFee}/mėn.`} →`}
+                        </span>
+                        <span className="hidden sm:inline">
+                          {`Pradėti ${plan?.name ?? ""} — €${billing === "annual" ? `${total} šiandien` : `${price + deliveryFee}/mėn.`} →`}
+                        </span>
+                      </>
+                    )}
                   </Button>
                 </div>
 
@@ -695,7 +704,7 @@ export default function Subscribe() {
                     style={{ background: plan.bg_color }}
                   >
                     <div className="flex items-start justify-between gap-4">
-                      <h3 className="text-2xl font-semibold text-ink/50">
+                      <h3 className="heading-display text-d-xs" style={{ color: plan.text_color }}>
                         Užsakymo suvestinė
                       </h3>
                       {plan.brick_image && (
@@ -890,74 +899,68 @@ export default function Subscribe() {
               style={{ background: "#F5F1EB" }}
             >
               {plans.length > 0 && (
-                <div className="min-w-[800px]">
-                  <div
-                    className="grid border-b-2 border-ink"
-                    style={{
-                      gridTemplateColumns:
-                        "2fr " + plans.map(() => "1fr").join(" "),
-                    }}
-                  >
-                    <div className="p-3 font-mono text-[11px] tracking-[.18em] text-ink/40 uppercase md:p-5">
-                      Savybė
-                    </div>
-                    {plans.map((p) => (
-                      <div
-                        key={p.id}
-                        className="flex items-center justify-between border-l-2 border-ink p-4"
-                        style={{ background: p.bg_color }}
-                      >
-                        <span
-                          className="font-display text-[18px] leading-none uppercase"
-                          style={{ color: p.text_color }}
+                <table className="w-full border-collapse" style={{ minWidth: `${120 + plans.length * 110}px` }}>
+                  <thead>
+                    <tr className="border-b-2 border-ink">
+                      <th className="sticky left-0 z-20 w-[120px] min-w-[120px] bg-[#F5F1EB] p-3 text-left font-mono text-[11px] tracking-[.18em] text-ink/40 uppercase md:w-[160px] md:min-w-[160px] md:p-5">
+                        Savybė
+                      </th>
+                      {plans.map((p) => (
+                        <th
+                          key={p.id}
+                          className="border-l-2 border-ink p-3 text-left align-top md:p-4"
+                          style={{ background: p.bg_color }}
                         >
-                          {p.name}
-                        </span>
-                        {p.featured && (
                           <span
-                            className="font-mono text-[9px] tracking-[.1em] uppercase"
-                            style={{ color: `${p.text_color}60` }}
+                            className="font-display text-[15px] leading-tight uppercase md:text-[18px]"
+                            style={{ color: p.text_color }}
                           >
-                            Populiarus
+                            {p.name}
                           </span>
-                        )}
-                      </div>
+                          {p.featured && (
+                            <span
+                              className="mt-0.5 block font-mono text-[9px] tracking-[.1em] uppercase"
+                              style={{ color: `${p.text_color}60` }}
+                            >
+                              Populiarus
+                            </span>
+                          )}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {comparisonFeatures.map((feature) => (
+                      <tr
+                        key={feature}
+                        className="border-b-2 border-dashed border-ink/20 transition-colors last:border-b-0 hover:bg-ink/[.03]"
+                      >
+                        <td className="sticky left-0 z-10 bg-[#F5F1EB] p-3 text-[12px] font-semibold text-ink/70 md:p-4 md:text-[13px]">
+                          {feature}
+                        </td>
+                        {plans.map((p) => {
+                          const val = p.comparison_data?.[feature] ?? "—"
+                          return (
+                            <td
+                              key={p.id}
+                              className="border-l-2 border-dashed border-ink/20 p-3 text-[12px] text-ink md:p-4 md:text-[13px]"
+                            >
+                              {val === "—" ? (
+                                <span className="text-ink/25">—</span>
+                              ) : val === "✓" ? (
+                                <span className="grid size-5 place-items-center rounded-full border-2 border-ink bg-brand-mint text-[11px] font-bold text-ink">
+                                  ✓
+                                </span>
+                              ) : (
+                                val
+                              )}
+                            </td>
+                          )
+                        })}
+                      </tr>
                     ))}
-                  </div>
-                  {comparisonFeatures.map((feature) => (
-                    <div
-                      key={feature}
-                      className="grid border-b-2 border-dashed border-ink/20 transition-colors last:border-b-0 hover:bg-ink/[.03]"
-                      style={{
-                        gridTemplateColumns:
-                          "2fr " + plans.map(() => "1fr").join(" "),
-                      }}
-                    >
-                      <div className="p-4 text-[13px] font-semibold whitespace-nowrap text-ink/70">
-                        {feature}
-                      </div>
-                      {plans.map((p) => {
-                        const val = p.comparison_data?.[feature] ?? "—"
-                        return (
-                          <div
-                            key={p.id}
-                            className="flex items-center border-l-2 border-dashed border-ink/20 p-4 text-[13px] text-ink"
-                          >
-                            {val === "—" ? (
-                              <span className="text-ink/25">—</span>
-                            ) : val === "✓" ? (
-                              <span className="grid size-5 place-items-center rounded-full border-2 border-ink bg-brand-mint text-[11px] font-bold text-ink">
-                                ✓
-                              </span>
-                            ) : (
-                              val
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  ))}
-                </div>
+                  </tbody>
+                </table>
               )}
             </div>
           </div>

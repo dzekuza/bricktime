@@ -281,31 +281,31 @@ export default function Nav() {
       </nav>
 
       {/* Mobile drawer */}
-      <div className="fixed inset-0 z-40 md:hidden" style={{ pointerEvents: open ? 'all' : 'none' }}>
-        <div
-          className="absolute inset-0 bg-ink/60 transition-opacity duration-300"
-          style={{ opacity: open ? 1 : 0 }}
-          onClick={() => setOpen(false)}
-        />
-        <div
-          className="absolute left-0 top-0 w-full flex flex-col border-b-2 border-ink bg-paper"
-          style={{
-            transform: open ? 'translateY(0)' : 'translateY(-100%)',
-            transition: 'transform 0.28s cubic-bezier(0.32, 0, 0.16, 1)',
-          }}
-        >
-          <nav className="flex flex-col px-6 pt-[84px]">
+      <div
+        className="fixed left-0 right-0 bottom-0 z-40 md:hidden flex flex-col border-t border-ink/10 bg-paper/95 backdrop-blur-lg"
+        style={{
+          top: '96px',
+          opacity: open ? 1 : 0,
+          transform: open ? 'translateY(0)' : 'translateY(-8px)',
+          pointerEvents: open ? 'all' : 'none',
+          transition: 'opacity 0.2s ease, transform 0.2s ease',
+        }}
+      >
+        <div className="flex h-full flex-col justify-between gap-4 p-5">
+          {/* Nav links */}
+          <nav className="flex flex-col gap-1">
             {links.map((l, i) => {
               const isActive = l.to === '/' ? pathname === '/' : pathname.startsWith(l.to.split('#')[0]) && l.to !== '/'
               return (
                 <Link
                   key={l.label}
                   to={l.to}
-                  className="flex items-center justify-between border-b-2 border-ink/10 py-5 text-[22px] font-bold uppercase text-ink transition-opacity hover:opacity-60 font-display"
+                  onClick={() => setOpen(false)}
+                  className={`flex items-center justify-between rounded-xl px-3 py-2.5 text-[16px] font-semibold text-ink transition-colors hover:bg-ink/5 ${isActive ? 'bg-ink/5' : ''}`}
                   style={{
                     opacity: open ? 1 : 0,
-                    transform: open ? 'translateY(0)' : 'translateY(-10px)',
-                    transition: `opacity 0.22s cubic-bezier(.22,1,.36,1) ${i * 40}ms, transform 0.22s cubic-bezier(.22,1,.36,1) ${i * 40}ms`,
+                    transform: open ? 'translateY(0)' : 'translateY(-6px)',
+                    transition: `opacity 0.18s ease ${i * 30}ms, transform 0.18s ease ${i * 30}ms`,
                   }}
                 >
                   {l.label}
@@ -315,22 +315,19 @@ export default function Nav() {
             })}
           </nav>
 
+          {/* CTA */}
           {!(user && profile?.plan) && (
-            <div
-              className="border-t-2 border-ink p-6"
+            <Link
+              to="/subscribe"
+              onClick={() => setOpen(false)}
+              className="flex w-full items-center justify-center rounded-full border-2 border-ink bg-ink py-3.5 text-center font-bold text-[15px] text-paper brick-hover-sm"
               style={{
                 opacity: open ? 1 : 0,
-                transform: open ? 'translateY(0)' : 'translateY(-8px)',
-                transition: 'opacity 0.25s cubic-bezier(.22,1,.36,1) 220ms, transform 0.25s cubic-bezier(.22,1,.36,1) 220ms',
+                transition: 'opacity 0.2s ease 120ms',
               }}
             >
-              <Link
-                to="/subscribe"
-                className="flex w-full items-center justify-center rounded-full border-2 border-ink bg-ink py-4 text-center font-bold text-[16px] text-paper"
-              >
-                Prenumeruoti <ArrowRightIcon className="inline size-4 ml-1" />
-              </Link>
-            </div>
+              Prenumeruoti <ArrowRightIcon className="inline size-4 ml-1" />
+            </Link>
           )}
         </div>
       </div>

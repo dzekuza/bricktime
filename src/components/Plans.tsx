@@ -72,7 +72,7 @@ export default function Plans() {
     <section
       id="plans"
       ref={containerRef}
-      className="relative overflow-hidden bg-paper py-10 md:py-20"
+      className="relative overflow-x-clip bg-paper py-10 md:py-20"
     >
       <div className="relative z-10 mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
@@ -118,11 +118,12 @@ export default function Plans() {
               : plans.map((plan, i) => (
                   <div
                     key={plan.id}
-                    className="reveal brick-card relative flex min-w-0 flex-1 flex-col justify-between p-5 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all duration-200 hover:z-10 hover:-translate-y-3 lg:p-6"
+                    className="reveal brick-card sticky lg:static flex min-w-0 flex-1 flex-col justify-between p-5 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all duration-200 hover:z-10 hover:-translate-y-3 lg:p-6"
                     style={{
                       background: plan.bg_color,
                       transitionDelay: `${i * 80}ms`,
                       zIndex: i + 1,
+                      top: `${80 + i * 72}px`,
                     }}
                     onMouseEnter={onCardEnter}
                     onMouseLeave={onCardLeave}

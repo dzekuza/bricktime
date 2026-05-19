@@ -62,7 +62,7 @@ const bricks: BrickProps[] = [
 export default function BrickDrop() {
   return (
     <section className="overflow-hidden bg-ink py-24">
-      <div className="mx-auto max-w-[1320px] px-7">
+      <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         {/* Headline */}
         <div className="mb-16 text-center">
           <h3 className="label-mono text-paper/40">

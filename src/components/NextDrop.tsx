@@ -116,20 +116,20 @@ export function NextDrop() {
     .join(', ')
 
   const countdownBoxes = [
-    { val: timeLeft.days, label: 'Dienos' },
-    { val: timeLeft.hours, label: 'Valandos' },
-    { val: timeLeft.minutes, label: 'Minutės' },
-    { val: timeLeft.seconds, label: 'Sekundės' },
+    { val: timeLeft.days, label: 'Dienos', short: 'd.' },
+    { val: timeLeft.hours, label: 'Valandos', short: 'val.' },
+    { val: timeLeft.minutes, label: 'Minutės', short: 'min.' },
+    { val: timeLeft.seconds, label: 'Sekundės', short: 'sek.' },
   ]
 
   return (
     <section className="py-4 md:py-6">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
       <div className="relative overflow-hidden bg-brand-mint rounded-3xl px-8 md:px-12 py-10">
-        <img
-          src="/grid.png"
+        <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover select-none"
+          className="pointer-events-none absolute inset-0 select-none opacity-20"
+          style={{ backgroundImage: 'url(/grid.png)', backgroundRepeat: 'repeat', backgroundSize: 'auto' }}
         />
         <div className="label-mono text-ink/40 mb-5">Kitas rinkinys</div>
 
@@ -153,13 +153,16 @@ export function NextDrop() {
             </h2>
 
             <div className="relative flex gap-3 flex-1">
-              {countdownBoxes.map(({ val, label }) => (
+              {countdownBoxes.map(({ val, label, short }) => (
                 <div
                   key={label}
-                  className="relative flex-1 rounded-2xl border-2 border-ink/20 bg-ink/10 px-3 py-4 text-center"
+                  className="relative flex-1 rounded-2xl border-2 border-ink/20 bg-ink/10 px-2 md:px-3 py-4 text-center"
                 >
                   <div className="heading-display text-d-sm text-ink">{pad(val)}</div>
-                  <div className="label-mono text-ink/50 mt-1">{label}</div>
+                  <div className="label-mono text-ink/50 mt-1">
+                    <span className="md:hidden">{short}</span>
+                    <span className="hidden md:inline">{label}</span>
+                  </div>
                 </div>
               ))}
             </div>
