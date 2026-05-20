@@ -122,7 +122,7 @@ function AchievementsSection({
   const [hoveredId, setHoveredId] = useState<string | null>(null)
 
   return (
-    <section className="bg-paper pt-4 pb-20">
+    <section className="bg-paper py-10 md:py-20">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.02em] text-ink">
           Taškai.
@@ -509,7 +509,7 @@ export default function Account() {
       <Nav />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="bg-paper pt-6 pb-4">
+      <section className="bg-paper py-10 md:py-20">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
             {/* User tile */}
@@ -756,7 +756,7 @@ export default function Account() {
 
       {/* ── Penalty banner ───────────────────────────────────────────── */}
       {subscriber?.penalty_amount != null && (
-        <section className="bg-paper py-2">
+        <section className="bg-paper py-10 md:py-20">
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <div className="brick-card flex flex-col gap-4 border-red-500 bg-red-50 p-5 md:p-7 md:flex-row md:items-center md:justify-between shadow-[6px_6px_0_#ef4444]">
               <div className="flex flex-col gap-1">
@@ -780,7 +780,7 @@ export default function Account() {
       )}
 
       {/* ── Mano produktai ───────────────────────────────────────────── */}
-      <section className="bg-paper pt-4 pb-8">
+      <section className="bg-paper py-10 md:py-20">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.02em] text-ink">
             Mano produktai.
@@ -896,7 +896,7 @@ export default function Account() {
       </section>
 
       {/* ── Mokėjimai ────────────────────────────────────────────────── */}
-      <section className="bg-paper pt-4 pb-8">
+      <section className="bg-paper py-10 md:py-20">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.02em] text-ink">
             Mokėjimai.
@@ -1017,7 +1017,7 @@ export default function Account() {
 
       {/* ── Gift Cards ───────────────────────────────────────────────── */}
       {(giftCardsLoading || giftCards.length > 0) && (
-        <section className="bg-paper pt-4 pb-8">
+        <section className="bg-paper py-10 md:py-20">
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.02em] text-ink">
               Dovanų kortelės.
