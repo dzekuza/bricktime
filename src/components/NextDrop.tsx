@@ -123,7 +123,7 @@ export function NextDrop() {
   ]
 
   return (
-    <section className="py-4 md:py-6">
+    <section className="py-4 md:py-16">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
       <div className="relative overflow-hidden bg-ink rounded-3xl px-8 md:px-12 py-10 shadow-[6px_6px_0_#001B21]">
         <div

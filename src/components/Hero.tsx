@@ -9,6 +9,7 @@ import { getPlanBrickImage } from '@/lib/plan-branding'
 gsap.registerPlugin(useGSAP)
 
 const avatarColors = ['#5DDB9C', '#FFAEE7', '#FB4903', '#4DA2FF']
+const avatarInitials = ['MK', 'TJ', 'AR', 'LP']
 
 interface BrickProps {
   plan: 'nano' | 'mini' | 'standard' | 'pro' | 'mega'
@@ -44,14 +45,16 @@ interface BrickEntry extends BrickProps {
 
 // Scattered around the heading like a loose orbit — different heights on each side
 const bricks: BrickEntry[] = [
-  { plan: 'standard', rotate: -8,  size: 0.9,  left: '3%',  top: '8%'  },
-  { plan: 'nano',     rotate: 6,   size: 0.72, left: '82%', top: '6%'  },
-  { plan: 'mega',     rotate: -4,  size: 0.92, left: '1%',  top: '40%' },
-  { plan: 'standard', rotate: 10,  size: 0.96, left: '85%', top: '35%' },
-  { plan: 'mini',     rotate: -12, size: 0.78, left: '6%',  top: '68%' },
-  { plan: 'pro',      rotate: 5,   size: 0.9,  left: '78%', top: '62%' },
-  { plan: 'nano',     rotate: -6,  size: 0.82, left: '30%', top: '22%' },
-  { plan: 'standard', rotate: 13,  size: 0.72, left: '60%', top: '18%' },
+  // Left side — outer → inner → outer → inner, top to bottom
+  { plan: 'mini',     rotate: -15, size: 0.85, left: '10%', top: '22%' },
+  { plan: 'mega',     rotate:   8, size: 1.0,  left: '19%', top: '37%' },
+  { plan: 'standard', rotate:  -6, size: 0.68, left: '9%',  top: '47%' },
+  { plan: 'nano',     rotate:   4, size: 0.62, left: '18%', top: '58%' },
+  // Right side — outer → inner → outer → inner, top to bottom
+  { plan: 'pro',      rotate:  12, size: 0.78, left: '82%', top: '22%' },
+  { plan: 'nano',     rotate:  -8, size: 0.85, left: '73%', top: '31%' },
+  { plan: 'mini',     rotate:   6, size: 0.90, left: '83%', top: '43%' },
+  { plan: 'standard', rotate:  -4, size: 0.65, left: '73%', top: '53%' },
 ]
 
 // Gentle bob amplitude while floating at scattered positions
@@ -125,7 +128,7 @@ export default function Hero() {
                 className="size-[28px] border-2 border-ink"
                 style={{ marginLeft: i === 0 ? 0 : -8 }}
               >
-                <AvatarFallback style={{ background: color }} />
+                <AvatarFallback style={{ background: color }} className="text-ink font-bold text-xs">{avatarInitials[i]}</AvatarFallback>
               </Avatar>
             ))}
           </div>
@@ -171,7 +174,7 @@ export default function Hero() {
           <Button
             asChild
             size="lg"
-            className="flex-1 md:flex-none rounded-full border-2 border-ink bg-brand-yellow text-ink font-bold text-[16px] hover:bg-brand-yellow hover:text-ink brick-hover-sm"
+            className="flex-1 md:flex-none rounded-full border-2 border-ink bg-brand-yellow text-ink font-bold text-[16px] hover:bg-brand-yellow [a]:hover:bg-brand-yellow hover:text-ink brick-hover-sm"
           >
             <a href="#plans">Prenumeruoti <ArrowRightIcon data-icon="inline-end" /></a>
           </Button>

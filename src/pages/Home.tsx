@@ -22,8 +22,8 @@ export default function Home() {
         <NextDrop />
         <Suspense fallback={null}>
           <HowItWorks />
-          <WhatsInside />
           <Plans />
+          <WhatsInside />
           <Testimonials />
           <FAQ />
         </Suspense>

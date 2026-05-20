@@ -163,7 +163,7 @@ export default function FAQ() {
             </div>
             <a
               href="#plans"
-              className="mt-6 inline-flex items-center justify-center rounded-full border-2 border-paper/40 bg-brand-yellow px-6 py-3 text-center text-[15px] font-bold text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,0,0,.2)]"
+              className="mt-6 inline-flex items-center justify-center rounded-full border-2 border-ink bg-brand-yellow px-6 py-3 text-center text-[15px] font-bold text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,0,0,.2)]"
             >
               Pasirinkti planą →
             </a>

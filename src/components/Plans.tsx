@@ -3,6 +3,16 @@ import gsap from "gsap"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useReveal } from "@/hooks/useReveal"
+
+const BRICK_BY_COLOR: Record<string, string> = {
+  '#ffd731': '/bricks/brick-yellow.svg',
+  '#5ddb9c': '/bricks/brick-green.svg',
+  '#55db9c': '/bricks/brick-green.svg',
+  '#ffaee7': '/bricks/brick-pink.svg',
+  '#fb4903': '/bricks/brick-orange.svg',
+  '#4da2ff': '/bricks/brick-blue.svg',
+  '#5c4ade': '/bricks/brick-purple.svg',
+}
 import { usePlans } from "@/hooks/usePlans"
 
 function onCardEnter(e: React.MouseEvent<HTMLDivElement>) {
@@ -128,21 +138,16 @@ export default function Plans() {
                     onMouseEnter={onCardEnter}
                     onMouseLeave={onCardLeave}
                   >
-                    {plan.featured && (
-                      <Badge
-                        className="absolute -top-4 right-6 rotate-2 rounded border-2 border-ink px-3 py-1 font-mono text-[11px] tracking-[.08em] uppercase bg-ink text-primary-foreground"
-                      >
-                        Populiariausias
-                      </Badge>
-                    )}
-
-                    {plan.brick_image && (
-                      <img
-                        src={plan.brick_image}
-                        alt=""
-                        className="pointer-events-none absolute -top-9 left-5 h-16 w-auto object-contain select-none lg:h-[72px]"
-                      />
-                    )}
+                    {(() => {
+                      const src = plan.brick_image ?? BRICK_BY_COLOR[plan.bg_color.toLowerCase()]
+                      return src ? (
+                        <img
+                          src={src}
+                          alt=""
+                          className="pointer-events-none absolute -top-9 right-6 h-16 w-auto object-contain select-none lg:h-[72px] lg:right-8"
+                        />
+                      ) : null
+                    })()}
 
                     <div>
                       <div
@@ -165,6 +170,11 @@ export default function Plans() {
                           /mėn.
                         </span>
                       </div>
+                      {plan.featured && (
+                        <Badge className="mt-3 inline-flex rotate-2 rounded border-2 border-ink px-3 py-1 font-mono text-[11px] tracking-[.08em] uppercase bg-ink text-primary-foreground">
+                          Populiariausias
+                        </Badge>
+                      )}
                     </div>
 
                     <ul className="mt-5 flex flex-col gap-2.5">

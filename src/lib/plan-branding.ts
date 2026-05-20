@@ -1,7 +1,7 @@
 const PLAN_BRANDING = {
   nano: {
     displayName: "Mėgėjas",
-    brickImage: "/plans/starter.svg",
+    brickImage: "/plans/how-nano.svg",
     theme: {
       bg: "#FB4903",
       textColor: "#F5F1EB",
@@ -23,7 +23,7 @@ const PLAN_BRANDING = {
   },
   standard: {
     displayName: "Meistras",
-    brickImage: "/plans/builder.svg",
+    brickImage: "/plans/how-standard.svg",
     theme: {
       bg: "#55DB9C",
       textColor: "#001B21",
@@ -45,7 +45,7 @@ const PLAN_BRANDING = {
   },
   mega: {
     displayName: "Legenda",
-    brickImage: "/plans/legend.svg",
+    brickImage: "/plans/how-mega.svg",
     theme: {
       bg: "#4DA2FF",
       textColor: "#001B21",
