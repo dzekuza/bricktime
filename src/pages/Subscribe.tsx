@@ -388,7 +388,6 @@ export default function Subscribe() {
           <div ref={heroRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
             <div
               className="reveal relative overflow-hidden rounded-2xl border-2 border-[#1e4048] bg-[#001B21] md:rounded-3xl lg:col-span-12"
-              style={{ background: "#001B21" }}
             >
               <div className="grid min-h-[280px] gap-6 p-6 md:p-9 lg:min-h-[360px] lg:grid-cols-[minmax(0,1.15fr)_420px] lg:items-stretch">
                 <div className="relative z-10 flex flex-col justify-between">
@@ -486,8 +485,8 @@ export default function Subscribe() {
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div
                     key={i}
-                    className="relative flex w-[56vw] shrink-0 snap-center flex-col justify-between rounded-2xl border-2 border-ink/20 p-6 lg:w-auto lg:flex-1"
-                    style={{ background: "#e5e0da", zIndex: i + 1 }}
+                    className="relative flex w-[56vw] shrink-0 snap-center flex-col justify-between rounded-2xl border-2 border-ink/20 bg-ink/10 p-6 lg:w-auto lg:flex-1"
+                    style={{ zIndex: i + 1 }}
                   >
                     <div className="animate-pulse space-y-4">
                       <div className="h-7 w-2/3 rounded bg-ink/10" />
@@ -526,8 +525,7 @@ export default function Subscribe() {
                   >
                     {p.featured && (
                       <Badge
-                        className="absolute -top-3.5 right-5 rotate-1 rounded border-2 border-ink px-2.5 py-0.5 font-mono text-[10px] tracking-[.08em] uppercase"
-                        style={{ background: "#001B21", color: "#F5F1EB" }}
+                        className="absolute -top-3.5 right-5 rotate-1 rounded border-2 border-ink bg-ink px-2.5 py-0.5 font-mono text-[10px] tracking-[.08em] uppercase text-primary-foreground"
                       >
                         Populiarus
                       </Badge>
@@ -617,8 +615,7 @@ export default function Subscribe() {
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
               <div
-                className="brick-card p-6 md:p-10 lg:col-span-7"
-                style={{ background: "#F5F1EB" }}
+                className="brick-card bg-cream p-6 md:p-10 lg:col-span-7"
               >
                 <h3 className="mb-7 text-2xl font-semibold text-ink/50">
                   Mokėjimo duomenys
@@ -895,8 +892,7 @@ export default function Subscribe() {
               </h2>
             </div>
             <div
-              className="reveal brick-card overflow-x-auto lg:col-span-12"
-              style={{ background: "#F5F1EB" }}
+              className="reveal brick-card bg-cream overflow-x-auto lg:col-span-12"
             >
               {plans.length > 0 && (
                 <table className="w-full border-collapse" style={{ minWidth: `${120 + plans.length * 110}px` }}>
@@ -1030,8 +1026,7 @@ export default function Subscribe() {
               </div>
             </div>
             <div
-              className="reveal brick-card p-6 md:p-9 lg:col-span-8"
-              style={{ background: "#F5F1EB" }}
+              className="reveal brick-card bg-cream p-6 md:p-9 lg:col-span-8"
             >
               {faqs.map((faq, i) => (
                 <FAQItem

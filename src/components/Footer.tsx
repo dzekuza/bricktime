@@ -26,7 +26,7 @@ const socials = ['Instagram', 'TikTok', 'Discord']
 
 export default function Footer() {
   return (
-    <footer className="bg-white pt-8 pb-16 text-ink mt-0">
+    <footer className="bg-paper pt-8 pb-16 text-ink">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         {/* Grid */}
         <div className="grid grid-cols-2 gap-12 md:grid-cols-[2fr_1fr_1fr_1fr]">

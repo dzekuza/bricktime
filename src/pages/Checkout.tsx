@@ -208,12 +208,7 @@ export default function Checkout() {
                     className="absolute inset-0 h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="absolute inset-0 opacity-20"
-                    style={{
-                      backgroundImage: "radial-gradient(circle at 16px 16px, rgba(255,255,255,.4) 4px, transparent 5px)",
-                      backgroundSize: "40px 40px",
-                    }}
-                  />
+                  <div className="absolute inset-0 opacity-20 studs-light" />
                 )}
                 {/* Overlay badge */}
                 <div className="absolute top-5 left-5 flex items-center gap-2 rounded-full border-2 border-ink bg-brand-mint px-4 py-2 font-mono text-[13px] font-bold text-ink shadow-[3px_3px_0_#001B21]">

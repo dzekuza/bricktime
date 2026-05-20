@@ -69,8 +69,7 @@ export default function BrickDrop() {
             ⬢ Kaladėlė po kaladėlės
           </h3>
           <h2
-            className="mt-4 heading-display text-d-hero text-paper tracking-[-0.02em]"
-            style={{ lineHeight: '.86' }}
+            className="mt-4 heading-display text-d-hero text-paper tracking-[-0.02em] leading-[.86]"
           >
             Statyk
             <br />

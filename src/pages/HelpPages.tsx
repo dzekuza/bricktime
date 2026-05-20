@@ -64,7 +64,7 @@ function HelpPage({
 
             <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
               {summary.map((item) => (
-                <div key={item.label} className="brick-card bg-white p-5">
+                <div key={item.label} className="brick-card bg-paper p-5">
                   <p className="label-mono text-ink/45">{item.label}</p>
                   <p className="mt-3 text-[18px] font-semibold leading-6 text-ink">{item.value}</p>
                 </div>
@@ -73,11 +73,11 @@ function HelpPage({
           </div>
         </section>
 
-        <section className="py-10 md:py-16">
+        <section className="py-10 md:py-20">
           <div className="mx-auto grid max-w-[1320px] gap-6 px-4 md:px-7 lg:grid-cols-[1.2fr_.8fr]">
             <div className="grid gap-4">
               {sections.map((section, index) => (
-                <article key={section.title} className="brick-card bg-white p-6 md:p-8">
+                <article key={section.title} className="brick-card bg-paper p-6 md:p-8">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="label-mono text-ink/40">0{index + 1}</p>

@@ -166,7 +166,7 @@ export default function MerchPage() {
               <div className="flex flex-1 flex-col justify-center">
                 <h1 className="heading-display text-d-xl max-w-[14ch] tracking-[-0.015em] text-paper">
                   BRICKTIME{' '}
-                  <span className="inline-block text-brand-yellow italic" style={{ transform: 'skew(-8deg)' }}>
+                  <span className="inline-block text-brand-yellow italic skew-x-[-8deg]">
                     merch.
                   </span>
                 </h1>

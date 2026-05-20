@@ -177,8 +177,8 @@ export default function UserProfile() {
               </div>
               <div className="mt-auto pt-6">
                 <span
-                  className="inline-block rounded-full border border-paper/20 px-3 py-1 font-mono text-[11px] font-bold tracking-widest uppercase"
-                  style={{ background: planBg, color: "#001B21" }}
+                  className="inline-block rounded-full border border-paper/20 px-3 py-1 font-mono text-[11px] font-bold tracking-widest uppercase text-ink"
+                  style={{ background: planBg }}
                 >
                   {planName}
                 </span>

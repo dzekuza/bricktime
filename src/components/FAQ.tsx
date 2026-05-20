@@ -113,8 +113,7 @@ export default function FAQ() {
 
           {/* Stats tile — col-span-5 */}
           <div
-            className="reveal grid grid-cols-2 gap-4 rounded-2xl border-2 border-ink p-6 shadow-[6px_6px_0_rgba(245,241,235,.1)] md:rounded-3xl md:p-8 lg:col-span-5"
-            style={{ background: "#001B21" }}
+            className="reveal grid grid-cols-2 gap-4 rounded-2xl border-2 border-ink bg-ink p-6 shadow-[6px_6px_0_rgba(245,241,235,.1)] md:rounded-3xl md:p-8 lg:col-span-5"
           >
             {stats.map((s, i) => (
               <div

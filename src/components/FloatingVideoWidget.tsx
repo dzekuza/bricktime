@@ -37,8 +37,7 @@ export default function FloatingVideoWidget() {
     >
       {/* Speech bubble */}
       <div
-        className="relative mr-5 rounded-xl px-3 py-1.5 text-[12px] font-bold text-paper shadow-[3px_3px_0_#001B21]"
-        style={{ background: '#001B21' }}
+        className="relative mr-5 rounded-xl bg-ink px-3 py-1.5 text-[12px] font-bold text-paper shadow-[3px_3px_0_#001B21]"
       >
         Sveiki! 👋
         <span

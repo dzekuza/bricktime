@@ -177,7 +177,7 @@ export default function MerchDrop() {
 
               {/* Success banner */}
               {paymentSuccess && (
-                <div className="brick-card flex flex-col gap-2 bg-[#5DDB9C] p-5">
+                <div className="brick-card flex flex-col gap-2 bg-brand-mint p-5">
                   <p className="font-display text-[22px] font-bold uppercase text-ink">✓ Užsakymas gautas!</p>
                   <p className="text-[14px] leading-relaxed text-ink/70">
                     Ačiū! Patvirtinimą gausite el. paštu. Produktas bus išsiųstas per 3–5 d. d.

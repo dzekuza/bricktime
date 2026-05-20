@@ -69,8 +69,7 @@ function LikeButton({ liked, count, onToggle }: { liked: boolean; count: number;
   return (
     <button
       onClick={onToggle}
-      className="flex items-center gap-1.5 font-mono text-[13px] transition-all hover:scale-105 active:scale-95"
-      style={{ color: liked ? '#FB4903' : 'rgba(0,27,33,.4)' }}
+      className={`flex items-center gap-1.5 font-mono text-[13px] transition-all hover:scale-105 active:scale-95 ${liked ? 'text-brand-orange' : 'text-ink/40'}`}
     >
       <Heart size={15} fill={liked ? '#FB4903' : 'none'} strokeWidth={2} />
       {count > 0 && <span>{count}</span>}
@@ -145,7 +144,7 @@ function FeedCard({ item, onLike, onComment, isOwn, onDelete }: { item: LiveFeed
         </div>
 
         {item.type === 'comment' && item.body && (
-          <blockquote className="mt-3 border-l-4 pl-3 text-[14px] text-ink/70 italic" style={{ borderColor: '#5DDB9C' }}>
+          <blockquote className="mt-3 border-l-4 border-brand-mint pl-3 text-[14px] text-ink/70 italic">
             {item.body}
           </blockquote>
         )}
@@ -192,8 +191,7 @@ function FeedCard({ item, onLike, onComment, isOwn, onDelete }: { item: LiveFeed
             <LikeButton liked={!!item.likedByCurrentUser} count={item.like_count} onToggle={onLike} />
             <button
               onClick={() => setShowComment((v) => !v)}
-              className="flex items-center gap-1.5 font-mono text-[13px] transition-all hover:scale-105 active:scale-95"
-              style={{ color: showComment ? '#001B21' : 'rgba(0,27,33,.4)' }}
+              className={`flex items-center gap-1.5 font-mono text-[13px] transition-all hover:scale-105 active:scale-95 ${showComment ? 'text-ink' : 'text-ink/40'}`}
             >
               <MessageCircle size={15} strokeWidth={2} />
             </button>
@@ -548,8 +546,8 @@ function LeaderboardPanel() {
           return (
             <div
               key={entry.userId}
-              className={`rounded-2xl border-2 border-ink shadow-[4px_4px_0_#001B21] p-3 flex flex-col items-center text-center ${isCenter ? 'mt-0' : 'mt-5'}`}
-              style={{ background: entry.avatarBg, ...studPattern }}
+              className={`rounded-2xl border-2 border-ink shadow-[4px_4px_0_#001B21] p-3 flex flex-col items-center text-center studs-sm ${isCenter ? 'mt-0' : 'mt-5'}`}
+              style={{ background: entry.avatarBg }}
             >
               <p className="font-display text-d-xs leading-none text-paper/30 mb-2">#{entry.rank}</p>
               <div className="size-9 rounded-full border-2 border-paper/30 overflow-hidden mb-2">
@@ -591,8 +589,7 @@ function LeaderboardPanel() {
         {rest.map((entry) => (
           <div
             key={entry.userId}
-            className="grid grid-cols-[28px_1fr_60px_44px] items-center px-4 py-3 gap-3 border-b border-dashed border-ink/10 last:border-b-0 hover:bg-ink/[.03] transition-colors"
-            style={entry.isCurrentUser ? { background: 'rgba(255,215,49,.12)' } : undefined}
+            className={`grid grid-cols-[28px_1fr_60px_44px] items-center px-4 py-3 gap-3 border-b border-dashed border-ink/10 last:border-b-0 hover:bg-ink/[.03] transition-colors ${entry.isCurrentUser ? 'bg-brand-yellow/12' : ''}`}
           >
             <p className="font-display text-[16px] leading-none text-ink/40">{entry.rank}</p>
             <div className="flex items-center gap-2 min-w-0">
@@ -640,8 +637,8 @@ export default function Community() {
         <div ref={contentRef} className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[40%_60%]">
 
-            <div className="md:sticky md:self-start md:max-h-[calc(100dvh-120px)] md:overflow-y-auto" style={{ top: '120px' }}>
-              <h3 className="text-xl font-bold text-ink mb-6">Lyderiai</h3>
+            <div className="md:sticky md:self-start md:max-h-[calc(100dvh-120px)] md:overflow-y-auto top-[120px]">
+              <h3 className="label-mono text-ink/50 mb-6">Lyderiai</h3>
               <LeaderboardPanel />
             </div>
 

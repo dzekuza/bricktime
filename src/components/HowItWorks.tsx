@@ -8,22 +8,19 @@ const steps = [
     num: '01',
     title: 'Pasirink\nplaną',
     body: 'Pasirink lygį pagal biudžetą. Keisk bet kada — daugiau biudžeto, daugiau pasirinkimų.',
-    bg: '#5DDB9C',
-    bricks: ['nano', 'mini'],
+    brick: 'nano',
   },
   {
     num: '02',
     title: 'Naršyk\nir pasiimk',
     body: 'Peržiūrėk katalogą. Rinkis produktus pagal savo plano biudžetą — vienu metu.',
-    bg: '#FFAEE7',
-    bricks: ['standard', 'pro'],
+    brick: 'standard',
   },
   {
     num: '03',
     title: 'Grąžink,\nkeisk, kartok',
     body: 'Grąžink produktus ir pasiimk naujus iš katalogo — be papildomų mokesčių.',
-    bg: '#FFD731',
-    bricks: ['mega', 'nano'],
+    brick: 'mega',
   },
 ]
 
@@ -74,7 +71,7 @@ export default function HowItWorks() {
 
           {/* Header tile — full width */}
           <div
-            className="reveal flex flex-col justify-center bg-paper p-6 md:p-9 lg:col-span-12"
+            className="reveal flex flex-col justify-center bg-paper py-6 md:py-9 lg:col-span-12"
           >
             <h2
               className="heading-display text-d-lg mt-3 text-ink"
@@ -98,13 +95,13 @@ export default function HowItWorks() {
           {steps.map((step, i) => (
             <div
               key={step.num}
-              className="reveal brick-card brick-card-hover flex flex-col justify-between p-6 md:p-7 min-h-[260px] lg:col-span-4"
-              style={{ background: step.bg, transitionDelay: `${i * 100}ms` }}
+              className="reveal brick-card brick-card-hover bg-paper flex flex-col justify-between p-7 md:p-8 min-h-[320px] lg:col-span-4"
+              style={{ transitionDelay: `${i * 100}ms` }}
               onMouseEnter={onCardEnter}
               onMouseLeave={onCardLeave}
             >
               <div>
-<div
+                <div
                   className="font-display text-ink/10 select-none leading-[.8]"
                   style={{ fontSize: 'clamp(52px, 7vw, 88px)' }}
                 >
@@ -118,9 +115,7 @@ export default function HowItWorks() {
                 <p className="mt-3 text-[14px] leading-[1.6] text-ink/75">{step.body}</p>
               </div>
               <div className="mt-5 flex gap-2">
-                {step.bricks.map((plan, j) => (
-                  <Brick key={`${step.num}-${plan}-${j}`} plan={plan} />
-                ))}
+                <Brick plan={step.brick} />
               </div>
             </div>
           ))}

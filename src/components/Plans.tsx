@@ -77,7 +77,7 @@ export default function Plans() {
       <div className="relative z-10 mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
           {/* Tagline tile — full width */}
-          <div className="reveal flex items-end justify-between p-6 md:p-9 lg:col-span-12">
+          <div className="reveal flex items-end justify-between py-6 md:py-9 lg:col-span-12">
             <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink">
               Planai kiekvienai
               <br />
@@ -95,13 +95,13 @@ export default function Plans() {
           </div>
 
           {/* Plan cards row — full width, overlapping */}
-          <div className="flex flex-col lg:col-span-12 lg:flex-row lg:-space-x-6">
+          <div className="flex flex-col lg:col-span-12 lg:flex-row lg:-space-x-6 mt-8 lg:mt-10">
             {loading
               ? Array.from({ length: 6 }).map((_, i) => (
                   <div
                     key={i}
-                    className="reveal brick-card relative flex min-w-0 flex-1 flex-col justify-between p-6 shadow-[6px_6px_0_rgba(245,241,235,.15)] md:p-8"
-                    style={{ background: "#e5e0da", zIndex: i + 1 }}
+                    className="reveal brick-card bg-ink/10 relative flex min-w-0 flex-1 flex-col justify-between p-6 pt-14 shadow-[6px_6px_0_rgba(245,241,235,.15)] md:p-8 md:pt-16"
+                  style={{ zIndex: i + 1 }}
                   >
                     <div className="animate-pulse space-y-4">
                       <div className="h-6 w-2/3 rounded bg-ink/10" />
@@ -118,7 +118,7 @@ export default function Plans() {
               : plans.map((plan, i) => (
                   <div
                     key={plan.id}
-                    className="reveal brick-card sticky lg:static flex min-w-0 flex-1 flex-col justify-between p-5 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all duration-200 hover:z-10 hover:-translate-y-3 lg:p-6"
+                    className="reveal brick-card sticky lg:relative lg:!top-0 flex min-w-0 flex-1 flex-col justify-between p-5 pt-14 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all duration-200 hover:z-10 hover:-translate-y-3 lg:p-6 lg:pt-16"
                     style={{
                       background: plan.bg_color,
                       transitionDelay: `${i * 80}ms`,
@@ -130,43 +130,41 @@ export default function Plans() {
                   >
                     {plan.featured && (
                       <Badge
-                        className="absolute -top-4 right-6 rotate-2 rounded border-2 border-ink px-3 py-1 font-mono text-[11px] tracking-[.08em] uppercase"
-                        style={{ background: "#001B21", color: "#F5F1EB" }}
+                        className="absolute -top-4 right-6 rotate-2 rounded border-2 border-ink px-3 py-1 font-mono text-[11px] tracking-[.08em] uppercase bg-ink text-primary-foreground"
                       >
                         Populiariausias
                       </Badge>
                     )}
 
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <div
-                          className="heading-display text-base uppercase"
+                    {plan.brick_image && (
+                      <img
+                        src={plan.brick_image}
+                        alt=""
+                        className="pointer-events-none absolute -top-9 left-5 h-16 w-auto object-contain select-none lg:h-[72px]"
+                      />
+                    )}
+
+                    <div>
+                      <div
+                        className="heading-display text-base uppercase"
+                        style={{ color: plan.text_color }}
+                      >
+                        {plan.name}
+                      </div>
+                      <div className="mt-2 flex items-baseline gap-1">
+                        <span
+                          className="plan-price heading-display text-d-xs inline-block"
                           style={{ color: plan.text_color }}
                         >
-                          {plan.name}
-                        </div>
-                        <div className="mt-2 flex items-baseline gap-1">
-                          <span
-                            className="plan-price heading-display text-d-xs inline-block"
-                            style={{ color: plan.text_color }}
-                          >
-                            €{plan.price}
-                          </span>
-                          <span
-                            className="font-mono text-[12px] tracking-[.06em] uppercase"
-                            style={{ color: `${plan.text_color}90` }}
-                          >
-                            /mėn.
-                          </span>
-                        </div>
+                          €{plan.price}
+                        </span>
+                        <span
+                          className="font-mono text-[12px] tracking-[.06em] uppercase"
+                          style={{ color: `${plan.text_color}90` }}
+                        >
+                          /mėn.
+                        </span>
                       </div>
-                      {plan.brick_image && (
-                        <img
-                          src={plan.brick_image}
-                          alt=""
-                          className="pointer-events-none h-16 w-auto shrink-0 object-contain select-none md:h-20"
-                        />
-                      )}
                     </div>
 
                     <ul className="mt-5 flex flex-col gap-2.5">

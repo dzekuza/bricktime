@@ -115,7 +115,7 @@ export default function WhatsInside() {
             {features.map((f, i) => (
               <div
                 key={f.num}
-                className="brick-card brick-card-hover relative flex gap-6 p-6 md:p-8 overflow-hidden bg-white"
+                className="brick-card brick-card-hover relative flex gap-6 p-6 md:p-8 overflow-hidden bg-paper"
                 style={{ transitionDelay: `${i * 60}ms` }}
                 onMouseEnter={onCardEnter}
                 onMouseLeave={onCardLeave}

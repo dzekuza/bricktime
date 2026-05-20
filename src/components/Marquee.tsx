@@ -22,7 +22,7 @@ export default function Marquee() {
             <img
               src={avatars[i % avatars.length]}
               alt=""
-              className="size-10 rounded-full object-cover border-2 border-brand-yellow"
+              className="size-10 rounded-full object-cover border-2 border-ink"
             />
           </span>
         ))}

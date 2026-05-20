@@ -351,8 +351,7 @@ export default function Drop() {
                 {product?.title ?? "Mailbox Row"}
                 <br />+{" "}
                 <span
-                  className="inline-block text-brand-indigo italic"
-                  style={{ transform: "skew(-8deg)" }}
+                  className="inline-block text-brand-indigo italic skew-x-[-8deg]"
                 >
                   {product?.subtitle ?? "Postman Otto"}
                 </span>
@@ -719,8 +718,8 @@ export default function Drop() {
               {product.compatibility.map((c) => (
                 <div
                   key={c.drop}
-                  className="brick-card brick-card-hover flex flex-col gap-3.5 p-6 md:p-7 lg:col-span-4"
-                  style={{ background: c.bg, color: "#001B21" }}
+                  className="brick-card brick-card-hover flex flex-col gap-3.5 p-6 md:p-7 text-ink lg:col-span-4"
+                  style={{ background: c.bg }}
                 >
                   <h3 className="label-mono text-ink/50">{c.drop}</h3>
                   <h4 className="font-display text-[28px] leading-[.95] uppercase">

@@ -85,8 +85,7 @@ export default function BigCTA() {
 
           {/* CTA actions — col-span-5 */}
           <div
-            className="reveal flex min-h-[340px] flex-col justify-between rounded-2xl border-2 border-ink p-6 md:p-10 shadow-[6px_6px_0_rgba(245,241,235,.08)] md:rounded-3xl lg:col-span-5"
-            style={{ background: "#001B21" }}
+            className="reveal flex min-h-[340px] flex-col justify-between rounded-2xl border-2 border-ink bg-ink p-6 md:p-10 shadow-[6px_6px_0_rgba(245,241,235,.08)] md:rounded-3xl lg:col-span-5"
           >
             <div>
               <p className="mb-4 font-mono text-[10px] tracking-[.22em] text-paper/50 uppercase">

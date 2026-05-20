@@ -130,7 +130,7 @@ export default function GiftCards() {
             <div className="flex flex-1 flex-col justify-center">
               <h1 className="heading-display text-d-xl max-w-[18ch] tracking-[-0.015em] text-paper">
                 DOVANK{' '}
-                <span className="inline-block text-brand-yellow italic [transform:skew(-8deg)]">
+                <span className="inline-block text-brand-yellow italic skew-x-[-8deg]">
                   LEGO džiaugsmą.
                 </span>
               </h1>
