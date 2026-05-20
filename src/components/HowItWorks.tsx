@@ -107,7 +107,7 @@ export default function HowItWorks() {
                 >
                   {step.num}
                 </div>
-                <h3 className="heading-display text-d-sm mt-1 text-ink">
+                <h3 className="heading-display text-d-sm mt-4 md:mt-1 text-ink">
                   {step.title.split('\n').map((l, j) => (
                     <span key={j}>{l}<br /></span>
                   ))}

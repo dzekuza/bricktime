@@ -118,7 +118,7 @@ export default function GiftCards() {
       {/* Hero */}
       <section className="bg-paper py-4 md:py-6">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div className="brick-card flex min-h-[320px] flex-col justify-between bg-ink p-6 md:p-9">
+          <div className="brick-card flex md:min-h-[320px] flex-col justify-between bg-ink p-6 md:p-9">
             <div className="label-mono mb-6 flex items-center gap-2.5">
               <Link to="/" className="text-paper/50 transition-colors hover:text-paper">
                 BRICKTIME

@@ -81,7 +81,7 @@ function MerchCard({ item }: { item: MerchItem }) {
       {/* Info */}
       <div className="flex flex-1 flex-col gap-3 p-5 md:p-6">
         <div className="flex items-start justify-between gap-3">
-          <h3 className="font-display text-[20px] font-bold uppercase leading-tight text-ink">
+          <h3 className="heading-display text-d-xs text-ink">
             {item.name}
           </h3>
           <span className="shrink-0 font-mono text-[18px] font-bold text-ink">€{item.price}</span>

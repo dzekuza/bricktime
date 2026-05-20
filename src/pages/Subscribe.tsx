@@ -617,7 +617,7 @@ export default function Subscribe() {
               <div
                 className="brick-card bg-cream p-6 md:p-10 lg:col-span-7"
               >
-                <h3 className="mb-7 text-2xl font-semibold text-ink/50">
+                <h3 className="label-mono mb-7 text-ink/50">
                   Mokėjimo duomenys
                 </h3>
                 <div className="flex flex-col gap-5">

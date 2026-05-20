@@ -604,7 +604,7 @@ export default function Account() {
 
             {/* Subscription tile */}
             <div
-              className="brick-card flex min-h-[340px] flex-col p-6 md:p-9 lg:col-span-5"
+              className="brick-card flex md:min-h-[340px] flex-col p-6 md:p-9 lg:col-span-5"
               style={{ background: activeTier.bg }}
             >
               <div>
@@ -663,7 +663,7 @@ export default function Account() {
             {/* Upgrade plan picker */}
             {showUpgrade && (
               <div className="brick-card bg-paper p-3 md:p-8 lg:col-span-12">
-                <h3 className="mb-5 text-[24px] font-semibold text-ink">
+                <h3 className="label-mono mb-5 text-ink">
                   Keisti planą
                 </h3>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">

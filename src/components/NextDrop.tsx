@@ -123,7 +123,7 @@ export function NextDrop() {
   ]
 
   return (
-    <section className="py-4 md:py-6">
+    <section className="pt-16 pb-4 md:pb-6">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         <div className="brick-card flex flex-col gap-6 bg-paper px-6 py-8 md:flex-row md:items-center md:justify-between md:px-12 md:py-10">
 
@@ -150,11 +150,11 @@ export function NextDrop() {
                 </span>
               </div>
 
-              <div className="flex gap-3 md:gap-4">
+              <div className="flex flex-1 gap-3 md:gap-4">
                 {countdownBoxes.map(({ val, label, short }) => (
                   <div
                     key={label}
-                    className="flex flex-col items-center gap-1 rounded-3xl border-2 border-ink/20 bg-paper px-3 py-4 md:px-4 min-w-[64px] md:min-w-[80px] text-center"
+                    className="flex flex-1 flex-col items-center gap-1 rounded-3xl border-2 border-ink/20 bg-paper px-3 py-4 md:px-4 text-center"
                   >
                     <span className="heading-display text-[32px] md:text-[40px] leading-none text-ink">{pad(val)}</span>
                     <span className="label-mono text-ink/50">

@@ -125,7 +125,7 @@ export default function WhatsInside() {
                 </div>
                 <div className="pt-1 max-w-[80%]">
                   <h3
-                    className="heading-display text-d-xs tracking-[-0.01em] leading-[.92] text-ink"
+                    className="heading-display text-d-xs text-ink"
                   >
                     {f.title}
                   </h3>

@@ -149,13 +149,12 @@ export default function Plans() {
                       ) : null
                     })()}
 
-                    <div>
-                      <div
-                        className="heading-display text-base uppercase"
+                    <h3
+                        className="heading-display text-[28px] md:text-base uppercase"
                         style={{ color: plan.text_color }}
                       >
                         {plan.name}
-                      </div>
+                      </h3>
                       <div className="mt-2 flex items-baseline gap-1">
                         <span
                           className="plan-price heading-display text-d-xs inline-block"
@@ -175,7 +174,6 @@ export default function Plans() {
                           Populiariausias
                         </Badge>
                       )}
-                    </div>
 
                     <ul className="mt-5 flex flex-col gap-2.5">
                       {plan.perks.map((perk) => (

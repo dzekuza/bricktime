@@ -118,11 +118,11 @@ export default function FAQ() {
             {stats.map((s, i) => (
               <div
                 key={i}
-                className="flex min-h-[100px] flex-col justify-between rounded-xl border border-paper/15 p-3 md:rounded-2xl md:p-5"
+                className="flex md:min-h-[100px] flex-col justify-between rounded-xl border border-paper/15 p-3 md:rounded-2xl md:p-5"
               >
-                <div className="text-d-xs font-display leading-[.9] text-paper">
+                <p className="text-[28px] md:text-d-xs font-display leading-[.9] text-paper">
                   {s.value}
-                </div>
+                </p>
                 <div className="mt-2 font-mono text-[10px] tracking-[.16em] text-paper/50 uppercase">
                   {s.label}
                 </div>

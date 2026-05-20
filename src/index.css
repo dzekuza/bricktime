@@ -224,6 +224,9 @@ html, body, #root {
 .marquee-track {
   animation: marquee-scroll 30s linear infinite;
 }
+.reviews-track {
+  animation: marquee-scroll 12s linear infinite;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .reveal {
@@ -231,7 +234,8 @@ html, body, #root {
     opacity: 1;
     transform: none;
   }
-  .marquee-track {
+  .marquee-track,
+  .reviews-track {
     animation: none;
   }
 }

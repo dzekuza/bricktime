@@ -9,6 +9,35 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { StarIcon } from "lucide-react"
 import { getPlanDisplayName } from "@/lib/plan-branding"
+import { ProductCard, dbToProduct, type Product } from "@/components/ProductCard"
+
+type Review = { stars: number; quote: string; name: string; meta: string; avatarColor: string; initials: string }
+
+function ReviewCard({ review: r }: { review: Review }) {
+  return (
+    <Card className="brick-card brick-card-hover flex w-[80vw] shrink-0 flex-col gap-3.5 bg-paper p-4 sm:w-[60vw] md:p-6 lg:w-auto">
+      <CardContent className="flex h-full flex-col gap-3.5 p-0">
+        <div className="flex gap-0.5" style={{ color: "#FB4903" }}>
+          {Array.from({ length: r.stars }).map((_, j) => (
+            <StarIcon key={j} className="size-4 fill-current" />
+          ))}
+        </div>
+        <p className="font-display text-[20px] leading-[1.05] tracking-[.005em] uppercase">{r.quote}</p>
+        <div className="mt-auto flex items-center gap-2.5 border-t border-dashed border-ink/18 pt-3">
+          <Avatar className="size-9 border-2 border-ink">
+            <AvatarFallback style={{ background: r.avatarColor }} className="text-[12px] font-bold text-ink">
+              {r.initials}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <b className="text-[14px]">{r.name}</b>
+            <small className="mt-0.5 block font-mono text-[10px] tracking-[.14em] text-ink/55 uppercase">{r.meta}</small>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
 
 const reviews = [
   {
@@ -170,6 +199,7 @@ export default function Drop() {
   const { id } = useParams<{ id: string }>()
   const [product, setProduct] = useState<DbProduct | null>(null)
   const [activeThumb, setActiveThumb] = useState(0)
+  const [related, setRelated] = useState<Product[]>([])
 
   useEffect(() => {
     if (!id) return
@@ -182,6 +212,18 @@ export default function Drop() {
       .single()
       .then(({ data }) => {
         if (data) setProduct(data as unknown as DbProduct)
+      })
+  }, [id])
+
+  useEffect(() => {
+    if (!id) return
+    supabase
+      .from("products")
+      .select("*")
+      .neq("id", Number(id))
+      .limit(8)
+      .then(({ data }) => {
+        if (data) setRelated(data.map(dbToProduct))
       })
   }, [id])
 
@@ -275,13 +317,13 @@ export default function Drop() {
                 </div>
 
                 {/* Thumbnails */}
-                <div className="grid grid-cols-4 gap-3">
+                <div className="flex gap-3 overflow-x-auto pb-1 md:grid md:grid-cols-4 md:overflow-visible md:pb-0 scrollbar-none">
                   {thumbs.map((t, i) => (
                     <button
                       key={i}
                       onClick={() => setActiveThumb(i)}
                       className={[
-                        "relative h-[90px] overflow-hidden rounded-lg border-2 border-ink transition-all",
+                        "relative h-[90px] w-[90px] shrink-0 md:w-auto overflow-hidden rounded-lg border-2 border-ink transition-all",
                         activeThumb === i
                           ? "outline outline-[3px] outline-offset-2 outline-brand-yellow"
                           : "hover:opacity-80",
@@ -310,12 +352,6 @@ export default function Drop() {
               style={{ boxShadow: "6px 6px 0 rgba(0,0,0,.06)" }}
             >
               <div className="flex flex-wrap items-center gap-3">
-                <span
-                  className="rounded-[8px] bg-ink px-3.5 py-2 font-display text-2xl leading-none text-paper"
-                  style={{ letterSpacing: ".04em" }}
-                >
-                  № {product?.id}
-                </span>
                 {product?.release_date && (
                   <Badge className="rounded-full border-2 border-ink bg-brand-mint px-3 py-1 font-semibold text-ink">
                     <span className="mr-1.5 inline-block size-2 rounded-full bg-ink" />
@@ -348,20 +384,18 @@ export default function Drop() {
               </p>
 
               {/* Spec grid */}
-              <div className="mt-8 grid grid-cols-4 gap-x-3 gap-y-4 border-t border-ink/10 pt-5">
+              <div className="mt-8 grid grid-cols-3 gap-x-3 gap-y-4 border-t border-ink/10 pt-5">
                 {[
                   { label: "Detalės",   val: String(product?.bricks ?? "—") },
                   { label: "Metai",     val: product?.year ? String(product.year) : "—" },
                   { label: "Amžius",    val: product?.rating ?? "—" },
-                  { label: "Miniukai",  val: product?.minifigs ?? "—" },
                   { label: "Kaina",     val: product?.value != null ? `€${product.value}` : "—" },
                   { label: "Kategorija", val: product?.category ?? "—" },
                   { label: "Planas",    val: getPlanDisplayName(product?.tier ?? "standard") + "+" },
-                  { label: "Numeris",   val: product?.id ? `No. ${product.id}` : "—" },
                 ].map(({ label, val }) => (
                   <div key={label} className="flex flex-col gap-1">
-                    <span className="label-mono text-[9px] text-ink/40">{label}</span>
-                    <span className="font-mono text-[12px] font-bold text-ink capitalize">{val}</span>
+                    <span className="label-mono text-[12px] text-ink/40">{label}</span>
+                    <span className="font-mono text-[14px] font-bold text-ink capitalize">{val}</span>
                   </div>
                 ))}
               </div>
@@ -373,7 +407,7 @@ export default function Drop() {
                 style={{ background: "#FB4903" }}
               >
                 {/* Required plan */}
-                <div className="mt-4 flex items-center gap-3">
+                <div className="md:mt-4 flex items-center gap-3">
                   <div
                     className="rounded-full border-2 border-ink px-4 py-2 font-display text-[18px] leading-none"
                     style={{
@@ -716,16 +750,6 @@ export default function Drop() {
       <section className="bg-paper py-4">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-            {/* Row 1: Header tile */}
-            <div className="brick-card flex flex-col justify-center bg-ink p-6 md:p-8 lg:col-span-5">
-              <h3 className="label-mono text-paper/50">⬢ Early access</h3>
-              <h2 className="heading-display text-d-lg mt-3 leading-[.9] tracking-[-0.01em] text-paper">
-                From the
-                <br />
-                preview build.
-              </h2>
-            </div>
-
             {/* Row 1: Rating tile */}
             <div
               className="brick-card flex flex-col justify-center p-6 md:p-8 lg:col-span-7"
@@ -745,45 +769,18 @@ export default function Drop() {
             {/* Row 2+: review cards — carousel on mobile, 2-col grid on desktop */}
             {/* bleed wrapper — escapes the grid cell horizontally on mobile */}
             <div className="lg:col-span-12">
-              <div
-                className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 md:px-7 lg:grid lg:snap-none lg:grid-cols-2 lg:overflow-visible lg:px-0 lg:pb-0"
-                style={{ scrollbarWidth: "none" }}
-              >
+              {/* Mobile: auto-scrolling marquee */}
+              <div className="overflow-hidden lg:hidden">
+                <div className="reviews-track flex gap-4 pb-2">
+                  {[...reviews, ...reviews].map((r, i) => (
+                    <ReviewCard key={i} review={r} />
+                  ))}
+                </div>
+              </div>
+              {/* Desktop: 2-col grid */}
+              <div className="hidden lg:grid lg:grid-cols-2 lg:gap-4">
                 {reviews.map((r, i) => (
-                  <Card
-                    key={i}
-                    className="brick-card brick-card-hover flex w-[80vw] flex-none snap-start flex-col gap-3.5 bg-paper p-4 sm:w-[60vw] md:p-6 lg:w-auto"
-                  >
-                    <CardContent className="flex h-full flex-col gap-3.5 p-0">
-                      <div
-                        className="flex gap-0.5"
-                        style={{ color: "#FB4903" }}
-                      >
-                        {Array.from({ length: r.stars }).map((_, j) => (
-                          <StarIcon key={j} className="size-4 fill-current" />
-                        ))}
-                      </div>
-                      <p className="font-display text-[20px] leading-[1.05] tracking-[.005em] uppercase">
-                        {r.quote}
-                      </p>
-                      <div className="mt-auto flex items-center gap-2.5 border-t border-dashed border-ink/18 pt-3">
-                        <Avatar className="size-9 border-2 border-ink">
-                          <AvatarFallback
-                            style={{ background: r.avatarColor }}
-                            className="text-[12px] font-bold text-ink"
-                          >
-                            {r.initials}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <b className="text-[14px]">{r.name}</b>
-                          <small className="mt-0.5 block font-mono text-[10px] tracking-[.14em] text-ink/55 uppercase">
-                            {r.meta}
-                          </small>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <ReviewCard key={i} review={r} />
                 ))}
               </div>
             </div>
@@ -813,33 +810,20 @@ export default function Drop() {
             </div>
           )}
 
-          {/* Prev / Next */}
-          <div className="mt-4 overflow-hidden rounded-2xl border-2 border-ink md:rounded-3xl">
-            <div className="grid grid-cols-2">
-              <Link
-                to="/drop/25"
-                className="flex flex-col gap-1.5 bg-paper p-6 transition-colors hover:bg-brand-yellow md:p-8"
-              >
-                <small className="font-mono text-[11px] tracking-[.16em] text-ink/55 uppercase">
-                  ← Previous · April 2026
-                </small>
-                <b className="font-display text-[32px] leading-[.95] uppercase">
-                  № 25 — Greenhouse
-                </b>
-              </Link>
-              <Link
-                to="/drop/27"
-                className="flex flex-col items-end gap-1.5 border-l-2 border-ink bg-paper p-6 text-right transition-colors hover:bg-brand-yellow md:p-8"
-              >
-                <small className="font-mono text-[11px] tracking-[.16em] text-ink/55 uppercase">
-                  Next · June 2026 →
-                </small>
-                <b className="font-display text-[32px] leading-[.95] uppercase">
-                  № 27 — TBA
-                </b>
-              </Link>
+          {/* You might also like */}
+          {related.length > 0 && (
+            <div className="mt-10">
+              <p className="label-mono text-ink/50 mb-4">Gali patikti</p>
+              <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none">
+                {related.map((p) => (
+                  <div key={p.id} className="w-[300px] shrink-0">
+                    <ProductCard product={p} />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+
         </div>
       </section>
 
