@@ -6,7 +6,7 @@ import { ArrowRightIcon, ChevronDownIcon, CheckIcon, XIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { supabase } from "@/lib/supabase"
-import { getPlanDisplayName } from "@/lib/plan-branding"
+import { getPlanDisplayName, getPlanTheme } from "@/lib/plan-branding"
 import { SERIES } from "@/lib/series"
 import { NextDrop } from "@/components/NextDrop"
 
@@ -43,17 +43,19 @@ interface Product {
 }
 
 // ── tier config ────────────────────────────────────────────────────────────
-const tierConfig: Record<
-  Tier,
-  { label: string; bg: string; textColor: string; level: number }
-> = {
-  nano:      { label: getPlanDisplayName("nano"),     bg: "#F5F1EB", textColor: "#001B21", level: 1 },
-  mini:      { label: getPlanDisplayName("mini"),     bg: "#FFAEE7", textColor: "#001B21", level: 2 },
-  standard:  { label: getPlanDisplayName("standard"), bg: "#FFD731", textColor: "#001B21", level: 3 },
-  pro:       { label: getPlanDisplayName("pro"),      bg: "#4DA2FF", textColor: "#001B21", level: 4 },
-  mega:      { label: getPlanDisplayName("mega"),     bg: "#FB4903", textColor: "#F5F1EB", level: 5 },
-  mystery_s: { label: "Mystery Box S",               bg: "#1C1C2E", textColor: "#F5F1EB", level: 0 },
-  mystery_m: { label: "Mystery Box M",               bg: "#1C1C2E", textColor: "#F5F1EB", level: 0 },
+function planTier(plan: string, level: number) {
+  const theme = getPlanTheme(plan)
+  return { label: getPlanDisplayName(plan), bg: theme?.bg ?? "#1C1C2E", textColor: theme?.textColor ?? "#F5F1EB", level }
+}
+
+const tierConfig: Record<Tier, { label: string; bg: string; textColor: string; level: number }> = {
+  nano:      planTier("nano",     1),
+  mini:      planTier("mini",     2),
+  standard:  planTier("standard", 3),
+  pro:       planTier("pro",      4),
+  mega:      planTier("mega",     5),
+  mystery_s: { label: "Mystery Box S", bg: "#FFD731", textColor: "#001B21", level: 0 },
+  mystery_m: { label: "Mystery Box M", bg: "#FFAEE7", textColor: "#001B21", level: 0 },
 }
 
 // ── filter constants ────────────────────────────────────────────────────────
@@ -267,17 +269,11 @@ function StudBg({
       }
     >
       {image && (
-        <>
-          <img
-            src={image}
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-          <div
-            className="absolute inset-0"
-            style={{ background: `${color}55` }}
-          />
-        </>
+        <img
+          src={image}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
       )}
       {children}
     </div>
@@ -424,7 +420,6 @@ export default function Archive() {
   return (
     <>
       <Nav />
-      <NextDrop />
 
       {/* ── Hero ── */}
       <section className="bg-paper py-4 md:py-6">
@@ -446,7 +441,7 @@ export default function Archive() {
                 <div className="flex flex-1 flex-col justify-center">
                   <h1 className="heading-display text-d-xl max-w-[14ch] tracking-[-0.015em] text-paper">
                     Visi{" "}
-                    <span className="inline-block text-brand-orange italic skew-x-[-8deg]">
+                    <span className="inline-block text-brand-yellow italic skew-x-[-8deg]">
                       rinkiniai,
                     </span>
                     <br />
@@ -461,7 +456,7 @@ export default function Archive() {
                 </div>
               </div>
 
-              <div className="brick-card brick-card-hover flex min-h-[420px] flex-col justify-around bg-brand-orange p-6 md:p-9 lg:col-span-4">
+              <div className="brick-card-hover flex min-h-[420px] flex-col justify-around rounded-2xl md:rounded-3xl border-2 border-white/20 shadow-[6px_6px_0_#001B21] bg-white/10 p-6 md:p-9 lg:col-span-4">
                 {[
                   ["26", "Rinkinių katalogas"],
                   ["7 840", "Detalių iš viso"],
@@ -469,12 +464,12 @@ export default function Archive() {
                 ].map(([val, label]) => (
                   <div
                     key={label}
-                    className="flex flex-col gap-2 border-b border-paper/20 pb-8 last:border-b-0 last:pb-0"
+                    className="flex flex-col gap-2 border-b border-white/20 pb-8 last:border-b-0 last:pb-0"
                   >
-                    <b className="heading-display text-d-lg text-primary-foreground">
+                    <b className="heading-display text-d-lg text-paper">
                       {val}
                     </b>
-                    <small className="label-mono text-paper/70">{label}</small>
+                    <small className="label-mono text-white/70">{label}</small>
                   </div>
                 ))}
               </div>
@@ -482,6 +477,8 @@ export default function Archive() {
           </div>
         </div>
       </section>
+
+      <NextDrop />
 
       {/* ── Grid ── */}
       <section className="bg-paper pt-4 pb-16">

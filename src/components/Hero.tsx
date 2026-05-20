@@ -46,15 +46,15 @@ interface BrickEntry extends BrickProps {
 // Scattered around the heading like a loose orbit — different heights on each side
 const bricks: BrickEntry[] = [
   // Left side — outer → inner → outer → inner, top to bottom
-  { plan: 'mini',     rotate: -15, size: 0.85, left: '10%', top: '22%' },
-  { plan: 'mega',     rotate:   8, size: 1.0,  left: '19%', top: '37%' },
-  { plan: 'standard', rotate:  -6, size: 0.68, left: '9%',  top: '47%', mobileHide: true },
-  { plan: 'nano',     rotate:   4, size: 0.62, left: '18%', top: '58%', mobileHide: true },
+  { plan: 'mini',     rotate: -15, size: 0.85, left: '6%',  top: '8%'  },
+  { plan: 'mega',     rotate:   8, size: 1.0,  left: '18%', top: '30%' },
+  { plan: 'standard', rotate:  -6, size: 0.68, left: '9%',  top: '48%', mobileHide: true },
+  { plan: 'nano',     rotate:   4, size: 0.62, left: '17%', top: '58%', mobileHide: true },
   // Right side — outer → inner → outer → inner, top to bottom
-  { plan: 'pro',      rotate:  12, size: 0.78, left: '82%', top: '22%' },
-  { plan: 'nano',     rotate:  -8, size: 0.85, left: '73%', top: '31%' },
-  { plan: 'mini',     rotate:   6, size: 0.90, left: '83%', top: '43%', mobileHide: true },
-  { plan: 'standard', rotate:  -4, size: 0.65, left: '73%', top: '53%', mobileHide: true },
+  { plan: 'pro',      rotate:  12, size: 0.78, left: '85%', top: '8%'  },
+  { plan: 'nano',     rotate:  -8, size: 0.85, left: '74%', top: '23%' },
+  { plan: 'mini',     rotate:   6, size: 0.90, left: '83%', top: '40%', mobileHide: true },
+  { plan: 'standard', rotate:  -4, size: 0.65, left: '73%', top: '52%', mobileHide: true },
 ]
 
 // Gentle bob amplitude while floating at scattered positions
@@ -116,9 +116,10 @@ export default function Hero() {
   )
 
   return (
-    <section className="relative bg-paper overflow-hidden min-h-[88vh]">
-      {/* Text content */}
-      <div className="relative z-10 mx-auto max-w-[1320px] px-4 md:px-7 pt-10 md:pt-14 pb-16 text-center">
+    <section className="relative bg-paper overflow-hidden">
+      {/* Text + bricks — bricks are absolute within this wrapper, not the full section */}
+      <div className="relative">
+      <div className="relative z-10 mx-auto max-w-[1320px] px-4 md:px-7 pt-10 md:pt-14 pb-10 text-center">
         {/* Social proof */}
         <div className="mb-8 flex items-center justify-center gap-3">
           <div className="flex">
@@ -188,8 +189,21 @@ export default function Hero() {
           </Button>
         </div>
 
-        {/* Hero video / fallback image */}
-        <div className="mt-8 md:mt-10 w-full overflow-hidden rounded-[28px] md:rounded-3xl border-2 border-ink shadow-[6px_6px_0_#001B21] aspect-[4/3] md:aspect-[16/7]">
+      </div>
+
+      {/* Bricks scoped to text area — top percentages relative to text height, not full section */}
+      <div ref={bricksRef} className="absolute inset-0 pointer-events-none">
+        {bricks.map(({ left, top, mobileHide, ...b }, i) => (
+          <div key={i} className={`absolute${mobileHide ? ' hidden lg:block' : ''}`} style={{ left, top }}>
+            <Brick {...b} />
+          </div>
+        ))}
+      </div>
+      </div>
+
+      {/* Video below bricks scope */}
+      <div className="mx-auto max-w-[1320px] px-4 md:px-7 pb-16">
+        <div className="w-full overflow-hidden rounded-[28px] md:rounded-3xl border-2 border-ink shadow-[6px_6px_0_#001B21] aspect-[4/3] md:aspect-[16/7]">
           <video
             className="h-full w-full object-cover"
             autoPlay
@@ -200,15 +214,6 @@ export default function Hero() {
             <source src="/hero-video.mp4" type="video/mp4" />
           </video>
         </div>
-      </div>
-
-      {/* Bricks pinned to section bottom — float up from there, drop back with bounce */}
-      <div ref={bricksRef} className="absolute inset-0 pointer-events-none">
-        {bricks.map(({ left, top, mobileHide, ...b }, i) => (
-          <div key={i} className={`absolute${mobileHide ? ' hidden lg:block' : ''}`} style={{ left, top }}>
-            <Brick {...b} />
-          </div>
-        ))}
       </div>
     </section>
   )

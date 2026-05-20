@@ -234,22 +234,7 @@ export default function Drop() {
       {/* ── Product Hero ── */}
       <section className="bg-paper py-4">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          {/* Breadcrumb */}
-          <div className="mb-8 flex items-center gap-2.5 font-mono text-[11px] tracking-[.18em] text-ink/55 uppercase">
-            <Link to="/" className="transition-colors hover:text-ink">
-              BRICKTIME
-            </Link>
-            <span className="text-ink/30">/</span>
-            <Link to="/archive" className="transition-colors hover:text-ink">
-              Products
-            </Link>
-            <span className="text-ink/30">/</span>
-            <span className="font-bold text-ink">
-              Product №{product?.id} — {product?.title}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2">
+<div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2">
             {/* Gallery tile */}
             <div className="brick-card p-4">
               <div className="flex flex-col gap-4">
@@ -363,28 +348,20 @@ export default function Drop() {
               </p>
 
               {/* Spec grid */}
-              <div className="mt-8 grid grid-cols-3 gap-2">
+              <div className="mt-8 grid grid-cols-4 gap-x-3 gap-y-4 border-t border-ink/10 pt-5">
                 {[
-                  { val: String(product?.bricks ?? "—"), label: "Kaladėlių", bg: "#FFD731", text: "#001B21" },
-                  { val: product?.minifigs ?? "—", label: "Miniukai", bg: "#FFAEE7", text: "#001B21" },
-                  { val: product?.build_time ?? "—", label: "Laikas", bg: "#5DDB9C", text: "#001B21" },
-                  { val: product?.year ? String(product.year) : "—", label: "Metai", bg: "#F5F1EB", text: "#001B21" },
-                  { val: product?.rating ?? "—", label: "Amžius", bg: "#F5F1EB", text: "#001B21" },
-                  { val: product?.value != null ? `€${product.value}` : "—", label: "Kaina", bg: "#4DA2FF", text: "#001B21" },
-                  { val: product?.category ?? "—", label: "Kategorija", bg: "#F5F1EB", text: "#001B21" },
-                  { val: getPlanDisplayName(product?.tier ?? "standard") + "+", label: "Planas", bg: "#001B21", text: "#F5F1EB" },
-                ].map(({ val, label, bg, text }) => (
-                  <div
-                    key={label}
-                    className="brick-card flex flex-col gap-0.5 px-4 py-3"
-                    style={{ background: bg, color: text }}
-                  >
-                    <span className="font-display text-[22px] leading-none font-black">
-                      {val}
-                    </span>
-                    <span className="font-mono text-[10px] tracking-[.18em] uppercase opacity-60">
-                      {label}
-                    </span>
+                  { label: "Detalės",   val: String(product?.bricks ?? "—") },
+                  { label: "Metai",     val: product?.year ? String(product.year) : "—" },
+                  { label: "Amžius",    val: product?.rating ?? "—" },
+                  { label: "Miniukai",  val: product?.minifigs ?? "—" },
+                  { label: "Kaina",     val: product?.value != null ? `€${product.value}` : "—" },
+                  { label: "Kategorija", val: product?.category ?? "—" },
+                  { label: "Planas",    val: getPlanDisplayName(product?.tier ?? "standard") + "+" },
+                  { label: "Numeris",   val: product?.id ? `No. ${product.id}` : "—" },
+                ].map(({ label, val }) => (
+                  <div key={label} className="flex flex-col gap-1">
+                    <span className="label-mono text-[9px] text-ink/40">{label}</span>
+                    <span className="font-mono text-[12px] font-bold text-ink capitalize">{val}</span>
                   </div>
                 ))}
               </div>

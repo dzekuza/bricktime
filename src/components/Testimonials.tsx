@@ -101,7 +101,7 @@ export default function Testimonials() {
                 onMouseEnter={onCardEnter}
                 onMouseLeave={onCardLeave}
               >
-                <div className="stars flex gap-0.5 text-ink">
+                <div className="stars flex gap-0.5 text-brand-orange">
                   {Array.from({ length: 5 }).map((_, j) => (
                     <StarIcon key={j} className="size-5 fill-current" />
                   ))}
