@@ -3,6 +3,7 @@ import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ArrowRightIcon, StarIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { getPlanBrickImage } from '@/lib/plan-branding'
 
 gsap.registerPlugin(useGSAP)
@@ -39,31 +40,27 @@ function Brick({ plan, rotate = 0, size = 1 }: BrickProps) {
 interface BrickEntry extends BrickProps {
   left: string
   top: string
-  landOn: 'video' | 'floor'
 }
 
 // Scattered around the heading like a loose orbit — different heights on each side
-// landOn: 'video' drops onto the video surface, 'floor' falls to section bottom
 const bricks: BrickEntry[] = [
-  { plan: 'standard', rotate: -8,  size: 0.9,  left: '3%',  top: '8%',  landOn: 'floor' },
-  { plan: 'nano',     rotate: 6,   size: 0.72, left: '82%', top: '6%',  landOn: 'video' },
-  { plan: 'mega',     rotate: -4,  size: 0.92, left: '1%',  top: '40%', landOn: 'floor' },
-  { plan: 'standard', rotate: 10,  size: 0.96, left: '85%', top: '35%', landOn: 'floor' },
-  { plan: 'mini',     rotate: -12, size: 0.78, left: '6%',  top: '68%', landOn: 'floor' },
-  { plan: 'pro',      rotate: 5,   size: 0.9,  left: '78%', top: '62%', landOn: 'video' },
-  { plan: 'nano',     rotate: -6,  size: 0.82, left: '30%', top: '22%', landOn: 'video' },
-  { plan: 'standard', rotate: 13,  size: 0.72, left: '60%', top: '18%', landOn: 'video' },
+  { plan: 'standard', rotate: -8,  size: 0.9,  left: '3%',  top: '8%'  },
+  { plan: 'nano',     rotate: 6,   size: 0.72, left: '82%', top: '6%'  },
+  { plan: 'mega',     rotate: -4,  size: 0.92, left: '1%',  top: '40%' },
+  { plan: 'standard', rotate: 10,  size: 0.96, left: '85%', top: '35%' },
+  { plan: 'mini',     rotate: -12, size: 0.78, left: '6%',  top: '68%' },
+  { plan: 'pro',      rotate: 5,   size: 0.9,  left: '78%', top: '62%' },
+  { plan: 'nano',     rotate: -6,  size: 0.82, left: '30%', top: '22%' },
+  { plan: 'standard', rotate: 13,  size: 0.72, left: '60%', top: '18%' },
 ]
 
 // Gentle bob amplitude while floating at scattered positions
 const FLOAT_AMP = 12
 // Seconds before the drop
-const DROP_DELAY = 5
 
 export default function Hero() {
   const bricksRef = useRef<HTMLDivElement>(null)
   const spanRef = useRef<HTMLSpanElement>(null)
-  const videoWrapRef = useRef<HTMLDivElement>(null)
 
   function onSpanEnter() {
     gsap.killTweensOf(spanRef.current)
@@ -75,7 +72,7 @@ export default function Hero() {
   }
 
   useGSAP(
-    (_, contextSafe) => {
+    () => {
       const container = bricksRef.current
       if (!container) return
       const items = Array.from(container.querySelectorAll(':scope > div')) as HTMLElement[]
@@ -108,34 +105,8 @@ export default function Hero() {
         })
       )
 
-      // After DROP_DELAY seconds: drop bricks — some onto video surface, rest to floor
-      const dropCall = gsap.delayedCall(
-        DROP_DELAY,
-        contextSafe!(() => {
-          bobTweens.forEach((t) => t.kill())
-          const containerH = container.offsetHeight
-          const containerTop = container.getBoundingClientRect().top
-          const videoTop = videoWrapRef.current
-            ? videoWrapRef.current.getBoundingClientRect().top - containerTop
-            : containerH
-
-          items.forEach((item, i) => {
-            const floorY = containerH - item.offsetTop - item.offsetHeight
-            const videoY = videoTop - item.offsetTop - item.offsetHeight
-            const targetY = bricks[i].landOn === 'video' ? videoY : floorY
-            gsap.to(item, {
-              y: targetY,
-              duration: 0.9 + (i % 4) * 0.08,
-              ease: 'bounce.out',
-              delay: i * 0.06,
-            })
-          })
-        })
-      )
-
       return () => {
         bobTweens.forEach((t) => t.kill())
-        dropCall.kill()
       }
     },
     { scope: bricksRef }
@@ -149,11 +120,13 @@ export default function Hero() {
         <div className="mb-8 flex items-center justify-center gap-3">
           <div className="flex">
             {avatarColors.map((color, i) => (
-              <span
+              <Avatar
                 key={i}
-                className="size-[28px] rounded-full border-2 border-ink/20"
-                style={{ background: color, marginLeft: i === 0 ? 0 : -8 }}
-              />
+                className="size-[28px] border-2 border-ink"
+                style={{ marginLeft: i === 0 ? 0 : -8 }}
+              >
+                <AvatarFallback style={{ background: color }} />
+              </Avatar>
             ))}
           </div>
           <div className="text-[13px] text-ink/60">
@@ -206,14 +179,14 @@ export default function Hero() {
             asChild
             variant="outline"
             size="lg"
-            className="flex-1 md:flex-none rounded-full border-2 border-ink bg-white text-ink text-[16px] font-bold hover:bg-white hover:text-ink brick-hover-sm"
+            className="flex-1 md:flex-none rounded-full border-2 border-ink bg-paper text-ink text-[16px] font-bold hover:bg-paper hover:text-ink brick-hover-sm"
           >
             <a href="/archive"><span className="md:hidden">Produktai</span><span className="hidden md:inline">Žiūrėti ankstesnius produktus</span></a>
           </Button>
         </div>
 
         {/* Hero video / fallback image */}
-        <div ref={videoWrapRef} className="mt-8 md:mt-10 w-full overflow-hidden rounded-[28px] md:rounded-3xl border-2 border-ink shadow-[6px_6px_0_#001B21] aspect-[4/3] md:aspect-[16/7]">
+        <div className="mt-8 md:mt-10 w-full overflow-hidden rounded-[28px] md:rounded-3xl border-2 border-ink shadow-[6px_6px_0_#001B21] aspect-[4/3] md:aspect-[16/7]">
           <video
             className="h-full w-full object-cover"
             autoPlay

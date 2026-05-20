@@ -94,7 +94,7 @@ export default function Testimonials() {
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
 
         {/* Heading */}
-        <div className="flex items-end justify-between p-6 md:p-9">
+        <div className="flex items-end justify-between py-6 md:py-9">
           <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink">
             <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] shadow-[5px_5px_0_rgba(0,27,33,.12)]">
               12 400
@@ -106,13 +106,13 @@ export default function Testimonials() {
         </div>
 
         {/* Carousel viewport */}
-        <div ref={viewportRef} className="overflow-hidden px-6 md:px-9 pb-2">
+        <div ref={viewportRef} className="overflow-x-hidden px-2 py-3">
           <div ref={trackRef} className="flex gap-4">
             {testimonials.map((t, i) => (
               <div key={i} className="min-w-full md:min-w-[calc(50%-8px)]">
                 <div
                   className="brick-card brick-card-hover flex min-h-[300px] flex-col justify-between p-6 md:p-10"
-                  style={{ background: t.bg }}
+                  style={{ background: "#ffffff" }}
                   onMouseEnter={onCardEnter}
                   onMouseLeave={onCardLeave}
                 >
@@ -155,13 +155,6 @@ export default function Testimonials() {
           >
             <ChevronLeftIcon className="size-5" />
           </button>
-          <button
-            onClick={() => goTo(current + 1)}
-            className="brick-card brick-hover-sm flex size-10 items-center justify-center bg-paper"
-            aria-label="Next"
-          >
-            <ChevronRightIcon className="size-5" />
-          </button>
           <div className="flex gap-2">
             {testimonials.map((_, i) => (
               <button
@@ -173,6 +166,13 @@ export default function Testimonials() {
               />
             ))}
           </div>
+          <button
+            onClick={() => goTo(current + 1)}
+            className="brick-card brick-hover-sm flex size-10 items-center justify-center bg-paper"
+            aria-label="Next"
+          >
+            <ChevronRightIcon className="size-5" />
+          </button>
         </div>
 
       </div>

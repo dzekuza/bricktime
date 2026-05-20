@@ -218,8 +218,7 @@ function MockModel({
 }) {
   return (
     <div
-      className="relative z-10 flex items-end gap-1.5 px-5 pb-0"
-      style={{ height: 180 }}
+      className="relative z-10 flex items-end gap-1.5 px-5 pb-0 h-[180px]"
     >
       {colors.map((color, i) => (
         <div
@@ -336,8 +335,7 @@ function ProductCard({
       <div className="flex flex-1 flex-col gap-3 p-4 md:p-5">
         <div>
           <h3
-            className="heading-display text-d-xs text-ink"
-            style={{ lineHeight: ".95" }}
+            className="heading-display text-d-xs text-ink leading-[.95]"
           >
             {product.title}
           </h3>
@@ -448,10 +446,7 @@ export default function Archive() {
                 <div className="flex flex-1 flex-col justify-center">
                   <h1 className="heading-display text-d-xl max-w-[14ch] tracking-[-0.015em] text-paper">
                     Visi{" "}
-                    <span
-                      className="inline-block text-brand-orange italic"
-                      style={{ transform: "skew(-8deg)" }}
-                    >
+                    <span className="inline-block text-brand-orange italic skew-x-[-8deg]">
                       rinkiniai,
                     </span>
                     <br />
@@ -476,10 +471,7 @@ export default function Archive() {
                     key={label}
                     className="flex flex-col gap-2 border-b border-paper/20 pb-8 last:border-b-0 last:pb-0"
                   >
-                    <b
-                      className="heading-display text-d-lg"
-                      style={{ color: "#F5F1EB" }}
-                    >
+                    <b className="heading-display text-d-lg text-primary-foreground">
                       {val}
                     </b>
                     <small className="label-mono text-paper/70">{label}</small>

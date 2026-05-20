@@ -224,8 +224,9 @@ export default function Nav() {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 pt-3 px-3 bg-transparent">
-        <div className={['mx-auto flex h-[84px] max-w-[1320px] items-center justify-between px-7 md:grid md:grid-cols-3 border-2 border-ink rounded-2xl transition-all duration-300 bg-paper', scrolled ? 'shadow-[6px_6px_0_#001B21]' : 'shadow-none'].join(' ')}>
+      <nav className="sticky top-0 z-50 py-4 md:py-6 bg-transparent">
+        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+        <div className={['flex h-[84px] items-center justify-between px-7 md:grid md:grid-cols-[1fr_auto_1fr] border-2 border-ink rounded-2xl transition-all duration-300 bg-paper', scrolled ? 'shadow-[6px_6px_0_#001B21]' : 'shadow-none'].join(' ')}>
 
           {/* Left — desktop nav links */}
           <div className="hidden items-center gap-7 md:flex">
@@ -277,6 +278,7 @@ export default function Nav() {
               {open ? <XIcon className="size-5 text-ink" /> : <MenuIcon className="size-5 text-ink" />}
             </button>
           </div>
+        </div>
         </div>
       </nav>
 
