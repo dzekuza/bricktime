@@ -68,7 +68,7 @@ export default function Testimonials() {
       ease: "none",
     })
 
-    return () => tweenRef.current?.kill()
+    return () => { tweenRef.current?.kill() }
   }, [])
 
   return (
