@@ -1,0 +1,191 @@
+<style>
+  body { font-family: 'Segoe UI', sans-serif; background: #f5f5f5; }
+  .section { margin-bottom: 40px; }
+  .section-title { font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: #888; margin-bottom: 12px; font-weight: 600; }
+
+  .admin-shell { display: flex; border: 2px solid #001B21; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 4px 4px 0 #001B21; }
+  .admin-sidebar { width: 180px; background: #001B21; color: #f5f1eb; padding: 16px 12px; flex-shrink: 0; }
+  .admin-sidebar .logo { font-weight: 800; font-size: 14px; letter-spacing: .06em; margin-bottom: 24px; color: #FFD731; }
+  .admin-sidebar .nav-item { font-size: 12px; padding: 7px 10px; border-radius: 6px; margin-bottom: 2px; color: #f5f1eb88; cursor: default; }
+  .admin-sidebar .nav-item.active { background: #ffffff18; color: #f5f1eb; font-weight: 600; }
+  .admin-sidebar .nav-item.highlight { color: #FFD731; }
+  .admin-main { flex: 1; padding: 24px; }
+  .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .admin-header h2 { font-size: 20px; font-weight: 700; color: #001B21; }
+  .btn-primary { background: #FB4903; color: #fff; border: 2px solid #001B21; border-radius: 999px; padding: 7px 16px; font-size: 13px; font-weight: 700; cursor: default; box-shadow: 2px 2px 0 #001B21; }
+  .coupon-table { width: 100%; border-collapse: collapse; }
+  .coupon-table th { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: #888; text-align: left; padding: 8px 10px; border-bottom: 2px solid #001B21; }
+  .coupon-table td { font-size: 13px; padding: 10px 10px; border-bottom: 1px solid #e5e5e5; color: #001B21; }
+  .coupon-table tr:last-child td { border-bottom: none; }
+  .code-pill { font-family: monospace; background: #001B21; color: #FFD731; padding: 3px 8px; border-radius: 5px; font-size: 12px; letter-spacing: .06em; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; border: 1.5px solid; }
+  .badge-active { background: #e6faf0; color: #1a7a46; border-color: #1a7a46; }
+  .badge-expired { background: #fff0ee; color: #c0392b; border-color: #c0392b; }
+  .badge-pct { background: #f0f4ff; color: #3355cc; border-color: #3355cc; }
+  .badge-fixed { background: #fffbe6; color: #8a6300; border-color: #8a6300; }
+  .icon-btn { color: #888; font-size: 13px; cursor: default; margin: 0 3px; }
+
+  .form-shell { border: 2px solid #001B21; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 4px 4px 0 #001B21; max-width: 460px; }
+  .form-header { background: #001B21; color: #FFD731; padding: 14px 20px; font-weight: 700; font-size: 15px; }
+  .form-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .form-row { display: flex; gap: 12px; }
+  .form-field { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+  .form-field label { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: #888; font-weight: 600; }
+  .mock-input { border: 2px solid #001B21; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #001B21; background: #fff; }
+  .mock-select { border: 2px solid #001B21; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #001B21; background: #fff; }
+  .form-footer { display: flex; gap: 10px; padding: 0 20px 20px; }
+  .btn-ghost { border: 2px solid #001B21; border-radius: 999px; padding: 7px 16px; font-size: 13px; font-weight: 600; background: #fff; color: #001B21; cursor: default; }
+
+  .checkout-card { border: 2px solid #001B21; border-radius: 16px; background: #F5F1EB; padding: 24px; max-width: 420px; box-shadow: 4px 4px 0 #001B21; }
+  .checkout-card h3 { font-size: 18px; font-weight: 800; color: #001B21; margin-bottom: 4px; }
+  .price-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #001B2122; font-size: 14px; color: #001B21; }
+  .price-row.total { border-bottom: none; border-top: 2px solid #001B21; margin-top: 4px; font-weight: 700; font-size: 16px; }
+  .price-row .discount { color: #1a7a46; font-weight: 600; }
+  .coupon-input-row { display: flex; gap: 8px; margin: 14px 0; }
+  .coupon-input-row input { flex: 1; border: 2px solid #001B21; border-radius: 8px; padding: 8px 12px; font-family: monospace; font-size: 13px; background: #fff; color: #001B21; }
+  .btn-apply { background: #001B21; color: #FFD731; border: 2px solid #001B21; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: default; }
+  .coupon-success { display: flex; align-items: center; gap: 6px; background: #e6faf0; border: 1.5px solid #1a7a46; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #1a7a46; font-weight: 600; margin-bottom: 8px; }
+  .coupon-success .remove { color: #888; font-size: 11px; font-weight: 400; margin-left: auto; cursor: default; }
+  .confirm-btn { width: 100%; background: #FB4903; color: #F5F1EB; border: 2px solid #001B21; border-radius: 999px; padding: 12px; font-size: 15px; font-weight: 700; cursor: default; box-shadow: 3px 3px 0 #001B21; margin-top: 12px; text-align: center; }
+  .plan-chip { display: inline-block; background: #FFD731; color: #001B21; border: 2px solid #001B21; border-radius: 999px; font-size: 11px; font-weight: 700; padding: 2px 10px; letter-spacing: .06em; margin-bottom: 12px; }
+
+  .two-col { display: flex; gap: 32px; flex-wrap: wrap; }
+  .col { flex: 1; min-width: 280px; }
+</style>
+
+<h2>Coupon Codes — Feature Design</h2>
+<p class="subtitle">Admin management + checkout experience</p>
+
+<div class="section">
+  <div class="section-title">1 — Admin: Coupons page (new nav item)</div>
+  <div class="admin-shell">
+    <div class="admin-sidebar">
+      <div class="logo">BRICKTIME</div>
+      <div class="nav-item">Dashboard</div>
+      <div class="nav-item">Products</div>
+      <div class="nav-item">Subscribers</div>
+      <div class="nav-item">Orders</div>
+      <div class="nav-item">Plans</div>
+      <div class="nav-item active highlight">Coupons ✦</div>
+      <div class="nav-item">Settings</div>
+    </div>
+    <div class="admin-main">
+      <div class="admin-header">
+        <h2>Coupons</h2>
+        <button class="btn-primary">+ New Coupon</button>
+      </div>
+      <table class="coupon-table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Type</th>
+            <th>Discount</th>
+            <th>Duration</th>
+            <th>Uses</th>
+            <th>Expires</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="code-pill">WELCOME20</span></td>
+            <td><span class="badge badge-pct">%</span></td>
+            <td>20%</td>
+            <td>1 month</td>
+            <td>47 / 100</td>
+            <td>2026-06-01</td>
+            <td><span class="badge badge-active">Active</span></td>
+            <td><span class="icon-btn">✏️</span><span class="icon-btn">🗑️</span></td>
+          </tr>
+          <tr>
+            <td><span class="code-pill">SAVE5</span></td>
+            <td><span class="badge badge-fixed">€</span></td>
+            <td>€5.00</td>
+            <td>3 months</td>
+            <td>12 / ∞</td>
+            <td>—</td>
+            <td><span class="badge badge-active">Active</span></td>
+            <td><span class="icon-btn">✏️</span><span class="icon-btn">🗑️</span></td>
+          </tr>
+          <tr>
+            <td><span class="code-pill">SUMMER50</span></td>
+            <td><span class="badge badge-pct">%</span></td>
+            <td>50%</td>
+            <td>Forever</td>
+            <td>200 / 200</td>
+            <td>2025-09-01</td>
+            <td><span class="badge badge-expired">Expired</span></td>
+            <td><span class="icon-btn">✏️</span><span class="icon-btn">🗑️</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="two-col">
+    <div class="col">
+      <div class="section-title">2 — Admin: Create / Edit coupon form</div>
+      <div class="form-shell">
+        <div class="form-header">New Coupon</div>
+        <div class="form-body">
+          <div class="form-field">
+            <label>Code</label>
+            <input class="mock-input" value="WELCOME20" readonly />
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label>Type</label>
+              <select class="mock-select"><option>Percentage (%)</option><option>Fixed (€)</option></select>
+            </div>
+            <div class="form-field">
+              <label>Value</label>
+              <input class="mock-input" value="20" readonly />
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Duration (months, blank = forever)</label>
+            <input class="mock-input" value="1" readonly />
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label>Max uses (blank = unlimited)</label>
+              <input class="mock-input" value="100" readonly />
+            </div>
+            <div class="form-field">
+              <label>Expires</label>
+              <input class="mock-input" value="2026-06-01" readonly />
+            </div>
+          </div>
+        </div>
+        <div class="form-footer">
+          <button class="btn-primary">Save</button>
+          <button class="btn-ghost">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="section-title">3 — Subscribe page: coupon field + applied state</div>
+      <div class="checkout-card">
+        <div class="plan-chip">STANDARD</div>
+        <h3>Prenumeratos suvestinė</h3>
+        <div style="margin-top:16px">
+          <div class="price-row"><span>Plano kaina</span><span>€24 / mėn</span></div>
+          <div class="price-row"><span>Nuolaida (WELCOME20)</span><span class="discount">−€4.80</span></div>
+          <div class="price-row total"><span>Iš viso</span><span>€19.20 / 1 mėn</span></div>
+        </div>
+        <div style="margin-top:14px">
+          <div class="coupon-success">✓ WELCOME20 pritaikytas — 20% pirmo mėnesio nuolaida <span class="remove">✕ Pašalinti</span></div>
+        </div>
+        <div class="coupon-input-row">
+          <input placeholder="Nuolaidų kodas" value="WELCOME20" readonly />
+          <button class="btn-apply">Pritaikyti</button>
+        </div>
+        <button class="confirm-btn">Prenumeruoti →</button>
+      </div>
+    </div>
+  </div>
+</div>

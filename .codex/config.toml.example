@@ -1,0 +1,7 @@
+[shell_environment_policy]
+inherit = "core"
+
+[shell_environment_policy.set]
+# Copy to config.toml (gitignored) and replace with your token from:
+# https://supabase.com/dashboard/account/tokens
+SUPABASE_ACCESS_TOKEN = "your-token-here"

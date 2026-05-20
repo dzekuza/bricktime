@@ -16,6 +16,9 @@ out/
 .env.*.local
 *.local
 
+# Codex local config (may contain API tokens)
+.codex/config.toml
+
 # Logs
 logs
 *.log
