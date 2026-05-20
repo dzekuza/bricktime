@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { supabase } from "@/lib/supabase"
 import { SERIES } from "@/lib/series"
-import { ProductCard, dbToProduct, type Product, type Tier, tierConfig } from "@/components/ProductCard"
+import { ProductCard, dbToProduct, type Product } from "@/components/ProductCard"
 import { NextDrop } from "@/components/NextDrop"
 
 // ── types ──────────────────────────────────────────────────────────────────
@@ -284,7 +284,6 @@ export default function Archive() {
                   <ProductCard
                     key={product.id}
                     product={product}
-                    featured={product.featured}
                   />
                 ))}
           </div>
