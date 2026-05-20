@@ -26,12 +26,11 @@ function Brick({ plan, rotate = 0, size = 1 }: BrickProps) {
     <img
       src={image}
       alt=""
-      className="brick-el select-none object-contain"
+      className="brick-el select-none object-contain w-[60px] lg:w-[110px]"
       style={{
         transform: `rotate(${rotate}deg) scale(${size})`,
         display: 'block',
         flexShrink: 0,
-        width: 110,
         height: 'auto',
       }}
     />
@@ -41,6 +40,7 @@ function Brick({ plan, rotate = 0, size = 1 }: BrickProps) {
 interface BrickEntry extends BrickProps {
   left: string
   top: string
+  mobileHide?: boolean
 }
 
 // Scattered around the heading like a loose orbit — different heights on each side
@@ -48,13 +48,13 @@ const bricks: BrickEntry[] = [
   // Left side — outer → inner → outer → inner, top to bottom
   { plan: 'mini',     rotate: -15, size: 0.85, left: '10%', top: '22%' },
   { plan: 'mega',     rotate:   8, size: 1.0,  left: '19%', top: '37%' },
-  { plan: 'standard', rotate:  -6, size: 0.68, left: '9%',  top: '47%' },
-  { plan: 'nano',     rotate:   4, size: 0.62, left: '18%', top: '58%' },
+  { plan: 'standard', rotate:  -6, size: 0.68, left: '9%',  top: '47%', mobileHide: true },
+  { plan: 'nano',     rotate:   4, size: 0.62, left: '18%', top: '58%', mobileHide: true },
   // Right side — outer → inner → outer → inner, top to bottom
   { plan: 'pro',      rotate:  12, size: 0.78, left: '82%', top: '22%' },
   { plan: 'nano',     rotate:  -8, size: 0.85, left: '73%', top: '31%' },
-  { plan: 'mini',     rotate:   6, size: 0.90, left: '83%', top: '43%' },
-  { plan: 'standard', rotate:  -4, size: 0.65, left: '73%', top: '53%' },
+  { plan: 'mini',     rotate:   6, size: 0.90, left: '83%', top: '43%', mobileHide: true },
+  { plan: 'standard', rotate:  -4, size: 0.65, left: '73%', top: '53%', mobileHide: true },
 ]
 
 // Gentle bob amplitude while floating at scattered positions
@@ -204,8 +204,8 @@ export default function Hero() {
 
       {/* Bricks pinned to section bottom — float up from there, drop back with bounce */}
       <div ref={bricksRef} className="absolute inset-0 pointer-events-none">
-        {bricks.map(({ left, top, ...b }, i) => (
-          <div key={i} className="absolute" style={{ left, top }}>
+        {bricks.map(({ left, top, mobileHide, ...b }, i) => (
+          <div key={i} className={`absolute${mobileHide ? ' hidden lg:block' : ''}`} style={{ left, top }}>
             <Brick {...b} />
           </div>
         ))}
