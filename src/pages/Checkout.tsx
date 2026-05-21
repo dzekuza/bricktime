@@ -339,7 +339,7 @@ export default function Checkout() {
       <Nav />
 
       <section className="py-8 pb-32 md:py-14 md:pb-14">
-        <div className="mx-auto max-w-[1100px] px-4 md:px-7">
+        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
 
           {/* Back + breadcrumb */}
           <Link
