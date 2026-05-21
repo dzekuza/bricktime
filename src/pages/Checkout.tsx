@@ -772,7 +772,7 @@ export default function Checkout() {
                     </button>
                     {!user && (
                       <p className="mt-2 text-center text-[13px] text-ink/40">
-                        <Link to="/account" className="underline hover:text-ink">Prisijunk</Link> prieš perkant
+                        <button onClick={() => setShowModal(true)} className="underline hover:text-ink">Prisijunk</button> prieš perkant
                       </p>
                     )}
                   </div>
