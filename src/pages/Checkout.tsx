@@ -12,6 +12,7 @@ import {
 import { useState, useEffect, useMemo } from "react"
 import { supabase } from "@/lib/supabase"
 import { getPlanDisplayName } from "@/lib/plan-branding"
+import { usePlans } from "@/hooks/usePlans"
 
 const HOME_DELIVERY_PLANS = ['pro', 'mega', 'mystery_s', 'mystery_m']
 const HOME_DELIVERY_FEE = 3
@@ -102,6 +103,10 @@ export default function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount_type: "percentage" | "fixed"; discount_value: number } | null>(null)
   const [couponError, setCouponError] = useState<string | null>(null)
   const [couponLoading, setCouponLoading] = useState(false)
+  const [billing, setBilling] = useState<"monthly" | "annual">("monthly")
+  const [purchasing, setPurchasing] = useState(false)
+  const [purchaseError, setPurchaseError] = useState("")
+  const { plans } = usePlans()
 
   useEffect(() => {
     if (!productId) { setLoading(false); return }
@@ -174,6 +179,58 @@ export default function Checkout() {
     setAppliedCoupon({ code: data.code, discount_type: data.discount_type, discount_value: Number(data.discount_value) })
     setCouponInput("")
   }
+
+  const requiredPlan = useMemo(
+    () => plans.find((p) => p.id === requiredTier.key) ?? null,
+    [plans, requiredTier.key]
+  )
+
+  const basePrice = billing === "annual"
+    ? (requiredPlan?.annual_price ?? requiredPlan?.price ?? requiredTier.price)
+    : (requiredPlan?.price ?? requiredTier.price)
+
+  const discountedPrice = useMemo(() => {
+    if (!appliedCoupon) return basePrice
+    if (appliedCoupon.discount_type === "percentage")
+      return Math.max(0, basePrice * (1 - appliedCoupon.discount_value / 100))
+    return Math.max(0, basePrice - appliedCoupon.discount_value)
+  }, [appliedCoupon, basePrice])
+
+  async function handleSubscribe() {
+    if (!user) { setPurchaseError("Prisijunk prie paskyros prieš perkant."); return }
+    setPurchasing(true)
+    setPurchaseError("")
+    const origin = window.location.origin
+    const hasDiscount = appliedCoupon != null && discountedPrice < basePrice
+    const { data, error } = await supabase.functions.invoke("create-checkout", {
+      body: {
+        planKey: requiredTier.key,
+        userId: user.id,
+        userEmail: user.email ?? "",
+        successUrl: `${origin}/checkout?product=${productId}&success=true&plan=${requiredTier.key}`,
+        cancelUrl: `${origin}/checkout?product=${productId}`,
+        ...(hasDiscount && { discountedAmount: discountedPrice }),
+        ...(appliedGiftCard && { giftCardCode: appliedGiftCard.code }),
+      },
+    })
+    setPurchasing(false)
+    if (error || !data?.url) { setPurchaseError(error?.message ?? "Checkout nepavyko. Bandyk dar kartą."); return }
+    window.location.assign(data.url)
+  }
+
+  // Handle Stripe success redirect back to checkout
+  useEffect(() => {
+    if (params.get("success") !== "true") return
+    const planKey = params.get("plan")
+    if (!planKey || !user) return
+    supabase.from("subscribers").upsert(
+      { id: user.id, email: user.email ?? "", name: user.email?.split("@")[0] ?? "Subscriber", plan: planKey, status: "active" },
+      { onConflict: "id" }
+    ).then(() => {
+      // refresh subscription state so isEligible recalculates
+      setUserSub(tierByName[planKey] ?? null)
+    })
+  }, [user, params]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleConfirm() {
     if (!user || !product) return
@@ -567,28 +624,60 @@ export default function Checkout() {
                 </>
               ) : (
                 <>
-                  {/* Not eligible — upgrade needed */}
+                  {/* Plan header */}
                   <div className="border-b-2 border-ink/10 pb-5">
-                    <p className="label-mono text-ink/40">Reikalingas planas</p>
-                    <div className="mt-3 flex items-end gap-4">
-                      <span className="heading-display text-d-lg text-ink">{requiredTier.name}+</span>
+                    <p className="label-mono text-ink/40">
+                      {userSub ? "Plano paaukštinimas" : "Prenumerata"}
+                    </p>
+                    <div className="mt-2 flex items-center gap-3">
+                      <span className="heading-display text-d-md text-ink">{requiredTier.name}+</span>
                       <div
-                        className="mb-1 rounded-full border-2 border-ink px-3 py-1 font-mono text-[11px] font-bold"
+                        className="rounded-full border-2 border-ink px-3 py-1 font-mono text-[11px] font-bold"
                         style={{ background: requiredTier.bg, color: requiredTier.textColor }}
                       >
-                        nuo €{requiredTier.price}/mėn
+                        reikalingas
                       </div>
                     </div>
                     <p className="mt-1 text-[13px] text-ink/50">
                       {userSub
                         ? `Tavo dabartinis ${userSub.name} planas neapima šio produkto.`
-                        : "Prenumeruok ir gaukite šį produktą su pirma siunta."}
+                        : "Prenumeruok ir gauk šį produktą su pirma siunta."}
                     </p>
                   </div>
 
+                  {/* Billing toggle */}
+                  <div className="mt-5 flex items-center gap-2 self-start rounded-full border-2 border-ink/15 bg-ink/[.03] p-1">
+                    {(["monthly", "annual"] as const).map((v) => (
+                      <button
+                        key={v}
+                        onClick={() => setBilling(v)}
+                        className={[
+                          "rounded-full px-4 py-1.5 font-mono text-[12px] font-bold transition-all",
+                          billing === v ? "bg-ink text-paper" : "text-ink/50 hover:text-ink",
+                        ].join(" ")}
+                      >
+                        {v === "monthly" ? "Mėnesinis" : "Metinis −20%"}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Price display */}
+                  <div className="mt-4 flex items-end gap-3">
+                    <span className="heading-display text-d-lg text-ink">
+                      €{discountedPrice < basePrice ? discountedPrice.toFixed(2) : basePrice}
+                    </span>
+                    <div className="mb-1 flex flex-col">
+                      {discountedPrice < basePrice && (
+                        <span className="font-mono text-[12px] text-ink/40 line-through">€{basePrice}</span>
+                      )}
+                      <span className="font-mono text-[13px] text-ink/50">
+                        /{billing === "monthly" ? "mėn" : "mėn · mokama metiškai"}
+                      </span>
+                    </div>
+                  </div>
+
                   {/* Coupon + Gift card */}
-                  <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {/* Coupon code */}
+                  <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div>
                       <p className="label-mono mb-2 text-ink/40">Nuolaidos kodas</p>
                       {appliedCoupon ? (
@@ -617,11 +706,7 @@ export default function Checkout() {
                               placeholder="KODAS"
                               className="flex-1 rounded-2xl border-2 border-ink/20 bg-ink/[.02] px-4 py-3 font-mono text-[13px] uppercase tracking-widest outline-none transition-colors focus:border-ink"
                             />
-                            <button
-                              onClick={applyCoupon}
-                              disabled={couponLoading || !couponInput.trim()}
-                              className="rounded-2xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[12px] font-bold text-paper disabled:opacity-40"
-                            >
+                            <button onClick={applyCoupon} disabled={couponLoading || !couponInput.trim()} className="rounded-2xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[12px] font-bold text-paper disabled:opacity-40">
                               {couponLoading ? "…" : "Taikyti"}
                             </button>
                           </div>
@@ -630,7 +715,6 @@ export default function Checkout() {
                       )}
                     </div>
 
-                    {/* Gift card */}
                     <div>
                       <p className="label-mono mb-2 text-ink/40">Dovanų kortelė</p>
                       {appliedGiftCard ? (
@@ -638,8 +722,7 @@ export default function Checkout() {
                           <div>
                             <p className="label-mono text-[9px] text-ink/50">Pritaikyta</p>
                             <p className="font-mono text-[13px] font-bold text-ink">
-                              {appliedGiftCard.code} —{" "}
-                              <span className="text-brand-orange">€{(appliedGiftCard.amountCents / 100).toFixed(2)}</span>
+                              {appliedGiftCard.code} — <span className="text-brand-orange">€{(appliedGiftCard.amountCents / 100).toFixed(2)}</span>
                             </p>
                           </div>
                           <button onClick={() => setAppliedGiftCard(null)} className="font-mono text-[16px] text-ink/30 hover:text-ink">✕</button>
@@ -655,11 +738,7 @@ export default function Checkout() {
                               placeholder="XXXX-XXXX"
                               className="flex-1 rounded-2xl border-2 border-ink/20 bg-ink/[.02] px-4 py-3 font-mono text-[13px] uppercase tracking-widest outline-none transition-colors focus:border-ink"
                             />
-                            <button
-                              onClick={applyGiftCard}
-                              disabled={giftCardLoading || !giftCardInput.trim()}
-                              className="rounded-2xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[12px] font-bold text-paper disabled:opacity-40"
-                            >
+                            <button onClick={applyGiftCard} disabled={giftCardLoading || !giftCardInput.trim()} className="rounded-2xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[12px] font-bold text-paper disabled:opacity-40">
                               {giftCardLoading ? "…" : "Taikyti"}
                             </button>
                           </div>
@@ -669,34 +748,33 @@ export default function Checkout() {
                     </div>
                   </div>
 
-                  {/* What you get */}
-                  <div className="mt-6 rounded-2xl border-2 border-ink/10 bg-ink/[.02] p-5">
-                    <p className="label-mono mb-3 text-ink/40">Su {requiredTier.name}+ planu gausi</p>
-                    <div className="flex flex-col gap-2.5">
-                      {[
-                        `€${requiredTier.price === 35 ? "350" : requiredTier.price === 55 ? "600" : requiredTier.price * 10} mėnesinis biudžetas`,
-                        "Šio produkto nuoma įskaičiuota",
-                        "Nemokamas pristatymas",
-                        "Grąžink bet kada",
-                      ].map((item) => (
-                        <div key={item} className="flex items-center gap-2.5">
-                          <span className="size-1.5 shrink-0 rounded-full bg-brand-mint" />
-                          <span className="text-[13px] text-ink/70">{item}</span>
-                        </div>
-                      ))}
-                    </div>
+                  {/* Perks */}
+                  <div className="mt-5 flex flex-wrap gap-x-4 gap-y-1.5">
+                    {["Šio produkto nuoma įskaičiuota", "Nemokamas pristatymas", "Atšauk bet kada"].map((item) => (
+                      <span key={item} className="label-mono flex items-center gap-1.5 text-ink/40">
+                        <span className="size-1.5 rounded-full bg-brand-mint" />{item}
+                      </span>
+                    ))}
                   </div>
 
+                  {/* CTA */}
                   <div className="mt-auto pt-6">
-                    <Link
-                      to={`/subscribe?plan=${requiredTier.name.toLowerCase()}${appliedGiftCard ? `&code=${appliedGiftCard.code}` : ""}${appliedCoupon ? `&coupon=${appliedCoupon.code}` : ""}`}
-                      className="brick-hover-sm flex w-full items-center justify-between rounded-[28px] border-2 border-ink bg-brand-orange px-6 py-4 text-paper transition-all"
+                    {purchaseError && <p className="mb-3 font-mono text-[12px] text-red-500">{purchaseError}</p>}
+                    <button
+                      onClick={handleSubscribe}
+                      disabled={purchasing || !user}
+                      className="brick-hover-sm flex w-full items-center justify-between rounded-[28px] border-2 border-ink bg-brand-orange px-6 py-4 text-paper transition-all disabled:opacity-60"
                     >
                       <span className="font-display text-[22px] leading-none">
-                        {userSub ? "Paaukštinti planą" : "Prenumeruoti"}
+                        {purchasing ? "Kraunama…" : userSub ? "Paaukštinti planą" : "Prenumeruoti dabar"}
                       </span>
                       <span className="font-display text-[32px] leading-none">→</span>
-                    </Link>
+                    </button>
+                    {!user && (
+                      <p className="mt-2 text-center text-[13px] text-ink/40">
+                        <Link to="/account" className="underline hover:text-ink">Prisijunk</Link> prieš perkant
+                      </p>
+                    )}
                   </div>
                 </>
               )}
@@ -720,15 +798,16 @@ export default function Checkout() {
                 <span className="font-display text-[24px] leading-none">→</span>
               </button>
             ) : (
-              <Link
-                to={`/subscribe?plan=${requiredTier.name.toLowerCase()}${appliedGiftCard ? `&code=${appliedGiftCard.code}` : ""}${appliedCoupon ? `&coupon=${appliedCoupon.code}` : ""}`}
-                className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-brand-orange px-5 py-3.5 text-paper"
+              <button
+                onClick={handleSubscribe}
+                disabled={purchasing || !user}
+                className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-brand-orange px-5 py-3.5 text-paper disabled:opacity-60"
               >
                 <span className="font-display text-[18px] leading-none">
-                  {userSub ? "Paaukštinti planą" : "Prenumeruoti"}
+                  {purchasing ? "Kraunama…" : userSub ? "Paaukštinti planą" : "Prenumeruoti dabar"}
                 </span>
                 <span className="font-display text-[24px] leading-none">→</span>
-              </Link>
+              </button>
             )}
           </div>
         </div>
