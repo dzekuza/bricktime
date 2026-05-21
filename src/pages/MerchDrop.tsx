@@ -114,16 +114,7 @@ export default function MerchDrop() {
       <div className="bg-paper py-4 md:py-6">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
 
-          {/* Breadcrumb */}
-          <div className="label-mono mb-6 flex items-center gap-2.5 text-ink/50">
-            <Link to="/" className="transition-colors hover:text-ink">BRICKTIME</Link>
-            <span className="text-ink/30">/</span>
-            <Link to="/merch" className="transition-colors hover:text-ink">Merch</Link>
-            <span className="text-ink/30">/</span>
-            <span className="text-ink/80">{item.name}</span>
-          </div>
-
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
+<div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
             {/* Visual */}
             <div
               className="brick-card flex min-h-[480px] items-center justify-center p-14"
