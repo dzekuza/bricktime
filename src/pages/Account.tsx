@@ -368,9 +368,10 @@ export default function Account() {
     })
   }
 
+  const FALLBACK_TIER = { key: '' as PlanTier, name: '–', price: 0, bg: '#F5F1EB', textColor: '#001B21', level: 0 }
   const activeTier = subscriber
-    ? (tierOptions.find((t) => t.key === subscriber.plan) ?? tierOptions[2])
-    : tierOptions[2]
+    ? (tierOptions.find((t) => t.key === subscriber.plan) ?? tierOptions[0] ?? FALLBACK_TIER)
+    : (tierOptions[0] ?? FALLBACK_TIER)
   const activeAvatar = avatarOptions[selectedAvatarId] ?? avatarOptions[0]
   const totalPoints = calculatePoints(
     [...unlockedIds].map((id) => ({ achievementId: id, unlockedAt: "" }))
@@ -394,7 +395,7 @@ export default function Account() {
 
   async function handlePlanChange() {
     if (!user) return
-    const newTier = tierOptions[selectedTier]
+    const newTier = tierOptions[selectedTier] ?? FALLBACK_TIER
     if (newTier.key === subscriber?.plan) {
       setPlanChangeError("Jau esi šiame plane.")
       return
@@ -678,7 +679,7 @@ export default function Account() {
                       disabled={planChanging}
                       className="flex-1 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[14px] font-bold text-paper transition-[transform,box-shadow] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] disabled:opacity-50 disabled:pointer-events-none"
                     >
-                      {planChanging ? "Kraunama…" : `Patvirtinti keitimą į ${tierOptions[selectedTier].name} →`}
+                      {planChanging ? "Kraunama…" : `Patvirtinti keitimą į ${tierOptions[selectedTier]?.name ?? '…'} →`}
                     </button>
                     <button
                       onClick={() => { setShowUpgrade(false); setPlanChangeError("") }}
