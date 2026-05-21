@@ -218,12 +218,7 @@ function ProductCard({ product, delay }: { product: Product; delay: number }) {
           alt={product.name}
           className="h-full w-full object-contain p-6"
         />
-        <div
-          className="pointer-events-none absolute left-4 top-4 flex h-12 w-12 items-center justify-center rounded-xl border-2 border-ink shadow-[3px_3px_0_#001B21]"
-          style={{ backgroundColor: planTheme?.bg ?? '#FFD731' }}
-        >
-          <img src={getPlanBrickSvg(product.stats.plan)} alt="" className="h-8 w-auto select-none" />
-        </div>
+        <img src={getPlanBrickSvg(product.stats.plan)} alt="" className="pointer-events-none absolute left-4 top-4 h-10 w-auto select-none" />
         {product.isNew && (
           <div className="absolute right-3 top-3 -rotate-12">
             <div

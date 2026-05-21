@@ -180,13 +180,7 @@ export function ProductCard({ product }: { product: Product }) {
         image={product.image}
         className="relative h-[280px] border-b-2 border-ink"
       >
-        {/* Tier brick badge — top left */}
-        <div
-          className="absolute top-[14px] left-[14px] z-10 flex size-[58px] items-center justify-center rounded-full border-2 border-ink shadow-[3px_3px_0_#001B21]"
-          style={{ background: tier.bg }}
-        >
-          <img src={getPlanBrickSvg(product.requiredTier)} alt="" className="size-8 object-contain" />
-        </div>
+        <img src={getPlanBrickSvg(product.requiredTier)} alt="" className="pointer-events-none absolute left-[14px] top-[14px] z-10 h-10 w-auto select-none" />
 
         {product.badge && (
           <div
