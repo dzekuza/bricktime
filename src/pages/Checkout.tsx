@@ -338,231 +338,245 @@ export default function Checkout() {
     <div className="min-h-screen bg-paper">
       <Nav />
 
-      <section className="py-10 md:py-20">
-        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          {/* Breadcrumb */}
-          <div className="label-mono mb-4 flex items-center gap-2.5 text-ink/50">
-            <Link to="/" className="transition-colors hover:text-ink">
-              BRICKTIME
-            </Link>
-            <span className="text-ink/30">/</span>
-            <Link to="/archive" className="transition-colors hover:text-ink">
-              Produktai
-            </Link>
-            <span className="text-ink/30">/</span>
-            <Link
-              to={`/drop/${product.id}`}
-              className="transition-colors hover:text-ink"
-            >
-              Produktas № {product.id}
-            </Link>
-            <span className="text-ink/30">/</span>
-            <span className="font-semibold text-ink/70">Užsakymas</span>
+      <section className="py-8 pb-32 md:py-14 md:pb-14">
+        <div className="mx-auto max-w-[1100px] px-4 md:px-7">
+
+          {/* Back + breadcrumb */}
+          <Link
+            to={`/drop/${product.id}`}
+            className="label-mono mb-8 inline-flex items-center gap-2 text-ink/40 transition-colors hover:text-ink"
+          >
+            ← Atgal į produktą
+          </Link>
+
+          {/* Header */}
+          <div className="mb-8 flex items-end justify-between gap-4">
+            <h1 className="heading-display text-d-lg text-ink">Užsakymas</h1>
+            <div className="label-mono hidden items-center gap-2 text-ink/30 md:flex">
+              <span className="text-ink/50">Produktai</span>
+              <span>→</span>
+              <span className="font-bold text-ink">Patvirtinimas</span>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {/* Left: image or decorative fallback */}
-            <div className="brick-card overflow-hidden">
-              <div
-                className="relative flex min-h-[320px] flex-col items-center justify-end lg:h-full lg:min-h-[560px]"
-                style={
-                  coverImage
-                    ? undefined
-                    : {
-                        background: requiredTier.bg,
-                        backgroundImage:
-                          "radial-gradient(circle at 16px 16px, rgba(255,255,255,.16) 4px, transparent 5px)",
-                        backgroundSize: "40px 40px",
-                      }
-                }
-              >
-                {coverImage ? (
-                  <img
-                    src={coverImage}
-                    alt={product.title}
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="z-10 flex items-end gap-2 pb-4">
-                    {[60, 100, 70, 120, 50, 90].map((h, i) => (
-                      <div
-                        key={i}
-                        className="relative rounded border-[2.5px] border-ink"
-                        style={{
-                          background: [
-                            "#FB4903",
-                            "#F5F1EB",
-                            "#FFD731",
-                            "#5DDB9C",
-                            "#FFAEE7",
-                            "#4DA2FF",
-                          ][i],
-                          width: 36,
-                          height: h,
-                          boxShadow: "inset 0 -6px 0 rgba(0,0,0,.18)",
-                        }}
-                      >
-                        <span
-                          className="absolute -top-2.5 left-1/2 size-4 -translate-x-1/2 rounded-full border-[2.5px] border-ink"
-                          style={{
-                            background: [
-                              "#FB4903",
-                              "#F5F1EB",
-                              "#FFD731",
-                              "#5DDB9C",
-                              "#FFAEE7",
-                              "#4DA2FF",
-                            ][i],
-                          }}
-                        />
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.5fr]">
+
+            {/* ── LEFT: Order summary ─────────────────────────────────── */}
+            <div className="flex flex-col gap-4">
+
+              {/* Product card */}
+              <div className="brick-card overflow-hidden bg-white">
+                <div className="relative h-[200px] border-b-2 border-ink bg-[#f8f6f2] md:h-[240px]">
+                  {coverImage ? (
+                    <img
+                      src={coverImage}
+                      alt={product.title}
+                      className="h-full w-full object-contain p-6"
+                    />
+                  ) : (
+                    <div className="h-full" style={{ background: requiredTier.bg }} />
+                  )}
+                  <div
+                    className="absolute right-4 top-4 rounded-full border-2 border-ink px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-[.1em]"
+                    style={{ background: requiredTier.bg, color: requiredTier.textColor }}
+                  >
+                    {requiredTier.name}+
+                  </div>
+                </div>
+
+                <div className="p-5">
+                  <p className="label-mono text-ink/40">Produktas</p>
+                  <h2 className="heading-display text-d-xs mt-1 text-ink">{product.title}</h2>
+                  {product.subtitle && (
+                    <p className="mt-1 text-[13px] text-ink/50">{product.subtitle}</p>
+                  )}
+
+                  <div className="mt-4 grid grid-cols-3 gap-3 border-t-2 border-ink/10 pt-4">
+                    {[
+                      ["Detalės", product.bricks],
+                      ["Metai", product.year ?? "—"],
+                      ["Vertė", product.value != null ? `€${product.value}` : "—"],
+                    ].map(([label, val]) => (
+                      <div key={label as string}>
+                        <p className="label-mono text-[9px] text-ink/40">{label}</p>
+                        <p className="mt-0.5 font-mono text-[13px] font-bold text-ink">{val}</p>
                       </div>
                     ))}
                   </div>
-                )}
-
-                {/* Required tier badge */}
-                <div
-                  className="absolute top-6 right-6 z-10 rounded-full border-2 border-ink px-4 py-2 font-mono text-[11px] font-bold tracking-[.12em] uppercase"
-                  style={{
-                    background: requiredTier.bg,
-                    color: requiredTier.textColor,
-                  }}
-                >
-                  {requiredTier.name}+ reikalingas
                 </div>
               </div>
+
+              {/* Plan status badge */}
+              {userSub && (
+                <div
+                  className="brick-card flex items-center justify-between p-5"
+                  style={{ background: userSub.bg }}
+                >
+                  <div>
+                    <p
+                      className="label-mono"
+                      style={{ color: `${userSub.textColor}60` }}
+                    >
+                      Tavo planas
+                    </p>
+                    <p
+                      className="mt-1 font-display text-[28px] leading-none"
+                      style={{ color: userSub.textColor }}
+                    >
+                      {userSub.name}
+                    </p>
+                  </div>
+                  <span
+                    className={[
+                      "rounded-full border-2 border-ink px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-[.1em]",
+                      isEligible ? "bg-brand-mint text-ink" : "bg-white/60 text-ink/60",
+                    ].join(" ")}
+                  >
+                    {isEligible ? "✓ Tinkamas" : "✗ Netinkamas"}
+                  </span>
+                </div>
+              )}
             </div>
 
-            {/* Right: info */}
-            <div className="brick-card overflow-hidden">
-              <div className="flex h-full flex-col gap-5 bg-paper p-6 md:p-7">
-                <div>
-                  <h2 className="heading-display text-d-md leading-[.9] text-ink">
-                    {product.title}
-                    {product.subtitle && (
-                      <>
-                        <br />
-                        {product.subtitle}
-                      </>
-                    )}
-                  </h2>
-                  {product.description && (
-                    <p className="mt-4 max-w-[48ch] text-[15px] leading-[1.65] text-ink/70">
-                      {product.description}
+            {/* ── RIGHT: Action panel ─────────────────────────────────── */}
+            <div className="brick-card flex flex-col bg-paper p-6 md:p-8">
+
+              {isEligible ? (
+                <>
+                  {/* Price display */}
+                  <div className="border-b-2 border-ink/10 pb-5">
+                    <p className="label-mono text-ink/40">Mokėjimas</p>
+                    <div className="mt-3 flex items-end gap-4">
+                      <span className="heading-display text-d-lg text-ink">€0</span>
+                      <div className="mb-1 rounded-full border-2 border-brand-mint bg-brand-mint px-3 py-1 font-mono text-[11px] font-bold text-ink">
+                        Įskaičiuota į planą
+                      </div>
+                    </div>
+                    <p className="mt-1 text-[13px] text-ink/50">
+                      Šis produktas padengtas tavo{" "}
+                      <span className="font-semibold text-ink">{userSub?.name}</span> planu
                     </p>
+                  </div>
+
+                  {/* Delivery selector — only for plans that support home delivery */}
+                  {userSub && HOME_DELIVERY_PLANS.includes(userSub.key) && (
+                    <div className="mt-6">
+                      <p className="label-mono mb-3 text-ink/40">Pristatymo būdas</p>
+                      <div className="flex flex-col gap-2">
+                        {[
+                          { value: false, label: "Paštomatas", note: "Nemokamas", accent: "bg-brand-mint" },
+                          { value: true, label: "Į duris", note: `+€${HOME_DELIVERY_FEE}`, accent: "bg-brand-yellow" },
+                        ].map(({ value, label, note, accent }) => (
+                          <button
+                            key={String(value)}
+                            type="button"
+                            onClick={() => setHomeDelivery(value)}
+                            className={[
+                              "flex items-center justify-between rounded-2xl border-2 px-5 py-4 text-left transition-all",
+                              homeDelivery === value
+                                ? "border-ink shadow-[3px_3px_0_#001B21]"
+                                : "border-ink/20 hover:border-ink/50",
+                            ].join(" ")}
+                          >
+                            <div className="flex items-center gap-3">
+                              <span
+                                className={[
+                                  "flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+                                  homeDelivery === value ? "border-ink bg-ink" : "border-ink/30",
+                                ].join(" ")}
+                              >
+                                {homeDelivery === value && (
+                                  <span className="size-2 rounded-full bg-paper" />
+                                )}
+                              </span>
+                              <span className="font-mono text-[14px] font-bold text-ink">{label}</span>
+                            </div>
+                            <span
+                              className={`rounded-full border-2 border-ink/20 px-3 py-1 font-mono text-[11px] font-bold text-ink ${accent}`}
+                            >
+                              {note}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   )}
-                </div>
 
-                {/* Stats grid */}
-                <div className="grid grid-cols-3 divide-x-2 divide-ink border-y-2 border-ink">
-                  {[
-                    ["Kaladėlių", product.bricks],
-                    ["Miniukai", product.minifigs],
-                    ["Laikas", product.build_time ?? "—"],
-                  ].map(([label, val]) => (
-                    <div
-                      key={label as string}
-                      className="px-3 py-3 text-left first:pl-0 last:pr-0"
-                    >
-                      <div className="label-mono text-ink/40">{label}</div>
-                      <div className="mt-1 font-display text-2xl leading-none text-ink">
-                        {val}
-                      </div>
+                  {/* Order row summary */}
+                  <div className="mt-6 flex items-center justify-between rounded-2xl border-2 border-ink/10 bg-ink/[.02] px-5 py-4">
+                    <div>
+                      <p className="label-mono text-[9px] text-ink/40">Šio užsakymo suma</p>
+                      <p className="mt-0.5 font-display text-[26px] leading-none text-ink">
+                        {homeDelivery && userSub && HOME_DELIVERY_PLANS.includes(userSub.key)
+                          ? `€${HOME_DELIVERY_FEE}`
+                          : "€0"}
+                      </p>
                     </div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-3 gap-x-3 gap-y-2.5 border-b-2 border-ink pb-4">
-                  {[
-                    ["Metai", product.year ?? "—"],
-                    ["Amžius", product.rating ?? "—"],
-                    ["Kaina", product.value != null ? `€${product.value}` : "—"],
-                    ["Kategorija", product.category ?? "—"],
-                    ["Planas", requiredTier.name + "+"],
-                  ].map(([label, val]) => (
-                    <div key={label as string}>
-                      <div className="label-mono text-[9px] text-ink/40">{label}</div>
-                      <div className="font-mono text-[12px] font-bold text-ink capitalize">{val}</div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Value badge if set */}
-                {product.value != null && product.value > 0 && (
-                  <div className="flex items-center gap-2">
-                    <span className="label-mono text-ink/40">Vertė</span>
-                    <span className="font-display text-[20px] leading-none text-ink">
-                      €{product.value}
-                    </span>
-                  </div>
-                )}
-
-                {/* Subscription status */}
-                {userSub && (
-                  <div
-                    className="brick-card p-5 md:p-6"
-                    style={{ background: userSub.bg }}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3
-                          className="label-mono"
-                          style={{ color: `${userSub.textColor}60` }}
-                        >
-                          Tavo prenumerata
-                        </h3>
-                        <div
-                          className="mt-2 font-display text-[40px] leading-[.9]"
-                          style={{ color: userSub.textColor }}
-                        >
-                          {userSub.name}
-                        </div>
-                      </div>
-                      <span
-                        className={[
-                          "rounded-full border-2 border-ink px-3 py-1.5 font-mono text-[11px] font-bold tracking-[.12em] uppercase",
-                          isEligible
-                            ? "bg-brand-mint text-ink"
-                            : "bg-paper/60 text-ink/60",
-                        ].join(" ")}
-                      >
-                        {isEligible ? "✓ Tinkamas" : "✗ Netinkamas"}
-                      </span>
-                    </div>
-                    <p
-                      className="mt-4 text-[14px] leading-[1.6]"
-                      style={{ color: `${userSub.textColor}80` }}
-                    >
-                      {isEligible ? (
-                        <>
-                          Produktas № {product.id} — <b>{product.title}</b>{" "}
-                          įskaičiuotas į tavo <b>{userSub.name}</b> planą. Jokio
-                          papildomo mokesčio.
-                        </>
-                      ) : (
-                        <>
-                          Šiam produktui reikalingas <b>{requiredTier.name}+</b>{" "}
-                          planas. Tavo dabartinis — <b>{userSub.name}</b>.
-                        </>
-                      )}
+                    <p className="label-mono max-w-[140px] text-right text-ink/40">
+                      {homeDelivery ? "Pristatymas į duris" : "Produktas + paštomatas"}
                     </p>
                   </div>
-                )}
 
-                {/* Gift card input */}
-                {!isEligible && (
-                  <div className="rounded-2xl border-2 border-ink/10 bg-ink/[.03] p-4">
+                  {/* CTA */}
+                  <div className="mt-auto pt-6">
+                    <button
+                      onClick={() => setShowModal(true)}
+                      className="brick-hover-sm flex w-full items-center justify-between rounded-[28px] border-2 border-ink bg-brand-orange px-6 py-4 text-paper transition-all"
+                    >
+                      <span className="font-display text-[22px] leading-none">Patvirtinti užsakymą</span>
+                      <span className="font-display text-[32px] leading-none">→</span>
+                    </button>
+                    <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
+                      {["Atšauk bet kada", "30d. garantija", "Nemokamas pristatymas"].map((s) => (
+                        <span
+                          key={s}
+                          className="label-mono flex items-center gap-1.5 text-ink/35"
+                        >
+                          <span className="size-1.5 rounded-full bg-brand-mint" />
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Not eligible — upgrade needed */}
+                  <div className="border-b-2 border-ink/10 pb-5">
+                    <p className="label-mono text-ink/40">Reikalingas planas</p>
+                    <div className="mt-3 flex items-end gap-4">
+                      <span className="heading-display text-d-lg text-ink">{requiredTier.name}+</span>
+                      <div
+                        className="mb-1 rounded-full border-2 border-ink px-3 py-1 font-mono text-[11px] font-bold"
+                        style={{ background: requiredTier.bg, color: requiredTier.textColor }}
+                      >
+                        nuo €{requiredTier.price}/mėn
+                      </div>
+                    </div>
+                    <p className="mt-1 text-[13px] text-ink/50">
+                      {userSub
+                        ? `Tavo dabartinis ${userSub.name} planas neapima šio produkto.`
+                        : "Prenumeruok ir gaukite šį produktą su pirma siunta."}
+                    </p>
+                  </div>
+
+                  {/* Gift card */}
+                  <div className="mt-6">
                     <p className="label-mono mb-3 text-ink/40">Dovanų kortelė</p>
                     {appliedGiftCard ? (
-                      <div className="flex items-center justify-between rounded-xl border-2 border-brand-mint bg-brand-mint/10 px-4 py-2.5">
+                      <div className="flex items-center justify-between rounded-2xl border-2 border-brand-mint bg-brand-mint/10 px-5 py-4">
                         <div>
-                          <span className="label-mono text-ink/50">Pritaikyta</span>
-                          <p className="font-mono text-[13px] font-bold text-ink">
-                            {appliedGiftCard.code} — €{(appliedGiftCard.amountCents / 100).toFixed(2)}
+                          <p className="label-mono text-ink/50">Pritaikyta</p>
+                          <p className="mt-0.5 font-mono text-[14px] font-bold text-ink">
+                            {appliedGiftCard.code} —{" "}
+                            <span className="text-brand-orange">
+                              €{(appliedGiftCard.amountCents / 100).toFixed(2)}
+                            </span>
                           </p>
                         </div>
                         <button
                           onClick={() => setAppliedGiftCard(null)}
-                          className="label-mono text-ink/40 hover:text-ink"
+                          className="font-mono text-[18px] text-ink/30 transition-colors hover:text-ink"
                         >
                           ✕
                         </button>
@@ -572,15 +586,18 @@ export default function Checkout() {
                         <input
                           type="text"
                           value={giftCardInput}
-                          onChange={(e) => { setGiftCardInput(e.target.value.toUpperCase()); setGiftCardError(null) }}
-                          onKeyDown={(e) => e.key === 'Enter' && applyGiftCard()}
+                          onChange={(e) => {
+                            setGiftCardInput(e.target.value.toUpperCase())
+                            setGiftCardError(null)
+                          }}
+                          onKeyDown={(e) => e.key === "Enter" && applyGiftCard()}
                           placeholder="XXXX-XXXX-XXXX"
-                          className="flex-1 rounded-xl border-2 border-ink/20 bg-white px-4 py-2.5 font-mono text-[13px] uppercase tracking-widest outline-none focus:border-ink"
+                          className="flex-1 rounded-2xl border-2 border-ink/20 bg-ink/[.02] px-5 py-3.5 font-mono text-[13px] uppercase tracking-widest outline-none transition-colors focus:border-ink"
                         />
                         <button
                           onClick={applyGiftCard}
                           disabled={giftCardLoading || !giftCardInput.trim()}
-                          className="rounded-xl border-2 border-ink bg-ink px-4 py-2.5 font-mono text-[12px] font-bold text-paper disabled:opacity-40"
+                          className="rounded-2xl border-2 border-ink bg-ink px-5 py-3.5 font-mono text-[12px] font-bold text-paper disabled:opacity-40"
                         >
                           {giftCardLoading ? "…" : "Taikyti"}
                         </button>
@@ -590,48 +607,38 @@ export default function Checkout() {
                       <p className="mt-2 font-mono text-[11px] text-red-500">{giftCardError}</p>
                     )}
                   </div>
-                )}
 
-                {/* Desktop CTA */}
-                <div className="mt-auto hidden flex-col items-center gap-2 lg:flex">
-                  {isEligible ? (
-                    <Button
-                      size="lg"
-                      className="brick-hover-sm w-full rounded-full border-2 border-ink bg-brand-orange text-[15px] font-bold text-paper"
-                      onClick={() => setShowModal(true)}
-                    >
-                      Patvirtinti →
-                    </Button>
-                  ) : (
-                    <Button
-                      asChild
-                      size="lg"
-                      className="brick-hover-sm w-full rounded-full border-2 border-ink bg-brand-orange text-[15px] font-bold text-paper"
-                    >
-                      <Link
-                        to={`/subscribe?plan=${requiredTier.name.toLowerCase()}${appliedGiftCard ? `&code=${appliedGiftCard.code}` : ''}`}
-                      >
-                        {userSub ? "Paaukštinti →" : "Prenumeruoti →"}
-                      </Link>
-                    </Button>
-                  )}
-                  <div className="flex items-center gap-4">
-                    {[
-                      "Atšauk bet kada",
-                      "Nemokamas pristatymas",
-                      "30 dienų garantija",
-                    ].map((s) => (
-                      <span
-                        key={s}
-                        className="label-mono flex shrink-0 items-center gap-1.5 text-ink/40"
-                      >
-                        <span className="size-1.5 rounded-full bg-brand-mint" />
-                        {s}
-                      </span>
-                    ))}
+                  {/* What you get */}
+                  <div className="mt-6 rounded-2xl border-2 border-ink/10 bg-ink/[.02] p-5">
+                    <p className="label-mono mb-3 text-ink/40">Su {requiredTier.name}+ planu gausi</p>
+                    <div className="flex flex-col gap-2.5">
+                      {[
+                        `€${requiredTier.price === 35 ? "350" : requiredTier.price === 55 ? "600" : requiredTier.price * 10} mėnesinis biudžetas`,
+                        "Šio produkto nuoma įskaičiuota",
+                        "Nemokamas pristatymas",
+                        "Grąžink bet kada",
+                      ].map((item) => (
+                        <div key={item} className="flex items-center gap-2.5">
+                          <span className="size-1.5 shrink-0 rounded-full bg-brand-mint" />
+                          <span className="text-[13px] text-ink/70">{item}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </div>
+
+                  <div className="mt-auto pt-6">
+                    <Link
+                      to={`/subscribe?plan=${requiredTier.name.toLowerCase()}${appliedGiftCard ? `&code=${appliedGiftCard.code}` : ""}`}
+                      className="brick-hover-sm flex w-full items-center justify-between rounded-[28px] border-2 border-ink bg-brand-orange px-6 py-4 text-paper transition-all"
+                    >
+                      <span className="font-display text-[22px] leading-none">
+                        {userSub ? "Paaukštinti planą" : "Prenumeruoti"}
+                      </span>
+                      <span className="font-display text-[32px] leading-none">→</span>
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -639,161 +646,87 @@ export default function Checkout() {
 
       <Footer />
 
-      {/* Floating confirm bar — mobile */}
-      <div className="pb-safe fixed right-0 bottom-0 left-0 z-50 p-4 lg:hidden">
+      {/* Mobile sticky CTA */}
+      <div className="pb-safe fixed right-0 bottom-0 left-0 z-50 p-3 lg:hidden">
         <div className="mx-auto max-w-[600px]">
-          <div className="brick-card flex flex-col items-center gap-2 bg-paper px-5 py-4">
+          <div className="brick-card bg-paper px-4 py-3">
             {isEligible ? (
-              <Button
-                size="lg"
-                className="brick-hover-sm w-full rounded-full border-2 border-ink bg-brand-orange text-[15px] font-bold text-paper"
+              <button
                 onClick={() => setShowModal(true)}
+                className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-brand-orange px-5 py-3.5 text-paper"
               >
-                Patvirtinti →
-              </Button>
+                <span className="font-display text-[18px] leading-none">Patvirtinti užsakymą</span>
+                <span className="font-display text-[24px] leading-none">→</span>
+              </button>
             ) : (
-              <Button
-                asChild
-                size="lg"
-                className="brick-hover-sm w-full rounded-full border-2 border-ink bg-brand-orange text-[15px] font-bold text-paper"
+              <Link
+                to={`/subscribe?plan=${requiredTier.name.toLowerCase()}${appliedGiftCard ? `&code=${appliedGiftCard.code}` : ""}`}
+                className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-brand-orange px-5 py-3.5 text-paper"
               >
-                <Link to={`/subscribe?plan=${requiredTier.name.toLowerCase()}${appliedGiftCard ? `&code=${appliedGiftCard.code}` : ''}`}>
-                  {userSub ? "Paaukštinti →" : "Prenumeruoti →"}
-                </Link>
-              </Button>
-            )}
-            <div className="flex items-center gap-4">
-              {[
-                "Atšauk bet kada",
-                "Nemokamas pristatymas",
-                "30 dienų garantija",
-              ].map((s) => (
-                <span
-                  key={s}
-                  className="label-mono flex shrink-0 items-center gap-1.5 text-ink/40"
-                >
-                  <span className="size-1.5 rounded-full bg-brand-mint" />
-                  {s}
+                <span className="font-display text-[18px] leading-none">
+                  {userSub ? "Paaukštinti planą" : "Prenumeruoti"}
                 </span>
-              ))}
-            </div>
+                <span className="font-display text-[24px] leading-none">→</span>
+              </Link>
+            )}
           </div>
         </div>
       </div>
 
       {/* Confirmation modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="brick-card w-[calc(100vw-2rem)] max-w-[400px] gap-0 border-0 bg-paper p-5 shadow-none sm:p-6">
-          {/* Header */}
-          <DialogTitle className="heading-display text-d-xs text-ink">
-            Patvirtinti užsakymą?
-          </DialogTitle>
-          <DialogDescription className="mt-1.5 text-[13px] leading-[1.6] text-ink/50">
-            Produktas bus pridėtas į tavo dėžutę ir įtrauktas į kitą siuntą.
-          </DialogDescription>
+        <DialogContent className="brick-card w-[calc(100vw-2rem)] max-w-[380px] gap-0 border-0 bg-paper p-0 shadow-none">
+          <div className="p-6">
+            <DialogTitle className="heading-display text-d-xs text-ink">
+              Patvirtinti užsakymą?
+            </DialogTitle>
+            <DialogDescription className="mt-2 text-[13px] leading-[1.6] text-ink/50">
+              Produktas bus pridėtas į tavo dėžutę ir išsiųstas su kita siunta.
+            </DialogDescription>
 
-          {/* Summary card */}
-          <div className="mt-4 rounded-2xl border-2 border-ink/10 bg-ink/[.03] p-4">
-            <div className="flex items-center gap-3">
+            <div className="mt-5 flex items-center gap-3 rounded-2xl border-2 border-ink/10 bg-ink/[.02] p-4">
               {coverImage && (
                 <img
                   src={coverImage}
                   alt={product.title}
-                  className="size-14 shrink-0 rounded-xl border-2 border-ink object-cover"
+                  className="size-14 shrink-0 rounded-xl border-2 border-ink object-contain"
                 />
               )}
               <div className="min-w-0">
-                <p className="label-mono text-ink/40">Produktas</p>
+                <p className="label-mono text-[9px] text-ink/40">Produktas</p>
                 <p className="mt-0.5 truncate font-display text-[17px] leading-tight text-ink">
                   {product.title}
                 </p>
-                {product.subtitle && (
-                  <p className="truncate text-[12px] text-ink/50">{product.subtitle}</p>
-                )}
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="font-mono text-[11px] font-bold text-brand-mint">€0</span>
+                  <span className="label-mono text-ink/40">·</span>
+                  <span className="label-mono text-ink/40">{userSub?.name}</span>
+                </div>
               </div>
             </div>
 
-            <div className="mt-3 border-t-2 border-ink/8 pt-3 flex flex-col gap-3">
-              {userSub && (
-                <div className="flex items-center gap-6">
-                  <div>
-                    <p className="label-mono text-ink/40">Planas</p>
-                    <p className="mt-0.5 font-display text-[15px] text-ink">{userSub.name}</p>
-                  </div>
-                  <div>
-                    <p className="label-mono text-ink/40">Papildomas mokestis</p>
-                    <p className="mt-0.5 font-display text-[15px] text-brand-mint">€0</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Shipping selector — only for eligible plans */}
-              {userSub && HOME_DELIVERY_PLANS.includes(userSub.key) && (
-                <div className="flex flex-col gap-2">
-                  <p className="label-mono text-ink/40">Pristatymo būdas</p>
-                  <div className="flex flex-col gap-1.5">
-                    {[
-                      { value: false, label: "Paštomatas", sub: "Nemokamas" },
-                      { value: true, label: "Į duris", sub: `+€${HOME_DELIVERY_FEE}/užsakymui` },
-                    ].map(({ value, label, sub }) => (
-                      <button
-                        key={String(value)}
-                        type="button"
-                        onClick={() => setHomeDelivery(value)}
-                        className={[
-                          "flex items-center justify-between rounded-xl border-2 px-4 py-2.5 text-left transition-colors",
-                          homeDelivery === value
-                            ? "border-ink bg-ink/5"
-                            : "border-ink/20 hover:border-ink/40",
-                        ].join(" ")}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <span className={[
-                            "flex size-4 items-center justify-center rounded-full border-2",
-                            homeDelivery === value ? "border-ink bg-ink" : "border-ink/30",
-                          ].join(" ")}>
-                            {homeDelivery === value && (
-                              <span className="size-1.5 rounded-full bg-paper" />
-                            )}
-                          </span>
-                          <span className="text-[14px] font-semibold text-ink">{label}</span>
-                        </div>
-                        <span className={[
-                          "font-mono text-[12px]",
-                          value ? "text-ink/60" : "text-brand-mint font-semibold",
-                        ].join(" ")}>
-                          {sub}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+            <div className="mt-5 flex flex-col gap-2">
+              <Button
+                size="lg"
+                className="brick-hover-sm w-full rounded-full border-2 border-ink bg-brand-orange text-[15px] font-bold text-paper"
+                disabled={confirming}
+                onClick={async () => {
+                  await handleConfirm()
+                  setShowModal(false)
+                }}
+              >
+                {confirming ? "Apdorojama…" : "Taip, patvirtinti →"}
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full rounded-full border-2 border-ink bg-transparent text-[15px] font-bold text-ink hover:bg-ink/5"
+                onClick={() => setShowModal(false)}
+                disabled={confirming}
+              >
+                Atšaukti
+              </Button>
             </div>
-          </div>
-
-          {/* Actions */}
-          <div className="mt-4 flex flex-col gap-2">
-            <Button
-              size="lg"
-              className="brick-hover-sm w-full rounded-full border-2 border-ink bg-brand-orange text-[15px] font-bold text-paper"
-              disabled={confirming}
-              onClick={async () => {
-                await handleConfirm()
-                setShowModal(false)
-              }}
-            >
-              {confirming ? "Apdorojama…" : "Taip, patvirtinti →"}
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full rounded-full border-2 border-ink bg-transparent text-[15px] font-bold text-ink hover:bg-ink/5"
-              onClick={() => setShowModal(false)}
-              disabled={confirming}
-            >
-              Atšaukti
-            </Button>
           </div>
         </DialogContent>
       </Dialog>
