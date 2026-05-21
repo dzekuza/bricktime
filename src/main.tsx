@@ -3,10 +3,10 @@ import { createRoot } from "react-dom/client"
 import { BrowserRouter } from "react-router-dom"
 
 if (import.meta.env.DEV) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).__REACT_GRAB_DISABLED__ = true
-  import("react-grab").then(({ mountClaudeChatPanel }) => {
-    mountClaudeChatPanel()
-  })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(import as any)("react-grab").then((m: any) => m.mountClaudeChatPanel?.())
 }
 
 import "./index.css"
