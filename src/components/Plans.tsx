@@ -13,7 +13,7 @@ const BRICK_BY_COLOR: Record<string, string> = {
   '#4da2ff': '/bricks/brick-blue.svg',
   '#5c4ade': '/bricks/brick-purple.svg',
 }
-import { usePlans } from "@/hooks/usePlans"
+import { usePlans, type DbPlan } from "@/hooks/usePlans"
 
 function onCardEnter(e: React.MouseEvent<HTMLDivElement>) {
   gsap.killTweensOf(e.currentTarget.querySelector(".plan-price"))
@@ -59,7 +59,9 @@ function AnimatedPrice({ value, color }: { value: number; color: string }) {
   )
 }
 
-export default function Plans() {
+export default function Plans({ onSubscribe }: {
+  onSubscribe?: (plan: DbPlan, billing: 'monthly' | 'yearly') => void
+} = {}) {
   const ref = useReveal<HTMLDivElement>()
   const spanRef = useRef<HTMLSpanElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -239,13 +241,23 @@ export default function Plans() {
                       ))}
                     </ul>
 
-                    <Button
-                      asChild
-                      className="mt-6 w-full rounded-full border-2 border-ink text-[14px] font-bold tracking-[.02em] transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
-                      style={{ background: plan.cta_bg, color: plan.cta_text }}
-                    >
-                      <a href="/subscribe">{plan.cta_label ?? "Pradėti"}</a>
-                    </Button>
+                    {onSubscribe ? (
+                      <Button
+                        className="mt-6 w-full rounded-full border-2 border-ink text-[14px] font-bold tracking-[.02em] transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
+                        style={{ background: plan.cta_bg, color: plan.cta_text }}
+                        onClick={() => onSubscribe(plan, billing)}
+                      >
+                        {plan.cta_label ?? "Pradėti"}
+                      </Button>
+                    ) : (
+                      <Button
+                        asChild
+                        className="mt-6 w-full rounded-full border-2 border-ink text-[14px] font-bold tracking-[.02em] transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
+                        style={{ background: plan.cta_bg, color: plan.cta_text }}
+                      >
+                        <a href="/subscribe">{plan.cta_label ?? "Pradėti"}</a>
+                      </Button>
+                    )}
                   </div>
                 ))}
           </div>

@@ -5,6 +5,8 @@ import { supabase } from "@/lib/supabase"
 import type { PlanTier } from "@/lib/database.types"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
+import Plans from "@/components/Plans"
+import type { DbPlan } from "@/hooks/usePlans"
 import {
   ArrowRightIcon,
   ShieldCheckIcon,
@@ -12,7 +14,6 @@ import {
   RefreshCcwIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { useReveal } from "@/hooks/useReveal"
 import { usePlans } from "@/hooks/usePlans"
 
@@ -131,7 +132,7 @@ function FAQItem({
 export default function Subscribe() {
   const [params] = useSearchParams()
   const { user, profile } = useAuth()
-  const { plans, loading: plansLoading } = usePlans()
+  const { plans } = usePlans()
 
   const planIndex = useMemo(
     () => Object.fromEntries(plans.map((p, i) => [p.id, i])),
@@ -227,6 +228,13 @@ export default function Subscribe() {
         })
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function handlePlanSubscribe(selectedP: DbPlan, planBilling: 'monthly' | 'yearly') {
+    const idx = plans.findIndex(p => p.id === selectedP.id)
+    if (idx !== -1) setSelectedPlan(idx)
+    setBilling(planBilling === 'yearly' ? 'annual' : 'monthly')
+    setStep('payment')
+  }
 
   async function handlePurchase() {
     if (!user) {
@@ -482,170 +490,7 @@ export default function Subscribe() {
       </section>
 
       {step === "plan" ? (
-        /* ── Plan selection ─────────────────────────────────────────── */
-        <section className="bg-paper pt-4 pb-20">
-          <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-            <div className="mb-6 flex justify-center">
-              <div className="inline-flex flex-col items-center gap-2">
-                <span className="label-mono text-ink/45">Atsiskaitymas</span>
-                <div className="inline-flex items-center gap-1 rounded-full border-2 border-ink bg-paper p-1 shadow-[4px_4px_0_#001B21]">
-                  {(["monthly", "annual"] as const).map((value) => {
-                    const active = billing === value
-                    return (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => setBilling(value)}
-                        className="rounded-full px-4 py-2 font-mono text-[11px] tracking-[.08em] uppercase transition-all"
-                        style={
-                          active && plan
-                            ? {
-                                background: plan.cta_bg,
-                                color: plan.cta_text,
-                              }
-                            : {
-                                color: "#001B2199",
-                              }
-                        }
-                      >
-                        {value === "monthly" ? "Mėn." : "Metinis −17%"}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* mobile: horizontal scroll carousel; desktop: overlapping flex row */}
-            {plansLoading ? (
-              <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-visible pt-5 pb-2 lg:gap-0 lg:-space-x-4 lg:overflow-visible lg:pt-5 lg:pb-0">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="relative flex w-[56vw] shrink-0 snap-center flex-col justify-between rounded-2xl border-2 border-ink/20 bg-ink/10 p-6 lg:w-auto lg:flex-1"
-                    style={{ zIndex: i + 1 }}
-                  >
-                    <div className="animate-pulse space-y-4">
-                      <div className="h-7 w-2/3 rounded bg-ink/10" />
-                      <div className="h-10 w-1/2 rounded bg-ink/10" />
-                      <div className="mt-5 space-y-2">
-                        {Array.from({ length: 5 }).map((_, j) => (
-                          <div key={j} className="h-4 w-full rounded bg-ink/10" />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-visible pt-5 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-0 lg:-space-x-4 lg:overflow-visible lg:pt-5 lg:pb-0 [&::-webkit-scrollbar]:hidden">
-                {plans.map((p, i) => (
-                  <div
-                    key={p.id}
-                    onClick={() => setSelectedPlan(i)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault()
-                        setSelectedPlan(i)
-                      }
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    aria-pressed={selectedPlan === i}
-                    className={[
-                      "relative flex w-[56vw] shrink-0 snap-center flex-col justify-between rounded-2xl border-2 p-6 text-left transition-all duration-200 hover:z-10 hover:-translate-y-3 md:rounded-3xl md:p-7 lg:w-auto lg:flex-1",
-                      selectedPlan === i
-                        ? "z-10 -translate-y-3 border-ink shadow-[6px_6px_0_#001B21]"
-                        : "border-ink/40 hover:border-ink hover:shadow-[4px_4px_0_#001B21]",
-                    ].join(" ")}
-                    style={{ background: p.bg_color, zIndex: i + 1 }}
-                  >
-                    {p.featured && (
-                      <Badge
-                        className="absolute -top-3.5 right-5 rotate-1 rounded border-2 border-ink bg-ink px-2.5 py-0.5 font-mono text-[10px] tracking-[.08em] uppercase text-primary-foreground"
-                      >
-                        Populiarus
-                      </Badge>
-                    )}
-                    {selectedPlan === i && (
-                      <span className="absolute top-4 right-4 grid size-6 place-items-center rounded-full border-2 border-ink bg-ink text-[11px] font-bold text-paper">
-                        ✓
-                      </span>
-                    )}
-                    <div>
-                      <div className="flex items-start justify-between gap-3">
-                        <div
-                          className="font-display text-3xl leading-[.88]"
-                          style={{ color: p.text_color }}
-                        >
-                          {p.name}
-                        </div>
-                        {p.brick_image && (
-                          <img
-                            src={p.brick_image}
-                            alt=""
-                            className="pointer-events-none h-12 w-auto shrink-0 object-contain select-none md:h-14"
-                          />
-                        )}
-                      </div>
-                      <div className="mt-2 flex items-baseline gap-1">
-                        <span
-                          className="text-d-sm font-display leading-[.9]"
-                          style={{ color: p.text_color }}
-                        >
-                          €
-                          {billing === "monthly"
-                            ? p.price
-                            : (p.annual_price ?? p.price)}
-                        </span>
-                        <span
-                          className="font-mono text-[11px] tracking-[.06em] uppercase"
-                          style={{ color: `${p.text_color}70` }}
-                        >
-                          /mėn.
-                        </span>
-                      </div>
-                    </div>
-                    <ul className="mt-5 flex flex-col gap-2">
-                      {p.perks
-                        .filter((perk) => perk.included)
-                        .slice(0, 5)
-                        .map((perk) => (
-                          <li
-                            key={perk.label}
-                            className="flex items-start gap-2 text-[13px]"
-                          >
-                            <span
-                              className="mt-[3px] size-2.5 shrink-0 rounded-full border-[1.5px]"
-                              style={{
-                                background: p.accent_color,
-                                borderColor: p.text_color,
-                              }}
-                            />
-                            <span style={{ color: `${p.text_color}cc` }}>
-                              {perk.label}
-                            </span>
-                          </li>
-                        ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="mt-8 flex justify-center">
-              <Button
-                size="lg"
-                className="brick-hover-sm rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper"
-                onClick={() => setStep("payment")}
-                disabled={!plan}
-              >
-                Tęsti su {plan?.name ?? "…"}{" "}
-                <ArrowRightIcon data-icon="inline-end" />
-              </Button>
-            </div>
-          </div>
-        </section>
+        <Plans onSubscribe={handlePlanSubscribe} />
       ) : (
         /* ── Payment form ───────────────────────────────────────────── */
         <section className="bg-paper pt-4 pb-20">
