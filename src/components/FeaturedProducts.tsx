@@ -290,7 +290,7 @@ export default function FeaturedProducts() {
         {/* Cards — horizontal scroll on mobile, 3-col grid on md+ */}
         <div
           ref={ref}
-          className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 md:grid md:grid-cols-3 md:gap-7 md:overflow-visible md:pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 touch-pan-x md:grid md:grid-cols-3 md:gap-7 md:overflow-visible md:pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {visible.map((product, i) => (
             <div key={product.id} className="w-[82vw] shrink-0 snap-start md:w-auto md:shrink">
