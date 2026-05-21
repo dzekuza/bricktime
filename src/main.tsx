@@ -3,10 +3,10 @@ import { createRoot } from "react-dom/client"
 import { BrowserRouter } from "react-router-dom"
 
 if (import.meta.env.DEV) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ;(import as any)("react-grab").then((m: any) => {
-    m.unregisterPlugin("comment")
-    m.registerPlugin(m.claudeChatPlugin)
+  // @ts-ignore
+  import("react-grab").then(({ unregisterPlugin, registerPlugin, claudeChatPlugin }: any) => {
+    unregisterPlugin("comment")
+    registerPlugin(claudeChatPlugin)
   })
 }
 
