@@ -118,6 +118,27 @@ html, body, #root {
   h1, h2, h3, h4 {
     text-wrap: balance;
   }
+  button:not(:disabled),
+  a[href],
+  summary,
+  select,
+  label[for],
+  [role="button"],
+  [role="link"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  input[type="submit"],
+  input[type="button"],
+  input[type="reset"],
+  input[type="checkbox"],
+  input[type="radio"] {
+    cursor: pointer;
+  }
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
 }
 
 /* Headings using display font render at weight 800 */

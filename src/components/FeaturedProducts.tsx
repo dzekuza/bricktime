@@ -56,10 +56,10 @@ function sortProducts(products: Product[], by: SortValue): Product[] {
 
 const PRODUCTS: Product[] = [
   {
-    id: 1,
+    id: 34,
     name: 'Džabos barža',
     series: 'Star Wars™',
-    image: 'https://www.figma.com/api/mcp/asset/a637a90c-dee8-4ce6-b494-3f5b0a16a323',
+    image: 'https://www.lego.com/cdn/cs/set/assets/bltad48b7c771f86707/75397_Prod.png',
     brickImage: '/plans/how-mega.svg',
     isNew: true,
     stats: { pieces: '3943', year: '2025', age: '—', price: '€519.99', category: 'Star Wars', plan: 'Legenda+' },
@@ -68,10 +68,10 @@ const PRODUCTS: Product[] = [
     ctaLabel: 'Nuomok su Legenda+',
   },
   {
-    id: 2,
+    id: 33,
     name: 'TIE naikintuvas',
     series: 'Star Wars™',
-    image: 'https://www.figma.com/api/mcp/asset/a2407a96-c6c6-4efd-9e7c-7da1b8ed1400',
+    image: 'https://www.lego.com/cdn/cs/set/assets/blt42c7adf188ed2eb8/75382.png',
     brickImage: '/plans/how-nano.svg',
     isNew: false,
     stats: { pieces: '1931', year: '2023', age: '—', price: '€239.99', category: 'Star Wars', plan: 'Pro+' },
@@ -80,10 +80,10 @@ const PRODUCTS: Product[] = [
     ctaLabel: 'Nuomok su Pro+',
   },
   {
-    id: 3,
+    id: 32,
     name: 'Grogu (Mandaloriečių mokinys)',
     series: 'Star Wars™',
-    image: 'https://www.figma.com/api/mcp/asset/a7f63131-00c5-4887-82cf-ec408852bebd',
+    image: 'https://www.lego.com/cdn/cs/set/assets/blt7b211beb2f802707/blta8d62a90e62e020c-75446_Prod.png',
     brickImage: '/plans/master.svg',
     isNew: true,
     stats: { pieces: '1200', year: '2025', age: '—', price: '€139.99', category: 'Star Wars', plan: 'Meistras+' },
@@ -207,7 +207,8 @@ function ProductCard({ product, delay }: { product: Product; delay: number }) {
   ] as const
 
   return (
-    <div
+    <Link
+      to={`/drop/${product.id}`}
       className="reveal brick-card brick-card-hover flex flex-col overflow-hidden bg-white"
       style={{ transitionDelay: `${delay}ms` }}
     >
@@ -247,15 +248,15 @@ function ProductCard({ product, delay }: { product: Product; delay: number }) {
           ))}
         </div>
 
-        <button
+        <div
           className="mt-auto flex w-full items-center justify-between rounded-[22px] border-2 border-ink px-[18px] py-3"
           style={{ backgroundColor: planTheme?.bg ?? '#FFD731', color: planTheme?.textColor ?? '#001B21' }}
         >
           <span className="text-[13px] font-bold">{product.ctaLabel}</span>
           <ArrowRight size={16} />
-        </button>
+        </div>
       </div>
-    </div>
+    </Link>
   )
 }
 
