@@ -391,15 +391,18 @@ export default function Checkout() {
                     <p className="mt-1 text-[13px] text-ink/50">{product.subtitle}</p>
                   )}
 
-                  <div className="mt-4 grid grid-cols-3 gap-3 border-t-2 border-ink/10 pt-4">
+                  <div className="mt-4 grid grid-cols-3 gap-x-3 gap-y-2.5 border-t-2 border-ink/10 pt-4">
                     {[
                       ["Detalės", product.bricks],
                       ["Metai", product.year ?? "—"],
-                      ["Vertė", product.value != null ? `€${product.value}` : "—"],
+                      ["Amžius", product.rating ?? "—"],
+                      ["Kaina", product.value != null ? `€${product.value}` : "—"],
+                      ["Kategorija", product.category ?? "—"],
+                      ["Planas", requiredTier.name + "+"],
                     ].map(([label, val]) => (
                       <div key={label as string}>
                         <p className="label-mono text-[9px] text-ink/40">{label}</p>
-                        <p className="mt-0.5 font-mono text-[13px] font-bold text-ink">{val}</p>
+                        <p className="mt-0.5 font-mono text-[12px] font-bold text-ink capitalize">{val}</p>
                       </div>
                     ))}
                   </div>
