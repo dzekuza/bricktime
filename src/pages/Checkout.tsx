@@ -178,7 +178,7 @@ export default function Checkout() {
     if (!data.active) { setCouponError("Kodas neaktyvus"); return }
     if (data.expires_at && new Date(data.expires_at) < new Date()) { setCouponError("Kodas nebegalioja"); return }
     if (data.max_uses != null && data.uses_count >= data.max_uses) { setCouponError("Kodas jau panaudotas"); return }
-    setAppliedCoupon({ code: data.code, discount_type: data.discount_type, discount_value: Number(data.discount_value) })
+    setAppliedCoupon({ code: data.code, discount_type: data.discount_type as "fixed" | "percentage", discount_value: Number(data.discount_value) })
     setCouponInput("")
   }
 
@@ -226,7 +226,7 @@ export default function Checkout() {
     const planKey = params.get("plan")
     if (!planKey || !user) return
     supabase.from("subscribers").upsert(
-      { id: user.id, email: user.email ?? "", name: user.email?.split("@")[0] ?? "Subscriber", plan: planKey, status: "active" },
+      { id: user.id, email: user.email ?? "", name: user.email?.split("@")[0] ?? "Subscriber", plan: planKey as "nano" | "mini" | "standard" | "pro" | "mega" | "mystery_s" | "mystery_m", status: "active" },
       { onConflict: "id" }
     ).then(() => {
       // refresh subscription state so isEligible recalculates

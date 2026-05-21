@@ -3,8 +3,8 @@ import { createRoot } from "react-dom/client"
 import { BrowserRouter } from "react-router-dom"
 
 if (import.meta.env.DEV) {
-  // @ts-ignore
-  import("react-grab").then(({ unregisterPlugin, registerPlugin, claudeChatPlugin }: any) => {
+  // @ts-expect-error -- react-grab has no types
+  import("react-grab").then(({ unregisterPlugin, registerPlugin, claudeChatPlugin }: { unregisterPlugin: (s: string) => void; registerPlugin: (p: unknown) => void; claudeChatPlugin: unknown }) => {
     unregisterPlugin("comment")
     registerPlugin(claudeChatPlugin)
   })

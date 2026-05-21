@@ -6,7 +6,6 @@ import type { PlanTier } from "@/lib/database.types"
 
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase"
-import { getPlanDisplayName } from "@/lib/plan-branding"
 import { usePlans } from "@/hooks/usePlans"
 import { MissingPartDialog } from "@/components/MissingPartDialog"
 
