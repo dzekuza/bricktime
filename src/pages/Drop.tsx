@@ -758,19 +758,11 @@ export default function Drop() {
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
             {/* Row 1: Rating tile */}
-            <div
-              className="brick-card flex flex-col justify-center p-6 md:p-8 lg:col-span-7"
-              style={{ background: "#FFD731" }}
-            >
-              <div
-                className="text-d-hero font-display leading-none"
-                style={{ color: "#001B21" }}
-              >
-                4.92<span style={{ fontSize: "40%", opacity: 0.5 }}>/5</span>
-              </div>
-              <small className="mt-2 font-mono text-[12px] tracking-[.16em] text-ink/70 uppercase">
-                Based on 86 Mega-tier preview reviews
-              </small>
+            <div className="lg:col-span-7 flex flex-col justify-center py-2">
+              <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink">
+                Ką sako<br />
+                <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>nuomotojai.</span>
+              </h2>
             </div>
 
             {/* Row 2+: review cards — carousel on mobile, 2-col grid on desktop */}
@@ -820,7 +812,10 @@ export default function Drop() {
           {/* You might also like */}
           {related.length > 0 && (
             <div className="mt-10">
-              <p className="label-mono text-ink/50 mb-4">Gali patikti</p>
+              <h2 className="heading-display text-d-md tracking-[-0.015em] text-ink mb-6">
+                Gali<br />
+                <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>patikti.</span>
+              </h2>
               <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none">
                 {related.map((p) => (
                   <div key={p.id} className="w-[300px] shrink-0">

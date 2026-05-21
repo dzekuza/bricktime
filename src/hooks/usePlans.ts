@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react"
-import { supabase } from "@/lib/supabase"
+import { usePlansContext } from '@/contexts/PlansContext'
 
 export interface DbPlan {
   id: string
@@ -22,26 +21,5 @@ export interface DbPlan {
 }
 
 export function usePlans() {
-  const [plans, setPlans] = useState<DbPlan[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    setLoading(true)
-    supabase
-      .from("plans")
-      .select("*")
-      .eq("active", true)
-      .order("sort_order")
-      .then(({ data, error: err }) => {
-        if (err) {
-          setError(err.message)
-        } else {
-          setPlans((data ?? []) as unknown as DbPlan[])
-        }
-        setLoading(false)
-      })
-  }, [])
-
-  return { plans, loading, error }
+  return usePlansContext()
 }

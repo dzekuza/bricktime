@@ -12,6 +12,7 @@ import { FAQPage, PausePage, ReturnsPage, ShippingPage } from '@/pages/HelpPages
 import MerchPage from '@/pages/Merch'
 import MerchDrop from '@/pages/MerchDrop'
 import GiftCards from '@/pages/GiftCards'
+import About from '@/pages/About'
 import LoadingScreen from '@/components/LoadingScreen'
 
 export default function App() {
@@ -47,6 +48,7 @@ export default function App() {
         <Route path="/praleisti-pristabdyti" element={<PausePage />} />
         <Route path="/pristatymas" element={<ShippingPage />} />
         <Route path="/grazinimai" element={<ReturnsPage />} />
+        <Route path="/apie" element={<About />} />
       </Routes>
     </>
   )

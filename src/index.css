@@ -226,6 +226,15 @@ html, body, #root {
   opacity: .06;
 }
 
+/* Disable reveal inside horizontal snap containers on mobile — off-screen cards never intersect */
+@media (max-width: 767px) {
+  .snap-x .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 /* Scroll reveal animation */
 .reveal {
   opacity: 0;

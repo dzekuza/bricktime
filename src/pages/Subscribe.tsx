@@ -770,7 +770,8 @@ export default function Subscribe() {
           >
             <div className="reveal lg:col-span-12">
               <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink">
-                Viskas, greta.
+                Viskas,<br />
+                <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>greta.</span>
               </h2>
             </div>
             <div
@@ -848,6 +849,10 @@ export default function Subscribe() {
       {/* ── Trust signals ────────────────────────────────────────────── */}
       <section className="bg-paper py-20">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+          <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink mb-8">
+            Prenumerata<br />
+            <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>be rizikos.</span>
+          </h2>
           <div
             ref={trustRef}
             className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"

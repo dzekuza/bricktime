@@ -72,7 +72,8 @@ function AchievementsSection({
     <section className="bg-paper py-10 md:py-20">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.02em] text-ink">
-          Taškai.
+          Mano<br />
+          <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>taškai.</span>
         </h2>
 
         <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-12">
@@ -723,7 +724,8 @@ export default function Account() {
       <section className="bg-paper py-10 md:py-20">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.02em] text-ink">
-            Mano produktai.
+            Mano<br />
+            <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>produktai.</span>
           </h2>
 
           {ordersLoading ? (
@@ -839,7 +841,8 @@ export default function Account() {
       <section className="bg-paper py-10 md:py-20">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.02em] text-ink">
-            Mokėjimai.
+            Mano<br />
+            <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>mokėjimai.</span>
           </h2>
 
           <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-12">
@@ -960,7 +963,8 @@ export default function Account() {
         <section className="bg-paper py-10 md:py-20">
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.02em] text-ink">
-              Dovanų kortelės.
+              Dovanų<br />
+              <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>kortelės.</span>
             </h2>
 
             <div className="mt-8">

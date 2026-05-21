@@ -3,22 +3,19 @@ import { Separator } from '@/components/ui/separator'
 
 const footerLinks = {
   Prenumerata: [
-    { label: 'Planai', href: '#plans' },
-    { label: 'Šis mėnuo', href: '#' },
-    { label: 'Archyvas', href: '#' },
-    { label: 'Dovanų kortelės', href: '#' },
+    { label: 'Planai', href: '/subscribe' },
+    { label: 'Rinkiniai', href: '/archive' },
+    { label: 'Bendruomenė', href: '/community' },
+    { label: 'Dovanų kortelės', href: '/gift-cards' },
   ],
   Pagalba: [
     { label: 'D.U.K.', href: '/duk' },
-    { label: 'Praleisti / pristabdyti', href: '/praleisti-pristabdyti' },
     { label: 'Pristatymas', href: '/pristatymas' },
     { label: 'Grąžinimai', href: '/grazinimai' },
   ],
   Įmonė: [
-    { label: 'Apie mus', href: '#' },
-    { label: 'Spauda', href: '#' },
-    { label: 'Keitimų klubas', href: '#' },
-    { label: 'Karjera', href: '#' },
+    { label: 'Apie mus', href: '/apie' },
+    { label: 'Merch', href: '/merch' },
   ],
 }
 
