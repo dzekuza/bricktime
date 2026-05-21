@@ -3,9 +3,10 @@ import { createRoot } from "react-dom/client"
 import { BrowserRouter } from "react-router-dom"
 
 if (import.meta.env.DEV) {
-  import("react-grab").then(({ unregisterPlugin, registerPlugin, claudeChatPlugin }) => {
-    unregisterPlugin("comment") // free up Enter key
-    registerPlugin(claudeChatPlugin) // Enter → Send to Claude
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(import as any)("react-grab").then((m: any) => {
+    m.unregisterPlugin("comment")
+    m.registerPlugin(m.claudeChatPlugin)
   })
 }
 
