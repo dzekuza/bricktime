@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
+import { AuthForm } from "@/components/AuthForm"
 import { useState, useEffect, useMemo } from "react"
 import { supabase } from "@/lib/supabase"
 import { getPlanDisplayName } from "@/lib/plan-branding"
@@ -94,6 +95,7 @@ export default function Checkout() {
   const [confirmed, setConfirmed] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [showModal, setShowModal] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
   const [homeDelivery, setHomeDelivery] = useState(false)
   const [giftCardInput, setGiftCardInput] = useState("")
   const [appliedGiftCard, setAppliedGiftCard] = useState<{ code: string; amountCents: number } | null>(null)
@@ -764,7 +766,7 @@ export default function Checkout() {
                     </button>
                     {!user && (
                       <p className="mt-2 text-center text-[13px] text-ink/40">
-                        <button onClick={() => setShowModal(true)} className="underline hover:text-ink">Prisijunk</button> prieš perkant
+                        <button onClick={() => setShowAuthModal(true)} className="underline hover:text-ink">Prisijunk</button> prieš perkant
                       </p>
                     )}
                   </div>
@@ -860,6 +862,19 @@ export default function Checkout() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Auth dialog */}
+      <Dialog open={showAuthModal} onOpenChange={setShowAuthModal}>
+        <DialogContent className="brick-card w-[calc(100vw-2rem)] max-w-[380px] gap-0 border-0 bg-paper p-6 shadow-none">
+          <DialogTitle className="heading-display text-d-xs mb-1 text-ink">
+            Prisijungti
+          </DialogTitle>
+          <DialogDescription className="mb-4 text-[13px] leading-[1.6] text-ink/50">
+            Prisijunk arba sukurk paskyrą, kad galėtum tęsti.
+          </DialogDescription>
+          <AuthForm onClose={() => setShowAuthModal(false)} />
         </DialogContent>
       </Dialog>
     </div>
