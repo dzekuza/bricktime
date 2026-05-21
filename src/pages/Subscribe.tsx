@@ -191,21 +191,41 @@ export default function Subscribe() {
   const [couponError, setCouponError] = useState<string | null>(null)
   const [couponLoading, setCouponLoading] = useState(false)
 
-  // Auto-apply gift card code passed from checkout via ?code=
+  // Auto-apply gift card or coupon passed from checkout via ?code= / ?coupon=
   useEffect(() => {
-    const code = params.get("code")
-    if (!code || appliedCoupon) return
-    supabase.functions.invoke('verify-gift-card', { body: { code: code.toUpperCase() } }).then(({ data }) => {
-      if (data?.valid) {
-        setAppliedCoupon({
-          code: code.toUpperCase(),
-          discount_type: "fixed",
-          discount_value: data.amountCents / 100,
-          duration_months: null,
-          giftCardCode: code.toUpperCase(),
+    if (appliedCoupon) return
+    const giftCode = params.get("code")
+    if (giftCode) {
+      supabase.functions.invoke('verify-gift-card', { body: { code: giftCode.toUpperCase() } }).then(({ data }) => {
+        if (data?.valid) {
+          setAppliedCoupon({
+            code: giftCode.toUpperCase(),
+            discount_type: "fixed",
+            discount_value: data.amountCents / 100,
+            duration_months: null,
+            giftCardCode: giftCode.toUpperCase(),
+          })
+        }
+      })
+      return
+    }
+    const couponCode = params.get("coupon")
+    if (couponCode) {
+      supabase.from("coupons")
+        .select("code, discount_type, discount_value, duration_months, max_uses, uses_count, expires_at, active")
+        .eq("code", couponCode.toUpperCase())
+        .single()
+        .then(({ data }) => {
+          if (data?.active) {
+            setAppliedCoupon({
+              code: data.code,
+              discount_type: data.discount_type as "percentage" | "fixed",
+              discount_value: Number(data.discount_value),
+              duration_months: data.duration_months,
+            })
+          }
         })
-      }
-    })
+    }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handlePurchase() {

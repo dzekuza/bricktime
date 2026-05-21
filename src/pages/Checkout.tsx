@@ -98,6 +98,10 @@ export default function Checkout() {
   const [appliedGiftCard, setAppliedGiftCard] = useState<{ code: string; amountCents: number } | null>(null)
   const [giftCardError, setGiftCardError] = useState<string | null>(null)
   const [giftCardLoading, setGiftCardLoading] = useState(false)
+  const [couponInput, setCouponInput] = useState("")
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount_type: "percentage" | "fixed"; discount_value: number } | null>(null)
+  const [couponError, setCouponError] = useState<string | null>(null)
+  const [couponLoading, setCouponLoading] = useState(false)
 
   useEffect(() => {
     if (!productId) { setLoading(false); return }
@@ -150,6 +154,25 @@ export default function Checkout() {
     }
     setAppliedGiftCard({ code, amountCents: data.amountCents })
     setGiftCardInput("")
+  }
+
+  async function applyCoupon() {
+    const code = couponInput.trim().toUpperCase()
+    if (!code) return
+    setCouponLoading(true)
+    setCouponError(null)
+    const { data, error } = await supabase
+      .from("coupons")
+      .select("code, discount_type, discount_value, max_uses, uses_count, expires_at, active")
+      .eq("code", code)
+      .single()
+    setCouponLoading(false)
+    if (error || !data) { setCouponError("Kodas nerastas"); return }
+    if (!data.active) { setCouponError("Kodas neaktyvus"); return }
+    if (data.expires_at && new Date(data.expires_at) < new Date()) { setCouponError("Kodas nebegalioja"); return }
+    if (data.max_uses != null && data.uses_count >= data.max_uses) { setCouponError("Kodas jau panaudotas"); return }
+    setAppliedCoupon({ code: data.code, discount_type: data.discount_type, discount_value: Number(data.discount_value) })
+    setCouponInput("")
   }
 
   async function handleConfirm() {
@@ -563,52 +586,87 @@ export default function Checkout() {
                     </p>
                   </div>
 
-                  {/* Gift card */}
-                  <div className="mt-6">
-                    <p className="label-mono mb-3 text-ink/40">Dovanų kortelė</p>
-                    {appliedGiftCard ? (
-                      <div className="flex items-center justify-between rounded-2xl border-2 border-brand-mint bg-brand-mint/10 px-5 py-4">
-                        <div>
-                          <p className="label-mono text-ink/50">Pritaikyta</p>
-                          <p className="mt-0.5 font-mono text-[14px] font-bold text-ink">
-                            {appliedGiftCard.code} —{" "}
-                            <span className="text-brand-orange">
-                              €{(appliedGiftCard.amountCents / 100).toFixed(2)}
-                            </span>
-                          </p>
+                  {/* Coupon + Gift card */}
+                  <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {/* Coupon code */}
+                    <div>
+                      <p className="label-mono mb-2 text-ink/40">Nuolaidos kodas</p>
+                      {appliedCoupon ? (
+                        <div className="flex items-center justify-between rounded-2xl border-2 border-brand-yellow bg-brand-yellow/20 px-4 py-3">
+                          <div>
+                            <p className="label-mono text-[9px] text-ink/50">Pritaikyta</p>
+                            <p className="font-mono text-[13px] font-bold text-ink">
+                              {appliedCoupon.code} —{" "}
+                              <span className="text-brand-orange">
+                                {appliedCoupon.discount_type === "percentage"
+                                  ? `${appliedCoupon.discount_value}% off`
+                                  : `€${appliedCoupon.discount_value} off`}
+                              </span>
+                            </p>
+                          </div>
+                          <button onClick={() => setAppliedCoupon(null)} className="font-mono text-[16px] text-ink/30 hover:text-ink">✕</button>
                         </div>
-                        <button
-                          onClick={() => setAppliedGiftCard(null)}
-                          className="font-mono text-[18px] text-ink/30 transition-colors hover:text-ink"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={giftCardInput}
-                          onChange={(e) => {
-                            setGiftCardInput(e.target.value.toUpperCase())
-                            setGiftCardError(null)
-                          }}
-                          onKeyDown={(e) => e.key === "Enter" && applyGiftCard()}
-                          placeholder="XXXX-XXXX-XXXX"
-                          className="flex-1 rounded-2xl border-2 border-ink/20 bg-ink/[.02] px-5 py-3.5 font-mono text-[13px] uppercase tracking-widest outline-none transition-colors focus:border-ink"
-                        />
-                        <button
-                          onClick={applyGiftCard}
-                          disabled={giftCardLoading || !giftCardInput.trim()}
-                          className="rounded-2xl border-2 border-ink bg-ink px-5 py-3.5 font-mono text-[12px] font-bold text-paper disabled:opacity-40"
-                        >
-                          {giftCardLoading ? "…" : "Taikyti"}
-                        </button>
-                      </div>
-                    )}
-                    {giftCardError && (
-                      <p className="mt-2 font-mono text-[11px] text-red-500">{giftCardError}</p>
-                    )}
+                      ) : (
+                        <>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={couponInput}
+                              onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(null) }}
+                              onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
+                              placeholder="KODAS"
+                              className="flex-1 rounded-2xl border-2 border-ink/20 bg-ink/[.02] px-4 py-3 font-mono text-[13px] uppercase tracking-widest outline-none transition-colors focus:border-ink"
+                            />
+                            <button
+                              onClick={applyCoupon}
+                              disabled={couponLoading || !couponInput.trim()}
+                              className="rounded-2xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[12px] font-bold text-paper disabled:opacity-40"
+                            >
+                              {couponLoading ? "…" : "Taikyti"}
+                            </button>
+                          </div>
+                          {couponError && <p className="mt-1.5 font-mono text-[11px] text-red-500">{couponError}</p>}
+                        </>
+                      )}
+                    </div>
+
+                    {/* Gift card */}
+                    <div>
+                      <p className="label-mono mb-2 text-ink/40">Dovanų kortelė</p>
+                      {appliedGiftCard ? (
+                        <div className="flex items-center justify-between rounded-2xl border-2 border-brand-mint bg-brand-mint/10 px-4 py-3">
+                          <div>
+                            <p className="label-mono text-[9px] text-ink/50">Pritaikyta</p>
+                            <p className="font-mono text-[13px] font-bold text-ink">
+                              {appliedGiftCard.code} —{" "}
+                              <span className="text-brand-orange">€{(appliedGiftCard.amountCents / 100).toFixed(2)}</span>
+                            </p>
+                          </div>
+                          <button onClick={() => setAppliedGiftCard(null)} className="font-mono text-[16px] text-ink/30 hover:text-ink">✕</button>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={giftCardInput}
+                              onChange={(e) => { setGiftCardInput(e.target.value.toUpperCase()); setGiftCardError(null) }}
+                              onKeyDown={(e) => e.key === "Enter" && applyGiftCard()}
+                              placeholder="XXXX-XXXX"
+                              className="flex-1 rounded-2xl border-2 border-ink/20 bg-ink/[.02] px-4 py-3 font-mono text-[13px] uppercase tracking-widest outline-none transition-colors focus:border-ink"
+                            />
+                            <button
+                              onClick={applyGiftCard}
+                              disabled={giftCardLoading || !giftCardInput.trim()}
+                              className="rounded-2xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[12px] font-bold text-paper disabled:opacity-40"
+                            >
+                              {giftCardLoading ? "…" : "Taikyti"}
+                            </button>
+                          </div>
+                          {giftCardError && <p className="mt-1.5 font-mono text-[11px] text-red-500">{giftCardError}</p>}
+                        </>
+                      )}
+                    </div>
                   </div>
 
                   {/* What you get */}
@@ -631,7 +689,7 @@ export default function Checkout() {
 
                   <div className="mt-auto pt-6">
                     <Link
-                      to={`/subscribe?plan=${requiredTier.name.toLowerCase()}${appliedGiftCard ? `&code=${appliedGiftCard.code}` : ""}`}
+                      to={`/subscribe?plan=${requiredTier.name.toLowerCase()}${appliedGiftCard ? `&code=${appliedGiftCard.code}` : ""}${appliedCoupon ? `&coupon=${appliedCoupon.code}` : ""}`}
                       className="brick-hover-sm flex w-full items-center justify-between rounded-[28px] border-2 border-ink bg-brand-orange px-6 py-4 text-paper transition-all"
                     >
                       <span className="font-display text-[22px] leading-none">
@@ -663,7 +721,7 @@ export default function Checkout() {
               </button>
             ) : (
               <Link
-                to={`/subscribe?plan=${requiredTier.name.toLowerCase()}${appliedGiftCard ? `&code=${appliedGiftCard.code}` : ""}`}
+                to={`/subscribe?plan=${requiredTier.name.toLowerCase()}${appliedGiftCard ? `&code=${appliedGiftCard.code}` : ""}${appliedCoupon ? `&coupon=${appliedCoupon.code}` : ""}`}
                 className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-brand-orange px-5 py-3.5 text-paper"
               >
                 <span className="font-display text-[18px] leading-none">
