@@ -1,29 +1,6 @@
-import { createContext, useContext, useState } from 'react'
+import { useContext } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-
-// ── Context so dynamic pages (Drop, MerchDrop, etc.) can push a label ────────
-
-interface BreadcrumbCtx {
-  label: string | null
-  setLabel: (l: string | null) => void
-}
-
-const BreadcrumbContext = createContext<BreadcrumbCtx>({ label: null, setLabel: () => {} })
-
-export function BreadcrumbProvider({ children }: { children: React.ReactNode }) {
-  const [label, setLabel] = useState<string | null>(null)
-  return (
-    <BreadcrumbContext.Provider value={{ label, setLabel }}>
-      {children}
-    </BreadcrumbContext.Provider>
-  )
-}
-
-export function useBreadcrumbLabel() {
-  return useContext(BreadcrumbContext)
-}
-
-// ── Route config ─────────────────────────────────────────────────────────────
+import { BreadcrumbContext } from '@/contexts/BreadcrumbContext'
 
 type Crumb = { label: string; to?: string }
 
@@ -42,9 +19,9 @@ const EXACT: Record<string, Crumb[]> = {
 }
 
 const PREFIX: Array<{ match: string; parent: Crumb; fallback: string }> = [
-  { match: '/drop/',    parent: { label: 'Rinkiniai', to: '/archive' },   fallback: 'Rinkinio detalės' },
-  { match: '/merch/',   parent: { label: 'Merch',     to: '/merch' },     fallback: 'Produktas' },
-  { match: '/profile/', parent: { label: 'Bendruomenė', to: '/community' }, fallback: 'Profilis' },
+  { match: '/drop/',    parent: { label: 'Rinkiniai',    to: '/archive' },   fallback: 'Rinkinio detalės' },
+  { match: '/merch/',   parent: { label: 'Merch',        to: '/merch' },     fallback: 'Produktas' },
+  { match: '/profile/', parent: { label: 'Bendruomenė',  to: '/community' }, fallback: 'Profilis' },
 ]
 
 function getCrumbs(pathname: string, dynamicLabel: string | null): Crumb[] | null {
@@ -61,8 +38,6 @@ function getCrumbs(pathname: string, dynamicLabel: string | null): Crumb[] | nul
 
   return null
 }
-
-// ── Component ─────────────────────────────────────────────────────────────────
 
 export default function Breadcrumb() {
   const { pathname } = useLocation()

@@ -49,6 +49,7 @@ export function NextDrop() {
   const [userTier, setUserTier] = useState<string | null>(null)
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [released, setReleased] = useState(false)
+  const [now] = useState(() => Date.now())
 
   // Fetch next upcoming product
   useEffect(() => {
@@ -107,7 +108,6 @@ export function NextDrop() {
 
   const releaseDate = new Date(product.release_date)
   const earlyAccessStart = new Date(releaseDate.getTime() - product.early_access_hours * 3600 * 1000)
-  const now = Date.now()
   const inEarlyWindow = now >= earlyAccessStart.getTime() && now < releaseDate.getTime()
   const earlyAccessGranted = inEarlyWindow && userTier !== null && product.early_access_tiers.includes(userTier)
 

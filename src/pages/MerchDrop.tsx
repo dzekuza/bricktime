@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import Nav from '@/components/Nav'
-import { useBreadcrumbLabel } from '@/components/Breadcrumb'
+import { useBreadcrumbLabel } from '@/contexts/BreadcrumbContext'
 import Footer from '@/components/Footer'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
@@ -59,6 +59,7 @@ export default function MerchDrop() {
         setLabel((data as MerchItem).name)
         setLoading(false)
       })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, navigate])
 
   if (loading) {

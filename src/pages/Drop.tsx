@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { Link, useParams } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import Nav from "@/components/Nav"
-import { useBreadcrumbLabel } from "@/components/Breadcrumb"
+import { useBreadcrumbLabel } from "@/contexts/BreadcrumbContext"
 import Footer from "@/components/Footer"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -219,6 +219,7 @@ export default function Drop() {
           setLabel(p.title)
         }
       })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   useEffect(() => {

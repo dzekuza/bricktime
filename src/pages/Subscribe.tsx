@@ -221,7 +221,7 @@ export default function Subscribe() {
       setPurchaseError(error?.message ?? "Checkout nepavyko. Bandyk dar kartą.")
       return
     }
-    window.location.href = data.url
+    window.location.assign(data.url)
   }
 
   // handle Stripe success redirect: ?success=true&plan=xxx

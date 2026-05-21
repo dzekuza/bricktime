@@ -263,7 +263,7 @@ function ProductCard({ product, delay }: { product: Product; delay: number }) {
 
 export default function FeaturedProducts() {
   const ref = useReveal<HTMLDivElement>()
-  const [sort, setSort] = useState(SORT_OPTIONS[0])
+  const [sort, setSort] = useState<(typeof SORT_OPTIONS)[number]>(SORT_OPTIONS[0])
   const [filters, setFilters] = useState<Filters>({ series: null, plan: null, age: null })
 
   const handleFilter = (key: FilterKey, value: string | null) => {

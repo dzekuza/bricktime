@@ -38,6 +38,7 @@ function planTier(plan: string, level: number) {
   return { label: getPlanDisplayName(plan), bg: theme?.bg ?? "#1C1C2E", textColor: theme?.textColor ?? "#F5F1EB", level }
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const tierConfig: Record<Tier, { label: string; bg: string; textColor: string; level: number }> = {
   nano:      planTier("nano",     1),
   mini:      planTier("mini",     2),
@@ -59,6 +60,7 @@ function formatReleaseDate(iso: string | null): string {
   return `${d.getFullYear()} ${LT_MONTHS[d.getMonth()]}`
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function dbToProduct(row: Record<string, unknown>): Product {
   const status = row.status as string
   let badge: Product["badge"]
