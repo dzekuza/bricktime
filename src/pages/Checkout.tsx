@@ -421,14 +421,6 @@ export default function Checkout() {
       <section className="py-8 pb-32 md:py-14 md:pb-14">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
 
-          {/* Back + breadcrumb */}
-          <Link
-            to={`/drop/${product.id}`}
-            className="label-mono mb-8 inline-flex items-center gap-2 text-ink/40 transition-colors hover:text-ink"
-          >
-            ← Atgal į produktą
-          </Link>
-
           {/* Header */}
           <div className="mb-8 flex items-end justify-between gap-4">
             <h1 className="heading-display text-d-lg text-ink">Užsakymas</h1>
