@@ -53,3 +53,4 @@ Thumbs.db
 *.jpeg
 brand.css
 index.html
+.env*.local

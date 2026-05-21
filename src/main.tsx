@@ -2,6 +2,13 @@ import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { BrowserRouter } from "react-router-dom"
 
+if (import.meta.env.DEV) {
+  (window as any).__REACT_GRAB_DISABLED__ = true
+  import("react-grab").then(({ mountClaudeChatPanel }) => {
+    mountClaudeChatPanel()
+  })
+}
+
 import "./index.css"
 import App from "./App.tsx"
 import { BreadcrumbProvider } from "@/contexts/BreadcrumbContext"
