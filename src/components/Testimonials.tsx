@@ -1,6 +1,6 @@
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState, useCallback } from "react"
 import gsap from "gsap"
-import { StarIcon } from "lucide-react"
+import { StarIcon, ArrowLeft, ArrowRight } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 const testimonials = [
@@ -31,10 +31,22 @@ const testimonials = [
     initials: "YS",
     bg: "#FFAEE7",
   },
+  {
+    quote:
+      '"Kiekvienas mėnuo — siurprizas. Mano kolegos jau pavydi."',
+    name: "Jonas K.",
+    meta: "Pro lygis · 6 mėnesiai",
+    avatarColor: "#FFD731",
+    initials: "JK",
+    bg: "#ffffff",
+  },
 ]
 
+const CARD_WIDTH = 460
+const CARD_GAP = 16
+const STEP = CARD_WIDTH + CARD_GAP
+
 function onCardEnter(e: React.MouseEvent<HTMLDivElement>) {
-  gsap.killTweensOf(e.currentTarget.querySelector(".stars"))
   gsap.to(e.currentTarget.querySelector(".stars"), {
     scale: 1.3,
     y: -4,
@@ -44,7 +56,6 @@ function onCardEnter(e: React.MouseEvent<HTMLDivElement>) {
   })
 }
 function onCardLeave(e: React.MouseEvent<HTMLDivElement>) {
-  gsap.killTweensOf(e.currentTarget.querySelector(".stars"))
   gsap.to(e.currentTarget.querySelector(".stars"), {
     scale: 1,
     y: 0,
@@ -56,20 +67,45 @@ function onCardLeave(e: React.MouseEvent<HTMLDivElement>) {
 
 export default function Testimonials() {
   const trackRef = useRef<HTMLDivElement>(null)
-  const tweenRef = useRef<gsap.core.Tween | null>(null)
+  const autoRef = useRef<gsap.core.Tween | null>(null)
+  const xRef = useRef(0)
+  const [index, setIndex] = useState(0)
+
+  const TOTAL = testimonials.length
+
+  const goTo = useCallback((next: number) => {
+    const clamped = ((next % TOTAL) + TOTAL) % TOTAL
+    setIndex(clamped)
+    xRef.current = -clamped * STEP
+    gsap.to(trackRef.current, {
+      x: xRef.current,
+      duration: 0.55,
+      ease: "power3.out",
+    })
+    // restart auto-scroll after 4s of inactivity
+    autoRef.current?.kill()
+    autoRef.current = gsap.delayedCall(4, () => startAuto(clamped))
+  }, [TOTAL]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const startAuto = useCallback((fromIndex: number) => {
+    let i = fromIndex
+    autoRef.current = gsap.delayedCall(4, function tick() {
+      i = (i + 1) % TOTAL
+      setIndex(i)
+      xRef.current = -i * STEP
+      gsap.to(trackRef.current, {
+        x: xRef.current,
+        duration: 0.55,
+        ease: "power3.out",
+      })
+      autoRef.current = gsap.delayedCall(4, tick)
+    })
+  }, [TOTAL]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    // xPercent: -50 moves the track exactly one full set of cards (half its total width),
-    // creating a seamless loop since the second half is an identical duplicate.
-    tweenRef.current = gsap.to(trackRef.current, {
-      xPercent: -50,
-      repeat: -1,
-      duration: testimonials.length * 7,
-      ease: "none",
-    })
-
-    return () => { tweenRef.current?.kill() }
-  }, [])
+    startAuto(0)
+    return () => { autoRef.current?.kill() }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <section className="bg-paper py-10 md:py-20">
@@ -82,19 +118,54 @@ export default function Testimonials() {
             <br />
             Atsiliepimai.
           </h2>
+
+          {/* Arrow navigation with dots between */}
+          <div className="flex items-center gap-3 pb-1">
+            <button
+              onClick={() => goTo(index - 1)}
+              className="brick-card brick-hover-sm flex size-12 items-center justify-center bg-paper text-ink transition-all"
+              aria-label="Ankstesnis"
+            >
+              <ArrowLeft className="size-5" />
+            </button>
+
+            <div className="flex items-center gap-2">
+              {testimonials.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => goTo(i)}
+                  className={`h-2 rounded-full border border-ink transition-all duration-300 ${
+                    i === index ? "w-6 bg-ink" : "w-2 bg-transparent"
+                  }`}
+                  aria-label={`Atsiliepimai ${i + 1}`}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={() => goTo(index + 1)}
+              className="brick-card brick-hover-sm flex size-12 items-center justify-center bg-ink text-paper transition-all"
+              aria-label="Kitas"
+            >
+              <ArrowRight className="size-5" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Full-bleed ticker — overflow clip sits outside the max-width container */}
+      {/* Full-bleed cards */}
       <div className="overflow-hidden py-3">
-        <div ref={trackRef} className="flex w-max gap-4 px-2">
-          {[...testimonials, ...testimonials].map((t, i) => (
+        <div
+          ref={trackRef}
+          className="flex w-max gap-4 px-4 md:px-7"
+          style={{ x: 0 } as React.CSSProperties}
+        >
+          {testimonials.map((t, i) => (
             <div key={i} className="w-[340px] flex-none md:w-[460px]">
               <div
-                className="brick-card brick-card-hover flex min-h-[300px] flex-col justify-between p-6 md:p-10"
-                style={{ background: "#ffffff" }}
-                onMouseEnter={(e) => { tweenRef.current?.pause(); onCardEnter(e) }}
-                onMouseLeave={(e) => { tweenRef.current?.play(); onCardLeave(e) }}
+                className="brick-card flex min-h-[300px] flex-col justify-between p-6 md:p-10 bg-white transition-all"
+                onMouseEnter={(e) => { autoRef.current?.pause?.(); onCardEnter(e) }}
+                onMouseLeave={(e) => { autoRef.current?.resume?.(); onCardLeave(e) }}
               >
                 <div className="stars flex gap-0.5 text-brand-orange">
                   {Array.from({ length: 5 }).map((_, j) => (
@@ -125,6 +196,7 @@ export default function Testimonials() {
           ))}
         </div>
       </div>
+
     </section>
   )
 }
