@@ -94,6 +94,10 @@ export default function Checkout() {
   const [confirming, setConfirming] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [homeDelivery, setHomeDelivery] = useState(false)
+  const [giftCardInput, setGiftCardInput] = useState("")
+  const [appliedGiftCard, setAppliedGiftCard] = useState<{ code: string; amountCents: number } | null>(null)
+  const [giftCardError, setGiftCardError] = useState<string | null>(null)
+  const [giftCardLoading, setGiftCardLoading] = useState(false)
 
   useEffect(() => {
     if (!productId) { setLoading(false); return }
@@ -132,6 +136,21 @@ export default function Checkout() {
     () => userSub !== null && userSub.level >= requiredTier.level,
     [userSub, requiredTier]
   )
+
+  async function applyGiftCard() {
+    const code = giftCardInput.trim().toUpperCase()
+    if (!code) return
+    setGiftCardLoading(true)
+    setGiftCardError(null)
+    const { data, error } = await supabase.functions.invoke('verify-gift-card', { body: { code } })
+    setGiftCardLoading(false)
+    if (error || !data?.valid) {
+      setGiftCardError(data?.error ?? "Kodas nerastas arba nebegalioja")
+      return
+    }
+    setAppliedGiftCard({ code, amountCents: data.amountCents })
+    setGiftCardInput("")
+  }
 
   async function handleConfirm() {
     if (!user || !product) return
@@ -529,6 +548,50 @@ export default function Checkout() {
                   </div>
                 )}
 
+                {/* Gift card input */}
+                {!isEligible && (
+                  <div className="rounded-2xl border-2 border-ink/10 bg-ink/[.03] p-4">
+                    <p className="label-mono mb-3 text-ink/40">Dovanų kortelė</p>
+                    {appliedGiftCard ? (
+                      <div className="flex items-center justify-between rounded-xl border-2 border-brand-mint bg-brand-mint/10 px-4 py-2.5">
+                        <div>
+                          <span className="label-mono text-ink/50">Pritaikyta</span>
+                          <p className="font-mono text-[13px] font-bold text-ink">
+                            {appliedGiftCard.code} — €{(appliedGiftCard.amountCents / 100).toFixed(2)}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => setAppliedGiftCard(null)}
+                          className="label-mono text-ink/40 hover:text-ink"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={giftCardInput}
+                          onChange={(e) => { setGiftCardInput(e.target.value.toUpperCase()); setGiftCardError(null) }}
+                          onKeyDown={(e) => e.key === 'Enter' && applyGiftCard()}
+                          placeholder="XXXX-XXXX-XXXX"
+                          className="flex-1 rounded-xl border-2 border-ink/20 bg-white px-4 py-2.5 font-mono text-[13px] uppercase tracking-widest outline-none focus:border-ink"
+                        />
+                        <button
+                          onClick={applyGiftCard}
+                          disabled={giftCardLoading || !giftCardInput.trim()}
+                          className="rounded-xl border-2 border-ink bg-ink px-4 py-2.5 font-mono text-[12px] font-bold text-paper disabled:opacity-40"
+                        >
+                          {giftCardLoading ? "…" : "Taikyti"}
+                        </button>
+                      </div>
+                    )}
+                    {giftCardError && (
+                      <p className="mt-2 font-mono text-[11px] text-red-500">{giftCardError}</p>
+                    )}
+                  </div>
+                )}
+
                 {/* Desktop CTA */}
                 <div className="mt-auto hidden flex-col items-center gap-2 lg:flex">
                   {isEligible ? (
@@ -546,7 +609,7 @@ export default function Checkout() {
                       className="brick-hover-sm w-full rounded-full border-2 border-ink bg-brand-orange text-[15px] font-bold text-paper"
                     >
                       <Link
-                        to={`/subscribe?plan=${requiredTier.name.toLowerCase()}`}
+                        to={`/subscribe?plan=${requiredTier.name.toLowerCase()}${appliedGiftCard ? `&code=${appliedGiftCard.code}` : ''}`}
                       >
                         {userSub ? "Paaukštinti →" : "Prenumeruoti →"}
                       </Link>
@@ -594,7 +657,7 @@ export default function Checkout() {
                 size="lg"
                 className="brick-hover-sm w-full rounded-full border-2 border-ink bg-brand-orange text-[15px] font-bold text-paper"
               >
-                <Link to={`/subscribe?plan=${requiredTier.name.toLowerCase()}`}>
+                <Link to={`/subscribe?plan=${requiredTier.name.toLowerCase()}${appliedGiftCard ? `&code=${appliedGiftCard.code}` : ''}`}>
                   {userSub ? "Paaukštinti →" : "Prenumeruoti →"}
                 </Link>
               </Button>

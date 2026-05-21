@@ -191,6 +191,23 @@ export default function Subscribe() {
   const [couponError, setCouponError] = useState<string | null>(null)
   const [couponLoading, setCouponLoading] = useState(false)
 
+  // Auto-apply gift card code passed from checkout via ?code=
+  useEffect(() => {
+    const code = params.get("code")
+    if (!code || appliedCoupon) return
+    supabase.functions.invoke('verify-gift-card', { body: { code: code.toUpperCase() } }).then(({ data }) => {
+      if (data?.valid) {
+        setAppliedCoupon({
+          code: code.toUpperCase(),
+          discount_type: "fixed",
+          discount_value: data.amountCents / 100,
+          duration_months: null,
+          giftCardCode: code.toUpperCase(),
+        })
+      }
+    })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   async function handlePurchase() {
     if (!user) {
       setPurchaseError("Prisijunk prie paskyros prieš perkant.")
