@@ -114,16 +114,18 @@ export default function GiftCards() {
       {/* Hero */}
       <section className="bg-paper py-4 md:py-6">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div className="brick-card flex min-h-[260px] flex-col justify-end bg-ink p-6 md:p-9">
-            <h1 className="heading-display text-d-xl max-w-[18ch] tracking-[-0.015em] text-paper">
-              DOVANK{' '}
-              <span className="inline-block italic text-brand-yellow" style={{ transform: 'skewX(-8deg)' }}>
-                LEGO džiaugsmą.
-              </span>
-            </h1>
-            <p className="mt-4 max-w-[52ch] text-[17px] leading-[1.65] text-paper/60">
-              Dovanos kortelę galima panaudoti užsisakant prenumeratą arba įsigyjant merch. Galioja vienerius metus.
-            </p>
+          <div className="brick-card relative flex min-h-[260px] flex-col justify-end overflow-hidden bg-ink p-6 md:p-9">
+            <div className="relative z-10">
+              <h1 className="heading-display text-d-xl max-w-[18ch] tracking-[-0.015em] text-paper">
+                DOVANK{' '}
+                <span className="inline-block italic text-brand-yellow" style={{ transform: 'skewX(-8deg)' }}>
+                  LEGO džiaugsmą.
+                </span>
+              </h1>
+              <p className="mt-4 max-w-[52ch] text-[17px] leading-[1.65] text-paper/60">
+                Dovanos kortelę galima panaudoti užsisakant prenumeratą arba įsigyjant merch. Galioja vienerius metus.
+              </p>
+            </div>
           </div>
         </div>
       </section>

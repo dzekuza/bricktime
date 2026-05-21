@@ -470,7 +470,7 @@ export default function Account() {
       <Nav />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="bg-paper py-10 md:py-20">
+      <section className="bg-paper pt-6 pb-4">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
             {/* User tile */}

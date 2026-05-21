@@ -420,7 +420,7 @@ export default function Checkout() {
     <div className="min-h-screen bg-paper">
       <Nav />
 
-      <section className="py-8 pb-32 md:py-14 md:pb-14">
+      <section className="pt-6 pb-4">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
 
           {/* Header */}
