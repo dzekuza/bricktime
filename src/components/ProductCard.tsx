@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { ArrowRightIcon } from "lucide-react"
-import { getPlanDisplayName, getPlanTheme } from "@/lib/plan-branding"
+import { getPlanDisplayName, getPlanTheme, getPlanBrickSvg } from "@/lib/plan-branding"
 
 export type Tier =
   | "nano"
@@ -38,15 +38,6 @@ function planTier(plan: string, level: number) {
   return { label: getPlanDisplayName(plan), bg: theme?.bg ?? "#1C1C2E", textColor: theme?.textColor ?? "#F5F1EB", level }
 }
 
-const TIER_BRICK: Record<Tier, string> = {
-  nano:      "/bricks/brick-green.svg",
-  mini:      "/bricks/brick-orange.svg",
-  standard:  "/bricks/brick-blue.svg",
-  pro:       "/bricks/brick-pink.svg",
-  mega:      "/bricks/brick-purple.svg",
-  mystery_s: "/bricks/brick-yellow.svg",
-  mystery_m: "/bricks/brick-pink.svg",
-}
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const tierConfig: Record<Tier, { label: string; bg: string; textColor: string; level: number }> = {
@@ -194,7 +185,7 @@ export function ProductCard({ product }: { product: Product }) {
           className="absolute top-[14px] left-[14px] z-10 flex size-[58px] items-center justify-center rounded-full border-2 border-ink shadow-[3px_3px_0_#001B21]"
           style={{ background: tier.bg }}
         >
-          <img src={TIER_BRICK[product.requiredTier]} alt="" className="size-8 object-contain" />
+          <img src={getPlanBrickSvg(product.requiredTier)} alt="" className="size-8 object-contain" />
         </div>
 
         {product.badge && (

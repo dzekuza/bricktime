@@ -3,6 +3,7 @@ import { ArrowRight, ChevronDown, Check } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useReveal } from '@/hooks/useReveal'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { getPlanBrickSvg, getPlanTheme } from '@/lib/plan-branding'
 
 type Product = {
   id: number
@@ -131,7 +132,7 @@ function FilterPill({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
-          className="flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-4 py-1.5 data-[state=open]:bg-ink data-[state=open]:text-paper"
+          className="flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-4 py-1.5 brick-hover-sm data-[state=open]:bg-ink data-[state=open]:text-paper"
           style={active ? { backgroundColor: '#FFD731' } : undefined}
         >
           <span className="label-mono">{label}</span>
@@ -173,7 +174,7 @@ function SortPill({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-4 py-1.5 data-[state=open]:bg-ink data-[state=open]:text-paper">
+        <button className="flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-4 py-1.5 brick-hover-sm data-[state=open]:bg-ink data-[state=open]:text-paper">
           <span className="label-mono">Rūšiuoti: {selected.label}</span>
           <ChevronDown size={12} className="text-current opacity-50" />
         </button>
@@ -216,11 +217,18 @@ function ProductCard({ product, delay }: { product: Product; delay: number }) {
           alt={product.name}
           className="h-full w-full object-contain p-6"
         />
-        <img
-          src={product.brickImage}
-          alt=""
-          className="pointer-events-none absolute left-4 top-4 h-12 w-auto select-none"
-        />
+        {(() => {
+          const planBrick = getPlanBrickSvg(product.stats.plan)
+          const planTheme = getPlanTheme(product.stats.plan)
+          return (
+            <div
+              className="pointer-events-none absolute left-4 top-4 flex h-12 w-12 items-center justify-center rounded-xl border-2 border-ink shadow-[3px_3px_0_#001B21]"
+              style={{ backgroundColor: planTheme?.bg ?? '#FFD731' }}
+            >
+              <img src={planBrick} alt="" className="h-8 w-auto select-none" />
+            </div>
+          )
+        })()}
         {product.isNew && (
           <div className="absolute right-3 top-3 -rotate-12">
             <div
