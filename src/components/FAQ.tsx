@@ -80,7 +80,7 @@ export default function FAQ() {
           {/* FAQ accordion — col-span-7, row-span-2 */}
           <div className="reveal brick-card relative bg-paper p-6 md:p-9 lg:col-span-7 lg:row-span-2">
             <img
-              src="/faq-mascot.png"
+              src="/faq-mascot.svg"
               alt=""
               className="absolute right-6 top-6 w-[100px] md:w-[128px]"
               aria-hidden="true"
