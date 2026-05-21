@@ -3,6 +3,7 @@ import gsap from "gsap"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useReveal } from "@/hooks/useReveal"
+import { useAuth } from "@/hooks/useAuth"
 
 const BRICK_BY_COLOR: Record<string, string> = {
   '#ffd731': '/bricks/brick-yellow.svg',
@@ -67,6 +68,7 @@ export default function Plans({ onSubscribe }: {
   const containerRef = useRef<HTMLDivElement>(null)
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly')
   const { plans, loading } = usePlans()
+  const { profile } = useAuth()
 
   useEffect(() => {
     return () => {
@@ -241,7 +243,15 @@ export default function Plans({ onSubscribe }: {
                       ))}
                     </ul>
 
-                    {onSubscribe ? (
+                    {profile?.plan === plan.id ? (
+                      <Button
+                        disabled
+                        className="mt-6 w-full rounded-full border-2 border-ink text-[14px] font-bold tracking-[.02em] opacity-60 cursor-default"
+                        style={{ background: plan.cta_bg, color: plan.cta_text }}
+                      >
+                        Tavo planas ✓
+                      </Button>
+                    ) : onSubscribe ? (
                       <Button
                         className="mt-6 w-full rounded-full border-2 border-ink text-[14px] font-bold tracking-[.02em] transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
                         style={{ background: plan.cta_bg, color: plan.cta_text }}
