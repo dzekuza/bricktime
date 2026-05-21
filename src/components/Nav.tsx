@@ -7,14 +7,16 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useAuth } from '@/hooks/useAuth'
 import { avatarSrc } from '@/lib/avatars'
 import { AuthForm } from '@/components/AuthForm'
+import { usePlans } from '@/hooks/usePlans'
 
-const PLAN_BUDGETS: Record<string, number> = { nano: 50, mini: 100, standard: 200, pro: 400, mega: 600 }
 const PLAN_COLORS: Record<string, { bg: string; text: string }> = {
   nano:     { bg: '#F5F1EB', text: '#001B21' },
   mini:     { bg: '#FFAEE7', text: '#001B21' },
   standard: { bg: '#FFD731', text: '#001B21' },
   pro:      { bg: '#4DA2FF', text: '#001B21' },
   mega:     { bg: '#FB4903', text: '#F5F1EB' },
+  mystery_s: { bg: '#FFD731', text: '#001B21' },
+  mystery_m: { bg: '#FB4903', text: '#F5F1EB' },
 }
 
 const links = [
@@ -67,29 +69,21 @@ function AvatarPopover() {
 // ── Plan chip (shown when subscribed) ────────────────────────────────────────
 
 function PlanChip({ plan }: { plan: string }) {
-  const budget = PLAN_BUDGETS[plan] ?? 0
-  const colors = PLAN_COLORS[plan] ?? { bg: '#F5F1EB', text: '#001B21' }
+  const { plans } = usePlans()
+  const dbPlan = plans.find(p => p.id === plan)
+  const bg = dbPlan?.bg_color ?? PLAN_COLORS[plan]?.bg ?? '#F5F1EB'
+  const text = dbPlan?.text_color ?? PLAN_COLORS[plan]?.text ?? '#001B21'
+  const name = dbPlan?.name ?? (plan.charAt(0).toUpperCase() + plan.slice(1))
 
   return (
     <Link
       to="/account"
-      className="hidden md:flex items-center gap-2.5 rounded-full border-2 border-ink px-3 py-1.5 brick-hover-sm"
-      style={{ background: colors.bg }}
+      className="hidden md:flex items-center gap-2 rounded-full border-2 border-ink px-3 py-1.5 brick-hover-sm"
+      style={{ background: bg }}
     >
-      <span className="font-mono text-[11px] font-bold tracking-[.12em] uppercase" style={{ color: colors.text }}>
-        {plan.charAt(0).toUpperCase() + plan.slice(1)}
+      <span className="font-mono text-[11px] font-bold tracking-[.12em] uppercase" style={{ color: text }}>
+        {name}
       </span>
-      <div className="flex items-center gap-1.5">
-        <div className="h-[6px] w-[52px] rounded-full overflow-hidden border border-black/20">
-          <div
-            className="h-full rounded-full"
-            style={{ width: '100%', background: colors.text === '#001B21' ? '#001B21' : '#F5F1EB', opacity: 0.25 }}
-          />
-        </div>
-        <span className="font-mono text-[10px]" style={{ color: `${colors.text}99` }}>
-          €{budget}
-        </span>
-      </div>
     </Link>
   )
 }

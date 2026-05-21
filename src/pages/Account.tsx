@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { achievementDefs, calculatePoints } from "@/data/community"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
@@ -7,6 +7,7 @@ import type { PlanTier } from "@/lib/database.types"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase"
 import { getPlanDisplayName } from "@/lib/plan-branding"
+import { usePlans } from "@/hooks/usePlans"
 import { MissingPartDialog } from "@/components/MissingPartDialog"
 
 // ── predefined avatars ──────────────────────────────────────────────────────
@@ -30,59 +31,6 @@ const avatarOptions = [
     src: "/avatars/avatar-wizard.png",
     label: "Burtininkas",
     bg: "#5C4ADE",
-  },
-]
-
-const tierOptions = [
-  {
-    name: getPlanDisplayName("nano"),
-    price: 9,
-    budget: 50,
-    productCount: 1,
-    bg: "#F5F1EB",
-    textColor: "#001B21",
-    level: 1,
-    key: "nano" as PlanTier,
-  },
-  {
-    name: getPlanDisplayName("mini"),
-    price: 14,
-    budget: 100,
-    productCount: 4,
-    bg: "#FFAEE7",
-    textColor: "#001B21",
-    level: 2,
-    key: "mini" as PlanTier,
-  },
-  {
-    name: getPlanDisplayName("standard"),
-    price: 24,
-    budget: 200,
-    productCount: 7,
-    bg: "#FFD731",
-    textColor: "#001B21",
-    level: 3,
-    key: "standard" as PlanTier,
-  },
-  {
-    name: getPlanDisplayName("pro"),
-    price: 35,
-    budget: 400,
-    productCount: 8,
-    bg: "#4DA2FF",
-    textColor: "#001B21",
-    level: 4,
-    key: "pro" as PlanTier,
-  },
-  {
-    name: getPlanDisplayName("mega"),
-    price: 55,
-    budget: 600,
-    productCount: 9,
-    bg: "#FB4903",
-    textColor: "#F5F1EB",
-    level: 5,
-    key: "mega" as PlanTier,
   },
 ]
 
@@ -222,6 +170,18 @@ function AchievementsSection({
 // ── page ───────────────────────────────────────────────────────────────────
 export default function Account() {
   const { user, profile } = useAuth()
+  const { plans: dbPlans } = usePlans()
+  const tierOptions = useMemo(
+    () => dbPlans.map((p, i) => ({
+      key: p.id as PlanTier,
+      name: p.name,
+      price: p.price,
+      bg: p.bg_color,
+      textColor: p.text_color,
+      level: i + 1,
+    })),
+    [dbPlans]
+  )
   const [subscriber, setSubscriber] = useState<SubscriberData | null>(null)
   const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set())
   const [postCount, setPostCount] = useState(0)
@@ -583,7 +543,7 @@ export default function Account() {
               <div className="mt-auto grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
                 {[
                   { val: postCount, label: "Įrašai" },
-                  { val: `${activeTier.level}/5`, label: "Plano lygis" },
+                  { val: `${activeTier.level}/${tierOptions.length || 5}`, label: "Plano lygis" },
                   { val: memberSince, label: "Narys nuo" },
                   { val: totalPoints, label: "Taškai" },
                 ].map((s) => (
@@ -619,7 +579,7 @@ export default function Account() {
                     className="text-d-sm font-display leading-none"
                     style={{ color: activeTier.textColor }}
                   >
-                    ${activeTier.price}
+                    €{activeTier.price}
                   </span>
                   <span
                     className="font-mono text-[12px] tracking-[.06em] uppercase"
@@ -704,26 +664,6 @@ export default function Account() {
                         }}
                       >
                         €{t.price}/mėn.
-                      </div>
-                      <div className="mt-3 flex flex-col gap-1 border-t border-black/10 pt-3">
-                        <div
-                          className="font-mono text-[10px]"
-                          style={{
-                            color: selectedTier === i ? t.textColor : "#001B21",
-                          }}
-                        >
-                          €{t.budget}{" "}
-                          <span style={{ opacity: 0.5 }}>biudžetas</span>
-                        </div>
-                        <div
-                          className="font-mono text-[10px]"
-                          style={{
-                            color: selectedTier === i ? t.textColor : "#001B21",
-                          }}
-                        >
-                          {t.productCount}{" "}
-                          <span style={{ opacity: 0.5 }}>produktai</span>
-                        </div>
                       </div>
                     </button>
                   ))}
