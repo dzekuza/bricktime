@@ -10,32 +10,32 @@ import { useReveal } from "@/hooks/useReveal"
 
 const faqs = [
   {
-    q: "Iš ko pagamintos kaladėlės?",
+    q: "Ar visi rinkiniai yra originalūs?",
     a: "Aukštos kokybės ABS plastikas prie pramoninio standarto 1,6 mm tolerancijos. Visiškai suderinamos su bet kokios suderinamos markės kaladėlėmis — užsispaudžia, laiko ir išsiskiria švariai.",
   },
   {
-    q: "Kaip veikia mėnesinis biudžetas?",
-    a: "Kiekvienas planas suteikia fiksuotą € biudžetą. Galite turėti kelis produktus vienu metu — kol bendra vertė neviršija biudžeto. Biudžetas atsinaujina kas mėnesį.",
+    q: "Kas jei trūksta detalės?",
+    a: "Praneši mums — išsiųsime trūkstamą detalę nemokamai. Kiekvienas rinkinys tikrinamas prieš išsiunčiant, tačiau jei kažkas pasimeta kelyje, sutvarkome be jokių papildomų klausimų.",
   },
   {
-    q: "Ar produktai skiriasi pagal planą?",
-    a: "Taip. Kai kurie produktai prieinami tik aukštesnio lygio prenumeratoriams. Starter ir Advanced planai suteikia prieigą prie bazinio katalogo, Builder+ atveria išskirtinius produktus.",
+    q: "Ar galiu pasirinkti konkretų rinkinį?",
+    a: "Taip! Katalogas atviras visiems prenumeratoriams — rinksies pagal savo planą ir biudžetą. Kuo aukštesnis planas, tuo daugiau rinkinių prieinama.",
   },
   {
-    q: "Kur pristatote?",
-    a: "Visame pasaulyje. Nemokamas standartinis pristatymas ES, JK ir JAV. Skubus lygis pristato per 2 darbo dienas.",
+    q: "Kaip veikia grąžinimas?",
+    a: "Iš paskyros skydelio užsakyk nemokamą grąžinimo etiketę, supakuok rinkinį ir išsiųsk. Kai tik grąžinimas patvirtinamas — biudžetas atsinaujina ir gali rinktis naujus rinkinius.",
   },
   {
-    q: "Kaip grąžinti produktą?",
-    a: "Iš paskyros skydelio užsakyk nemokamą grąžinimo etiketę, supakuok produktą ir išsiųsk. Kai tik grąžinimas patvirtinamas — biudžetas atsinaujina ir gali rinktis naujus produktus.",
+    q: "Ar galiu pristabdyti prenumeratą?",
+    a: "Taip, prenumeratą galima pristabdyti bet kada iš paskyros. Pristabdymo metu mokestis neskaičiuojamas, o likęs biudžetas išsaugomas.",
   },
 ]
 
 const stats = [
-  { value: "12 400+", label: "Aktyvūs prenumeratoriai" },
-  { value: "★ 4.9", label: "Vidutinis įvertinimas" },
-  { value: "26", label: "Išsiųstų produktų" },
-  { value: "0", label: "Klausimų be atsakymo" },
+  { value: "12 400+", label: "Aktyvūs prenumeratoriai", yellow: false },
+  { value: "4.9", label: "Vidutinis įvertinimas", yellow: true },
+  { value: "26", label: "Išsiųstų rinkinių", yellow: false },
+  { value: "170", label: "Aktyvių rinkinių", yellow: false },
 ]
 
 export default function FAQ() {
@@ -78,13 +78,19 @@ export default function FAQ() {
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
           {/* FAQ accordion — col-span-7, row-span-2 */}
-          <div className="reveal brick-card bg-paper p-6 md:p-9 lg:col-span-7 lg:row-span-2">
+          <div className="reveal brick-card relative bg-paper p-6 md:p-9 lg:col-span-7 lg:row-span-2">
+            <img
+              src="/faq-mascot.png"
+              alt=""
+              className="absolute right-6 top-6 w-[100px] md:w-[128px]"
+              aria-hidden="true"
+            />
             <h2 className="heading-display text-d-lg mt-3 text-ink">
               <span
                 className="inline-block border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
                 style={{ transform: "rotate(-1.5deg)" }}
               >
-                Greiti
+                Dažniausi
               </span>
               <br />
               klausimai.
@@ -118,12 +124,24 @@ export default function FAQ() {
             {stats.map((s, i) => (
               <div
                 key={i}
-                className="flex md:min-h-[100px] flex-col justify-between rounded-xl border border-paper/15 p-3 md:rounded-2xl md:p-5"
+                className={`flex md:min-h-[100px] flex-col justify-between rounded-xl p-3 md:rounded-2xl md:p-5 ${
+                  s.yellow
+                    ? "border-2 border-paper bg-brand-yellow"
+                    : "border border-paper/15"
+                }`}
               >
-                <p className="text-[28px] md:text-d-xs font-display leading-[.9] text-paper">
-                  {s.value}
-                </p>
-                <div className="mt-2 font-mono text-[10px] tracking-[.16em] text-paper/50 uppercase">
+                {s.yellow ? (
+                  <p className="font-display leading-[.9]">
+                    <span className="text-[22px] text-ink">★</span>
+                    <span className="text-[36px] md:text-[44px] text-ink">{s.value}</span>
+                    <span className="text-[18px] text-ink/50">/5</span>
+                  </p>
+                ) : (
+                  <p className="text-[28px] md:text-d-xs font-display leading-[.9] text-paper">
+                    {s.value}
+                  </p>
+                )}
+                <div className={`mt-2 font-mono text-[10px] tracking-[.16em] uppercase ${s.yellow ? "text-ink/50" : "text-paper/50"}`}>
                   {s.label}
                 </div>
               </div>
@@ -142,7 +160,7 @@ export default function FAQ() {
                 Vis dar abejoji?
               </p>
               <h3 className="heading-display text-d-sm mt-3 leading-[.9] text-paper">
-                Pirmas produktas,
+                Naujausi
                 <br />
                 <span
                   ref={zeroRiskRef}
@@ -152,13 +170,12 @@ export default function FAQ() {
                     transformOrigin: "center",
                   }}
                 >
-                  nulinė rizika
+                  Lego Rinkiniai.
                 </span>
-                .
               </h3>
               <p className="mt-3 text-[15px] leading-[1.6] text-paper/70">
-                Atšauk iki pirmojo sąskaitos datos ir nemokėk nieko. Vis tiek
-                atsiųsime sekimo nuorodą.
+                Pasirink planą, išsirink norimus modelius ir keisk juos kada
+                panorėjęs — be ilgalaikių įsipareigojimų.
               </p>
             </div>
             <a

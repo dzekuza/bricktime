@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import Breadcrumb from '@/components/Breadcrumb'
 import { MenuIcon, XIcon, ArrowRightIcon, UserIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -17,7 +18,7 @@ const PLAN_COLORS: Record<string, { bg: string; text: string }> = {
 }
 
 const links = [
-  { label: 'Produktai', to: '/archive' },
+  { label: 'Rinkiniai', to: '/archive' },
   { label: 'Merch', to: '/merch' },
   { label: 'Dovanų kortelės', to: '/gift-cards' },
   { label: 'Bendruomenė', to: '/community' },
@@ -226,7 +227,7 @@ export default function Nav() {
     <>
       <nav className="sticky top-0 z-50 py-4 md:py-6 bg-transparent">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-        <div className={['flex h-[84px] items-center justify-between px-7 md:grid md:grid-cols-[1fr_auto_1fr] border-2 border-ink rounded-2xl transition-all duration-300 bg-paper', scrolled ? 'shadow-[6px_6px_0_#001B21]' : 'shadow-none'].join(' ')}>
+        <div className={['flex h-[84px] items-center justify-between px-7 md:grid md:grid-cols-[1fr_auto_1fr] border-2 border-ink rounded-[28px] transition-all duration-300 bg-paper', scrolled ? 'shadow-[6px_6px_0_#001B21]' : 'shadow-none'].join(' ')}>
 
           {/* Left — desktop nav links */}
           <div className="hidden items-center gap-7 md:flex">
@@ -236,7 +237,7 @@ export default function Nav() {
                 <Link
                   key={l.label}
                   to={l.to}
-                  className={`relative text-[15px] font-semibold text-ink transition-opacity hover:opacity-70 ${isActive ? "after:absolute after:-bottom-1.5 after:left-0 after:right-0 after:h-[3px] after:bg-ink after:content-['']" : ''}`}
+                  className={`relative text-[15px] font-semibold text-ink after:absolute after:-bottom-1.5 after:left-0 after:right-0 after:h-[3px] after:bg-ink after:content-[''] after:transition-transform after:duration-200 after:origin-left ${isActive ? 'after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'}`}
                 >
                   {l.label}
                 </Link>
@@ -252,7 +253,7 @@ export default function Nav() {
           <div className="flex items-center justify-end gap-3">
             <Link
               to="/subscribe"
-              className="hidden md:flex label-mono items-center gap-1.5 text-ink/60 transition-opacity hover:opacity-70 hover:text-ink"
+              className={`hidden md:flex relative text-[15px] font-semibold text-ink after:absolute after:-bottom-1.5 after:left-0 after:right-0 after:h-[3px] after:bg-ink after:content-[''] after:transition-transform after:duration-200 after:origin-left ${pathname.startsWith('/subscribe') ? 'after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'}`}
             >
               Planai
             </Link>
@@ -281,6 +282,8 @@ export default function Nav() {
         </div>
         </div>
       </nav>
+
+      <Breadcrumb />
 
       {/* Mobile drawer */}
       <div

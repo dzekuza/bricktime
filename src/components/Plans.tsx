@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import gsap from "gsap"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -34,10 +34,36 @@ function onCardLeave(e: React.MouseEvent<HTMLDivElement>) {
   })
 }
 
+function AnimatedPrice({ value, color }: { value: number; color: string }) {
+  const spanRef = useRef<HTMLSpanElement>(null)
+  const obj = useRef({ val: value })
+
+  useEffect(() => {
+    gsap.killTweensOf(obj.current)
+    gsap.to(obj.current, {
+      val: value,
+      duration: 0.55,
+      ease: 'power2.out',
+      onUpdate: () => {
+        if (spanRef.current) {
+          spanRef.current.textContent = `€${obj.current.val.toFixed(2)}`
+        }
+      },
+    })
+  }, [value])
+
+  return (
+    <span ref={spanRef} className="plan-price heading-display text-d-xs inline-block" style={{ color }}>
+      €{value.toFixed(2)}
+    </span>
+  )
+}
+
 export default function Plans() {
   const ref = useReveal<HTMLDivElement>()
   const spanRef = useRef<HTMLSpanElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly')
   const { plans, loading } = usePlans()
 
   useEffect(() => {
@@ -88,6 +114,24 @@ export default function Plans() {
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
           {/* Tagline tile — full width */}
           <div className="reveal flex items-end justify-between py-6 md:py-9 lg:col-span-12">
+            {/* Billing toggle */}
+            <div className="hidden lg:flex flex-col items-center gap-2 order-last ml-6 shrink-0 self-start pt-1">
+              <span className="label-mono text-ink/45">Atsiskaitymas</span>
+              <div className="flex items-center gap-1 rounded-full border-2 border-ink bg-paper p-1.5 shadow-[4px_4px_0_#001B21]">
+                <button
+                  onClick={() => setBilling('monthly')}
+                  className={`rounded-full px-4 py-2 font-mono text-[11px] tracking-[0.08em] uppercase transition-colors ${billing === 'monthly' ? 'bg-ink text-paper' : 'text-ink/60 hover:text-ink'}`}
+                >
+                  Mėn.
+                </button>
+                <button
+                  onClick={() => setBilling('yearly')}
+                  className={`rounded-full px-4 py-2 font-mono text-[11px] tracking-[0.08em] uppercase transition-colors ${billing === 'yearly' ? 'bg-ink text-paper' : 'text-ink/60 hover:text-ink'}`}
+                >
+                  Metinis −17%
+                </button>
+              </div>
+            </div>
             <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink">
               Planai kiekvienai
               <br />
@@ -110,7 +154,7 @@ export default function Plans() {
               ? Array.from({ length: 6 }).map((_, i) => (
                   <div
                     key={i}
-                    className="reveal brick-card bg-ink/10 relative flex min-w-0 flex-1 flex-col justify-between p-6 pt-14 shadow-[6px_6px_0_rgba(245,241,235,.15)] md:p-8 md:pt-16"
+                    className="reveal brick-card bg-ink/10 relative flex min-w-0 flex-1 flex-col p-6 pt-14 shadow-[6px_6px_0_rgba(245,241,235,.15)] md:p-8 md:pt-16"
                   style={{ zIndex: i + 1 }}
                   >
                     <div className="animate-pulse space-y-4">
@@ -128,7 +172,7 @@ export default function Plans() {
               : plans.map((plan, i) => (
                   <div
                     key={plan.id}
-                    className="reveal brick-card sticky lg:relative lg:!top-0 flex min-w-0 flex-1 flex-col justify-between p-5 pt-14 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all duration-200 hover:z-10 hover:-translate-y-3 lg:p-6 lg:pt-16"
+                    className="reveal brick-card sticky lg:relative lg:!top-0 flex min-w-0 flex-1 flex-col p-5 pt-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all duration-200 hover:z-10 hover:-translate-y-3 lg:p-6 lg:pt-8"
                     style={{
                       background: plan.bg_color,
                       transitionDelay: `${i * 80}ms`,
@@ -150,32 +194,32 @@ export default function Plans() {
                     })()}
 
                     <h3
-                        className="heading-display text-[28px] md:text-base uppercase"
+                        className="heading-display text-[28px] md:text-base uppercase min-h-8"
                         style={{ color: plan.text_color }}
                       >
                         {plan.name}
                       </h3>
                       <div className="mt-2 flex items-baseline gap-1">
-                        <span
-                          className="plan-price heading-display text-d-xs inline-block"
-                          style={{ color: plan.text_color }}
-                        >
-                          €{plan.price}
-                        </span>
+                        <AnimatedPrice
+                          value={billing === 'yearly' ? plan.price * 0.83 : Number(plan.price)}
+                          color={plan.text_color}
+                        />
                         <span
                           className="font-mono text-[12px] tracking-[.06em] uppercase"
                           style={{ color: `${plan.text_color}90` }}
                         >
-                          /mėn.
+                          {billing === 'yearly' ? '/mėn. (metinis)' : '/mėn.'}
                         </span>
                       </div>
-                      {plan.featured && (
-                        <Badge className="mt-3 inline-flex rotate-2 rounded border-2 border-ink px-3 py-1 font-mono text-[11px] tracking-[.08em] uppercase bg-ink text-primary-foreground">
-                          Populiariausias
-                        </Badge>
-                      )}
+                      <div className="mt-3 h-7">
+                        {plan.featured && (
+                          <Badge className="rotate-2 rounded border-2 border-ink px-3 py-1 font-mono text-[11px] tracking-[.08em] uppercase bg-ink text-primary-foreground">
+                            Populiariausias
+                          </Badge>
+                        )}
+                      </div>
 
-                    <ul className="mt-5 flex flex-col gap-2.5">
+                    <ul className="mt-3 flex-1 flex flex-col gap-2">
                       {plan.perks.map((perk) => (
                         <li
                           key={perk.label}
@@ -197,7 +241,7 @@ export default function Plans() {
 
                     <Button
                       asChild
-                      className="mt-7 w-full rounded-full border-2 border-ink text-[14px] font-bold tracking-[.02em] transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
+                      className="mt-6 w-full rounded-full border-2 border-ink text-[14px] font-bold tracking-[.02em] transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
                       style={{ background: plan.cta_bg, color: plan.cta_text }}
                     >
                       <a href="/subscribe">{plan.cta_label ?? "Pradėti"}</a>

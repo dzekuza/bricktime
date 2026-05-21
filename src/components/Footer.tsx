@@ -34,7 +34,7 @@ export default function Footer() {
           <div className="col-span-2 md:col-span-1">
             <img src="/bricktime.svg" alt="BRICKTIME" className="h-12 w-auto" />
             <p className="mt-4 max-w-[32ch] text-[14px] leading-relaxed text-ink/60">
-              Mėnesinė kaladėlių prenumerata suaugusiems, kurie niekada negalutinai nustojo statyti. Pagaminta Vilniuje, pristatoma visame pasaulyje.
+              Mėnesinė LEGO® rinkinių prenumerata tiems, kurie nori statyti daugiau, sutaupyti ir nebeleisti rinkiniams dulkėti lentynose.
             </p>
             <div className="mt-6 flex gap-2.5">
               {socials.map((s) => (

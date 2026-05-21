@@ -8,23 +8,28 @@ import FloatDrop from '@/components/FloatDrop'
 const features = [
   {
     num: '01',
-    title: '200–400 aukštos kokybės ABS kaladėlių',
-    body: 'Tikslios tolerancijos, ryškios spalvos, visiškai suderinamos su tavo kaladėlėmis.',
+    title: 'Nemokamas pristatymas',
+    body: 'Visi LEGO® rinkiniai pristatomi į paštomatą nemokamai visoje Lietuvoje.',
   },
   {
     num: '02',
-    title: '1–2 išskirtiniai miniukai',
-    body: 'Sukurti svečių menininkų. Sunumeruoti, niekada neišleisti pakartotinai, keičiami klube.',
+    title: 'Keisk rinkinius bet kada',
+    body: 'Surink, grąžink ir išsirink naują rinkinį kada panorėjęs — be papildomų mokesčių.',
   },
   {
     num: '03',
-    title: 'Surinkimo kortelė + lipdukų rinkinys',
-    body: 'Žingsnis po žingsnio vienoje pusėje, istorija kitoje. Plius 16 vinilo lipdukų per produktą.',
+    title: 'Jokių ilgalaikių įsipareigojimų',
+    body: 'Pakeisk planą, pristabdyk prenumeratą arba atšauk ją bet kuriuo metu.',
   },
   {
     num: '04',
-    title: 'Jungiasi į visatą',
-    body: 'Kiekvienas produktas jungiasi. Po 12 mėnesių tu pastatęs visą gatvę.',
+    title: '30 dienų garantija',
+    body: 'Jeigu rinkinys neatitiko lūkesčių — padėsime jį pakeisti kitu.',
+  },
+  {
+    num: '05',
+    title: 'Nauji rinkiniai kas mėnesį',
+    body: 'Atrask naujus LEGO® modelius ir gauk ankstyvą prieigą prie naujų papildymų.',
   },
 ]
 
@@ -73,9 +78,9 @@ export default function WhatsInside() {
           <div className="lg:sticky lg:top-28 lg:self-start">
             <div className="reveal">
             <h2
-              className="heading-display text-d-xl tracking-[-0.015em] mt-4 text-ink"
+              className="heading-display text-d-lg tracking-[-0.015em] mt-4 text-ink"
             >
-              Rinkinys, kurį
+              Prenumerata
               <br />
               <span
                 ref={spanRef}
@@ -84,11 +89,11 @@ export default function WhatsInside() {
                 onMouseEnter={onSpanEnter}
                 onMouseLeave={onSpanLeave}
               >
-                norisi atplėšti
+                be rizikos.
               </span>
             </h2>
             <p className="mt-6 max-w-[40ch] text-[17px] leading-[1.65] text-ink/65">
-              Kiekvienas produktas sukurtas statytojams, tinka į pašto dėžutę ir sujungiamas — mėnesį po mėnesio.
+              Lanksti LEGO® rinkinių prenumerata su nemokamu pristatymu ir galimybe keisti rinkinius kada tik panorėjus. Statyk daugiau, sutaupyk ir nebeleisk rinkiniams dulkėti lentynose.
             </p>
             <a
               href="/subscribe"

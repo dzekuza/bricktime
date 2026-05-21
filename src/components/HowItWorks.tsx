@@ -7,19 +7,19 @@ const steps = [
   {
     num: '01',
     title: 'Pasirink\nplaną',
-    body: 'Pasirink lygį pagal biudžetą. Keisk bet kada — daugiau biudžeto, daugiau pasirinkimų.',
+    body: 'Pasirink planą pagal savo biudžetą ir statymo lygį — kuo didesnis planas, tuo daugiau pasirinkimo.',
     brick: 'nano',
   },
   {
     num: '02',
-    title: 'Naršyk\nir pasiimk',
-    body: 'Peržiūrėk katalogą. Rinkis produktus pagal savo plano biudžetą — vienu metu.',
+    title: 'Išsirink\nrinkinį',
+    body: 'Išsirink rinkinį pagal savo pasirinktą planą — nuo mažesnių modelių iki kolekcinių projektų.',
     brick: 'standard',
   },
   {
     num: '03',
-    title: 'Grąžink,\nkeisk, kartok',
-    body: 'Grąžink produktus ir pasiimk naujus iš katalogo — be papildomų mokesčių.',
+    title: 'Grąžink,\nkeišk, atrask',
+    body: 'Grąžink rinkinius ir pasiimk naujus iš katalogo — be papildomų mokesčių.',
     brick: 'mega',
   },
 ]
@@ -81,13 +81,12 @@ export default function HowItWorks() {
               <span
                 className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
               >
-                statyk
+                Pradėk
               </span>{' '}
-              pasaulį.
+              Statyti
             </h2>
             <p className="mt-5 max-w-[50ch] text-[16px] leading-[1.65] text-ink/65">
-              Trys paprasti žingsniai. Jokio klijų, jokių instrukcijų už mokamą užtvarą, jokio ilgalaikio įsipareigojimo.
-              Pasirink produktus iš katalogo pagal savo biudžetą. Grąžink ir pasiimk naujus — be papildomų mokesčių.
+              Vos keli paprasti žingsniai iki naujo konstravimo projekto tavo namuose. Pasirink planą pagal savo poreikius, išsirink norimą rinkinį, gauk jį į namus ar paštomatą ir keisk į naują kada panorėjęs, be ilgalaikių įsipareigojimų.
             </p>
           </div>
 

@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom"
 
 import "./index.css"
 import App from "./App.tsx"
+import { BreadcrumbProvider } from "@/components/Breadcrumb"
 
 // Prevent browser from restoring scroll position on reload so hero animation always plays
 if ('scrollRestoration' in history) {
@@ -14,7 +15,9 @@ window.scrollTo(0, 0)
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <App />
+      <BreadcrumbProvider>
+        <App />
+      </BreadcrumbProvider>
     </BrowserRouter>
   </StrictMode>
 )

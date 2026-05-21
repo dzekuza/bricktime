@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { Link, useParams } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import Nav from "@/components/Nav"
+import { useBreadcrumbLabel } from "@/components/Breadcrumb"
 import Footer from "@/components/Footer"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -197,6 +198,7 @@ const THUMB_BG = ["#5C4ADE", "#5DDB9C", "#FFAEE7", "#FFD731"]
 // ── page ───────────────────────────────────────────────────────────────────
 export default function Drop() {
   const { id } = useParams<{ id: string }>()
+  const { setLabel } = useBreadcrumbLabel()
   const [product, setProduct] = useState<DbProduct | null>(null)
   const [activeThumb, setActiveThumb] = useState(0)
   const [related, setRelated] = useState<Product[]>([])
@@ -211,7 +213,11 @@ export default function Drop() {
       .eq("id", Number(id))
       .single()
       .then(({ data }) => {
-        if (data) setProduct(data as unknown as DbProduct)
+        if (data) {
+          const p = data as unknown as DbProduct
+          setProduct(p)
+          setLabel(p.title)
+        }
       })
   }, [id])
 

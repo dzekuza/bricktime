@@ -4,27 +4,24 @@ import { useGSAP } from '@gsap/react'
 import { ArrowRightIcon, StarIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { getPlanBrickImage } from '@/lib/plan-branding'
 
 gsap.registerPlugin(useGSAP)
 
 const avatarColors = ['#5DDB9C', '#FFAEE7', '#FB4903', '#4DA2FF']
 const avatarInitials = ['MK', 'TJ', 'AR', 'LP']
 
+type BrickColor = 'purple' | 'pink' | 'green' | 'yellow' | 'blue' | 'orange'
+
 interface BrickProps {
-  plan: 'nano' | 'mini' | 'standard' | 'pro' | 'mega'
+  color: BrickColor
   rotate?: number
   size?: number
 }
 
-function Brick({ plan, rotate = 0, size = 1 }: BrickProps) {
-  const image = getPlanBrickImage(plan)
-
-  if (!image) return null
-
+function Brick({ color, rotate = 0, size = 1 }: BrickProps) {
   return (
     <img
-      src={image}
+      src={`/bricks/brick-${color}.svg`}
       alt=""
       className="brick-el select-none object-contain w-[60px] lg:w-[110px]"
       style={{
@@ -43,18 +40,17 @@ interface BrickEntry extends BrickProps {
   mobileHide?: boolean
 }
 
-// Scattered around the heading like a loose orbit — different heights on each side
 const bricks: BrickEntry[] = [
-  // Left side — outer → inner → outer → inner, top to bottom
-  { plan: 'mini',     rotate: -15, size: 0.85, left: '6%',  top: '8%'  },
-  { plan: 'mega',     rotate:   8, size: 1.0,  left: '18%', top: '30%' },
-  { plan: 'standard', rotate:  -6, size: 0.68, left: '9%',  top: '48%', mobileHide: true },
-  { plan: 'nano',     rotate:   4, size: 0.62, left: '17%', top: '58%', mobileHide: true },
-  // Right side — outer → inner → outer → inner, top to bottom
-  { plan: 'pro',      rotate:  12, size: 0.78, left: '85%', top: '8%'  },
-  { plan: 'nano',     rotate:  -8, size: 0.85, left: '74%', top: '23%' },
-  { plan: 'mini',     rotate:   6, size: 0.90, left: '83%', top: '40%', mobileHide: true },
-  { plan: 'standard', rotate:  -4, size: 0.65, left: '73%', top: '52%', mobileHide: true },
+  // Left side
+  { color: 'purple', rotate: -12, size: 1.0,  left: '5%',  top: '6%'  },
+  { color: 'pink',   rotate:  10, size: 0.78, left: '16%', top: '32%' },
+  { color: 'green',  rotate:  -6, size: 0.62, left: '7%',  top: '52%', mobileHide: true },
+  { color: 'yellow', rotate:   5, size: 0.70, left: '15%', top: '65%', mobileHide: true },
+  // Right side
+  { color: 'pink',   rotate:  14, size: 0.72, left: '85%', top: '6%'  },
+  { color: 'yellow', rotate:  -8, size: 0.95, left: '74%', top: '22%' },
+  { color: 'green',  rotate:   6, size: 0.60, left: '84%', top: '44%', mobileHide: true },
+  { color: 'orange', rotate:  -5, size: 0.68, left: '73%', top: '55%', mobileHide: true },
 ]
 
 // Gentle bob amplitude while floating at scattered positions
@@ -133,7 +129,7 @@ export default function Hero() {
               </Avatar>
             ))}
           </div>
-          <div className="text-[13px] text-ink/60">
+          <div className="text-[13px] text-ink/60 flex items-center gap-1">
             <span className="inline-flex items-center gap-0.5 font-bold text-ink">
               {Array.from({ length: 5 }).map((_, i) => <StarIcon key={i} className="size-3 fill-current" />)}
               {' '}4.9
@@ -146,7 +142,8 @@ export default function Hero() {
         <h1
           className="heading-display text-d-hero tracking-[-0.02em] text-ink"
         >
-          Praplėsk savo{' '}
+          Lego<span className="text-[0.65em]">®</span> Rinkinių
+          <br />
           <span
             ref={spanRef}
             className="inline-block border-[3px] border-ink/30 bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
@@ -154,20 +151,17 @@ export default function Hero() {
             onMouseEnter={onSpanEnter}
             onMouseLeave={onSpanLeave}
           >
-            kaladėlių
+            Prenumerata
           </span>
           <br />
           <span className="inline-block italic skew-x-[-8deg]">
-            kolekciją
+            Suaugusiems
           </span>
-          <br />
-          protingiau.
         </h1>
 
         {/* Subtext */}
         <p className="mt-7 mx-auto max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">
-          Kas mėnesį į pašto dėžutę tilpstantis rinkinys su aukštos kokybės kaladėlėmis, išskirtiniais
-          miniukais ir surinkimo kortele. Atšauk, keisk ar praleisk bet kurį mėnesį — kaladėlės amžinai.
+          Nuomokis išskirtinius rinkinius su mėnesine prenumerata. Pasirink planą, išsirink norimą rinkinį, gauk jį į namus ar paštomatą, surink ir keisk į naują kada panorėjęs.
         </p>
 
         {/* CTAs */}
@@ -185,7 +179,7 @@ export default function Hero() {
             size="lg"
             className="flex-1 md:flex-none rounded-full border-2 border-ink bg-paper text-ink text-[16px] font-bold hover:bg-paper hover:text-ink brick-hover-sm"
           >
-            <a href="/archive"><span className="md:hidden">Produktai</span><span className="hidden md:inline">Žiūrėti ankstesnius produktus</span></a>
+            <a href="/archive">Peržiūrėti rinkiniai</a>
           </Button>
         </div>
 

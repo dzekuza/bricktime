@@ -4,6 +4,7 @@ import Hero from '@/components/Hero'
 import Marquee from '@/components/Marquee'
 import { NextDrop } from '@/components/NextDrop'
 
+const FeaturedProducts = lazy(() => import('@/components/FeaturedProducts'))
 const HowItWorks = lazy(() => import('@/components/HowItWorks'))
 const WhatsInside = lazy(() => import('@/components/WhatsInside'))
 const Plans = lazy(() => import('@/components/Plans'))
@@ -21,6 +22,7 @@ export default function Home() {
         <Marquee />
         <NextDrop />
         <Suspense fallback={null}>
+          <FeaturedProducts />
           <HowItWorks />
           <Plans />
           <WhatsInside />

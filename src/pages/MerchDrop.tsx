@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import Nav from '@/components/Nav'
+import { useBreadcrumbLabel } from '@/components/Breadcrumb'
 import Footer from '@/components/Footer'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
@@ -33,6 +34,7 @@ export default function MerchDrop() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { setLabel } = useBreadcrumbLabel()
   const [item, setItem] = useState<MerchItem | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
@@ -54,6 +56,7 @@ export default function MerchDrop() {
           return
         }
         setItem(data as MerchItem)
+        setLabel((data as MerchItem).name)
         setLoading(false)
       })
   }, [slug, navigate])

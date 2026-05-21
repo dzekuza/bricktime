@@ -72,20 +72,15 @@ export default function Testimonials() {
   }, [])
 
   return (
-    <section
-      className="bg-paper py-10 md:py-20"
-      onMouseEnter={() => tweenRef.current?.pause()}
-      onMouseLeave={() => tweenRef.current?.play()}
-    >
+    <section className="bg-paper py-10 md:py-20">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         <div className="flex items-end justify-between py-6 md:py-9">
           <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink">
             <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] shadow-[5px_5px_0_rgba(0,27,33,.12)]">
-              12 400
-            </span>{" "}
-            kūrėjų
+              Klientų
+            </span>
             <br />
-            prisijungę.
+            Atsiliepimai.
           </h2>
         </div>
       </div>
@@ -98,15 +93,15 @@ export default function Testimonials() {
               <div
                 className="brick-card brick-card-hover flex min-h-[300px] flex-col justify-between p-6 md:p-10"
                 style={{ background: "#ffffff" }}
-                onMouseEnter={onCardEnter}
-                onMouseLeave={onCardLeave}
+                onMouseEnter={(e) => { tweenRef.current?.pause(); onCardEnter(e) }}
+                onMouseLeave={(e) => { tweenRef.current?.play(); onCardLeave(e) }}
               >
                 <div className="stars flex gap-0.5 text-brand-orange">
                   {Array.from({ length: 5 }).map((_, j) => (
                     <StarIcon key={j} className="size-5 fill-current" />
                   ))}
                 </div>
-                <p className="heading-display text-d-sm mt-6 leading-[1.05] text-ink uppercase">
+                <p className="heading-display text-d-xs mt-6 leading-[1.05] text-ink uppercase">
                   {t.quote}
                 </p>
                 <div className="mt-8 flex items-center gap-3">
