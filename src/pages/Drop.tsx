@@ -88,7 +88,7 @@ const tiers = [
     price: 9,
     annualPrice: 7,
     spec: "60–90 bricks",
-    bg: "#F5F1EB",
+    bg: "#55DB9C",
     textColor: "#001B21",
   },
   {
@@ -97,8 +97,8 @@ const tiers = [
     price: 14,
     annualPrice: 11,
     spec: "120–180 bricks",
-    bg: "#FFAEE7",
-    textColor: "#001B21",
+    bg: "#FB4903",
+    textColor: "#F5F1EB",
   },
   {
     key: "standard",
@@ -106,7 +106,7 @@ const tiers = [
     price: 24,
     annualPrice: 19,
     spec: "240–320 bricks",
-    bg: "#FFD731",
+    bg: "#4DA2FF",
     textColor: "#001B21",
   },
   {
@@ -115,7 +115,7 @@ const tiers = [
     price: 35,
     annualPrice: 28,
     spec: "340–400 bricks",
-    bg: "#4DA2FF",
+    bg: "#FFAEE7",
     textColor: "#001B21",
   },
   {
@@ -124,7 +124,7 @@ const tiers = [
     price: 55,
     annualPrice: 44,
     spec: "420–520 bricks",
-    bg: "#FB4903",
+    bg: "#5C4ADE",
     textColor: "#F5F1EB",
   },
 ]
