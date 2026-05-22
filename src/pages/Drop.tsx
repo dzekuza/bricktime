@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { StarIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
+import { StarIcon, ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
 import { getPlanDisplayName } from "@/lib/plan-branding"
 import { ProductCard, dbToProduct, type Product } from "@/components/ProductCard"
 
@@ -230,27 +230,33 @@ function RelatedCarousel({ products }: { products: Product[] }) {
         </h2>
         {products.length > visibleCount && (
           <div className="flex shrink-0 items-center gap-3 pb-1">
-            {/* Progress dots */}
-            <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => scroll("prev")}
+              aria-label="Ankstesnis"
+              className="brick-card brick-hover-sm flex size-12 items-center justify-center bg-paper text-ink transition-all"
+            >
+              <ArrowLeftIcon className="size-5" aria-hidden="true" />
+            </button>
+            <div className="flex items-center gap-2">
               {Array.from({ length: dotCount }).map((_, i) => (
-                <span
+                <button
                   key={i}
-                  className={`block rounded-full border-2 border-ink transition-all ${i === active ? "size-3 bg-ink" : "size-2 bg-transparent"}`}
+                  onClick={() => {
+                    if (!ref.current) return
+                    const cardW = ref.current.children[0]?.clientWidth ?? 0
+                    ref.current.scrollTo({ left: i * (cardW + 16), behavior: "smooth" })
+                  }}
+                  aria-label={`Produktas ${i + 1}`}
+                  className={`h-2 rounded-full border border-ink transition-all duration-300 ${i === active ? "w-6 bg-ink" : "w-2 bg-transparent"}`}
                 />
               ))}
             </div>
-            {/* Arrows */}
-            <button
-              onClick={() => scroll("prev")}
-              className="flex size-9 items-center justify-center rounded-full border-2 border-ink bg-paper transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#001B21]"
-            >
-              <ChevronLeftIcon className="size-4" />
-            </button>
             <button
               onClick={() => scroll("next")}
-              className="flex size-9 items-center justify-center rounded-full border-2 border-ink bg-paper transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#001B21]"
+              aria-label="Kitas"
+              className="brick-card brick-hover-sm flex size-12 items-center justify-center bg-ink text-paper transition-all"
             >
-              <ChevronRightIcon className="size-4" />
+              <ArrowRightIcon className="size-5" aria-hidden="true" />
             </button>
           </div>
         )}
