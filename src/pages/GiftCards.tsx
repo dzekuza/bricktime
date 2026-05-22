@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
-import { supabase } from '@/lib/supabase'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 
 const DENOMINATIONS = [

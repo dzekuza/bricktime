@@ -115,31 +115,31 @@ function AchievementsSection({
                           ? "6px 6px 0 #001B21"
                           : "4px 4px 0 #001B21"
                         : "none",
-                      opacity: unlocked ? 1 : 0.4,
-                      filter: unlocked ? "none" : "grayscale(1)",
                       transform:
                         hovered && unlocked ? "translateY(-3px)" : "none",
                     }}
                     onMouseEnter={() => setHoveredId(def.id)}
                     onMouseLeave={() => setHoveredId(null)}
                   >
-                    {def.image ? (
-                      <img
-                        src={def.image}
-                        alt={def.label}
-                        className="h-10 w-10 object-contain"
-                      />
-                    ) : (
-                      <p className="text-2xl">{def.icon}</p>
-                    )}
-                    <p className="mt-2 text-[12px] leading-tight font-bold text-ink">
-                      {def.label}
-                    </p>
-                    <p className="mt-1 font-mono text-[10px] text-ink/50">
-                      +{def.points} taškai
-                    </p>
+                    <div style={{ opacity: unlocked ? 1 : 0.4, filter: unlocked ? "none" : "grayscale(1)" }}>
+                      {def.image ? (
+                        <img
+                          src={def.image}
+                          alt={def.label}
+                          className="h-10 w-10 object-contain"
+                        />
+                      ) : (
+                        <p className="text-2xl">{def.icon}</p>
+                      )}
+                      <p className="mt-2 text-[12px] leading-tight font-bold text-ink">
+                        {def.label}
+                      </p>
+                      <p className="mt-1 font-mono text-[10px] text-ink/50">
+                        +{def.points} taškai
+                      </p>
+                    </div>
                     {hovered && (
-                      <div className="absolute bottom-full left-1/2 z-50 mb-2 w-48 -translate-x-1/2 rounded-xl border-2 border-ink bg-paper px-3 py-2 shadow-[4px_4px_0_#001B21] opacity-100">
+                      <div className="absolute bottom-full left-1/2 z-50 mb-2 w-48 -translate-x-1/2 rounded-xl border-2 border-ink bg-paper px-3 py-2 shadow-[4px_4px_0_#001B21]">
                         <p className="text-[12px] font-bold text-ink">
                           {def.label}
                         </p>

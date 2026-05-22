@@ -68,7 +68,7 @@ export default function Subscribe() {
     1
 
   const [selectedPlan, setSelectedPlan] = useState(initialPlan)
-  const [billing, setBilling] = useState<"monthly" | "annual">("monthly")
+  const [billing, _setBilling] = useState<"monthly" | "annual">("monthly")
   const [step, setStep] = useState<"plan" | "payment">("plan")
   const [form, setForm] = useState({ email: "", name: "" })
   const [submitted, setSubmitted] = useState(false)
