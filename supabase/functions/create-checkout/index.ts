@@ -7,11 +7,13 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
 })
 
 const PLAN_CONFIG: Record<string, { name: string; amount: number }> = {
-  nano:     { name: "BRICKTIME Nano",     amount: 900  },
-  mini:     { name: "BRICKTIME Mini",     amount: 1400 },
-  standard: { name: "BRICKTIME Standard", amount: 2400 },
-  pro:      { name: "BRICKTIME Pro",      amount: 3500 },
-  mega:     { name: "BRICKTIME Mega",     amount: 5500 },
+  mystery_s: { name: "Mystery Box Mėgėjams",  amount: 1999 },
+  nano:      { name: "BRICKTIME Mėgėjas",     amount: 2499 },
+  mystery_m: { name: "Mystery Box Kūrėjams",  amount: 2999 },
+  mini:      { name: "BRICKTIME Kūrėjas",     amount: 3499 },
+  standard:  { name: "BRICKTIME Standard",    amount: 2400 },
+  pro:       { name: "BRICKTIME Pro",         amount: 3500 },
+  mega:      { name: "BRICKTIME Mega",        amount: 5500 },
 }
 
 const corsHeaders = {
