@@ -399,14 +399,9 @@ export default function Drop() {
                 ))}
               </div>
 
-              {/* Rent box */}
-              <div
-                id="buy"
-                className="brick-card mt-8 p-6 md:p-7"
-                style={{ background: "#FB4903" }}
-              >
-                {/* Required plan */}
-                <div className="md:mt-4 flex items-center gap-3">
+              {/* Rent CTA */}
+              <div id="buy" className="mt-8 border-t border-ink/10 pt-6">
+                <div className="flex items-center gap-3">
                   <div
                     className="rounded-full border-2 border-ink px-4 py-2 font-display text-[18px] leading-none"
                     style={{
@@ -416,7 +411,7 @@ export default function Drop() {
                   >
                     {tiers[DROP_REQUIRED_TIER].name}+
                   </div>
-                  <span className="text-[14px] text-ink/60">
+                  <span className="text-[14px] text-ink/50">
                     reikalingas planas
                   </span>
                 </div>
@@ -429,31 +424,26 @@ export default function Drop() {
                 <Button
                   asChild
                   size="lg"
-                  className="mt-6 w-full justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)]"
+                  className="mt-5 w-full justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)]"
                 >
                   <Link to={`/checkout?product=${product?.id}`}>
-                    Nuomoti nemokamai →
+                    Pradėti nuomą →
                   </Link>
                 </Button>
 
-                <div className="mt-5 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] tracking-[.16em] text-ink/60 uppercase">
+                <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] tracking-[.16em] text-ink/40 uppercase">
                   {[
                     "Nemokamas pristatymas",
                     "Atšauk bet kada",
                     "30 d. garantija",
                   ].map((s) => (
                     <span key={s} className="flex items-center gap-1.5">
-                      <span className="size-2 rounded-full bg-ink/40" />
+                      <span className="size-2 rounded-full bg-ink/30" />
                       {s}
                     </span>
                   ))}
                 </div>
               </div>
-
-              <p className="mt-4 text-center font-mono text-[11px] tracking-[.16em] text-ink/55 uppercase">
-                Already a subscriber? Product №{product?.id} is included in your
-                box.
-              </p>
             </div>
           </div>
         </div>
