@@ -198,14 +198,65 @@ const THUMB_BG = ["#f8f6f2", "#f8f6f2", "#f8f6f2", "#f8f6f2"]
 // ── page ───────────────────────────────────────────────────────────────────
 function RelatedCarousel({ products }: { products: Product[] }) {
   const ref = useRef<HTMLDivElement>(null)
+  const [active, setActive] = useState(0)
+  const visibleCount = 3
+
   function scroll(dir: "prev" | "next") {
     if (!ref.current) return
     const cardW = ref.current.children[0]?.clientWidth ?? 0
     ref.current.scrollBy({ left: dir === "next" ? cardW + 16 : -(cardW + 16), behavior: "smooth" })
   }
 
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    function onScroll() {
+      const cardW = el!.children[0]?.clientWidth ?? 1
+      setActive(Math.round(el!.scrollLeft / (cardW + 16)))
+    }
+    el.addEventListener("scroll", onScroll, { passive: true })
+    return () => el.removeEventListener("scroll", onScroll)
+  }, [])
+
+  const dotCount = Math.max(0, products.length - visibleCount + 1)
+
   return (
-    <div className="relative">
+    <div className="mt-10">
+      {/* Header row: heading left, controls right */}
+      <div className="mb-6 flex items-end justify-between gap-4">
+        <h2 className="heading-display text-d-md tracking-[-0.015em] text-ink">
+          Gali<br />
+          <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>patikti.</span>
+        </h2>
+        {products.length > visibleCount && (
+          <div className="flex shrink-0 items-center gap-3 pb-1">
+            {/* Progress dots */}
+            <div className="flex items-center gap-1.5">
+              {Array.from({ length: dotCount }).map((_, i) => (
+                <span
+                  key={i}
+                  className={`block rounded-full border-2 border-ink transition-all ${i === active ? "size-3 bg-ink" : "size-2 bg-transparent"}`}
+                />
+              ))}
+            </div>
+            {/* Arrows */}
+            <button
+              onClick={() => scroll("prev")}
+              className="flex size-9 items-center justify-center rounded-full border-2 border-ink bg-paper transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#001B21]"
+            >
+              <ChevronLeftIcon className="size-4" />
+            </button>
+            <button
+              onClick={() => scroll("next")}
+              className="flex size-9 items-center justify-center rounded-full border-2 border-ink bg-paper transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#001B21]"
+            >
+              <ChevronRightIcon className="size-4" />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Scroll track */}
       <div
         ref={ref}
         className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none -mx-3 px-3 py-3"
@@ -216,22 +267,6 @@ function RelatedCarousel({ products }: { products: Product[] }) {
           </div>
         ))}
       </div>
-      {products.length > 1 && (
-        <div className="mt-4 flex items-center gap-2">
-          <button
-            onClick={() => scroll("prev")}
-            className="flex size-9 items-center justify-center rounded-full border-2 border-ink bg-paper transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#001B21]"
-          >
-            <ChevronLeftIcon className="size-4" />
-          </button>
-          <button
-            onClick={() => scroll("next")}
-            className="flex size-9 items-center justify-center rounded-full border-2 border-ink bg-paper transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#001B21]"
-          >
-            <ChevronRightIcon className="size-4" />
-          </button>
-        </div>
-      )}
     </div>
   )
 }
@@ -848,15 +883,7 @@ export default function Drop() {
           )}
 
           {/* You might also like */}
-          {related.length > 0 && (
-            <div className="mt-10">
-              <h2 className="heading-display text-d-md tracking-[-0.015em] text-ink mb-6">
-                Gali<br />
-                <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>patikti.</span>
-              </h2>
-              <RelatedCarousel products={related} />
-            </div>
-          )}
+          {related.length > 0 && <RelatedCarousel products={related} />}
 
         </div>
       </section>
