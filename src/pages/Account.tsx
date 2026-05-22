@@ -474,7 +474,7 @@ export default function Account() {
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
             {/* User tile */}
-            <div className="flex min-h-[340px] flex-col rounded-2xl border-2 border-ink bg-[#5ddb9c] p-6 md:rounded-3xl md:p-9 lg:col-span-7">
+            <div className="flex min-h-[340px] flex-col rounded-2xl border-2 border-ink bg-paper shadow-[6px_6px_0_#001B21] p-6 md:rounded-3xl md:p-9 lg:col-span-7">
               <div className="flex items-start gap-5">
                 <div className="shrink-0">
                   <button
@@ -550,12 +550,12 @@ export default function Account() {
                 ].map((s) => (
                   <div
                     key={s.label}
-                    className="rounded-2xl border border-ink/20 bg-ink p-4"
+                    className="rounded-3xl border border-ink/20 bg-paper p-4"
                   >
-                    <div className="font-display text-[18px] leading-tight text-paper uppercase">
+                    <div className="font-display text-[18px] leading-tight text-ink uppercase">
                       {s.val}
                     </div>
-                    <div className="mt-1 font-mono text-[10px] tracking-[.14em] text-paper/50 uppercase">
+                    <div className="mt-1 font-mono text-[10px] tracking-[.14em] text-ink/50 uppercase">
                       {s.label}
                     </div>
                   </div>
