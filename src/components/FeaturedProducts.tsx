@@ -303,9 +303,10 @@ export default function FeaturedProducts() {
         <div className="mt-10 flex flex-col items-center gap-3">
           <Link
             to="/archive"
-            className="rounded-full border-2 border-ink bg-white px-6 py-3 text-[17px] font-bold text-ink brick-hover-sm"
+            className="flex h-12 items-center gap-2 rounded-full border-2 border-ink bg-white px-[26px] font-bold text-[16px] leading-[26px] text-ink brick-hover-sm"
           >
-            Visi produktai ↓
+            Peržiūrėti rinkinius
+            <ArrowRight size={16} />
           </Link>
           <p className="label-mono text-center text-ink/55">
             Rodoma {visible.length} iš 170 · {sort.label} pirmiausia
