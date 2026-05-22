@@ -562,7 +562,7 @@ export default function Checkout() {
                     className="absolute right-4 top-4 rounded-full border-2 border-ink px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-[.1em]"
                     style={{ background: requiredTier.bg, color: requiredTier.textColor }}
                   >
-                    {requiredTier.name}+
+                    {requiredTier.name}
                   </div>
                 </div>
 

@@ -425,7 +425,7 @@ export default function Drop() {
                       color: tiers[DROP_REQUIRED_TIER].textColor,
                     }}
                   >
-                    {tiers[DROP_REQUIRED_TIER].name}+
+                    {tiers[DROP_REQUIRED_TIER].name}
                   </div>
                   <span className="text-[14px] text-ink/50">
                     reikalingas planas

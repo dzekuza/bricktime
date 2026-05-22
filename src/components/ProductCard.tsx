@@ -228,7 +228,7 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
           <div>
             <p className="label-mono text-ink/40 text-[9px]">Planas</p>
-            <p className="font-mono text-[12px] font-bold text-ink">{tier.label}+</p>
+            <p className="font-mono text-[12px] font-bold text-ink">{tier.label}</p>
           </div>
         </div>
 
@@ -236,7 +236,7 @@ export function ProductCard({ product }: { product: Product }) {
           className="mt-auto flex items-center justify-between rounded-xl border-2 border-ink px-4 py-2.5 text-[13px] font-bold transition-all group-hover:shadow-[4px_4px_0_#001B21]"
           style={{ background: tier.bg, color: tier.textColor }}
         >
-          <span>Nuomok su {tier.label}+</span>
+          <span>Nuomok su {tier.label}</span>
           <ArrowRightIcon className="size-4" />
         </div>
       </div>
