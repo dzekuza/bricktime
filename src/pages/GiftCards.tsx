@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { supabase } from '@/lib/supabase'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 
 const DENOMINATIONS = [
   { amount: 20,  cents: 2000,  tagline: 'Puikus pradžiamokslis' },
@@ -63,14 +63,14 @@ export default function GiftCards() {
   const successCode = searchParams.get('code') ?? ''
   const recipientEmailFromUrl = searchParams.get('recipient') ?? ''
 
+  const navigate = useNavigate()
   const [selected, setSelected] = useState<number | null>(null)
   const [recipientEmail, setRecipientEmail] = useState('')
   const [buyerEmail, setBuyerEmail] = useState('')
   const [message, setMessage] = useState('')
-  const [loading, setLoading] = useState(false)
   const [formError, setFormError] = useState('')
 
-  async function handleBuy() {
+  function handleBuy() {
     if (selected === null || !recipientEmail || !buyerEmail) return
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(recipientEmail) || !emailRegex.test(buyerEmail)) {
@@ -78,31 +78,14 @@ export default function GiftCards() {
       return
     }
     setFormError('')
-    setLoading(true)
-
-    const denom = DENOMINATIONS.find((d) => d.cents === selected)
-    if (!denom) { setLoading(false); return }
-
-    const origin = window.location.origin
-    const { data, error } = await supabase.functions.invoke('create-gift-card-checkout', {
-      body: {
-        amountCents: selected,
-        recipientEmail,
-        buyerEmail,
-        message: message.trim() || null,
-        successUrl: `${origin}/gift-cards?payment=success&code={CODE}&session={SESSION_ID}&recipient=${encodeURIComponent(recipientEmail)}`,
-        cancelUrl: `${origin}/gift-cards`,
-      },
+    const params = new URLSearchParams({
+      type: 'giftcard',
+      amount: String(selected),
+      recipient: recipientEmail,
+      buyer: buyerEmail,
+      ...(message.trim() ? { message: message.trim() } : {}),
     })
-
-    setLoading(false)
-
-    if (error || !data?.url) {
-      setFormError('Klaida kuriant mokėjimą. Bandyk dar kartą.')
-      return
-    }
-
-    window.location.href = data.url
+    navigate(`/checkout?${params.toString()}`)
   }
 
   const selectedDenom = DENOMINATIONS.find((d) => d.cents === selected)
@@ -243,11 +226,11 @@ export default function GiftCards() {
 
                       {/* Submit */}
                       <button
-                        disabled={!recipientEmail || !buyerEmail || loading}
+                        disabled={!recipientEmail || !buyerEmail}
                         onClick={handleBuy}
                         className="rounded-[22px] border-2 border-ink bg-ink py-4 font-mono text-[14px] font-bold uppercase tracking-[.08em] text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_#001B21] disabled:cursor-not-allowed disabled:opacity-30"
                       >
-                        {loading ? 'Kraunama…' : `Pirkti €${selectedDenom?.amount} dovanų kortelę →`}
+                        Tęsti →
                       </button>
 
                       <p className="font-mono text-[11px] text-ink/35">

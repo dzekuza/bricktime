@@ -69,14 +69,9 @@ function AchievementsSection({
   const [hoveredId, setHoveredId] = useState<string | null>(null)
 
   return (
-    <section className="bg-paper py-10 md:py-20">
+    <section className="bg-paper pb-10 md:pb-20">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-        <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.02em] text-ink">
-          Mano<br />
-          <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>taškai.</span>
-        </h2>
-
-        <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* Points summary */}
           <div className="lg:col-span-3">
             <div className="rounded-2xl border-2 border-ink bg-ink p-3 shadow-[6px_6px_0_#FFD731] md:rounded-3xl md:p-8">
@@ -110,7 +105,7 @@ function AchievementsSection({
                 return (
                   <div
                     key={def.id}
-                    className="relative cursor-default rounded-2xl border-2 p-3 transition-all md:p-4"
+                    className="relative cursor-default rounded-2xl border-2 p-3 transition-all md:p-4 overflow-visible"
                     style={{
                       background: unlocked ? def.color : "transparent",
                       borderStyle: unlocked ? "solid" : "dashed",
@@ -144,7 +139,7 @@ function AchievementsSection({
                       +{def.points} taškai
                     </p>
                     {hovered && (
-                      <div className="absolute bottom-full left-1/2 z-10 mb-2 w-48 -translate-x-1/2 rounded-xl border-2 border-ink bg-paper px-3 py-2 shadow-[4px_4px_0_#001B21]">
+                      <div className="absolute bottom-full left-1/2 z-50 mb-2 w-48 -translate-x-1/2 rounded-xl border-2 border-ink bg-paper px-3 py-2 shadow-[4px_4px_0_#001B21] opacity-100">
                         <p className="text-[12px] font-bold text-ink">
                           {def.label}
                         </p>
@@ -169,7 +164,7 @@ function AchievementsSection({
 
 // ── page ───────────────────────────────────────────────────────────────────
 export default function Account() {
-  const { user, profile } = useAuth()
+  const { user, profile, signOut } = useAuth()
   const { plans: dbPlans } = usePlans()
   const tierOptions = useMemo(
     () => dbPlans.map((p, i) => ({
@@ -561,6 +556,12 @@ export default function Account() {
                   </div>
                 ))}
               </div>
+              <button
+                onClick={signOut}
+                className="mt-4 self-start rounded-full border-2 border-ink bg-red-600 px-3 py-2 text-[14px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
+              >
+                Atsijungti →
+              </button>
             </div>
 
             {/* Subscription tile */}
@@ -706,6 +707,12 @@ export default function Account() {
         </div>
       </section>
 
+      {/* ── Achievements ─────────────────────────────────────────────── */}
+      <AchievementsSection
+        unlockedIds={unlockedIds}
+        totalPoints={totalPoints}
+      />
+
       {/* ── Penalty banner ───────────────────────────────────────────── */}
       {subscriber?.penalty_amount != null && (
         <section className="bg-paper py-10 md:py-20">
@@ -736,7 +743,7 @@ export default function Account() {
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.02em] text-ink">
             Mano<br />
-            <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>produktai.</span>
+            <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>istorijos.</span>
           </h2>
 
           {ordersLoading ? (
@@ -862,7 +869,7 @@ export default function Account() {
               <p className="label-mono text-ink/40">Aktyvi prenumerata</p>
               <div className="mt-3 flex items-end justify-between">
                 <div>
-                  <p className="font-display text-d-md leading-none uppercase" style={{ color: activeTier.textColor !== "#001B21" ? activeTier.bg : undefined }}>
+                  <p className="font-display text-d-md leading-none uppercase text-ink">
                     {activeTier.name}
                   </p>
                   <p className="mt-1 font-mono text-[13px] text-ink/60">
@@ -870,8 +877,7 @@ export default function Account() {
                   </p>
                 </div>
                 <span
-                  className="rounded-full border-2 border-ink px-3 py-1 font-mono text-[10px] tracking-[.14em] uppercase"
-                  style={{ background: activeTier.bg, color: activeTier.textColor }}
+                  className="rounded-full border-2 border-ink px-3 py-1 font-mono text-[10px] tracking-[.14em] uppercase bg-green-400 text-ink"
                 >
                   {subscriber?.status ?? "–"}
                 </span>
@@ -890,6 +896,7 @@ export default function Account() {
                 <p className="text-center font-mono text-[10px] text-ink/30">
                   Kortelė · istorija · atšaukimas
                 </p>
+
               </div>
             </div>
 
@@ -1035,12 +1042,6 @@ export default function Account() {
           </div>
         </section>
       )}
-
-      {/* ── Achievements ─────────────────────────────────────────────── */}
-      <AchievementsSection
-        unlockedIds={unlockedIds}
-        totalPoints={totalPoints}
-      />
 
       <Footer />
 

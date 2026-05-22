@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
-import { useSearchParams, Link } from "react-router-dom"
+import { useSearchParams, Link, useNavigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase"
 import type { PlanTier } from "@/lib/database.types"
@@ -52,6 +52,7 @@ const faqs = [
 
 export default function Subscribe() {
   const [params] = useSearchParams()
+  const navigate = useNavigate()
   const { user, profile } = useAuth()
   const { plans } = usePlans()
 
@@ -150,10 +151,7 @@ export default function Subscribe() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   function handlePlanSubscribe(selectedP: DbPlan, planBilling: 'monthly' | 'yearly') {
-    const idx = plans.findIndex(p => p.id === selectedP.id)
-    if (idx !== -1) setSelectedPlan(idx)
-    setBilling(planBilling === 'yearly' ? 'annual' : 'monthly')
-    setStep('payment')
+    navigate(`/checkout?plan=${selectedP.id}&billing=${planBilling}`)
   }
 
   async function handlePurchase() {
