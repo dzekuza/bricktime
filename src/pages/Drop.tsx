@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { StarIcon } from "lucide-react"
+import { StarIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 import { getPlanDisplayName } from "@/lib/plan-branding"
 import { ProductCard, dbToProduct, type Product } from "@/components/ProductCard"
 
@@ -196,6 +196,47 @@ function formatReleaseDate(iso: string | null): string {
 const THUMB_BG = ["#f8f6f2", "#f8f6f2", "#f8f6f2", "#f8f6f2"]
 
 // ── page ───────────────────────────────────────────────────────────────────
+function RelatedCarousel({ products }: { products: Product[] }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const CARD_W = 316 // 300px card + 16px gap
+
+  function scroll(dir: "prev" | "next") {
+    if (!ref.current) return
+    ref.current.scrollBy({ left: dir === "next" ? CARD_W : -CARD_W, behavior: "smooth" })
+  }
+
+  return (
+    <div className="relative">
+      <div
+        ref={ref}
+        className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2"
+      >
+        {products.map((p) => (
+          <div key={p.id} className="w-[300px] shrink-0 snap-start">
+            <ProductCard product={p} />
+          </div>
+        ))}
+      </div>
+      {products.length > 1 && (
+        <div className="mt-4 flex items-center gap-2">
+          <button
+            onClick={() => scroll("prev")}
+            className="flex size-9 items-center justify-center rounded-full border-2 border-ink bg-paper transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#001B21]"
+          >
+            <ChevronLeftIcon className="size-4" />
+          </button>
+          <button
+            onClick={() => scroll("next")}
+            className="flex size-9 items-center justify-center rounded-full border-2 border-ink bg-paper transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#001B21]"
+          >
+            <ChevronRightIcon className="size-4" />
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function Drop() {
   const { id } = useParams<{ id: string }>()
   const { setLabel } = useBreadcrumbLabel()
@@ -814,11 +855,7 @@ export default function Drop() {
                 Gali<br />
                 <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>patikti.</span>
               </h2>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {related.map((p) => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
-              </div>
+              <RelatedCarousel products={related} />
             </div>
           )}
 
