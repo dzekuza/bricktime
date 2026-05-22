@@ -397,7 +397,7 @@ function ComposeBox({ avatarId, avatarBg, onPost }: ComposeBoxProps) {
 
 // ── FeedPanel ─────────────────────────────────────────────────────────────────
 
-function FeedPanel() {
+function FeedPanel({ onOpenAuth }: { onOpenAuth: () => void }) {
   const { user, profile } = useAuth()
   const [items, setItems] = useState<LiveFeedItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -520,7 +520,7 @@ function FeedPanel() {
       {user && profile ? (
         <ComposeBox avatarId={profile.avatarId} avatarBg={profile.avatarBg} onPost={addPost} />
       ) : (
-        <button onClick={() => setShowAuthDialog(true)} className="brick-card brick-hover-sm w-full p-4 text-center">
+        <button onClick={onOpenAuth} className="brick-card brick-hover-sm w-full p-4 text-center">
           <p className="font-mono text-[13px] text-ink/50">Prisijunk norėdamas rašyti į srautą →</p>
         </button>
       )}
@@ -665,7 +665,7 @@ export default function Community() {
 
             <div >
               <h3 className="label-mono text-ink/50 mb-6">⬢ Srautas</h3>
-              <FeedPanel />
+              <FeedPanel onOpenAuth={() => setShowAuthDialog(true)} />
             </div>
 
           </div>
