@@ -15,7 +15,8 @@ import { NextDrop } from "@/components/NextDrop"
 const SUBSCRIPTION_CHIPS = [
   { key: "nano",      label: "Mėgėjas" },
   { key: "mini",      label: "Kūrėjas" },
-  { key: "standard",  label: "Masteris" },
+  { key: "standard",  label: "Meistras" },
+  { key: "pro",       label: "Pro" },
   { key: "mega",      label: "Legenda" },
   { key: "mystery_s", label: "Mystery Box S" },
   { key: "mystery_m", label: "Mystery Box M" },

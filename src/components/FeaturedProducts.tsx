@@ -62,10 +62,10 @@ const PRODUCTS: Product[] = [
     image: 'https://www.lego.com/cdn/cs/set/assets/bltad48b7c771f86707/75397_Prod.png',
     brickImage: '/plans/how-mega.svg',
     isNew: true,
-    stats: { pieces: '3943', year: '2025', age: '—', price: '€519.99', category: 'Star Wars', plan: 'Legenda+' },
+    stats: { pieces: '3943', year: '2025', age: '—', price: '€519.99', category: 'Star Wars', plan: 'Legenda' },
     piecesNum: 3943, priceNum: 519.99, yearNum: 2025, planTier: 5, popularity: 2,
     ctaBg: '#FFD731',
-    ctaLabel: 'Nuomok su Legenda+',
+    ctaLabel: 'Nuomok su Legenda',
   },
   {
     id: 33,
@@ -74,10 +74,10 @@ const PRODUCTS: Product[] = [
     image: 'https://www.lego.com/cdn/cs/set/assets/blt42c7adf188ed2eb8/75382.png',
     brickImage: '/plans/how-nano.svg',
     isNew: false,
-    stats: { pieces: '1931', year: '2023', age: '—', price: '€239.99', category: 'Star Wars', plan: 'Pro+' },
+    stats: { pieces: '1931', year: '2023', age: '—', price: '€239.99', category: 'Star Wars', plan: 'Pro' },
     piecesNum: 1931, priceNum: 239.99, yearNum: 2023, planTier: 3, popularity: 3,
     ctaBg: '#55DB9C',
-    ctaLabel: 'Nuomok su Pro+',
+    ctaLabel: 'Nuomok su Pro',
   },
   {
     id: 32,
@@ -86,16 +86,16 @@ const PRODUCTS: Product[] = [
     image: 'https://www.lego.com/cdn/cs/set/assets/blt7b211beb2f802707/blta8d62a90e62e020c-75446_Prod.png',
     brickImage: '/plans/master.svg',
     isNew: true,
-    stats: { pieces: '1200', year: '2025', age: '—', price: '€139.99', category: 'Star Wars', plan: 'Meistras+' },
+    stats: { pieces: '1200', year: '2025', age: '—', price: '€139.99', category: 'Star Wars', plan: 'Meistras' },
     piecesNum: 1200, priceNum: 139.99, yearNum: 2025, planTier: 2, popularity: 1,
     ctaBg: '#FFAEE7',
-    ctaLabel: 'Nuomok su Meistras+',
+    ctaLabel: 'Nuomok su Meistras',
   },
 ]
 
 const FILTER_OPTIONS = {
   series:  { label: 'Serija',       all: 'Visos serijos', options: ['Star Wars™', 'Creator Expert', 'Technic', 'City'] },
-  plan:    { label: 'Prenumerata',  all: 'Visi planai',   options: ['Mėgėjas+', 'Meistras+', 'Pro+', 'Legenda+'] },
+  plan:    { label: 'Prenumerata',  all: 'Visi planai',   options: ['Mėgėjas', 'Meistras', 'Pro', 'Legenda'] },
   age:     { label: 'Amžius',       all: 'Visi amžiai',  options: ['10+', '12+', '16+', '18+'] },
 } as const
 
