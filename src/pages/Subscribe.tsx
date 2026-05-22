@@ -68,7 +68,7 @@ export default function Subscribe() {
     1
 
   const [selectedPlan, setSelectedPlan] = useState(initialPlan)
-  const [billing, _setBilling] = useState<"monthly" | "annual">("monthly")
+  const [billing] = useState<"monthly" | "annual">("monthly")
   const [step, setStep] = useState<"plan" | "payment">("plan")
   const [form, setForm] = useState({ email: "", name: "" })
   const [submitted, setSubmitted] = useState(false)
@@ -679,8 +679,8 @@ export default function Subscribe() {
           >
             <div className="reveal lg:col-span-12">
               <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink">
-                Viskas,<br />
-                <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>greta.</span>
+                Palygink<br />
+                <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>planus.</span>
               </h2>
             </div>
             <div

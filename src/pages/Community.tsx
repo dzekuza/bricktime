@@ -11,7 +11,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { AuthForm } from '@/components/AuthForm'
 import {
   achievementDefs,
-  leaderboard,
   drops,
   getRelativeTime,
   type FeedEventType,
@@ -537,29 +536,58 @@ function FeedPanel({ onOpenAuth }: { onOpenAuth: () => void }) {
 // ── LeaderboardPanel ──────────────────────────────────────────────────────────
 
 function LeaderboardPanel() {
-  const top3 = leaderboard.slice(0, 3)
-  const rest = leaderboard.slice(3)
+  const { user } = useAuth()
+  const [rows, setRows] = useState<Array<{
+    rank: number
+    subscriber_id: string
+    name: string
+    avatar_id: number | null
+    avatar_bg: string | null
+    tier: string
+    total_points: number
+  }>>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    supabase
+      .from('leaderboard')
+      .select('rank,subscriber_id,name,avatar_id,avatar_bg,tier,total_points')
+      .order('rank', { ascending: true })
+      .limit(20)
+      .then(({ data }) => {
+        if (data) setRows(data as typeof rows)
+        setLoading(false)
+      })
+  }, [])
+
+  if (loading) {
+    return <div className="py-8 text-center font-mono text-[12px] text-ink/30">Kraunama…</div>
+  }
+
+  const top3 = rows.slice(0, 3)
+  const rest = rows.slice(3)
 
   return (
     <div className="pr-2 pb-2">
       <div className="grid grid-cols-3 gap-3 mb-4">
-        {[top3[1], top3[0], top3[2]].map((entry, podiumIdx) => {
+        {[top3[1], top3[0], top3[2]].filter(Boolean).map((entry, podiumIdx) => {
           const isCenter = podiumIdx === 1
+          const tierName = entry.tier ? entry.tier.charAt(0).toUpperCase() + entry.tier.slice(1) : ''
           return (
             <div
-              key={entry.userId}
+              key={entry.subscriber_id}
               className={`rounded-2xl border-2 border-ink shadow-[4px_4px_0_#001B21] p-3 flex flex-col items-center text-center studs-sm ${isCenter ? 'mt-0' : 'mt-5'}`}
-              style={{ background: entry.avatarBg }}
+              style={{ background: entry.avatar_bg ?? '#001B21' }}
             >
               <p className="font-display text-d-xs leading-none text-paper/30 mb-2">#{entry.rank}</p>
               <div className="size-9 rounded-full border-2 border-paper/30 overflow-hidden mb-2">
-                <img src={entry.avatarSrc} alt={entry.name} className="h-full w-full object-cover" />
+                <img src={avatarSrc(entry.avatar_id ?? 0)} alt={entry.name ?? ''} className="h-full w-full object-cover" />
               </div>
               <p className="font-bold text-[12px] text-paper leading-tight">{entry.name}</p>
-              <div className="mt-1 rounded-full px-1.5 py-px text-[9px] font-bold border border-paper/20" style={{ background: tierColors[entry.tier] ?? '#FFD731', color: '#001B21' }}>
-                {entry.tier}
+              <div className="mt-1 rounded-full px-1.5 py-px text-[9px] font-bold border border-paper/20" style={{ background: tierColors[tierName] ?? '#FFD731', color: '#001B21' }}>
+                {tierName}
               </div>
-              <p className="font-display text-[16px] leading-none mt-2 text-paper">{entry.totalPoints}</p>
+              <p className="font-display text-[16px] leading-none mt-2 text-paper">{entry.total_points}</p>
               <p className="font-mono text-[9px] uppercase tracking-widest text-paper/50">taškai</p>
             </div>
           )
@@ -588,29 +616,33 @@ function LeaderboardPanel() {
             <p key={col} className="font-mono text-[9px] uppercase tracking-widest text-paper/50">{col}</p>
           ))}
         </div>
-        {rest.map((entry) => (
-          <div
-            key={entry.userId}
-            className={`grid grid-cols-[28px_1fr_60px_44px] items-center px-4 py-3 gap-3 border-b border-dashed border-ink/10 last:border-b-0 hover:bg-ink/[.03] transition-colors ${entry.isCurrentUser ? 'bg-brand-yellow/12' : ''}`}
-          >
-            <p className="font-display text-[16px] leading-none text-ink/40">{entry.rank}</p>
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="size-6 shrink-0 rounded-full border border-ink/20 overflow-hidden" style={{ background: entry.avatarBg }}>
-                <img src={entry.avatarSrc} alt={entry.name} className="h-full w-full object-cover" />
+        {rest.map((entry) => {
+          const tierName = entry.tier ? entry.tier.charAt(0).toUpperCase() + entry.tier.slice(1) : ''
+          const isMe = user && entry.subscriber_id === user.id
+          return (
+            <div
+              key={entry.subscriber_id}
+              className={`grid grid-cols-[28px_1fr_60px_44px] items-center px-4 py-3 gap-3 border-b border-dashed border-ink/10 last:border-b-0 hover:bg-ink/[.03] transition-colors ${isMe ? 'bg-brand-yellow/12' : ''}`}
+            >
+              <p className="font-display text-[16px] leading-none text-ink/40">{entry.rank}</p>
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="size-6 shrink-0 rounded-full border border-ink/20 overflow-hidden" style={{ background: entry.avatar_bg ?? '#FFD731' }}>
+                  <img src={avatarSrc(entry.avatar_id ?? 0)} alt={entry.name ?? ''} className="h-full w-full object-cover" />
+                </div>
+                <span className="text-[12px] font-bold text-ink truncate">
+                  {entry.name}
+                  {isMe && <span className="ml-1 font-mono text-[9px] text-ink/40">→ Tu</span>}
+                </span>
               </div>
-              <span className="text-[12px] font-bold text-ink truncate">
-                {entry.name}
-                {entry.isCurrentUser && <span className="ml-1 font-mono text-[9px] text-ink/40">→ Tu</span>}
-              </span>
+              <div>
+                <span className="rounded-full px-1.5 py-px text-[9px] font-bold border border-ink/15" style={{ background: tierColors[tierName] ?? '#F5F1EB', color: '#001B21' }}>
+                  {tierName}
+                </span>
+              </div>
+              <p className="font-display text-[16px] leading-none text-ink">{entry.total_points}</p>
             </div>
-            <div >
-              <span className="rounded-full px-1.5 py-px text-[9px] font-bold border border-ink/15" style={{ background: tierColors[entry.tier] ?? '#F5F1EB', color: '#001B21' }}>
-                {entry.tier}
-              </span>
-            </div>
-            <p className="font-display text-[16px] leading-none text-ink">{entry.totalPoints}</p>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
