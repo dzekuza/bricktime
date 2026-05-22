@@ -814,11 +814,9 @@ export default function Drop() {
                 Gali<br />
                 <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>patikti.</span>
               </h2>
-              <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {related.map((p) => (
-                  <div key={p.id} className="w-[300px] shrink-0">
-                    <ProductCard product={p} />
-                  </div>
+                  <ProductCard key={p.id} product={p} />
                 ))}
               </div>
             </div>
