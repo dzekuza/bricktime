@@ -198,11 +198,10 @@ const THUMB_BG = ["#f8f6f2", "#f8f6f2", "#f8f6f2", "#f8f6f2"]
 // ── page ───────────────────────────────────────────────────────────────────
 function RelatedCarousel({ products }: { products: Product[] }) {
   const ref = useRef<HTMLDivElement>(null)
-  const CARD_W = 316 // 300px card + 16px gap
-
   function scroll(dir: "prev" | "next") {
     if (!ref.current) return
-    ref.current.scrollBy({ left: dir === "next" ? CARD_W : -CARD_W, behavior: "smooth" })
+    const cardW = ref.current.children[0]?.clientWidth ?? 0
+    ref.current.scrollBy({ left: dir === "next" ? cardW + 16 : -(cardW + 16), behavior: "smooth" })
   }
 
   return (
@@ -212,7 +211,7 @@ function RelatedCarousel({ products }: { products: Product[] }) {
         className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2"
       >
         {products.map((p) => (
-          <div key={p.id} className="w-[300px] shrink-0 snap-start">
+          <div key={p.id} className="w-[calc(33.333%-11px)] shrink-0 snap-start">
             <ProductCard product={p} />
           </div>
         ))}
