@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
