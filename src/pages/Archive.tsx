@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import { ChevronDownIcon, CheckIcon, XIcon } from "lucide-react"

@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
@@ -31,12 +30,6 @@ const VALUES = [
   },
 ]
 
-const STATS = [
-  { value: '170+', label: 'Rinkinių kataloge' },
-  { value: '42', label: 'Šalyse pristatome' },
-  { value: '2024', label: 'Metai įkurti' },
-  { value: '30d', label: 'Pinigų grąžinimo garantija' },
-]
 
 export default function About() {
   const valuesRef = useReveal<HTMLDivElement>()

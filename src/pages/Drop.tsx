@@ -309,15 +309,7 @@ export default function Drop() {
                       {formatReleaseDate(product.release_date)}
                     </div>
                   )}
-                  <div
-                    className="absolute top-6 right-6 rounded-[8px] border-2 border-ink bg-brand-orange px-4 py-2.5 font-display text-2xl leading-none text-paper"
-                    style={{
-                      transform: "rotate(3deg)",
-                      boxShadow: "4px 4px 0 #001B21",
-                    }}
-                  >
-                    Product № {product?.id}
-                  </div>
+
                   <div className="absolute bottom-5 left-6 font-mono text-[10px] tracking-[.18em] text-paper/70 uppercase">
                     {thumbs[activeThumb].label}
                   </div>

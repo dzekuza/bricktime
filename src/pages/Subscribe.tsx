@@ -23,32 +23,6 @@ import { usePlans } from "@/hooks/usePlans"
 const HOME_DELIVERY_PLANS = ['pro', 'mega', 'mystery_s', 'mystery_m']
 const HOME_DELIVERY_FEE = 3
 
-const trustTiles = [
-  {
-    label: "Atšauk bet kada",
-    body: "Jokių mokesčių, jokio trinties. Vienas paspaudimas tavo paskyros skydelyje.",
-    bg: "#5DDB9C",
-    num: "01",
-  },
-  {
-    label: "Praleisk bet kurį mėnesį",
-    body: "Vyksti atostogų? Per metus galima praleisti iki 3 mėnesių, mokėjimas sustabdomas.",
-    bg: "#FFAEE7",
-    num: "02",
-  },
-  {
-    label: "30 dienų garantija",
-    body: "Nepatiko pirmasis mėnuo — grąžinsime visą sumą, be jokių klausimų.",
-    bg: "#4DA2FF",
-    num: "03",
-  },
-  {
-    label: "Nemokamas pristatymas visame pasaulyje",
-    body: "Standartinis visuose planuose. Skubus Advanced, Master ir Legend planuose.",
-    bg: "#FFD731",
-    num: "04",
-  },
-]
 
 const faqs = [
   {
@@ -73,56 +47,6 @@ const faqs = [
   },
 ]
 
-function FAQItem({
-  q,
-  a,
-  open,
-  onToggle,
-}: {
-  q: string
-  a: string
-  open: boolean
-  onToggle: () => void
-}) {
-  return (
-    <div className="border-b-2 border-dashed border-ink/20 last:border-b-0">
-      <button
-        onClick={onToggle}
-        className="flex w-full items-start justify-between gap-4 py-5 text-left"
-      >
-        <span className="text-[16px] leading-[1.4] font-semibold text-ink">
-          {q}
-        </span>
-        <span
-          className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full border-2 border-ink text-ink"
-          style={{
-            transition: "transform .2s",
-            transform: open ? "rotate(45deg)" : "rotate(0deg)",
-          }}
-        >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path
-              d="M6 1v10M1 6h10"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </svg>
-        </span>
-      </button>
-      <div
-        className="overflow-hidden"
-        style={{
-          transition: "max-height .25s, opacity .2s",
-          maxHeight: open ? 600 : 0,
-          opacity: open ? 1 : 0,
-        }}
-      >
-        <p className="pb-5 text-[15px] leading-[1.65] text-ink/65">{a}</p>
-      </div>
-    </div>
-  )
-}
 
 // ── page ───────────────────────────────────────────────────────────────────
 
@@ -177,7 +101,6 @@ export default function Subscribe() {
 
   const [purchasing, setPurchasing] = useState(false)
   const [purchaseError, setPurchaseError] = useState("")
-  const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [couponInput, setCouponInput] = useState("")
   const [appliedCoupon, setAppliedCoupon] = useState<{
     code: string

@@ -15,11 +15,11 @@ type HelpPageProps = {
 }
 
 function HelpPage({
-  eyebrow,
+_eyebrow,
   title,
   intro,
   accent,
-  summary,
+_summary,
   sections,
   checklist,
   note,
