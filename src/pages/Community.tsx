@@ -664,12 +664,8 @@ export default function Community() {
           <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
             <div>
               <h1 className="heading-display text-d-xl tracking-[-0.015em] text-ink">
-                Statyk. Dalinkis.
-                <br />
-                <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">
-                  Laimėk
-                </span>
-                {" "}prizus
+                Statyk ir<br />
+                <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">laimėk</span>{' '}prizus
               </h1>
               <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">
                 Dalinkis savo statiniais, kelk nuotraukas, bendrauk su kitais BrickTime nariais. Komentuok, rink bendruomenės taškus, dalyvauk iššūkiuose ir laimėk LEGO® rinkinius.
@@ -679,7 +675,7 @@ export default function Community() {
               <img
                 src="/images/build-cactus.jpg"
                 alt="BRICKTIME bendruomenė"
-                className="w-full rounded-2xl border-2 border-ink object-cover aspect-[2/1]"
+                className="w-full rounded-2xl border-2 border-ink object-cover aspect-[2/1] shadow-[6px_6px_0_#001B21]"
               />
             </div>
           </div>

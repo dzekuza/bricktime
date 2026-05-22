@@ -367,24 +367,7 @@ export default function Subscribe() {
                   ? "Pasirink planą pagal savo biudžetą, mėgstamų rinkinių dydį ir konstravimo patirtį — nuo pirmųjų projektų iki didelių kolekcinių modelių bei išskirtinių premium serijų."
                   : `Tik vienas žingsnis iki pirmosios BRICKTIME ${plan?.name ?? ""} dėžutės.`}
               </p>
-              <div className="mt-8 flex items-center gap-3">
-                {(["Pasirinkti planą", "Mokėjimas"] as const).map((s, i) => (
-                  <div key={s} className="flex items-center gap-3">
-                    <div
-                      className={[
-                        "flex items-center gap-2 rounded-full border-2 px-4 py-1.5 font-mono text-[11px] tracking-[.08em] uppercase transition-all",
-                        (step === "plan" ? i === 0 : i === 1)
-                          ? "border-ink bg-ink text-paper"
-                          : "border-ink/20 text-ink/40",
-                      ].join(" ")}
-                    >
-                      <span>{i + 1}</span>
-                      <span>{s}</span>
-                    </div>
-                    {i === 0 && <ArrowRightIcon className="size-4 text-ink/30" />}
-                  </div>
-                ))}
-              </div>
+
             </div>
 
             <div className="hidden lg:block">

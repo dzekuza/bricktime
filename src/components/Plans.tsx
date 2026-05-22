@@ -64,7 +64,6 @@ export default function Plans({ onSubscribe }: {
   onSubscribe?: (plan: DbPlan, billing: 'monthly' | 'yearly') => void
 } = {}) {
   const ref = useReveal<HTMLDivElement>()
-  const spanRef = useRef<HTMLSpanElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly')
   const { plans, loading } = usePlans()
@@ -87,32 +86,11 @@ export default function Plans({ onSubscribe }: {
       .forEach((el) => el.classList.add("visible"))
   }, [loading])
 
-  function onSpanEnter() {
-    gsap.killTweensOf(spanRef.current)
-    gsap.to(spanRef.current, {
-      rotate: 4,
-      scale: 1.12,
-      boxShadow: "8px 8px 0 #001B21",
-      duration: 0.22,
-      ease: "back.out(2.5)",
-    })
-  }
-  function onSpanLeave() {
-    gsap.killTweensOf(spanRef.current)
-    gsap.to(spanRef.current, {
-      rotate: -1.5,
-      scale: 1,
-      boxShadow: "0px 0px 0 #001B21",
-      duration: 0.28,
-      ease: "elastic.out(1, 0.55)",
-    })
-  }
-
   return (
     <section
       id="plans"
       ref={containerRef}
-      className="relative overflow-x-clip bg-paper py-10 md:py-20"
+      className="relative overflow-x-clip bg-paper pb-10 md:pb-20"
     >
       <div className="relative z-10 mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
@@ -136,20 +114,24 @@ export default function Plans({ onSubscribe }: {
                 </button>
               </div>
             </div>
-            <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink">
-              Planai kiekvienai
-              <br />
-              <span
-                ref={spanRef}
-                className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.15)]"
-                style={{ transformOrigin: "center" }}
-                onMouseEnter={onSpanEnter}
-                onMouseLeave={onSpanLeave}
-              >
-                lentynų
-              </span>{" "}
-              situacijai.
-            </h2>
+            <div className="mt-8 flex items-center gap-3">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 rounded-full border-2 px-4 py-1.5 font-mono text-[11px] tracking-[.08em] uppercase transition-all border-ink bg-ink text-paper">
+                  <span>1</span>
+                  <span>Pasirinkti planą</span>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right size-4 text-ink/30" aria-hidden="true">
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 rounded-full border-2 px-4 py-1.5 font-mono text-[11px] tracking-[.08em] uppercase transition-all border-ink/20 text-ink/40">
+                  <span>2</span>
+                  <span>Mokėjimas</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Plan cards row — full width, overlapping */}

@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Nav from '@/components/Nav'
 import Hero from '@/components/Hero'
 import Marquee from '@/components/Marquee'
@@ -14,6 +15,7 @@ const Footer = lazy(() => import('@/components/Footer'))
 const FloatingVideoWidget = lazy(() => import('@/components/FloatingVideoWidget'))
 
 export default function Home() {
+  const navigate = useNavigate()
   return (
     <>
       <Nav />
@@ -24,7 +26,7 @@ export default function Home() {
         <Suspense fallback={null}>
           <FeaturedProducts />
           <HowItWorks />
-          <Plans />
+          <Plans onSubscribe={(plan, billing) => navigate(`/checkout?plan=${plan.id}&billing=${billing}`)} />
           <WhatsInside />
           <Testimonials />
           <FAQ />

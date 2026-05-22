@@ -112,7 +112,7 @@ export default function GiftCards() {
               <img
                 src="/images/build-spaceship.jpg"
                 alt="LEGO dovanų kortelė"
-                className="w-full rounded-2xl border-2 border-ink object-cover aspect-[2/1]"
+                className="w-full rounded-2xl border-2 border-ink object-cover aspect-[2/1] shadow-[6px_6px_0_#001B21]"
               />
             </div>
           </div>

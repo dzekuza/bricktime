@@ -8,6 +8,7 @@ type HelpPageProps = {
   title: string
   intro: string
   accent: string
+  heroImage?: string
   summary: { label: string; value: string }[]
   sections: { title: string; body: string }[]
   checklist: string[]
@@ -18,6 +19,7 @@ function HelpPage({
   title,
   intro,
   accent,
+  heroImage,
   sections,
   checklist,
   note,
@@ -28,24 +30,37 @@ function HelpPage({
       <main className="bg-paper text-ink">
         <section className="bg-paper">
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-            <h1 className="heading-display text-d-xl max-w-[14ch] tracking-[-0.015em] text-ink">
-              {title}
-            </h1>
-            <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">{intro}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                to="/subscribe"
-                className="brick-hover-sm inline-flex items-center gap-2 rounded-full border-2 border-ink bg-ink px-5 py-3 text-[14px] font-bold text-paper"
-              >
-                Pasirinkti planą
-                <ArrowRightIcon className="size-4" />
-              </Link>
-              <Link
-                to="/archive"
-                className="brick-hover-sm inline-flex items-center rounded-full border-2 border-ink/20 px-5 py-3 text-[14px] font-bold text-ink/70 transition-colors hover:border-ink hover:text-ink"
-              >
-                Peržiūrėti katalogą
-              </Link>
+            <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
+              <div>
+                <h1 className="heading-display text-d-xl max-w-[14ch] tracking-[-0.015em] text-ink">
+                  {title}
+                </h1>
+                <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">{intro}</p>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link
+                    to="/subscribe"
+                    className="brick-hover-sm inline-flex items-center gap-2 rounded-full border-2 border-ink bg-ink px-5 py-3 text-[14px] font-bold text-paper"
+                  >
+                    Pasirinkti planą
+                    <ArrowRightIcon className="size-4" />
+                  </Link>
+                  <Link
+                    to="/archive"
+                    className="brick-hover-sm inline-flex items-center rounded-full border-2 border-ink/20 px-5 py-3 text-[14px] font-bold text-ink/70 transition-colors hover:border-ink hover:text-ink"
+                  >
+                    Peržiūrėti katalogą
+                  </Link>
+                </div>
+              </div>
+              {heroImage && (
+                <div className="hidden lg:block">
+                  <img
+                    src={heroImage}
+                    alt={title}
+                    className="w-full rounded-2xl border-2 border-ink object-cover aspect-[2/1] shadow-[6px_6px_0_#001B21]"
+                  />
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -60,10 +75,6 @@ function HelpPage({
                       <p className="label-mono text-ink/40">0{index + 1}</p>
                       <h2 className="heading-display text-d-xs mt-3 text-ink">{section.title}</h2>
                     </div>
-                    <div
-                      className="mt-1 hidden h-3 w-20 rounded-full border border-ink/15 md:block"
-                      style={{ background: accent }}
-                    />
                   </div>
                   <p className="mt-4 max-w-[62ch] text-[15px] leading-7 text-ink/72 md:text-[16px]">
                     {section.body}
@@ -190,6 +201,7 @@ export function ShippingPage() {
       title="Pristatymas"
       intro="BRICKTIME siuntas siunčia taip, kad pakeitimas tarp rinkinių būtų kuo sklandesnis. Čia rasi pagrindines pristatymo taisykles, terminus ir ką tikėtis po užsakymo."
       accent="rgba(77, 162, 255, 0.72)"
+      heroImage="/images/build-sailboat.jpg"
       summary={[
         { label: 'Geografija', value: 'Pristatome į 42 šalis.' },
         { label: 'Standartas', value: 'Standartinis pristatymas įtrauktas visuose planuose.' },
@@ -229,6 +241,7 @@ export function ReturnsPage() {
       title="Grąžinimai"
       intro="Kai norisi naujo rinkinio, grąžinimo procesas turi būti paprastas. Šis puslapis aprašo, kaip inicijuoti grąžinimą, ką supakuoti ir kada vėl atsirakina tavo planų biudžetas."
       accent="rgba(93, 219, 156, 0.72)"
+      heroImage="/images/build-cactus.jpg"
       summary={[
         { label: 'Etiketė', value: 'Grąžinimo etiketę inicijuoji savo paskyroje.' },
         { label: 'Pakuotė', value: 'Siunčiama su apsauga, kad produktas grįžtų saugiai.' },

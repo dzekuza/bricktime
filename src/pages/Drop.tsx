@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Link, useParams } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import Nav from "@/components/Nav"
@@ -201,6 +201,7 @@ export default function Drop() {
   const { setLabel } = useBreadcrumbLabel()
   const [product, setProduct] = useState<DbProduct | null>(null)
   const [activeThumb, setActiveThumb] = useState(0)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
   const [related, setRelated] = useState<Product[]>([])
 
   useEffect(() => {
@@ -276,6 +277,20 @@ export default function Drop() {
           },
         ]
 
+  const lightboxPrev = useCallback(() => setActiveThumb((i) => (i - 1 + thumbs.length) % thumbs.length), [thumbs.length])
+  const lightboxNext = useCallback(() => setActiveThumb((i) => (i + 1) % thumbs.length), [thumbs.length])
+
+  useEffect(() => {
+    if (!lightboxOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') lightboxPrev()
+      else if (e.key === 'ArrowRight') lightboxNext()
+      else if (e.key === 'Escape') setLightboxOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [lightboxOpen, lightboxPrev, lightboxNext])
+
   return (
     <>
       <Nav />
@@ -289,8 +304,9 @@ export default function Drop() {
               <div className="flex flex-col gap-4">
                 {/* Main image */}
                 <div
-                  className="relative h-[520px] overflow-hidden rounded-[24px] border-2 border-ink"
+                  className="relative h-[520px] overflow-hidden rounded-[24px] border-2 border-ink cursor-zoom-in"
                   style={{ background: thumbs[activeThumb].bg }}
+                  onClick={() => setLightboxOpen(true)}
                 >
                   <img
                     key={activeThumb}
@@ -812,6 +828,56 @@ export default function Drop() {
       </section>
 
       <Footer />
+
+      {/* ── Lightbox ── */}
+      {lightboxOpen && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-ink/90 backdrop-blur-sm"
+          onClick={() => setLightboxOpen(false)}
+        >
+          {/* Prev */}
+          <button
+            className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full border-2 border-paper/30 bg-ink/60 p-3 text-paper transition-all hover:border-paper hover:bg-ink"
+            onClick={(e) => { e.stopPropagation(); lightboxPrev() }}
+            aria-label="Ankstesnis"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+
+          {/* Image */}
+          <div
+            className="relative mx-16 max-h-[90vh] max-w-[90vw]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={thumbs[activeThumb].image}
+              alt={thumbs[activeThumb].label}
+              className="max-h-[90vh] max-w-[90vw] rounded-2xl border-2 border-paper/20 object-contain shadow-[0_32px_80px_rgba(0,0,0,.6)]"
+            />
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-ink/60 px-3 py-1 font-mono text-[10px] tracking-[.18em] text-paper/70 uppercase backdrop-blur-sm">
+              {activeThumb + 1} / {thumbs.length}
+            </div>
+          </div>
+
+          {/* Next */}
+          <button
+            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full border-2 border-paper/30 bg-ink/60 p-3 text-paper transition-all hover:border-paper hover:bg-ink"
+            onClick={(e) => { e.stopPropagation(); lightboxNext() }}
+            aria-label="Kitas"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+
+          {/* Close */}
+          <button
+            className="absolute right-4 top-4 rounded-full border-2 border-paper/30 bg-ink/60 p-2 text-paper transition-all hover:border-paper hover:bg-ink"
+            onClick={() => setLightboxOpen(false)}
+            aria-label="Uždaryti"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+      )}
     </>
   )
 }

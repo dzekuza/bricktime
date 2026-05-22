@@ -24,6 +24,50 @@ const SUBSCRIPTION_CHIPS = [
 const AGE_CHIPS = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18] as const
 
 // ── helpers ─────────────────────────────────────────────────────────────────
+// ── sort popover ────────────────────────────────────────────────────────────
+const SORT_OPTIONS = [
+  { value: "newest", label: "Naujausi" },
+  { value: "oldest", label: "Seniausi" },
+  { value: "az",     label: "A → Ž" },
+  { value: "za",     label: "Ž → A" },
+] as const
+
+type SortValue = (typeof SORT_OPTIONS)[number]["value"]
+
+function SortPopover({
+  value,
+  onChange,
+}: {
+  value: SortValue
+  onChange: (v: SortValue) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const label = SORT_OPTIONS.find((o) => o.value === value)?.label ?? value
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button className="flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-4 py-1.5 brick-hover-sm data-[state=open]:bg-ink data-[state=open]:text-paper">
+          <span className="label-mono whitespace-nowrap font-bold">Rūšiuoti: {label}</span>
+          <ChevronDownIcon className="size-3 text-current opacity-50" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-56 rounded-2xl border-2 border-ink p-1 shadow-[4px_4px_0_#001B21]">
+        {SORT_OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => { onChange(opt.value); setOpen(false) }}
+            className="flex w-full items-center justify-between rounded-xl px-3 py-2 hover:bg-ink/5"
+          >
+            <span className="label-mono whitespace-nowrap">{opt.label}</span>
+            {value === opt.value && <CheckIcon className="size-3 text-ink" />}
+          </button>
+        ))}
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 // ── sub-components ─────────────────────────────────────────────────────────
 function FilterPopover({
   label,
@@ -50,20 +94,15 @@ function FilterPopover({
     <Popover>
       <PopoverTrigger asChild>
         <button
-          className={[
-            "inline-flex items-center gap-1.5 rounded-full border-2 border-ink px-4 py-1.5 font-mono text-[11px] tracking-[.06em] uppercase font-bold transition-all select-none",
-            active
-              ? "bg-ink text-paper"
-              : "bg-paper text-ink hover:bg-ink/5",
-          ].join(" ")}
+          className="flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-4 py-1.5 brick-hover-sm data-[state=open]:bg-ink data-[state=open]:text-paper"
         >
-          {label}
+          <span className="label-mono whitespace-nowrap font-bold">{label}</span>
           {active && (
-            <span className="flex size-4 items-center justify-center rounded-full bg-paper/20 text-[10px] font-bold leading-none">
+            <span className="flex size-4 items-center justify-center rounded-full bg-ink/10 text-[10px] font-bold leading-none text-ink">
               {selected.length}
             </span>
           )}
-          <ChevronDownIcon className="size-3 opacity-60" />
+          <ChevronDownIcon className="size-3 text-current opacity-50" />
         </button>
       </PopoverTrigger>
       <PopoverContent
@@ -121,6 +160,7 @@ export default function Archive() {
   const [tierFilter, setTierFilter] = useState<string[]>([])
   const [seriesFilter, setSeriesFilter] = useState<string[]>([])
   const [ageFilter, setAgeFilter] = useState<string[]>([])
+  const [sortBy, setSortBy] = useState<SortValue>("newest")
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -135,15 +175,22 @@ export default function Archive() {
       })
   }, [])
 
-  const filteredProducts = products.filter((p) => {
-    const tierOk = tierFilter.length === 0 || tierFilter.includes(p.requiredTier)
-    const seriesOk = seriesFilter.length === 0 || seriesFilter.includes(p.category)
-    const ageOk =
-      ageFilter.length === 0 ||
-      p.minAge == null ||
-      ageFilter.includes(String(p.minAge))
-    return tierOk && seriesOk && ageOk
-  })
+  const filteredProducts = products
+    .filter((p) => {
+      const tierOk = tierFilter.length === 0 || tierFilter.includes(p.requiredTier)
+      const seriesOk = seriesFilter.length === 0 || seriesFilter.includes(p.category)
+      const ageOk =
+        ageFilter.length === 0 ||
+        p.minAge == null ||
+        ageFilter.includes(String(p.minAge))
+      return tierOk && seriesOk && ageOk
+    })
+    .sort((a, b) => {
+      if (sortBy === "oldest") return (a.id as number) - (b.id as number)
+      if (sortBy === "az") return (a.title ?? "").localeCompare(b.title ?? "", "lt")
+      if (sortBy === "za") return (b.title ?? "").localeCompare(a.title ?? "", "lt")
+      return (b.id as number) - (a.id as number)
+    })
 
   const hasActiveFilter =
     tierFilter.length > 0 || seriesFilter.length > 0 || ageFilter.length > 0
@@ -164,22 +211,21 @@ export default function Archive() {
           <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
             <div>
               <h1 className="heading-display text-d-xl tracking-[-0.015em] text-ink">
-                Visi{" "}
+                Visi rinkiniai<br />
                 <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">
-                  rinkiniai.
-                </span>
+                  vienoje
+                </span>{" "}
+                vietoje
               </h1>
               <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">
-                Peržiūrėk visą BRICKTIME katalogą — dvidešimt šeši unikalūs
-                rinkiniai iš miesto, transporto, sci-fi ir gamtos pasaulių.
-                Pasiimk bet kurį rinkinį su aktyvia prenumerata.
+                Vos keli paprasti žingsniai iki naujo konstravimo projekto tavo namuose. Pasirink planą pagal savo poreikius, išsirink norimą rinkinį, gauk jį į namus ar paštomatą ir keisk į naują kada panorėjęs.
               </p>
             </div>
             <div className="hidden lg:block">
               <img
                 src="/images/build-castle.jpg"
                 alt="LEGO rinkiniai"
-                className="w-full rounded-2xl border-2 border-ink object-cover aspect-[2/1]"
+                className="w-full rounded-2xl border-2 border-ink object-cover aspect-[2/1] shadow-[6px_6px_0_#001B21]"
               />
             </div>
           </div>
@@ -192,46 +238,49 @@ export default function Archive() {
       <section className="bg-paper pt-4 pb-16">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           {/* Filters */}
-          <div className="mb-8 flex flex-wrap items-center gap-2">
-            <FilterPopover
-              label="Serija"
-              options={SERIES.map((s) => ({ value: s, label: s }))}
-              selected={seriesFilter}
-              onChange={setSeriesFilter}
-            />
-            <FilterPopover
-              label="Prenumerata"
-              options={SUBSCRIPTION_CHIPS.map(({ key, label }) => ({
-                value: key,
-                label,
-              }))}
-              selected={tierFilter}
-              onChange={setTierFilter}
-            />
-            <FilterPopover
-              label="Amžius"
-              options={AGE_CHIPS.map((age) => ({
-                value: String(age),
-                label: `${age}+`,
-              }))}
-              selected={ageFilter}
-              onChange={setAgeFilter}
-            />
-            {hasActiveFilter && (
-              <>
-                <span className="mx-1 h-5 w-px bg-ink/20" />
-                <span className="font-mono text-[11px] tracking-[.06em] uppercase text-ink/50">
-                  {filteredProducts.length} iš {products.length}
-                </span>
-                <button
-                  onClick={clearFilters}
-                  className="inline-flex items-center gap-1 font-mono text-[11px] tracking-[.06em] uppercase text-ink/40 transition-colors hover:text-ink"
-                >
-                  <XIcon className="size-3" />
-                  Išvalyti
-                </button>
-              </>
-            )}
+          <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <FilterPopover
+                label="Serija"
+                options={SERIES.map((s) => ({ value: s, label: s }))}
+                selected={seriesFilter}
+                onChange={setSeriesFilter}
+              />
+              <FilterPopover
+                label="Prenumerata"
+                options={SUBSCRIPTION_CHIPS.map(({ key, label }) => ({
+                  value: key,
+                  label,
+                }))}
+                selected={tierFilter}
+                onChange={setTierFilter}
+              />
+              <FilterPopover
+                label="Amžius"
+                options={AGE_CHIPS.map((age) => ({
+                  value: String(age),
+                  label: `${age}+`,
+                }))}
+                selected={ageFilter}
+                onChange={setAgeFilter}
+              />
+              {hasActiveFilter && (
+                <>
+                  <span className="mx-1 h-5 w-px bg-ink/20" />
+                  <span className="font-mono text-[11px] tracking-[.06em] uppercase text-ink/50">
+                    {filteredProducts.length} iš {products.length}
+                  </span>
+                  <button
+                    onClick={clearFilters}
+                    className="inline-flex items-center gap-1 font-mono text-[11px] tracking-[.06em] uppercase text-ink/40 transition-colors hover:text-ink"
+                  >
+                    <XIcon className="size-3" />
+                    Išvalyti
+                  </button>
+                </>
+              )}
+            </div>
+            <SortPopover value={sortBy} onChange={setSortBy} />
           </div>
 
           <div className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3">
