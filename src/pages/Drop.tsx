@@ -208,7 +208,7 @@ function RelatedCarousel({ products }: { products: Product[] }) {
     <div className="relative">
       <div
         ref={ref}
-        className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2"
+        className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none -mx-3 px-3 py-3"
       >
         {products.map((p) => (
           <div key={p.id} className="w-[calc(33.333%-11px)] shrink-0 snap-start">
