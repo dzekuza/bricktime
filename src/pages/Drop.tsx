@@ -367,7 +367,7 @@ export default function Drop() {
                 )}
               </div>
 
-              <h1 className="heading-display text-d-lg mt-3.5 tracking-[-0.01em] text-ink">
+              <h1 className="heading-display text-d-lg mt-7 tracking-[-0.01em] text-ink">
                 {product?.title ?? "Mailbox Row"}
                 <br />+{" "}
                 <span
