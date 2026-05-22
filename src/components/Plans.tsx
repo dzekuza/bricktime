@@ -176,7 +176,7 @@ export default function Plans({ onSubscribe }: {
               : plans.map((plan, i) => (
                   <div
                     key={plan.id}
-                    className="reveal brick-card sticky lg:relative lg:!top-0 flex min-w-0 flex-1 flex-col p-5 pt-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-all duration-200 hover:z-10 hover:-translate-y-3 lg:p-6 lg:pt-8"
+                    className="reveal brick-card sticky lg:relative lg:!top-0 flex min-w-0 flex-1 flex-col p-5 pt-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-[transform,box-shadow] duration-300 ease-out hover:z-10 hover:-translate-y-3 hover:shadow-[10px_10px_0_rgba(245,241,235,.25)] lg:p-6 lg:pt-8"
                     style={{
                       background: plan.bg_color,
                       transitionDelay: `${i * 80}ms`,
