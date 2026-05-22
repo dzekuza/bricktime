@@ -14,8 +14,13 @@ export function useReveal<T extends HTMLElement>() {
       (entries) => {
         entries.forEach((e) => {
           if (e.isIntersecting) {
-            e.target.classList.add('visible')
-            io.unobserve(e.target)
+            const target = e.target as HTMLElement
+            target.classList.add('visible')
+            target.addEventListener('transitionend', () => {
+              target.style.transitionDelay = ''
+              target.classList.remove('reveal')
+            }, { once: true })
+            io.unobserve(target)
           }
         })
       },

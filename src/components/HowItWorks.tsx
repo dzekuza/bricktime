@@ -65,7 +65,7 @@ export default function HowItWorks() {
   }, [])
 
   return (
-    <section ref={containerRef} className="bg-paper py-10 md:py-20">
+    <section ref={containerRef} className="bg-paper pb-10 md:pb-20">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
 
@@ -76,7 +76,7 @@ export default function HowItWorks() {
             <h2
               className="heading-display text-d-lg mt-3 text-ink"
             >
-              Pasirink planą,
+              Pasirink planą
               <br />
               <span
                 className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"

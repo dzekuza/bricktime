@@ -39,7 +39,7 @@ function AvatarPopover() {
     return (
       <Link
         to="/account"
-        className="flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-ink brick-hover-sm"
+        className="relative z-10 flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-ink brick-hover-sm"
         style={{ background: avatarBg }}
         aria-label="Paskyra"
       >
@@ -52,7 +52,7 @@ function AvatarPopover() {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
-          className="flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-ink brick-hover-sm"
+          className="relative z-10 flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-ink brick-hover-sm"
           style={{ background: avatarBg }}
           aria-label="Prisijungti"
         >
@@ -78,7 +78,7 @@ function PlanChip({ plan }: { plan: string }) {
   return (
     <Link
       to="/account"
-      className="hidden md:flex items-center gap-2 rounded-full border-2 border-ink px-3 py-1.5 brick-hover-sm"
+      className="hidden md:flex items-center rounded-full border-2 border-ink pl-3.5 pr-9 py-[7px] -mr-7"
       style={{ background: bg }}
     >
       <span className="font-mono text-[11px] font-bold tracking-[.12em] uppercase" style={{ color: text }}>
@@ -121,7 +121,7 @@ export default function Nav() {
                 <Link
                   key={l.label}
                   to={l.to}
-                  className={`relative text-[15px] font-semibold text-ink after:absolute after:-bottom-1.5 after:left-0 after:right-0 after:h-[3px] after:bg-ink after:content-[''] after:transition-transform after:duration-200 after:origin-left ${isActive ? 'after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'}`}
+                  className={`relative text-[15px] font-semibold text-ink after:absolute after:-bottom-1.5 after:left-0 after:right-0 after:h-[2px] after:bg-ink after:content-[''] after:transition-transform after:duration-200 after:origin-left ${isActive ? 'after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'}`}
                 >
                   {l.label}
                 </Link>
@@ -134,26 +134,27 @@ export default function Nav() {
           </Link>
 
           {/* Right — CTA + avatar + hamburger */}
-          <div className="flex items-center justify-end gap-3">
+          <div className="flex items-center justify-end gap-3 md:gap-2">
             <Link
               to="/subscribe"
-              className={`hidden md:flex relative text-[15px] font-semibold text-ink after:absolute after:-bottom-1.5 after:left-0 after:right-0 after:h-[3px] after:bg-ink after:content-[''] after:transition-transform after:duration-200 after:origin-left ${pathname.startsWith('/subscribe') ? 'after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'}`}
+              className={`hidden md:flex relative text-[15px] font-semibold text-ink after:absolute after:-bottom-1.5 after:left-0 after:right-0 after:h-[2px] after:bg-ink after:content-[''] after:transition-transform after:duration-200 after:origin-left ${pathname.startsWith('/subscribe') ? 'after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'}`}
             >
               Planai
             </Link>
-            {user && profile?.plan ? (
-              <PlanChip plan={profile.plan} />
-            ) : (
-              <Button
-                asChild
-                size="sm"
-                className="hidden rounded-full border-2 border-ink bg-ink text-paper font-bold brick-hover-sm md:inline-flex"
-              >
-                <Link to="/subscribe">Prenumeruoti <ArrowRightIcon data-icon="inline-end" /></Link>
-              </Button>
-            )}
-
-            <AvatarPopover />
+            <div className="flex items-center">
+              {user && profile?.plan ? (
+                <PlanChip plan={profile.plan} />
+              ) : (
+                <Button
+                  asChild
+                  size="sm"
+                  className="hidden rounded-full border-2 border-ink bg-ink text-paper font-bold brick-hover-sm md:inline-flex mr-3"
+                >
+                  <Link to="/subscribe">Prenumeruoti <ArrowRightIcon data-icon="inline-end" /></Link>
+                </Button>
+              )}
+              <AvatarPopover />
+            </div>
 
             <button
               onClick={() => setOpen((v) => !v)}

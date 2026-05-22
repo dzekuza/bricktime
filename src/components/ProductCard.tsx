@@ -139,7 +139,7 @@ function StudBg({
       className={`relative overflow-hidden ${className}`}
       style={
         image
-          ? { background: color }
+          ? { background: "#f8f6f2" }
           : {
               background: color,
               backgroundImage:

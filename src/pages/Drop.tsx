@@ -193,7 +193,7 @@ function formatReleaseDate(iso: string | null): string {
   return `${LT_MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`
 }
 
-const THUMB_BG = ["#5C4ADE", "#5DDB9C", "#FFAEE7", "#FFD731"]
+const THUMB_BG = ["#f8f6f2", "#f8f6f2", "#f8f6f2", "#f8f6f2"]
 
 // ── page ───────────────────────────────────────────────────────────────────
 export default function Drop() {
@@ -256,22 +256,22 @@ export default function Drop() {
       : [
           {
             label: "[ Front ]",
-            bg: "#5C4ADE",
+            bg: "#f8f6f2",
             image: "/images/build-castle.jpg",
           },
           {
             label: "[ Detail ]",
-            bg: "#5DDB9C",
+            bg: "#f8f6f2",
             image: "/images/build-cactus.jpg",
           },
           {
             label: "[ Build spread ]",
-            bg: "#FFAEE7",
+            bg: "#f8f6f2",
             image: "/images/build-sailboat.jpg",
           },
           {
             label: "[ Scale view ]",
-            bg: "#FFD731",
+            bg: "#f8f6f2",
             image: "/images/build-spaceship.jpg",
           },
         ]

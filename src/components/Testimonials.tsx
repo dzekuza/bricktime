@@ -5,8 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 const testimonials = [
   {
-    quote:
-      '"Mano stalas virto mažu miestu. Produktas-26 pašto surinkimas — tai beprotybė."',
+    quote: '"Mano stalas virto mažu miestu. Produktas-26 pašto surinkimas — tai beprotybė."',
     name: "Amelia R.",
     meta: "Prenumeratorė nuo produkto 04",
     avatarColor: "#FB4903",
@@ -14,8 +13,7 @@ const testimonials = [
     bg: "#5DDB9C",
   },
   {
-    quote:
-      '"Mano vaikai mano, kad esu burtininkas. Surinkimo kortelės tiesiog nuostabios."',
+    quote: '"Mano vaikai mano, kad esu burtininkas. Surinkimo kortelės tiesiog nuostabios."',
     name: "Marco T.",
     meta: "Legend lygis · 14 mėnesių",
     avatarColor: "#FFAEE7",
@@ -23,8 +21,7 @@ const testimonials = [
     bg: "#F5F1EB",
   },
   {
-    quote:
-      '"Praleidau mėnesį, jokios dramos. Grįžau į koralinio rifo produktą. Tobula."',
+    quote: '"Praleidau mėnesį, jokios dramos. Grįžau į koralinio rifo produktą. Tobula."',
     name: "Yuki S.",
     meta: "Builder lygis",
     avatarColor: "#5DDB9C",
@@ -32,8 +29,7 @@ const testimonials = [
     bg: "#FFAEE7",
   },
   {
-    quote:
-      '"Kiekvienas mėnuo — siurprizas. Mano kolegos jau pavydi."',
+    quote: '"Kiekvienas mėnuo — siurprizas. Mano kolegos jau pavydi."',
     name: "Jonas K.",
     meta: "Pro lygis · 6 mėnesiai",
     avatarColor: "#FFD731",
@@ -45,66 +41,72 @@ const testimonials = [
 const CARD_WIDTH = 460
 const CARD_GAP = 16
 const STEP = CARD_WIDTH + CARD_GAP
+const TOTAL = testimonials.length
+const LOOP_WIDTH = TOTAL * STEP        // width of one full set
+const PX_PER_SEC = 55                  // auto-scroll speed
+const items = [...testimonials, ...testimonials] // 2 copies — seamless loop
 
 function onCardEnter(e: React.MouseEvent<HTMLDivElement>) {
   gsap.to(e.currentTarget.querySelector(".stars"), {
-    scale: 1.3,
-    y: -4,
-    duration: 0.2,
-    ease: "back.out(2.5)",
-    transformOrigin: "left center",
+    scale: 1.3, y: -4, duration: 0.2,
+    ease: "back.out(2.5)", transformOrigin: "left center",
   })
 }
 function onCardLeave(e: React.MouseEvent<HTMLDivElement>) {
   gsap.to(e.currentTarget.querySelector(".stars"), {
-    scale: 1,
-    y: 0,
-    duration: 0.3,
-    ease: "elastic.out(1, 0.55)",
-    transformOrigin: "left center",
+    scale: 1, y: 0, duration: 0.3,
+    ease: "elastic.out(1, 0.55)", transformOrigin: "left center",
   })
 }
 
 export default function Testimonials() {
   const trackRef = useRef<HTMLDivElement>(null)
-  const autoRef = useRef<gsap.core.Tween | null>(null)
   const xRef = useRef(0)
-  const [index, setIndex] = useState(0)
+  const pausedRef = useRef(false)
+  const steppingRef = useRef(false)
+  const [dotIndex, setDotIndex] = useState(0)
 
-  const TOTAL = testimonials.length
-
-  const goTo = useCallback((next: number) => {
-    const clamped = ((next % TOTAL) + TOTAL) % TOTAL
-    setIndex(clamped)
-    xRef.current = -clamped * STEP
-    gsap.to(trackRef.current, {
-      x: xRef.current,
-      duration: 0.55,
-      ease: "power3.out",
-    })
-    // restart auto-scroll after 4s of inactivity
-    autoRef.current?.kill()
-    autoRef.current = gsap.delayedCall(4, () => startAuto(clamped))
-  }, [TOTAL]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const startAuto = useCallback((fromIndex: number) => {
-    let i = fromIndex
-    autoRef.current = gsap.delayedCall(4, function tick() {
-      i = (i + 1) % TOTAL
-      setIndex(i)
-      xRef.current = -i * STEP
-      gsap.to(trackRef.current, {
-        x: xRef.current,
-        duration: 0.55,
-        ease: "power3.out",
-      })
-      autoRef.current = gsap.delayedCall(4, tick)
-    })
-  }, [TOTAL]) // eslint-disable-line react-hooks/exhaustive-deps
+  const normalize = (x: number) => {
+    let n = x % -LOOP_WIDTH
+    if (n > 0) n -= LOOP_WIDTH
+    return n
+  }
 
   useEffect(() => {
-    startAuto(0)
-    return () => { autoRef.current?.kill() }
+    let lastT = performance.now()
+
+    const tick = () => {
+      if (pausedRef.current || steppingRef.current) {
+        lastT = performance.now()
+        return
+      }
+      const now = performance.now()
+      const dt = Math.min(now - lastT, 50) // cap delta to avoid jump after tab switch
+      lastT = now
+      xRef.current = normalize(xRef.current - (PX_PER_SEC * dt) / 1000)
+      gsap.set(trackRef.current, { x: xRef.current })
+      setDotIndex(((Math.round(-xRef.current / STEP)) % TOTAL + TOTAL) % TOTAL)
+    }
+
+    gsap.ticker.add(tick)
+    return () => gsap.ticker.remove(tick)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const step = useCallback((dir: 1 | -1) => {
+    steppingRef.current = true
+    const snapped = Math.round(xRef.current / STEP) * STEP
+    const target = normalize(snapped - dir * STEP)
+
+    gsap.to(trackRef.current, {
+      x: target,
+      duration: 0.55,
+      ease: "power3.out",
+      onComplete: () => {
+        xRef.current = target
+        steppingRef.current = false
+      },
+    })
+    setDotIndex(((Math.round(-target / STEP)) % TOTAL + TOTAL) % TOTAL)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
@@ -119,10 +121,9 @@ export default function Testimonials() {
             Atsiliepimai.
           </h2>
 
-          {/* Arrow navigation with dots between */}
           <div className="flex items-center gap-3 pb-1">
             <button
-              onClick={() => goTo(index - 1)}
+              onClick={() => step(-1)}
               className="brick-card brick-hover-sm flex size-12 items-center justify-center bg-paper text-ink transition-all"
               aria-label="Ankstesnis"
             >
@@ -133,9 +134,17 @@ export default function Testimonials() {
               {testimonials.map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => goTo(i)}
+                  onClick={() => {
+                    const target = normalize(-i * STEP)
+                    steppingRef.current = true
+                    gsap.to(trackRef.current, {
+                      x: target, duration: 0.55, ease: "power3.out",
+                      onComplete: () => { xRef.current = target; steppingRef.current = false },
+                    })
+                    setDotIndex(i)
+                  }}
                   className={`h-2 rounded-full border border-ink transition-all duration-300 ${
-                    i === index ? "w-6 bg-ink" : "w-2 bg-transparent"
+                    i === dotIndex ? "w-6 bg-ink" : "w-2 bg-transparent"
                   }`}
                   aria-label={`Atsiliepimai ${i + 1}`}
                 />
@@ -143,7 +152,7 @@ export default function Testimonials() {
             </div>
 
             <button
-              onClick={() => goTo(index + 1)}
+              onClick={() => step(1)}
               className="brick-card brick-hover-sm flex size-12 items-center justify-center bg-ink text-paper transition-all"
               aria-label="Kitas"
             >
@@ -153,19 +162,17 @@ export default function Testimonials() {
         </div>
       </div>
 
-      {/* Full-bleed cards */}
       <div className="overflow-hidden py-3">
         <div
           ref={trackRef}
           className="flex w-max gap-4 px-4 md:px-7"
-          style={{ x: 0 } as React.CSSProperties}
         >
-          {testimonials.map((t, i) => (
+          {items.map((t, i) => (
             <div key={i} className="w-[340px] flex-none md:w-[460px]">
               <div
-                className="brick-card flex min-h-[300px] flex-col justify-between p-6 md:p-10 bg-white transition-all"
-                onMouseEnter={(e) => { autoRef.current?.pause?.(); onCardEnter(e) }}
-                onMouseLeave={(e) => { autoRef.current?.resume?.(); onCardLeave(e) }}
+                className="brick-card flex min-h-[300px] flex-col justify-between p-6 md:p-10 bg-white"
+                onMouseEnter={(e) => { pausedRef.current = true; onCardEnter(e) }}
+                onMouseLeave={(e) => { pausedRef.current = false; onCardLeave(e) }}
               >
                 <div className="stars flex gap-0.5 text-brand-orange">
                   {Array.from({ length: 5 }).map((_, j) => (
@@ -196,7 +203,6 @@ export default function Testimonials() {
           ))}
         </div>
       </div>
-
     </section>
   )
 }

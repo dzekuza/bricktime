@@ -155,7 +155,7 @@ html, body, #root {
 
   /* Interactive card hover lift */
   .brick-card-hover {
-    transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+    transition: transform 200ms ease-in-out, box-shadow 200ms ease-in-out;
     @media (hover: hover) and (pointer: fine) {
       &:hover {
         transform: translate(-3px, -3px);
@@ -166,7 +166,7 @@ html, body, #root {
 
   /* Small element hover (buttons, nav items) */
   .brick-hover-sm {
-    transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+    transition: transform 150ms ease-in-out, box-shadow 150ms ease-in-out;
     @media (hover: hover) and (pointer: fine) {
       &:hover {
         transform: translate(-2px, -2px);

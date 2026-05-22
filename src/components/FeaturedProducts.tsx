@@ -175,18 +175,18 @@ function SortPill({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button className="flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-4 py-1.5 brick-hover-sm data-[state=open]:bg-ink data-[state=open]:text-paper">
-          <span className="label-mono">Rūšiuoti: {selected.label}</span>
+          <span className="label-mono whitespace-nowrap">Rūšiuoti: {selected.label}</span>
           <ChevronDown size={12} className="text-current opacity-50" />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-52 rounded-2xl border-2 border-ink p-1 shadow-[4px_4px_0_#001B21]">
+      <PopoverContent align="end" className="w-64 rounded-2xl border-2 border-ink p-1 shadow-[4px_4px_0_#001B21]">
         {SORT_OPTIONS.map((opt) => (
           <button
             key={opt.value}
             onClick={() => { onSelect(opt); setOpen(false) }}
             className="flex w-full items-center justify-between rounded-xl px-3 py-2 hover:bg-ink/5"
           >
-            <span className="label-mono">{opt.label}</span>
+            <span className="label-mono whitespace-nowrap">{opt.label}</span>
             {selected.value === opt.value && <Check size={13} className="text-ink" />}
           </button>
         ))}
@@ -303,7 +303,7 @@ export default function FeaturedProducts() {
         <div className="mt-10 flex flex-col items-center gap-3">
           <Link
             to="/archive"
-            className="rounded-full border-2 border-ink bg-white px-6 py-3 text-[17px] font-bold text-ink transition-colors hover:bg-ink hover:text-paper"
+            className="rounded-full border-2 border-ink bg-white px-6 py-3 text-[17px] font-bold text-ink brick-hover-sm"
           >
             Visi produktai ↓
           </Link>
