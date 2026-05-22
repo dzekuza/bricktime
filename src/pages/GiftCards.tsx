@@ -112,19 +112,26 @@ export default function GiftCards() {
       <Nav />
 
       {/* Hero */}
-      <section className="bg-paper py-4 md:py-6">
+      <section className="bg-paper">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div className="brick-card relative flex min-h-[260px] flex-col justify-end overflow-hidden bg-ink p-6 md:p-9">
-            <div className="relative z-10">
-              <h1 className="heading-display text-d-xl max-w-[18ch] tracking-[-0.015em] text-paper">
+          <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
+            <div>
+              <h1 className="heading-display text-d-xl tracking-[-0.015em] text-ink">
                 DOVANK{' '}
-                <span className="inline-block italic text-brand-yellow" style={{ transform: 'skewX(-8deg)' }}>
-                  LEGO džiaugsmą.
+                <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">
+                  džiaugsmą.
                 </span>
               </h1>
-              <p className="mt-4 max-w-[52ch] text-[17px] leading-[1.65] text-paper/60">
-                Dovanos kortelę galima panaudoti užsisakant prenumeratą arba įsigyjant merch. Galioja vienerius metus.
+              <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">
+                Padovanok galimybę atrasti naujus LEGO® rinkinius kiekvieną mėnesį — dovana, kuri suteikia dar daugiau kūrybos, statymo įspūdžių ir nepamirštamų akimirkų.
               </p>
+            </div>
+            <div className="hidden lg:block">
+              <img
+                src="/images/build-spaceship.jpg"
+                alt="LEGO dovanų kortelė"
+                className="w-full rounded-2xl border-2 border-ink object-cover aspect-[2/1]"
+              />
             </div>
           </div>
         </div>

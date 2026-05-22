@@ -47,53 +47,33 @@ export default function About() {
       <main className="bg-paper text-ink">
 
         {/* Hero */}
-        <section className="bg-paper py-4 md:py-6">
+        <section className="bg-paper">
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-            <div className="overflow-hidden rounded-2xl border-2 border-ink bg-ink p-4 md:rounded-3xl md:p-6">
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-                <div className="flex min-h-[420px] flex-col justify-between p-4 md:p-9 lg:col-span-8">
-                  <div className="label-mono flex items-center gap-2.5 text-paper/50">
-                    <Link to="/" className="transition-colors hover:text-paper">BRICKTIME</Link>
-                    <span className="text-paper/30">/</span>
-                    <span>Apie mus</span>
-                  </div>
-                  <div>
-                    <h1 className="heading-display text-d-xl max-w-[14ch] tracking-[-0.015em] text-paper">
-                      Mes{' '}
-                      <span className="inline-block italic text-brand-yellow skew-x-[-8deg]">mylime</span>
-                      <br />
-                      LEGO® taip pat.
-                    </h1>
-                    <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-paper/70">
-                      BRICKTIME gimė iš paprastos idėjos: rinkiniai skirti statyti, o ne kaupti. Mes sukūrėme prenumeratos paslaugą, kuri leidžia mėgautis LEGO® be ribų ir be bereikalingų išlaidų.
-                    </p>
-                    <div className="mt-8 flex flex-wrap gap-3">
-                      <Link
-                        to="/subscribe"
-                        className="brick-hover-sm inline-flex items-center gap-2 rounded-full border-2 border-paper bg-paper px-5 py-3 text-[14px] font-bold text-ink"
-                      >
-                        Pradėti prenumeratą
-                        <ArrowRight className="size-4" />
-                      </Link>
-                      <Link
-                        to="/community"
-                        className="brick-hover-sm inline-flex items-center rounded-full border-2 border-white/30 px-5 py-3 text-[14px] font-bold text-paper/80 transition-colors hover:border-paper hover:text-paper"
-                      >
-                        Bendruomenė
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col justify-around rounded-2xl border-2 border-white/20 bg-white/10 p-6 shadow-[6px_6px_0_#001B21] md:rounded-3xl md:p-9 lg:col-span-4">
-                  {STATS.map((s) => (
-                    <div key={s.label} className="flex flex-col gap-2 border-b border-white/20 py-4 last:border-b-0">
-                      <b className="heading-display text-d-lg text-paper">{s.value}</b>
-                      <small className="label-mono text-white/60">{s.label}</small>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            <h1 className="heading-display text-d-xl max-w-[14ch] tracking-[-0.015em] text-ink">
+              Mes{' '}
+              <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">
+                mylime
+              </span>
+              <br />
+              LEGO® taip pat.
+            </h1>
+            <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">
+              BRICKTIME gimė iš paprastos idėjos: rinkiniai skirti statyti, o ne kaupti. Mes sukūrėme prenumeratos paslaugą, kuri leidžia mėgautis LEGO® be ribų ir be bereikalingų išlaidų.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                to="/subscribe"
+                className="brick-hover-sm inline-flex items-center gap-2 rounded-full border-2 border-ink bg-ink px-5 py-3 text-[14px] font-bold text-paper"
+              >
+                Pradėti prenumeratą
+                <ArrowRight className="size-4" />
+              </Link>
+              <Link
+                to="/community"
+                className="brick-hover-sm inline-flex items-center rounded-full border-2 border-ink/20 px-5 py-3 text-[14px] font-bold text-ink/70 transition-colors hover:border-ink hover:text-ink"
+              >
+                Bendruomenė
+              </Link>
             </div>
           </div>
         </section>

@@ -14,6 +14,7 @@ import {
   RefreshCcwIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { useReveal } from "@/hooks/useReveal"
 import { usePlans } from "@/hooks/usePlans"
 
@@ -51,28 +52,24 @@ const trustTiles = [
 
 const faqs = [
   {
-    q: "Kaip veikia mėnesinis biudžetas?",
-    a: "Kiekvienas planas suteikia fiksuotą € biudžetą produktams iš katalogo. Galite turėti kelis produktus vienu metu, kol bendra jų vertė neviršija biudžeto. Biudžetas atsinaujina kas mėnesį.",
+    q: "Ar visi rinkiniai yra originalūs?",
+    a: "Aukštos kokybės ABS plastikas prie pramoninio standarto 1,6 mm tolerancijos. Visiškai suderinamos su bet kokios suderinamos markės kaladėlėmis — užsispaudžia, laiko ir išsiskiria švariai.",
   },
   {
-    q: "Ar galiu keisti planą prenumeratos metu?",
-    a: "Taip — paaukštink arba sumažink planą bet kada iš savo skydelio. Pakeitimai įsigalioja nuo kito atsiskaitymo ciklo.",
+    q: "Kas jei trūksta detalės?",
+    a: "Pranešk mums ir mes kuo greičiau išsiųsime trūkstamą detalę nemokamai.",
   },
   {
-    q: "Kokius mokėjimo būdus priimate?",
-    a: "Priimame visas pagrindines kredito ir debeto korteles (Visa, Mastercard, Amex), PayPal ir Apple Pay.",
+    q: "Ar galiu pasirinkti konkretų rinkinį?",
+    a: "Taip — pasirinkę planą galite naršyti katalogą ir išsirinkti norimą rinkinį pagal savo biudžetą.",
   },
   {
-    q: "Kaip veikia metinio atsiskaitymo nuolaida?",
-    a: "Metinis atsiskaitymas apmokestina už 10 mėnesių iš anksto ir suteikia 12 mėnesių produktų — iš esmės 2 mėnesiai nemokamai. Rodoma kaina yra mėnesio ekvivalentas.",
+    q: "Kaip veikia grąžinimas?",
+    a: "Grąžinimui išsiunčiame iš anksto apmokėtą grąžinimo etiketę. Tiesiog supakuok rinkinį ir nunes į paštomatą.",
   },
   {
-    q: "Ar miniukai suderinami su standartinėmis kaladėlėmis?",
-    a: "Kiekviena BRICKTIME detalė yra 100 % suderinama su visomis pagrindinėmis kaladėlių sistemomis, kurias jau turi.",
-  },
-  {
-    q: "Ar pristatote į užsienį?",
-    a: "Pristatome į 42 šalis. Standartinis pristatymas nemokamas visur. Pristatymo laikas: 3–5 dienos (ES), 7–14 dienų (likęs pasaulis).",
+    q: "Ar galiu pristabdyti prenumeratą?",
+    a: "Taip — per metus galima pristabdyti iki 3 mėnesių. Mokėjimas sustabdomas, rinkiniai laukia tavęs.",
   },
 ]
 
@@ -428,61 +425,52 @@ export default function Subscribe() {
       <Nav />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="bg-paper pt-6 pb-4">
+      <section className="bg-paper">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div ref={heroRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-            <div
-              className="reveal relative overflow-hidden rounded-2xl border-2 border-[#1e4048] bg-[#001B21] md:rounded-3xl lg:col-span-12"
-            >
-              <div className="grid min-h-[280px] gap-6 p-6 md:p-9 lg:min-h-[360px] lg:grid-cols-[minmax(0,1.15fr)_420px] lg:items-stretch">
-                <div className="relative z-10 flex flex-col justify-between">
-                  <div>
-                    <h1 className="heading-display text-d-lg mt-4 tracking-[-0.015em] text-paper">
-                      {step === "plan" ? "Pasirink planą." : "Užbaik užsakymą."}
-                    </h1>
-                    <p className="mt-5 max-w-[46ch] text-[16px] leading-[1.65] text-[#8aabb2]">
-                      {step === "plan"
-                        ? "Penki lygiai. Atšauk bet kurį mėnesį. Išsiunčiama per 5 dienas po registracijos."
-                        : `Tik vienas žingsnis iki pirmosios BRICKTIME ${plan?.name ?? ""} dėžutės.`}
-                    </p>
+          <div ref={heroRef} className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
+            <div>
+              <h1 className="heading-display text-d-xl tracking-[-0.015em] text-ink">
+                {step === "plan" ? (
+                  <>
+                    Pasirink planą
+                    <br />
+                    <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">Pradėk</span>
+                    {" "}statyti
+                  </>
+                ) : (
+                  <>Užbaik <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">užsakymą.</span></>
+                )}
+              </h1>
+              <p className="mt-6 max-w-[46ch] text-[17px] leading-[1.65] text-ink/65">
+                {step === "plan"
+                  ? "Pasirink planą pagal savo biudžetą, mėgstamų rinkinių dydį ir konstravimo patirtį — nuo pirmųjų projektų iki didelių kolekcinių modelių bei išskirtinių premium serijų."
+                  : `Tik vienas žingsnis iki pirmosios BRICKTIME ${plan?.name ?? ""} dėžutės.`}
+              </p>
+              <div className="mt-8 flex items-center gap-3">
+                {(["Pasirinkti planą", "Mokėjimas"] as const).map((s, i) => (
+                  <div key={s} className="flex items-center gap-3">
+                    <div
+                      className={[
+                        "flex items-center gap-2 rounded-full border-2 px-4 py-1.5 font-mono text-[11px] tracking-[.08em] uppercase transition-all",
+                        (step === "plan" ? i === 0 : i === 1)
+                          ? "border-ink bg-ink text-paper"
+                          : "border-ink/20 text-ink/40",
+                      ].join(" ")}
+                    >
+                      <span>{i + 1}</span>
+                      <span>{s}</span>
+                    </div>
+                    {i === 0 && <ArrowRightIcon className="size-4 text-ink/30" />}
                   </div>
-                  <div className="mt-8 flex items-center gap-3">
-                    {(["Pasirinkti planą", "Mokėjimas"] as const).map(
-                      (s, i) => (
-                        <div key={s} className="flex items-center gap-3">
-                          <div
-                            className={[
-                              "flex items-center gap-2 rounded-full border-2 px-4 py-1.5 font-mono text-[11px] tracking-[.08em] uppercase transition-all",
-                              (step === "plan" ? i === 0 : i === 1)
-                                ? "border-brand-yellow bg-brand-yellow text-ink"
-                                : "border-[#2d5560] text-[#5a7e87]",
-                            ].join(" ")}
-                          >
-                            <span>{i + 1}</span>
-                            <span>{s}</span>
-                          </div>
-                          {i === 0 && (
-                            <ArrowRightIcon className="size-4 text-[#2d5560]" />
-                          )}
-                        </div>
-                      ),
-                    )}
-                  </div>
-                </div>
+                ))}
+              </div>
+            </div>
 
-                <div className="relative min-h-[220px] overflow-hidden rounded-[28px] border-2 border-[#2d5560] bg-[#03262e] shadow-[6px_6px_0_#001B21]">
-                  <video
-                    className="h-full w-full object-cover"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                  >
-                    <source src="/subscribe-hero.mp4" type="video/mp4" />
-                  </video>
-                  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,27,33,0.05)_0%,rgba(0,27,33,0.28)_100%)]" />
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(180deg,rgba(0,27,33,0)_0%,rgba(0,27,33,0.55)_100%)]" />
-                </div>
+            <div className="hidden lg:block">
+              <div className="relative overflow-hidden rounded-2xl border-2 border-ink aspect-[2/1]">
+                <video className="h-full w-full object-cover" autoPlay muted loop playsInline>
+                  <source src="/subscribe-hero.mp4" type="video/mp4" />
+                </video>
               </div>
             </div>
           </div>
@@ -778,10 +766,10 @@ export default function Subscribe() {
               className="reveal brick-card bg-cream overflow-x-auto lg:col-span-12"
             >
               {plans.length > 0 && (
-                <table className="w-full border-collapse" style={{ minWidth: `${120 + plans.length * 110}px` }}>
+                <table className="w-full table-fixed border-collapse" style={{ minWidth: `${plans.length * 120}px` }}>
                   <thead>
                     <tr className="border-b-2 border-ink">
-                      <th className="sticky left-0 z-20 w-[120px] min-w-[120px] bg-[#F5F1EB] p-3 text-left font-mono text-[11px] tracking-[.18em] text-ink/40 uppercase md:w-[160px] md:min-w-[160px] md:p-5">
+                      <th className="sticky left-0 z-20 bg-[#F5F1EB] p-3 text-left font-mono text-[11px] tracking-[.18em] text-ink/40 uppercase md:p-5">
                         Savybė
                       </th>
                       {plans.map((p) => (
@@ -797,12 +785,11 @@ export default function Subscribe() {
                             {p.name}
                           </span>
                           {p.featured && (
-                            <span
-                              className="mt-0.5 block font-mono text-[9px] tracking-[.1em] uppercase"
-                              style={{ color: `${p.text_color}60` }}
-                            >
-                              Populiarus
-                            </span>
+                            <div className="mt-3 h-7">
+                              <span className="inline-flex items-center rotate-2 rounded border-2 border-ink px-3 py-1 font-mono text-[11px] tracking-[.08em] uppercase bg-ink text-paper">
+                                Populiariausias
+                              </span>
+                            </div>
                           )}
                         </th>
                       ))}
@@ -847,84 +834,151 @@ export default function Subscribe() {
       </section>
 
       {/* ── Trust signals ────────────────────────────────────────────── */}
-      <section className="bg-paper py-20">
-        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink mb-8">
-            Prenumerata<br />
-            <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>be rizikos.</span>
-          </h2>
-          <div
-            ref={trustRef}
-            className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
-          >
-            {trustTiles.map((t, i) => (
-              <div
-                key={t.num}
-                className="reveal brick-card-hover flex min-h-[220px] flex-col justify-between rounded-2xl border-2 border-ink p-6 shadow-[6px_6px_0_#001B21] md:rounded-3xl md:p-8"
-                style={{ background: t.bg, transitionDelay: `${i * 70}ms` }}
-              >
-                <span className="font-display text-[52px] leading-[.85] text-ink/20 select-none">
-                  {t.num}
-                </span>
-                <div>
-                  <h3 className="heading-display text-d-xs leading-[.92] text-ink">
-                    {t.label}
-                  </h3>
-                  <p className="mt-3 text-[14px] leading-[1.6] text-ink/65">
-                    {t.body}
-                  </p>
+      <section className="relative bg-paper py-10 md:py-20">
+        <div className="relative z-10 mx-auto max-w-[1320px] px-4 md:px-7">
+          <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:gap-20">
+            <div className="lg:sticky lg:top-28 lg:self-start">
+              <div>
+                <h2 className="heading-display text-d-lg tracking-[-0.015em] mt-4 text-ink">
+                  Prenumerata<br />
+                  <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>be rizikos.</span>
+                </h2>
+                <p className="mt-6 max-w-[40ch] text-[17px] leading-[1.65] text-ink/65">
+                  Lanksti LEGO® rinkinių prenumerata su nemokamu pristatymu ir galimybe keisti rinkinius kada tik panorėjus. Statyk daugiau, sutaupyk ir nebeleisk rinkiniams dulkėti lentynose.
+                </p>
+                <Link
+                  to="/subscribe"
+                  className="mt-8 inline-flex items-center gap-2 rounded-full border-2 border-ink bg-ink px-7 py-3.5 text-[15px] font-bold text-paper brick-hover-sm"
+                >
+                  Pradėti prenumeratą
+                  <ArrowRightIcon className="size-4" />
+                </Link>
+                <div className="brick-card mt-8 h-[260px] overflow-hidden">
+                  <img
+                    src="/images/build-cactus.jpg"
+                    alt="Statytojas dedantis paskutinę detalę"
+                    className="h-full w-full object-cover"
+                    style={{ objectPosition: "center 35%" }}
+                  />
                 </div>
               </div>
-            ))}
+            </div>
+
+            <div ref={trustRef}>
+              <div className="flex flex-col gap-4">
+                {[
+                  { num: "01", title: "Nemokamas pristatymas", body: "Visi LEGO® rinkiniai pristatomi į paštomatą nemokamai visoje Lietuvoje." },
+                  { num: "02", title: "Keisk rinkinius bet kada", body: "Surink, grąžink ir išsirink naują rinkinį kada panorėjęs — be papildomų mokesčių." },
+                  { num: "03", title: "Jokių ilgalaikių įsipareigojimų", body: "Pakeisk planą, pristabdyk prenumeratą arba atšauk ją bet kuriuo metu." },
+                  { num: "04", title: "30 dienų garantija", body: "Jeigu rinkinys neatitiko lūkesčių — padėsime jį pakeisti kitu." },
+                  { num: "05", title: "Nauji rinkiniai kas mėnesį", body: "Atrask naujus LEGO® modelius ir gauk ankstyvą prieigą prie naujų papildymų." },
+                ].map((item, i) => (
+                  <div
+                    key={item.num}
+                    className="reveal brick-card brick-card-hover relative flex gap-6 overflow-hidden bg-paper p-6 md:p-8"
+                    style={{ transitionDelay: `${i * 60}ms` }}
+                  >
+                    <div className="font-display text-ink/10 select-none leading-[.8] absolute top-2 right-4 text-d-hero">
+                      {item.num}
+                    </div>
+                    <div className="pt-1 max-w-[80%]">
+                      <h3 className="heading-display text-d-xs text-ink">{item.title}</h3>
+                      <p className="mt-3 text-[15px] leading-[1.65] text-ink/65">{item.body}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ── FAQ ──────────────────────────────────────────────────────── */}
-      <section className="bg-paper py-20">
+      <section id="faq" className="bg-paper py-10 md:py-20">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div ref={faqRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-            <div
-              className="reveal brick-card relative flex min-h-[280px] flex-col justify-between p-6 md:p-9 lg:col-span-4"
-              style={{ background: "#5C4ADE" }}
-            >
+
+            {/* FAQ accordion card */}
+            <div className="reveal brick-card relative bg-paper p-6 md:p-9 lg:col-span-7 lg:row-span-2">
               <img
-                src="/br.svg"
+                src="/faq-mascot.svg"
                 alt=""
-                className="pointer-events-none absolute right-6 bottom-6 w-[200px] select-none"
+                aria-hidden
+                className="absolute right-6 top-6 w-[100px] md:w-[128px]"
               />
-              <div className="max-w-[50%]">
-                <h2 className="heading-display text-d-md tracking-[-0.015em] text-paper">
-                  Tai, ko
-                  <br />
-                  žmonės
-                  <br />
-                  klausia.
-                </h2>
-                <p className="mt-5 text-[14px] leading-[1.65] text-paper/65">
-                  Vis dar neaišku? Rašyk mums{" "}
-                  <a
-                    href="mailto:hi@bricktime.co"
-                    className="text-brand-yellow underline underline-offset-2"
-                  >
-                    hi@bricktime.co
-                  </a>
+              <h2 className="heading-display text-d-lg mt-3 text-ink">
+                <span
+                  className="inline-block border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
+                  style={{ transform: "rotate(-1.5deg)" }}
+                >
+                  Dažniausi
+                </span>
+                <br />
+                klausimai.
+              </h2>
+              <Accordion type="single" collapsible className="mt-6 w-full">
+                {faqs.map((faq, i) => (
+                  <AccordionItem key={i} value={`faq-${i}`}>
+                    <AccordionTrigger className="py-4 text-left text-[16px] leading-snug font-bold hover:no-underline">
+                      {faq.q}
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <p className="max-w-[58ch] pb-4 text-[15px] leading-[1.65] text-ink/70">{faq.a}</p>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
+
+            {/* Stats card */}
+            <div className="reveal grid grid-cols-2 gap-4 rounded-2xl border-2 border-ink bg-ink p-6 shadow-[6px_6px_0_rgba(245,241,235,.1)] md:rounded-3xl md:p-8 lg:col-span-5">
+              <div className="flex flex-col justify-between rounded-xl border border-paper/15 p-3 md:min-h-[100px] md:rounded-2xl md:p-5">
+                <p className="font-display text-[28px] leading-[.9] text-paper md:text-d-xs">12 400+</p>
+                <div className="mt-2 font-mono text-[10px] tracking-[.16em] uppercase text-paper/50">Aktyvūs prenumeratoriai</div>
+              </div>
+              <div className="flex flex-col justify-between rounded-xl border-2 border-paper bg-brand-yellow p-3 md:min-h-[100px] md:rounded-2xl md:p-5">
+                <p className="font-display leading-[.9]">
+                  <span className="text-[22px] text-ink">★</span>
+                  <span className="text-[36px] text-ink md:text-[44px]">4.9</span>
+                  <span className="text-[18px] text-ink/50">/5</span>
                 </p>
+                <div className="mt-2 font-mono text-[10px] tracking-[.16em] uppercase text-ink/50">Vidutinis įvertinimas</div>
+              </div>
+              <div className="flex flex-col justify-between rounded-xl border border-paper/15 p-3 md:min-h-[100px] md:rounded-2xl md:p-5">
+                <p className="font-display text-[28px] leading-[.9] text-paper md:text-d-xs">26</p>
+                <div className="mt-2 font-mono text-[10px] tracking-[.16em] uppercase text-paper/50">Išsiųstų rinkinių</div>
+              </div>
+              <div className="flex flex-col justify-between rounded-xl border border-paper/15 p-3 md:min-h-[100px] md:rounded-2xl md:p-5">
+                <p className="font-display text-[28px] leading-[.9] text-paper md:text-d-xs">170</p>
+                <div className="mt-2 font-mono text-[10px] tracking-[.16em] uppercase text-paper/50">Aktyvių rinkinių</div>
               </div>
             </div>
-            <div
-              className="reveal brick-card bg-cream p-6 md:p-9 lg:col-span-8"
-            >
-              {faqs.map((faq, i) => (
-                <FAQItem
-                  key={i}
-                  q={faq.q}
-                  a={faq.a}
-                  open={openFaq === i}
-                  onToggle={() => setOpenFaq(openFaq === i ? null : i)}
-                />
-              ))}
+
+            {/* CTA card */}
+            <div className="reveal brick-card flex flex-col justify-between p-6 md:p-8 lg:col-span-5" style={{ background: "#5C4ADE" }}>
+              <div>
+                <p className="font-mono text-[10px] tracking-[.22em] uppercase text-paper/60">Vis dar abejoji?</p>
+                <h3 className="heading-display text-d-sm mt-3 leading-[.9] text-paper">
+                  Naujausi<br />
+                  <span
+                    className="inline-block border-[3px] border-paper/40 bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(245,241,235,.2)]"
+                    style={{ transform: "rotate(-1.5deg)", transformOrigin: "center center" }}
+                  >
+                    Lego Rinkiniai.
+                  </span>
+                </h3>
+                <p className="mt-3 text-[15px] leading-[1.6] text-paper/70">
+                  Pasirink planą, išsirink norimus modelius ir keisk juos kada panorėjęs — be ilgalaikių įsipareigojimų.
+                </p>
+              </div>
+              <a
+                href="#plans"
+                className="mt-6 inline-flex items-center justify-center rounded-full border-2 border-ink bg-brand-yellow px-6 py-3 text-center text-[15px] font-bold text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,0,0,.2)]"
+              >
+                Pasirinkti planą →
+              </a>
             </div>
+
           </div>
         </div>
       </section>

@@ -135,7 +135,7 @@ function FilterPill({
           className="flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-4 py-1.5 brick-hover-sm data-[state=open]:bg-ink data-[state=open]:text-paper"
           style={active ? { backgroundColor: '#FFD731' } : undefined}
         >
-          <span className="label-mono">{label}</span>
+          <span className="label-mono font-bold">{label}</span>
           <ChevronDown size={12} className="text-current opacity-50" />
         </button>
       </PopoverTrigger>
@@ -175,7 +175,7 @@ function SortPill({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button className="flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-4 py-1.5 brick-hover-sm data-[state=open]:bg-ink data-[state=open]:text-paper">
-          <span className="label-mono whitespace-nowrap">Rūšiuoti: {selected.label}</span>
+          <span className="label-mono whitespace-nowrap font-bold">Rūšiuoti: {selected.label}</span>
           <ChevronDown size={12} className="text-current opacity-50" />
         </button>
       </PopoverTrigger>

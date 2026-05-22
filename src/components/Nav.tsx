@@ -134,7 +134,7 @@ export default function Nav() {
           </Link>
 
           {/* Right — CTA + avatar + hamburger */}
-          <div className="flex items-center justify-end gap-3 md:gap-2">
+          <div className="flex items-center justify-end gap-7">
             <Link
               to="/subscribe"
               className={`hidden md:flex relative text-[15px] font-semibold text-ink after:absolute after:-bottom-1.5 after:left-0 after:right-0 after:h-[2px] after:bg-ink after:content-[''] after:transition-transform after:duration-200 after:origin-left ${pathname.startsWith('/subscribe') ? 'after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'}`}

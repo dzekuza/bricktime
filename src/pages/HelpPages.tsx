@@ -28,48 +28,26 @@ function HelpPage({
     <>
       <Nav />
       <main className="bg-paper text-ink">
-        <section className="bg-paper py-4 md:py-6">
+        <section className="bg-paper">
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-            <div className="overflow-hidden rounded-2xl border-2 border-ink bg-ink p-4 md:rounded-3xl md:p-6">
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-                <div className="flex min-h-[360px] flex-col justify-between p-4 md:p-9 lg:col-span-8">
-                  <div className="label-mono flex items-center gap-2.5 text-paper/50">
-                    <Link to="/" className="transition-colors hover:text-paper">BRICKTIME</Link>
-                    <span className="text-paper/30">/</span>
-                    <span>{eyebrow}</span>
-                  </div>
-                  <div>
-                    <h1 className="heading-display text-d-xl max-w-[14ch] tracking-[-0.015em] text-paper">
-                      {title}
-                    </h1>
-                    <p className="mt-5 max-w-[52ch] text-[17px] leading-[1.65] text-paper/70">{intro}</p>
-                    <div className="mt-8 flex flex-wrap gap-3">
-                      <Link
-                        to="/subscribe"
-                        className="brick-hover-sm inline-flex items-center gap-2 rounded-full border-2 border-paper bg-paper px-5 py-3 text-[14px] font-bold text-ink"
-                      >
-                        Pasirinkti planą
-                        <ArrowRightIcon className="size-4" />
-                      </Link>
-                      <Link
-                        to="/archive"
-                        className="brick-hover-sm inline-flex items-center rounded-full border-2 border-white/30 px-5 py-3 text-[14px] font-bold text-paper/80 transition-colors hover:border-paper hover:text-paper"
-                      >
-                        Peržiūrėti katalogą
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col justify-around rounded-2xl border-2 border-white/20 bg-white/10 p-6 shadow-[6px_6px_0_#001B21] md:rounded-3xl md:p-9 lg:col-span-4">
-                  {summary.map((item) => (
-                    <div key={item.label} className="flex flex-col gap-2 border-b border-white/20 py-4 last:border-b-0">
-                      <p className="label-mono text-white/50">{item.label}</p>
-                      <p className="text-[15px] font-semibold leading-snug text-paper/90">{item.value}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            <h1 className="heading-display text-d-xl max-w-[14ch] tracking-[-0.015em] text-ink">
+              {title}
+            </h1>
+            <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">{intro}</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                to="/subscribe"
+                className="brick-hover-sm inline-flex items-center gap-2 rounded-full border-2 border-ink bg-ink px-5 py-3 text-[14px] font-bold text-paper"
+              >
+                Pasirinkti planą
+                <ArrowRightIcon className="size-4" />
+              </Link>
+              <Link
+                to="/archive"
+                className="brick-hover-sm inline-flex items-center rounded-full border-2 border-ink/20 px-5 py-3 text-[14px] font-bold text-ink/70 transition-colors hover:border-ink hover:text-ink"
+              >
+                Peržiūrėti katalogą
+              </Link>
             </div>
           </div>
         </section>

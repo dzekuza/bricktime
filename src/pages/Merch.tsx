@@ -151,30 +151,28 @@ export default function MerchPage() {
       <Nav />
 
       {/* Hero */}
-      <section className="bg-paper py-4 md:py-6">
+      <section className="bg-paper">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div className="overflow-hidden rounded-2xl border-2 border-ink bg-ink p-4 md:rounded-3xl md:p-6">
-            <div className="brick-card brick-card-hover flex min-h-[320px] flex-col justify-between bg-ink p-6 md:p-9">
-              <div className="label-mono mb-6 flex items-center gap-2.5">
-                <Link to="/" className="text-paper/50 transition-colors hover:text-paper">
-                  BRICKTIME
-                </Link>
-                <span className="text-paper/30">/</span>
-                <span className="text-paper/50">Merch</span>
-              </div>
-
-              <div className="flex flex-1 flex-col justify-center">
-                <h1 className="heading-display text-d-xl max-w-[14ch] tracking-[-0.015em] text-paper">
-                  BRICKTIME{' '}
-                  <span className="inline-block text-brand-yellow italic skew-x-[-8deg]">
-                    merch.
-                  </span>
-                </h1>
-                <p className="mt-6 max-w-[48ch] text-[17px] leading-[1.65] text-paper/70">
-                  Drabužiai LEGO mylėtojams. Džemperiai, marškinėliai ir dar daugiau —
-                  netrukus parduotuvėje.
-                </p>
-              </div>
+          <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
+            <div>
+              <h1 className="heading-display text-d-xl tracking-[-0.015em] text-ink">
+                BRICKTIME{' '}
+                <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">
+                  merch.
+                </span>
+              </h1>
+              <p className="mt-6 max-w-[48ch] text-[17px] leading-[1.65] text-ink/65">
+                BrickTime merch'as sukurtas tiems, kurie niekada nenustojo
+                statyti — minimalistiniai drabužiai ir aksesuarai tikriems
+                konstravimo entuziastams.
+              </p>
+            </div>
+            <div className="hidden lg:block">
+              <img
+                src="/images/build-sailboat.jpg"
+                alt="LEGO statyba"
+                className="w-full rounded-2xl border-2 border-ink object-cover aspect-[2/1]"
+              />
             </div>
           </div>
         </div>

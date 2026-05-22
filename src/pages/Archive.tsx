@@ -160,57 +160,28 @@ export default function Archive() {
       <Nav />
 
       {/* ── Hero ── */}
-      <section className="bg-paper py-4 md:py-6">
+      <section className="bg-paper">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div className="overflow-hidden rounded-2xl border-2 border-ink bg-ink p-4 md:rounded-3xl md:p-6">
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-              <div className="brick-card brick-card-hover flex md:min-h-[420px] flex-col justify-between bg-ink p-0 md:p-9 lg:col-span-8">
-                <div className="label-mono mb-6 flex items-center gap-2.5">
-                  <Link
-                    to="/"
-                    className="text-paper/50 transition-colors hover:text-paper"
-                  >
-                    BRICKTIME
-                  </Link>
-                  <span className="text-paper/30">/</span>
-                  <span className="text-paper/50">Produktai</span>
-                </div>
-
-                <div className="flex flex-1 flex-col justify-center">
-                  <h1 className="heading-display text-d-xl max-w-[14ch] tracking-[-0.015em] text-paper">
-                    Visi{" "}
-                    <span className="inline-block text-brand-yellow italic skew-x-[-8deg]">
-                      rinkiniai,
-                    </span>
-                    <br />
-                    vienoje vietoje.
-                  </h1>
-
-                  <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-paper/70">
-                    Peržiūrėk visą BRICKTIME katalogą — dvidešimt šeši unikalūs
-                    rinkiniai iš miesto, transporto, sci-fi ir gamtos pasaulių.
-                    Pasiimk bet kurį rinkinį su aktyvia prenumerata.
-                  </p>
-                </div>
-              </div>
-
-              <div className="brick-card-hover flex md:min-h-[420px] flex-col justify-around rounded-2xl md:rounded-3xl border-2 border-white/20 shadow-[6px_6px_0_#001B21] bg-white/10 p-6 md:p-9 lg:col-span-4">
-                {[
-                  ["26", "Rinkinių katalogas"],
-                  ["7 840", "Detalių iš viso"],
-                  ["54", "Minifigūrėlių"],
-                ].map(([val, label]) => (
-                  <div
-                    key={label}
-                    className="flex flex-col gap-2 border-b border-white/20 py-4 last:border-b-0"
-                  >
-                    <b className="heading-display text-d-lg text-paper">
-                      {val}
-                    </b>
-                    <small className="label-mono text-white/70">{label}</small>
-                  </div>
-                ))}
-              </div>
+          <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
+            <div>
+              <h1 className="heading-display text-d-xl tracking-[-0.015em] text-ink">
+                Visi{" "}
+                <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">
+                  rinkiniai.
+                </span>
+              </h1>
+              <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">
+                Peržiūrėk visą BRICKTIME katalogą — dvidešimt šeši unikalūs
+                rinkiniai iš miesto, transporto, sci-fi ir gamtos pasaulių.
+                Pasiimk bet kurį rinkinį su aktyvia prenumerata.
+              </p>
+            </div>
+            <div className="hidden lg:block">
+              <img
+                src="/images/build-castle.jpg"
+                alt="LEGO rinkiniai"
+                className="w-full rounded-2xl border-2 border-ink object-cover aspect-[2/1]"
+              />
             </div>
           </div>
         </div>

@@ -601,10 +601,17 @@ export default function Account() {
               </div>
 
               <div className="mt-auto flex gap-3 pt-6 md:hidden">
-                <button className="flex-1 rounded-full border-2 border-ink bg-ink px-3 py-2 text-[14px] font-bold text-paper transition-all hover:opacity-80">
+                <button
+                  className="flex-1 rounded-full border-2 border-ink bg-ink px-3 py-2 text-[14px] font-bold text-paper transition-all hover:opacity-80"
+                  onClick={openBillingPortal}
+                  disabled={portalLoading}
+                >
                   Atšaukti
                 </button>
-                <button className="flex-1 rounded-full border-2 border-ink bg-paper px-3 py-2 text-[14px] font-bold text-ink transition-all hover:bg-ink/5">
+                <button
+                  className="flex-1 rounded-full border-2 border-ink bg-paper px-3 py-2 text-[14px] font-bold text-ink transition-all hover:bg-ink/5"
+                  onClick={() => setShowUpgrade(!showUpgrade)}
+                >
                   Keisti
                 </button>
               </div>
@@ -615,7 +622,11 @@ export default function Account() {
                 >
                   Keisti planą
                 </button>
-                <button className="flex-1 rounded-full border-2 border-ink bg-paper px-3 py-2 text-[14px] font-bold text-ink transition-all hover:bg-ink/5">
+                <button
+                  className="flex-1 rounded-full border-2 border-ink bg-paper px-3 py-2 text-[14px] font-bold text-ink transition-all hover:bg-ink/5"
+                  onClick={openBillingPortal}
+                  disabled={portalLoading}
+                >
                   Atšaukti
                 </button>
               </div>
@@ -627,7 +638,7 @@ export default function Account() {
                 <h3 className="label-mono mb-5 text-ink">
                   Keisti planą
                 </h3>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+                <div className="grid grid-cols-3 gap-3 lg:grid-cols-6">
                   {tierOptions.map((t, i) => (
                     <button
                       key={t.name}

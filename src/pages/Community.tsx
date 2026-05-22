@@ -624,18 +624,36 @@ export default function Community() {
     <>
       <Nav />
 
-      <section className="bg-paper pt-6 pb-4">
+      <section className="bg-paper">
         <div ref={heroRef} className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div className="rounded-2xl md:rounded-3xl border-2 border-ink bg-ink overflow-hidden p-6 md:p-10">
-            <h1 className="heading-display text-d-xl tracking-[-0.02em] mt-3 text-paper">Bendruomenė.</h1>
-            <p className="mt-5 font-mono text-[15px] text-paper/50 tracking-[.04em]">Žaisk. Statyk. Dalinkis.</p>
+          <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
+            <div>
+              <h1 className="heading-display text-d-xl tracking-[-0.015em] text-ink">
+                Statyk. Dalinkis.
+                <br />
+                <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">
+                  Laimėk
+                </span>
+                {" "}prizus
+              </h1>
+              <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">
+                Dalinkis savo statiniais, kelk nuotraukas, bendrauk su kitais BrickTime nariais. Komentuok, rink bendruomenės taškus, dalyvauk iššūkiuose ir laimėk LEGO® rinkinius.
+              </p>
+            </div>
+            <div className="hidden lg:block">
+              <img
+                src="/images/build-cactus.jpg"
+                alt="BRICKTIME bendruomenė"
+                className="w-full rounded-2xl border-2 border-ink object-cover aspect-[2/1]"
+              />
+            </div>
           </div>
         </div>
       </section>
 
       <section className="bg-paper pt-4 pb-20">
         <div ref={contentRef} className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[40%_60%]">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[2fr_3fr]">
 
             <div className="md:sticky md:self-start md:max-h-[calc(100dvh-120px)] md:overflow-y-auto top-[120px]">
               <h3 className="label-mono text-ink/50 mb-6">Lyderiai</h3>
