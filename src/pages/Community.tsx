@@ -7,6 +7,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import { avatarSrc } from '@/lib/avatars'
 import { ImageIcon, Heart, MessageCircle, Trash2 } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { AuthForm } from '@/components/AuthForm'
 import {
   achievementDefs,
   leaderboard,
@@ -518,9 +520,9 @@ function FeedPanel() {
       {user && profile ? (
         <ComposeBox avatarId={profile.avatarId} avatarBg={profile.avatarBg} onPost={addPost} />
       ) : (
-        <Link to="/subscribe" className="brick-card brick-hover-sm block p-4 text-center">
+        <button onClick={() => setShowAuthDialog(true)} className="brick-card brick-hover-sm w-full p-4 text-center">
           <p className="font-mono text-[13px] text-ink/50">Prisijunk norėdamas rašyti į srautą →</p>
-        </Link>
+        </button>
       )}
       {items.map((item) => (
         <FeedCard key={item.id} item={item} onLike={() => toggleLike(item)} onComment={(text) => addComment(text, item.id)} isOwn={!!user && item.subscriber_id === user.id} onDelete={() => deletePost(item)} />
@@ -619,6 +621,7 @@ function LeaderboardPanel() {
 export default function Community() {
   const heroRef = useReveal<HTMLDivElement>()
   const contentRef = useReveal<HTMLDivElement>()
+  const [showAuthDialog, setShowAuthDialog] = useState(false)
 
   return (
     <>
@@ -670,6 +673,15 @@ export default function Community() {
       </section>
 
       <Footer />
+
+      <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+        <DialogContent className="max-w-sm rounded-2xl border-2 border-ink bg-paper shadow-[6px_6px_0_#001B21]">
+          <DialogHeader>
+            <DialogTitle className="heading-display text-d-xs text-ink">Prisijungti</DialogTitle>
+          </DialogHeader>
+          <AuthForm onClose={() => setShowAuthDialog(false)} />
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
