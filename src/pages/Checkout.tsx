@@ -87,7 +87,14 @@ export default function Checkout() {
   const { user } = useAuth()
   // support both ?product= and legacy ?drop=
   const productId = params.get("product") ?? params.get("drop") ?? ""
-  const tierParam = params.get("tier") ?? "standard"
+  const tierParam = params.get("plan") ?? params.get("tier") ?? "standard"
+  const billingParam = params.get("billing") === "yearly" ? "annual" : "monthly"
+  // gift card mode
+  const isGiftCard = params.get("type") === "giftcard"
+  const gcAmount = Number(params.get("amount") ?? 0)
+  const gcRecipient = params.get("recipient") ?? ""
+  const gcBuyer = params.get("buyer") ?? ""
+  const gcMessage = params.get("message") ?? ""
 
   const [product, setProduct] = useState<DbProduct | null>(null)
   const [loading, setLoading] = useState(true)
@@ -105,7 +112,7 @@ export default function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount_type: "percentage" | "fixed"; discount_value: number } | null>(null)
   const [couponError, setCouponError] = useState<string | null>(null)
   const [couponLoading, setCouponLoading] = useState(false)
-  const [billing, setBilling] = useState<"monthly" | "annual">("monthly")
+  const [billing, setBilling] = useState<"monthly" | "annual">(billingParam)
   const [purchasing, setPurchasing] = useState(false)
   const [purchaseError, setPurchaseError] = useState("")
   const { plans } = usePlans()
@@ -144,9 +151,32 @@ export default function Checkout() {
     [product?.tier, tierParam]
   )
   const isEligible = useMemo(
-    () => userSub !== null && userSub.level >= requiredTier.level,
-    [userSub, requiredTier]
+    () => !!productId && userSub !== null && userSub.level >= requiredTier.level,
+    [productId, userSub, requiredTier]
   )
+
+  // ── gift card purchase handler ───────────────────────────────────────────
+  const [gcLoading, setGcLoading] = useState(false)
+  const [gcError, setGcError] = useState("")
+
+  async function handleGiftCardPurchase() {
+    setGcLoading(true)
+    setGcError("")
+    const origin = window.location.origin
+    const { data, error } = await supabase.functions.invoke("create-gift-card-checkout", {
+      body: {
+        amountCents: gcAmount,
+        recipientEmail: gcRecipient,
+        buyerEmail: gcBuyer,
+        message: gcMessage || null,
+        successUrl: `${origin}/gift-cards?payment=success&code={CODE}&session={SESSION_ID}&recipient=${encodeURIComponent(gcRecipient)}`,
+        cancelUrl: `${origin}/gift-cards`,
+      },
+    })
+    setGcLoading(false)
+    if (error || !data?.url) { setGcError("Klaida kuriant mokėjimą. Bandyk dar kartą."); return }
+    window.location.assign(data.url)
+  }
 
   async function applyGiftCard() {
     const code = giftCardInput.trim().toUpperCase()
@@ -209,8 +239,8 @@ export default function Checkout() {
         planKey: requiredTier.key,
         userId: user.id,
         userEmail: user.email ?? "",
-        successUrl: `${origin}/checkout?product=${productId}&success=true&plan=${requiredTier.key}`,
-        cancelUrl: `${origin}/checkout?product=${productId}`,
+        successUrl: productId ? `${origin}/checkout?product=${productId}&success=true&plan=${requiredTier.key}` : `${origin}/checkout?plan=${requiredTier.key}&success=true`,
+        cancelUrl: productId ? `${origin}/checkout?product=${productId}` : `${origin}/planai`,
         ...(hasDiscount && { discountedAmount: discountedPrice }),
         ...(appliedGiftCard && { giftCardCode: appliedGiftCard.code }),
       },
@@ -256,6 +286,83 @@ export default function Checkout() {
   }
 
   // ── loading ──────────────────────────────────────────────────────────────
+  // ── gift card checkout ───────────────────────────────────────────────────
+  if (isGiftCard) {
+    const gcDenomLabel = `€${(gcAmount / 100).toFixed(0)}`
+    return (
+      <div className="min-h-screen bg-paper">
+        <Nav />
+        <section className="pt-6 pb-16">
+          <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+            <div className="mb-8 flex items-end justify-between gap-4">
+              <h1 className="heading-display text-d-lg text-ink">Užsakymas</h1>
+              <div className="label-mono hidden items-center gap-2 text-ink/30 md:flex">
+                <span className="text-ink/50">Dovanų kortelės</span>
+                <span>→</span>
+                <span className="font-bold text-ink">Patvirtinimas</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.5fr]">
+              {/* Left summary */}
+              <div className="brick-card flex flex-col gap-5 bg-brand-yellow p-8">
+                <div>
+                  <p className="label-mono text-ink/50">Dovanų kortelė</p>
+                  <h2 className="heading-display text-d-xl mt-1 text-ink">{gcDenomLabel}</h2>
+                </div>
+                <div className="flex flex-col gap-2 border-t-2 border-ink/15 pt-5">
+                  <div>
+                    <p className="label-mono text-[9px] text-ink/40">Gavėjas</p>
+                    <p className="mt-0.5 font-mono text-[13px] font-bold text-ink">{gcRecipient}</p>
+                  </div>
+                  {gcMessage && (
+                    <div>
+                      <p className="label-mono text-[9px] text-ink/40">Sveikinimas</p>
+                      <p className="mt-0.5 text-[13px] text-ink/70">"{gcMessage}"</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {/* Right payment */}
+              <div className="brick-card flex flex-col bg-paper p-6 md:p-8">
+                <h2 className="heading-display text-d-md text-ink">Užsakymo suvestinė</h2>
+                <div className="mt-5 flex items-end gap-2 border-b-2 border-ink/10 pb-5">
+                  <span className="heading-display text-d-lg text-ink">{gcDenomLabel}</span>
+                  <span className="mb-1.5 font-mono text-[13px] text-ink/50">vienkartinis mokėjimas</span>
+                </div>
+                <div className="mt-5 flex flex-col gap-2 text-[13px] text-ink/60">
+                  <div className="flex justify-between">
+                    <span>Suma</span><span className="font-bold text-ink">{gcDenomLabel}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Gavėjas</span><span className="font-bold text-ink">{gcRecipient}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Kvitas</span><span className="font-bold text-ink">{gcBuyer}</span>
+                  </div>
+                </div>
+                {gcError && <p className="mt-3 font-mono text-[12px] text-red-500">{gcError}</p>}
+                <button
+                  onClick={handleGiftCardPurchase}
+                  disabled={gcLoading}
+                  className="brick-hover-sm mt-8 flex w-full items-center justify-between rounded-[28px] border-2 border-ink bg-brand-orange px-6 py-4 text-paper transition-all disabled:opacity-60"
+                >
+                  <span className="font-display text-[22px] leading-none">
+                    {gcLoading ? "Kraunama…" : `Mokėti ${gcDenomLabel} →`}
+                  </span>
+                  <span className="font-display text-[32px] leading-none">→</span>
+                </button>
+                <p className="mt-3 text-center font-mono text-[11px] text-ink/30">
+                  Mokėjimas saugiai apdorojamas per Stripe · Kortelė galioja 1 metus
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <Footer />
+      </div>
+    )
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-paper">
@@ -269,7 +376,7 @@ export default function Checkout() {
   }
 
   // ── not found ────────────────────────────────────────────────────────────
-  if (!product) {
+  if (!product && productId) {
     return (
       <div className="min-h-screen bg-paper">
         <Nav />
@@ -287,7 +394,7 @@ export default function Checkout() {
   }
 
   // ── confirmed ────────────────────────────────────────────────────────────
-  const coverImage = product.image_url ?? product.gallery?.[0] ?? null
+  const coverImage = product?.image_url ?? product?.gallery?.[0] ?? null
 
   if (confirmed) {
     return (
@@ -305,7 +412,7 @@ export default function Checkout() {
                 {coverImage ? (
                   <img
                     src={coverImage}
-                    alt={product.title}
+                    alt={product?.title ?? ""}
                     className="absolute inset-0 h-full w-full object-cover"
                   />
                 ) : (
@@ -334,17 +441,17 @@ export default function Checkout() {
                     {coverImage && (
                       <img
                         src={coverImage}
-                        alt={product.title}
+                        alt={product?.title ?? ""}
                         className="size-16 shrink-0 rounded-xl border-2 border-ink object-cover"
                       />
                     )}
                     <div className="min-w-0">
                       <p className="label-mono text-ink/40">Produktas</p>
                       <p className="mt-0.5 truncate font-display text-[18px] leading-tight text-ink">
-                        {product.title}
+                        {product?.title}
                       </p>
-                      {product.subtitle && (
-                        <p className="truncate text-[12px] text-ink/50">{product.subtitle}</p>
+                      {product?.subtitle && (
+                        <p className="truncate text-[12px] text-ink/50">{product?.subtitle}</p>
                       )}
                     </div>
                   </div>
@@ -354,11 +461,11 @@ export default function Checkout() {
                   {/* Stats */}
                   <div className="grid grid-cols-3 gap-x-3 gap-y-2.5">
                     {[
-                      ["Detalės", product.bricks],
-                      ["Metai", product.year ?? "—"],
-                      ["Amžius", product.rating ?? "—"],
-                      ["Kaina", product.value != null ? `€${product.value}` : "—"],
-                      ["Kategorija", product.category ?? "—"],
+                      ["Detalės", product?.bricks],
+                      ["Metai", product?.year ?? "—"],
+                      ["Amžius", product?.rating ?? "—"],
+                      ["Kaina", product?.value != null ? `€${product?.value}` : "—"],
+                      ["Kategorija", product?.category ?? "—"],
                       ["Planas", requiredTier.name + "+"],
                     ].map(([label, val]) => (
                       <div key={label as string}>
@@ -438,13 +545,14 @@ export default function Checkout() {
             {/* ── LEFT: Order summary ─────────────────────────────────── */}
             <div className="flex flex-col gap-4">
 
-              {/* Product card */}
+              {/* Product card — only when product exists */}
+              {product ? (
               <div className="brick-card overflow-hidden bg-white">
                 <div className="relative h-[200px] border-b-2 border-ink bg-[#f8f6f2] md:h-[240px]">
                   {coverImage ? (
                     <img
                       src={coverImage}
-                      alt={product.title}
+                      alt={product?.title ?? ""}
                       className="h-full w-full object-contain p-6"
                     />
                   ) : (
@@ -460,18 +568,18 @@ export default function Checkout() {
 
                 <div className="p-5">
                   <p className="label-mono text-ink/40">Produktas</p>
-                  <h2 className="heading-display text-d-xs mt-1 text-ink">{product.title}</h2>
-                  {product.subtitle && (
-                    <p className="mt-1 text-[13px] text-ink/50">{product.subtitle}</p>
+                  <h2 className="heading-display text-d-xs mt-1 text-ink">{product?.title}</h2>
+                  {product?.subtitle && (
+                    <p className="mt-1 text-[13px] text-ink/50">{product?.subtitle}</p>
                   )}
 
                   <div className="mt-4 grid grid-cols-3 gap-x-3 gap-y-2.5 border-t-2 border-ink/10 pt-4">
                     {[
-                      ["Detalės", product.bricks],
-                      ["Metai", product.year ?? "—"],
-                      ["Amžius", product.rating ?? "—"],
-                      ["Kaina", product.value != null ? `€${product.value}` : "—"],
-                      ["Kategorija", product.category ?? "—"],
+                      ["Detalės", product?.bricks],
+                      ["Metai", product?.year ?? "—"],
+                      ["Amžius", product?.rating ?? "—"],
+                      ["Kaina", product?.value != null ? `€${product?.value}` : "—"],
+                      ["Kategorija", product?.category ?? "—"],
                       ["Planas", requiredTier.name + "+"],
                     ].map(([label, val]) => (
                       <div key={label as string}>
@@ -482,6 +590,18 @@ export default function Checkout() {
                   </div>
                 </div>
               </div>
+              ) : (
+              /* Plan-only card */
+              <div className="brick-card overflow-hidden" style={{ background: requiredTier.bg }}>
+                <div className="p-8 md:p-10">
+                  <p className="label-mono" style={{ color: `${requiredTier.textColor}60` }}>Prenumerata</p>
+                  <h2 className="heading-display text-d-md mt-2" style={{ color: requiredTier.textColor }}>{requiredTier.name}</h2>
+                  <p className="mt-3 font-mono text-[13px]" style={{ color: `${requiredTier.textColor}80` }}>
+                    Gauk pirmą rinkinį su pirma siunta ir naršyk visą katalogą.
+                  </p>
+                </div>
+              </div>
+              )}
 
               {/* Plan status badge */}
               {userSub && (
@@ -620,23 +740,12 @@ export default function Checkout() {
                 <>
                   {/* Plan header */}
                   <div className="border-b-2 border-ink/10 pb-5">
-                    <p className="label-mono text-ink/40">
-                      {userSub ? "Plano paaukštinimas" : "Prenumerata"}
-                    </p>
-                    <div className="mt-2 flex items-center gap-3">
-                      <span className="heading-display text-d-md text-ink">{requiredTier.name}+</span>
-                      <div
-                        className="rounded-full border-2 border-ink px-3 py-1 font-mono text-[11px] font-bold"
-                        style={{ background: requiredTier.bg, color: requiredTier.textColor }}
-                      >
-                        reikalingas
-                      </div>
-                    </div>
-                    <p className="mt-1 text-[13px] text-ink/50">
-                      {userSub
-                        ? `Tavo dabartinis ${userSub.name} planas neapima šio produkto.`
-                        : "Prenumeruok ir gauk šį produktą su pirma siunta."}
-                    </p>
+                    <h2 className="heading-display text-d-md text-ink">Užsakymo suvestinė</h2>
+                    {userSub && (
+                      <p className="mt-1 text-[13px] text-ink/50">
+                        Tavo dabartinis {userSub.name} planas neapima šio produkto.
+                      </p>
+                    )}
                   </div>
 
                   {/* Billing toggle */}
@@ -665,7 +774,7 @@ export default function Checkout() {
                         <span className="font-mono text-[12px] text-ink/40 line-through">€{basePrice}</span>
                       )}
                       <span className="font-mono text-[13px] text-ink/50">
-                        /{billing === "monthly" ? "mėn" : "mėn · mokama metiškai"}
+                        /{billing === "monthly" ? "mėn" : "mėn · Mokama kas metus"}
                       </span>
                     </div>
                   </div>
@@ -755,20 +864,15 @@ export default function Checkout() {
                   <div className="mt-auto pt-6">
                     {purchaseError && <p className="mb-3 font-mono text-[12px] text-red-500">{purchaseError}</p>}
                     <button
-                      onClick={handleSubscribe}
-                      disabled={purchasing || !user}
+                      onClick={!user ? () => setShowAuthModal(true) : handleSubscribe}
+                      disabled={purchasing}
                       className="brick-hover-sm flex w-full items-center justify-between rounded-[28px] border-2 border-ink bg-brand-orange px-6 py-4 text-paper transition-all disabled:opacity-60"
                     >
                       <span className="font-display text-[22px] leading-none">
-                        {purchasing ? "Kraunama…" : userSub ? "Paaukštinti planą" : "Prenumeruoti dabar"}
+                        {purchasing ? "Kraunama…" : !user ? "Prisijungti" : userSub ? "Paaukštinti planą" : "Prenumeruoti dabar"}
                       </span>
                       <span className="font-display text-[32px] leading-none">→</span>
                     </button>
-                    {!user && (
-                      <p className="mt-2 text-center text-[13px] text-ink/40">
-                        <button onClick={() => setShowAuthModal(true)} className="underline hover:text-ink">Prisijunk</button> prieš perkant
-                      </p>
-                    )}
                   </div>
                 </>
               )}
@@ -793,12 +897,12 @@ export default function Checkout() {
               </button>
             ) : (
               <button
-                onClick={handleSubscribe}
-                disabled={purchasing || !user}
+                onClick={!user ? () => setShowAuthModal(true) : handleSubscribe}
+                disabled={purchasing}
                 className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-brand-orange px-5 py-3.5 text-paper disabled:opacity-60"
               >
                 <span className="font-display text-[18px] leading-none">
-                  {purchasing ? "Kraunama…" : userSub ? "Paaukštinti planą" : "Prenumeruoti dabar"}
+                  {purchasing ? "Kraunama…" : !user ? "Prisijungti" : userSub ? "Paaukštinti planą" : "Prenumeruoti dabar"}
                 </span>
                 <span className="font-display text-[24px] leading-none">→</span>
               </button>
@@ -822,14 +926,14 @@ export default function Checkout() {
               {coverImage && (
                 <img
                   src={coverImage}
-                  alt={product.title}
+                  alt={product?.title ?? ""}
                   className="size-14 shrink-0 rounded-xl border-2 border-ink object-contain"
                 />
               )}
               <div className="min-w-0">
                 <p className="label-mono text-[9px] text-ink/40">Produktas</p>
                 <p className="mt-0.5 truncate font-display text-[17px] leading-tight text-ink">
-                  {product.title}
+                  {product?.title}
                 </p>
                 <div className="mt-1 flex items-center gap-2">
                   <span className="font-mono text-[11px] font-bold text-brand-mint">€0</span>
