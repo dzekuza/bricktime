@@ -518,9 +518,9 @@ function FeedPanel() {
       {user && profile ? (
         <ComposeBox avatarId={profile.avatarId} avatarBg={profile.avatarBg} onPost={addPost} />
       ) : (
-        <div className="brick-card p-4 text-center">
-          <p className="font-mono text-[13px] text-ink/50">Prisijunk norėdamas rašyti į srautą</p>
-        </div>
+        <Link to="/subscribe" className="brick-card brick-hover-sm block p-4 text-center">
+          <p className="font-mono text-[13px] text-ink/50">Prisijunk norėdamas rašyti į srautą →</p>
+        </Link>
       )}
       {items.map((item) => (
         <FeedCard key={item.id} item={item} onLike={() => toggleLike(item)} onComment={(text) => addComment(text, item.id)} isOwn={!!user && item.subscriber_id === user.id} onDelete={() => deletePost(item)} />
