@@ -597,8 +597,8 @@ function LeaderboardPanel() {
       {/* Prizes */}
       <div className="grid grid-cols-3 gap-2 mb-4">
         {([
-          { rank: '#1', emoji: '🧱', prize: 'LEGO rinkinys', sub: 'Tavo pasirinkimas' },
-          { rank: '#2', emoji: '🧥', prize: 'BRICKTIME džemperis', sub: 'Mūsų kolekcija' },
+          { rank: '#1', emoji: '🧥', prize: 'BRICKTIME džemperis', sub: 'Mūsų kolekcija' },
+          { rank: '#2', emoji: '🧱', prize: 'LEGO rinkinys', sub: 'Tavo pasirinkimas' },
           { rank: '#3', emoji: '🎟', prize: '€20 čekis', sub: 'BRICKTIME eshop' },
         ] as const).map(({ rank, emoji, prize, sub }) => (
           <div key={rank} className="rounded-xl border-2 border-ink/10 bg-ink/[.03] px-2 py-2.5 flex flex-col items-center text-center gap-0.5">

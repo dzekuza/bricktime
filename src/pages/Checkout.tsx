@@ -724,7 +724,7 @@ export default function Checkout() {
                       <span className="font-display text-[32px] leading-none">→</span>
                     </button>
                     <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
-                      {["Atšauk bet kada", "30d. garantija", "Nemokamas pristatymas"].map((s) => (
+                      {["Atšauk bet kada", "Nemokamas pristatymas"].map((s) => (
                         <span
                           key={s}
                           className="label-mono flex items-center gap-1.5 text-ink/35"

@@ -170,6 +170,7 @@ type DbProduct = {
   minifig: MinifigSection | null
   compatibility: CompatItem[]
   release_date: string | null
+  isDangerous?: boolean
 }
 
 const LT_MONTHS = [
@@ -290,7 +291,7 @@ export default function Drop() {
     supabase
       .from("products")
       .select(
-        "id, title, subtitle, description, category, bricks, minifigs, build_time, image_url, gallery, tier, year, value, rating, faq, bags, story, minifig, compatibility, release_date"
+        "id, title, subtitle, description, category, bricks, minifigs, build_time, image_url, gallery, tier, year, value, rating, faq, bags, story, minifig, compatibility, release_date, isDangerous"
       )
       .eq("id", Number(id))
       .single()
@@ -410,6 +411,14 @@ export default function Drop() {
                   <div className="absolute bottom-5 left-6 font-mono text-[10px] tracking-[.18em] text-paper/70 uppercase">
                     {thumbs[activeThumb].label}
                   </div>
+
+                  {product?.isDangerous && (
+                    <img
+                      src="/wanrr.svg"
+                      alt="Warning"
+                      className="absolute bottom-4 right-4 w-[100px] pointer-events-none select-none"
+                    />
+                  )}
                 </div>
 
                 {/* Thumbnails */}
@@ -532,7 +541,6 @@ export default function Drop() {
                   {[
                     "Nemokamas pristatymas",
                     "Atšauk bet kada",
-                    "30 d. garantija",
                   ].map((s) => (
                     <span key={s} className="flex items-center gap-1.5">
                       <span className="size-2 rounded-full bg-ink/30" />

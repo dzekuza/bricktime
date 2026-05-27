@@ -23,11 +23,6 @@ const features = [
   },
   {
     num: '04',
-    title: '30 dienų garantija',
-    body: 'Jeigu rinkinys neatitiko lūkesčių — padėsime jį pakeisti kitu.',
-  },
-  {
-    num: '05',
     title: 'Nauji rinkiniai kas mėnesį',
     body: 'Atrask naujus LEGO® modelius ir gauk ankstyvą prieigą prie naujų papildymų.',
   },

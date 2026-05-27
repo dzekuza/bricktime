@@ -105,11 +105,7 @@ export default function About() {
                   <p className="heading-display text-d-md text-brand-yellow">€0</p>
                   <p className="mt-3 text-[14px] leading-[1.6] text-paper/70">Pristatymo mokesčio visuose planuose</p>
                 </div>
-                <div className="brick-card p-6 md:p-8" style={{ background: '#FFD731' }}>
-                  <p className="heading-display text-d-md text-ink">30d</p>
-                  <p className="mt-3 text-[14px] leading-[1.6] text-ink/70">Pilna pinigų grąžinimo garantija be klausimų</p>
-                </div>
-                <div className="brick-card p-6 md:p-8 col-span-2" style={{ background: '#5CDB9C' }}>
+<div className="brick-card p-6 md:p-8 col-span-2" style={{ background: '#5CDB9C' }}>
                   <p className="heading-display text-d-sm text-ink">Atšauk bet kada.</p>
                   <p className="mt-3 text-[14px] leading-[1.6] text-ink/70">Jokių ilgalaikių įsipareigojimų. Vienas paspaudimas paskyros skydelyje.</p>
                 </div>

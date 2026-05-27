@@ -11,7 +11,6 @@ import {
   ArrowRightIcon,
   ShieldCheckIcon,
   CalendarXIcon,
-  RefreshCcwIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -461,10 +460,6 @@ export default function Subscribe() {
                     <CalendarXIcon size={13} />
                     Atšauk bet kada
                   </span>
-                  <span className="flex items-center gap-1.5">
-                    <RefreshCcwIcon size={13} />
-                    30 dienų grąžinimo garantija
-                  </span>
                 </div>
               </div>
 
@@ -774,8 +769,7 @@ export default function Subscribe() {
                   { num: "01", title: "Nemokamas pristatymas", body: "Visi LEGO® rinkiniai pristatomi į paštomatą nemokamai visoje Lietuvoje." },
                   { num: "02", title: "Keisk rinkinius bet kada", body: "Surink, grąžink ir išsirink naują rinkinį kada panorėjęs — be papildomų mokesčių." },
                   { num: "03", title: "Jokių ilgalaikių įsipareigojimų", body: "Pakeisk planą, pristabdyk prenumeratą arba atšauk ją bet kuriuo metu." },
-                  { num: "04", title: "30 dienų garantija", body: "Jeigu rinkinys neatitiko lūkesčių — padėsime jį pakeisti kitu." },
-                  { num: "05", title: "Nauji rinkiniai kas mėnesį", body: "Atrask naujus LEGO® modelius ir gauk ankstyvą prieigą prie naujų papildymų." },
+                  { num: "04", title: "Nauji rinkiniai kas mėnesį", body: "Atrask naujus LEGO® modelius ir gauk ankstyvą prieigą prie naujų papildymų." },
                 ].map((item, i) => (
                   <div
                     key={item.num}
