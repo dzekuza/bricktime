@@ -63,3 +63,23 @@ supabase functions deploy lpexpress
   shipments prematurely.)
 - **Tracking** — call `tracking` with the stored `lp_barcode` to show live status
   (LABEL_CREATED → ON_THE_WAY → PARCEL_DELIVERED, etc.) on the account/order pages.
+- **Delivery activation** — the `lpexpress-sync` Edge Function polls tracking for every
+  `processing` order with a barcode, persists `lp_tracking_state`, and flips the order to
+  `active` once LP EXPRESS reports `PARCEL_DELIVERED` (replacing the manual "Mark as active"
+  step). It runs on a 30-min `pg_cron` schedule (see
+  `migrations/20260707193000_lpexpress_delivery_activation.sql`) and is also triggered when
+  the admin Orders page loads / via its "Sync tracking" button.
+
+### Enable delivery activation
+
+```bash
+supabase functions deploy lpexpress-sync
+supabase db push
+```
+
+Then add the two Vault secrets the cron job reads (once per environment, in the SQL editor):
+
+```sql
+select vault.create_secret('https://<project-ref>.supabase.co', 'project_url');
+select vault.create_secret('<service-role-key>',                'service_role_key');
+```
