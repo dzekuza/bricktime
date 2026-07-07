@@ -456,8 +456,20 @@ export type Database = {
           due_date: string
           home_delivery: boolean
           id: string
+          lp_barcode: string | null
+          lp_label_created_at: string | null
+          lp_parcel_id: string | null
+          lp_return_barcode: string | null
+          lp_return_label_created_at: string | null
+          lp_return_parcel_id: string | null
+          lp_return_terminal_id: string | null
+          lp_return_tracking_state: string | null
+          lp_terminal_id: string | null
+          lp_terminal_name: string | null
+          lp_tracking_state: string | null
           product_id: number
           return_note: string | null
+          return_requested_at: string | null
           start_date: string
           status: Database["public"]["Enums"]["order_status"]
           subscriber_id: string
@@ -469,8 +481,20 @@ export type Database = {
           due_date: string
           home_delivery?: boolean
           id?: string
+          lp_barcode?: string | null
+          lp_label_created_at?: string | null
+          lp_parcel_id?: string | null
+          lp_return_barcode?: string | null
+          lp_return_label_created_at?: string | null
+          lp_return_parcel_id?: string | null
+          lp_return_terminal_id?: string | null
+          lp_return_tracking_state?: string | null
+          lp_terminal_id?: string | null
+          lp_terminal_name?: string | null
+          lp_tracking_state?: string | null
           product_id: number
           return_note?: string | null
+          return_requested_at?: string | null
           start_date: string
           status?: Database["public"]["Enums"]["order_status"]
           subscriber_id: string
@@ -482,8 +506,20 @@ export type Database = {
           due_date?: string
           home_delivery?: boolean
           id?: string
+          lp_barcode?: string | null
+          lp_label_created_at?: string | null
+          lp_parcel_id?: string | null
+          lp_return_barcode?: string | null
+          lp_return_label_created_at?: string | null
+          lp_return_parcel_id?: string | null
+          lp_return_terminal_id?: string | null
+          lp_return_tracking_state?: string | null
+          lp_terminal_id?: string | null
+          lp_terminal_name?: string | null
+          lp_tracking_state?: string | null
           product_id?: number
           return_note?: string | null
+          return_requested_at?: string | null
           start_date?: string
           status?: Database["public"]["Enums"]["order_status"]
           subscriber_id?: string

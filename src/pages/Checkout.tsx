@@ -14,6 +14,8 @@ import { useState, useEffect, useMemo } from "react"
 import { supabase } from "@/lib/supabase"
 import { getPlanDisplayName } from "@/lib/plan-branding"
 import { usePlans } from "@/hooks/usePlans"
+import { TerminalPicker } from "@/components/TerminalPicker"
+import type { LpTerminal } from "@/lib/lpexpress"
 
 const HOME_DELIVERY_PLANS = ['pro', 'mega', 'mystery_s', 'mystery_m']
 const HOME_DELIVERY_FEE = 3
@@ -104,6 +106,7 @@ export default function Checkout() {
   const [showModal, setShowModal] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [homeDelivery, setHomeDelivery] = useState(false)
+  const [terminal, setTerminal] = useState<LpTerminal | null>(null)
   const [giftCardInput, setGiftCardInput] = useState("")
   const [appliedGiftCard, setAppliedGiftCard] = useState<{ code: string; amountCents: number } | null>(null)
   const [giftCardError, setGiftCardError] = useState<string | null>(null)
@@ -279,6 +282,8 @@ export default function Checkout() {
       due_date: fmt(due),
       status: "processing",
       home_delivery: homeDelivery,
+      lp_terminal_id: homeDelivery ? null : terminal?.id ?? null,
+      lp_terminal_name: homeDelivery ? null : terminal?.name ?? null,
     })
     setConfirming(false)
     if (!error) setConfirmed(true)
@@ -699,6 +704,14 @@ export default function Checkout() {
                     </div>
                   )}
 
+                  {/* Terminal picker — shown when paštomatas delivery is active */}
+                  {!homeDelivery && (
+                    <div className="mt-6">
+                      <p className="label-mono mb-1 text-ink/40">Pasirink paštomatą</p>
+                      <TerminalPicker value={terminal} onChange={setTerminal} />
+                    </div>
+                  )}
+
                   {/* Order row summary */}
                   <div className="mt-6 flex items-center justify-between rounded-2xl border-2 border-ink/10 bg-ink/[.02] px-5 py-4">
                     <div>
@@ -718,11 +731,17 @@ export default function Checkout() {
                   <div className="mt-auto pt-6">
                     <button
                       onClick={() => setShowModal(true)}
-                      className="brick-hover-sm flex w-full items-center justify-between rounded-[28px] border-2 border-ink bg-brand-orange px-6 py-4 text-paper transition-all"
+                      disabled={!homeDelivery && !terminal}
+                      className="brick-hover-sm flex w-full items-center justify-between rounded-[28px] border-2 border-ink bg-brand-orange px-6 py-4 text-paper transition-all disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                     >
                       <span className="font-display text-[22px] leading-none">Patvirtinti užsakymą</span>
                       <span className="font-display text-[32px] leading-none">→</span>
                     </button>
+                    {!homeDelivery && !terminal && (
+                      <p className="mt-2 text-center font-mono text-[12px] text-ink/50">
+                        Pasirink paštomatą, kad galėtum tęsti
+                      </p>
+                    )}
                     <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
                       {["Atšauk bet kada", "Nemokamas pristatymas"].map((s) => (
                         <span

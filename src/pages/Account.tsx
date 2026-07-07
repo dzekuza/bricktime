@@ -8,6 +8,9 @@ import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase"
 import { usePlans } from "@/hooks/usePlans"
 import { MissingPartDialog } from "@/components/MissingPartDialog"
+import { OrderTracking } from "@/components/OrderTracking"
+import { ReturnDialog } from "@/components/ReturnDialog"
+import { fetchLabelPdf, downloadPdf } from "@/lib/lpexpress"
 
 // ── predefined avatars ──────────────────────────────────────────────────────
 const avatarOptions = [
@@ -56,6 +59,10 @@ interface RentedOrder {
   dueDate: string
   amount: number
   returnNote?: string
+  homeDelivery: boolean
+  terminalName?: string | null
+  barcode?: string | null
+  returnBarcode?: string | null
 }
 
 // ── Achievements section ────────────────────────────────────────────────────
@@ -185,7 +192,7 @@ export default function Account() {
   const [planChangeError, setPlanChangeError] = useState("")
   const [rentedOrders, setRentedOrders] = useState<RentedOrder[]>([])
   const [ordersLoading, setOrdersLoading] = useState(true)
-  const [requestingReturn, setRequestingReturn] = useState<Set<string>>(new Set())
+  const [returnDialogOrder, setReturnDialogOrder] = useState<RentedOrder | null>(null)
   const [penaltyHistory, setPenaltyHistory] = useState<Array<{
     id: string; amount: number; reason: string | null; status: string; created_at: string | null; resolved_at: string | null
   }>>([])
@@ -337,6 +344,10 @@ export default function Account() {
           dueDate: o.due_date,
           amount: o.amount,
           returnNote: (o as Record<string, unknown>).return_note as string | undefined,
+          homeDelivery: o.home_delivery ?? false,
+          terminalName: o.lp_terminal_name,
+          barcode: o.lp_barcode,
+          returnBarcode: o.lp_return_barcode,
         }))
       )
       setOrdersLoading(false)
@@ -430,20 +441,27 @@ export default function Account() {
     window.location.href = data.url
   }
 
-  async function handleRequestReturn(orderId: string) {
-    if (!user) return
-    setRequestingReturn((prev) => new Set(prev).add(orderId))
-    const { error } = await supabase
-      .from("orders")
-      .update({ status: "return_requested", updated_at: new Date().toISOString() })
-      .eq("id", orderId)
-      .eq("subscriber_id", user.id)
-    if (!error) {
-      setRentedOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status: "return_requested" } : o))
+  // The return label + status change is handled server-side by the lpexpress
+  // `create-return-label` action (via ReturnDialog). This just syncs local state.
+  function onReturnComplete(orderId: string, barcode: string | null) {
+    setRentedOrders((prev) =>
+      prev.map((o) =>
+        o.id === orderId ? { ...o, status: "return_requested", returnBarcode: barcode } : o
       )
+    )
+  }
+
+  const [downloadingLabel, setDownloadingLabel] = useState<string | null>(null)
+  async function downloadReturnLabel(orderId: string) {
+    setDownloadingLabel(orderId)
+    try {
+      const base64 = await fetchLabelPdf(orderId, "return")
+      downloadPdf(base64, `grazinimo-etikete-${orderId.slice(0, 8)}.pdf`)
+    } catch (e) {
+      console.error("Return label download failed:", (e as Error).message)
+    } finally {
+      setDownloadingLabel(null)
     }
-    setRequestingReturn((prev) => { const s = new Set(prev); s.delete(orderId); return s })
   }
 
   if (!user) {
@@ -812,21 +830,35 @@ export default function Account() {
                       <p className="mt-0.5 text-[13px] text-rose-700">{order.returnNote}</p>
                     </div>
                   )}
+                  {/* Delivery method */}
+                  <div className="mt-3 flex items-center gap-1.5 font-mono text-[11px] text-ink/50">
+                    <span className="text-ink/30">↳</span>
+                    {order.homeDelivery
+                      ? "Pristatymas į duris"
+                      : order.terminalName
+                        ? `Paštomatas: ${order.terminalName}`
+                        : "Paštomatas"}
+                  </div>
+
+                  {/* Live LP EXPRESS tracking — outbound, then return */}
+                  {order.barcode && <OrderTracking barcode={order.barcode} />}
+                  {order.returnBarcode && (
+                    <div className="mt-2">
+                      <p className="label-mono mb-1 text-ink/40">Grąžinimo siunta</p>
+                      <OrderTracking barcode={order.returnBarcode} />
+                    </div>
+                  )}
+
                   <div className="mt-3 font-mono text-[11px] text-ink/40">
                     iki {order.dueDate} · €{order.amount}/mėn.
                   </div>
                   <div className="mt-auto pt-4">
                     {(order.status === "active" || order.status === "overdue" || order.status === "return_declined") && (
                       <button
-                        onClick={() => handleRequestReturn(order.id)}
-                        disabled={requestingReturn.has(order.id)}
-                        className="w-full rounded-full border-2 border-ink bg-ink px-4 py-2.5 text-[13px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={() => setReturnDialogOrder(order)}
+                        className="w-full rounded-full border-2 border-ink bg-ink px-4 py-2.5 text-[13px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
                       >
-                        {requestingReturn.has(order.id)
-                          ? "Siunčiama…"
-                          : order.status === "return_declined"
-                          ? "Prašyti dar kartą"
-                          : "Prašyti grąžinimo"}
+                        {order.status === "return_declined" ? "Prašyti dar kartą" : "Prašyti grąžinimo"}
                       </button>
                     )}
                     {(order.status === "active" || order.status === "overdue") && (
@@ -838,9 +870,19 @@ export default function Account() {
                       </button>
                     )}
                     {order.status === "return_requested" && (
-                      <div className="w-full rounded-full border-2 border-amber-300 bg-amber-50 px-4 py-2.5 text-center text-[13px] font-bold text-amber-700">
-                        Laukiama administratoriaus
-                      </div>
+                      order.returnBarcode ? (
+                        <button
+                          onClick={() => downloadReturnLabel(order.id)}
+                          disabled={downloadingLabel === order.id}
+                          className="w-full rounded-full border-2 border-ink bg-brand-orange px-4 py-2.5 text-[13px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] disabled:opacity-50"
+                        >
+                          {downloadingLabel === order.id ? "Ruošiama…" : "Atsisiųsti grąžinimo etiketę"}
+                        </button>
+                      ) : (
+                        <div className="w-full rounded-full border-2 border-amber-300 bg-amber-50 px-4 py-2.5 text-center text-[13px] font-bold text-amber-700">
+                          Grąžinimas prašomas
+                        </div>
+                      )
                     )}
                     {order.status === "processing" && (
                       <div className="w-full rounded-full border-2 border-blue-200 bg-blue-50 px-4 py-2.5 text-center text-[13px] font-bold text-blue-700">
@@ -1055,6 +1097,15 @@ export default function Account() {
           subscriberId={user.id}
         />
       )}
+
+      <ReturnDialog
+        orderId={returnDialogOrder?.id ?? null}
+        productTitle={returnDialogOrder?.productTitle}
+        defaultName={user?.email?.split("@")[0] ?? "Klientas"}
+        open={returnDialogOrder !== null}
+        onOpenChange={(open) => { if (!open) setReturnDialogOrder(null) }}
+        onComplete={onReturnComplete}
+      />
     </div>
   )
 }
