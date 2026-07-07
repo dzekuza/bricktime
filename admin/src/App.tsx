@@ -18,7 +18,7 @@ import { Settings } from '@/pages/Settings'
 export default function App() {
   return (
     <TooltipProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/admin">
         <AuthProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
