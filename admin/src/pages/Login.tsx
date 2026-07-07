@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
+import { ADMIN_EMAIL } from '@/context/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -16,13 +17,19 @@ export function Login() {
     e.preventDefault()
     setError(null)
     setLoading(true)
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
       setError(error.message)
       setLoading(false)
-    } else {
-      navigate('/', { replace: true })
+      return
     }
+    if (data.user?.email?.toLowerCase() !== ADMIN_EMAIL) {
+      await supabase.auth.signOut()
+      setError('This account is not authorized to access the dashboard.')
+      setLoading(false)
+      return
+    }
+    navigate('/', { replace: true })
   }
 
   return (
