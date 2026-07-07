@@ -1,7 +1,7 @@
 // Admin LP EXPRESS client — invokes the `lpexpress` edge function with the
-// service-role client (supabaseAdmin), so the function's admin bypass grants
+// service-role client (supabase), so the function's admin bypass grants
 // access to ANY order for fulfillment (not just the owner's).
-import { supabaseAdmin } from './supabase'
+import { supabase } from './supabase'
 
 export interface LpTrackingEvent {
   publicEventType?: string
@@ -12,7 +12,7 @@ export interface LpTrackingEvent {
 }
 
 async function call<T>(body: Record<string, unknown>): Promise<T> {
-  const { data, error } = await supabaseAdmin.functions.invoke('lpexpress', { body })
+  const { data, error } = await supabase.functions.invoke('lpexpress', { body })
   if (error) throw new Error(error.message)
   if (data?.error) throw new Error(data.error)
   return data as T

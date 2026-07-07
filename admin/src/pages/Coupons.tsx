@@ -31,7 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { supabase, supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import type { Tables } from '@/lib/supabase'
 import { DataTable, SortableHeader } from '@/components/DataTable'
 
@@ -115,9 +115,9 @@ export function Coupons() {
         active: form.active,
       }
       if (editTarget) {
-        await supabaseAdmin.from('coupons').update(payload).eq('id', editTarget.id)
+        await supabase.from('coupons').update(payload).eq('id', editTarget.id)
       } else {
-        await supabaseAdmin.from('coupons').insert(payload)
+        await supabase.from('coupons').insert(payload)
       }
       setDialogOpen(false)
       load()
@@ -130,7 +130,7 @@ export function Coupons() {
 
   async function handleToggleActive(coupon: Coupon) {
     try {
-      await supabaseAdmin.from('coupons').update({ active: !coupon.active }).eq('id', coupon.id)
+      await supabase.from('coupons').update({ active: !coupon.active }).eq('id', coupon.id)
       load()
     } catch (err) {
       console.error('Failed to toggle coupon:', err)
@@ -140,7 +140,7 @@ export function Coupons() {
   async function handleDelete() {
     if (!deleteTarget) return
     try {
-      await supabaseAdmin.from('coupons').delete().eq('id', deleteTarget.id)
+      await supabase.from('coupons').delete().eq('id', deleteTarget.id)
       setDeleteTarget(null)
       load()
     } catch (err) {

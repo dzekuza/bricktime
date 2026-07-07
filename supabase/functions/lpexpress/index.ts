@@ -52,18 +52,17 @@ async function getUser(req: Request) {
   return data.user ?? null
 }
 
-/** Admin caller = request bearer is the service-role key (the admin dashboard
- *  invokes with supabaseAdmin). Grants access to any order for fulfillment.
- *  The gateway (verify_jwt) has already validated the signature, so we only
- *  need to recognize the service_role — by exact key match (sb_secret_ format)
- *  or by the decoded role claim (legacy JWT format). */
+/** Admin caller = the service-role key (cron/backends) OR a signed-in admin user
+ *  (app_metadata.role='admin'), as the dashboard now invokes with the user's JWT.
+ *  Grants access to any order for fulfillment. The gateway (verify_jwt) has already
+ *  validated the signature, so trusting the decoded claims is safe. */
 function isAdmin(req: Request): boolean {
   const bearer = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "").trim()
   if (!bearer) return false
   if (bearer === Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) return true
   try {
-    const payload = JSON.parse(atob(bearer.split(".")[1] ?? ""))
-    return payload.role === "service_role"
+    const claims = JSON.parse(atob(bearer.split(".")[1] ?? ""))
+    return claims.role === "service_role" || claims.app_metadata?.role === "admin"
   } catch {
     return false
   }

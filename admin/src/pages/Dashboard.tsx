@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { PackageIcon, UsersIcon, CreditCardIcon, TrendingUpIcon } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 const PLAN_PRICES: Record<string, number> = { nano: 7, mini: 12, standard: 19, pro: 28, mega: 49 }
 
@@ -36,9 +36,9 @@ export function Dashboard() {
         { data: activeSubs },
         { data: ratedProducts },
       ] = await Promise.all([
-        supabaseAdmin.from('products').select('id', { count: 'exact', head: true }),
-        supabaseAdmin.from('subscribers').select('plan').eq('status', 'active'),
-        supabaseAdmin.from('products').select('rating').not('rating', 'is', null),
+        supabase.from('products').select('id', { count: 'exact', head: true }),
+        supabase.from('subscribers').select('plan').eq('status', 'active'),
+        supabase.from('products').select('rating').not('rating', 'is', null),
       ])
 
       const mrr = (activeSubs ?? []).reduce((sum, s) => sum + (PLAN_PRICES[s.plan] ?? 0), 0)

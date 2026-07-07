@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 type PlanId = 'nano' | 'mini' | 'standard' | 'pro' | 'mega' | 'mystery_s' | 'mystery_m'
 
@@ -38,8 +38,8 @@ export function Plans() {
   useEffect(() => {
     async function load() {
       const [{ data: planRows }, { data: subRows }] = await Promise.all([
-        supabaseAdmin.from('plans').select('*').order('sort_order'),
-        supabaseAdmin.from('subscribers').select('plan').eq('status', 'active'),
+        supabase.from('plans').select('*').order('sort_order'),
+        supabase.from('subscribers').select('plan').eq('status', 'active'),
       ])
       const subCountMap: Record<string, number> = {}
       for (const s of subRows ?? []) {
@@ -64,7 +64,7 @@ export function Plans() {
   async function handleSave() {
     if (!editPlan) return
     setSaving(true)
-    const { error } = await supabaseAdmin
+    const { error } = await supabase
       .from('plans')
       .update({
         name: editPlan.name,
@@ -88,7 +88,7 @@ export function Plans() {
 
   async function toggleActive(plan: DbPlan) {
     const next = !plan.active
-    const { error } = await supabaseAdmin
+    const { error } = await supabase
       .from('plans')
       .update({ active: next })
       .eq('id', plan.id)

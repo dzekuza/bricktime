@@ -25,14 +25,16 @@ const service = () =>
 /** Public tracking state that means the parcel reached the customer. */
 const DELIVERED_STATE = "PARCEL_DELIVERED"
 
-/** Caller must present the service_role key — either the exact secret (sb_secret_
- *  format) or a JWT carrying the service_role claim (legacy format). */
-function isServiceRole(req: Request): boolean {
+/** Authorized caller = the service-role key (pg_cron) OR a signed-in admin user
+ *  (app_metadata.role='admin', the dashboard "Sync tracking" button). The gateway
+ *  (verify_jwt) has already validated the JWT signature. */
+function isAuthorized(req: Request): boolean {
   const bearer = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "").trim()
   if (!bearer) return false
   if (bearer === Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) return true
   try {
-    return JSON.parse(atob(bearer.split(".")[1] ?? "")).role === "service_role"
+    const claims = JSON.parse(atob(bearer.split(".")[1] ?? ""))
+    return claims.role === "service_role" || claims.app_metadata?.role === "admin"
   } catch {
     return false
   }
@@ -51,7 +53,7 @@ function latestState(events: LpTrackingEvent[], fallback: string | null): string
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders })
-  if (!isServiceRole(req)) return json({ error: "Unauthorized" }, 401)
+  if (!isAuthorized(req)) return json({ error: "Unauthorized" }, 401)
 
   const db = service()
   const { data: orders, error } = await db

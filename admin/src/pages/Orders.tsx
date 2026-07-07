@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { orderStatusColors, type Order, type OrderStatus } from '@/data/orders'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import { DataTable, SortableHeader, selectionColumn } from '@/components/DataTable'
 import { OrderDetailSheet } from '@/components/OrderDetailSheet'
 
@@ -41,9 +41,9 @@ export function Orders() {
       { data: subRows },
       { data: productRows },
     ] = await Promise.all([
-      supabaseAdmin.from('orders').select('*').order('created_at', { ascending: false }),
-      supabaseAdmin.from('subscribers').select('id, name, email'),
-      supabaseAdmin.from('products').select('id, title'),
+      supabase.from('orders').select('*').order('created_at', { ascending: false }),
+      supabase.from('subscribers').select('id, name, email'),
+      supabase.from('products').select('id, title'),
     ])
 
     const subMap = Object.fromEntries((subRows ?? []).map((s) => [s.id, s]))
@@ -76,7 +76,7 @@ export function Orders() {
   // reload when anything flipped. Also runs automatically via pg_cron.
   const syncTracking = useCallback(async () => {
     setSyncing(true)
-    const { data, error } = await supabaseAdmin.functions.invoke('lpexpress-sync')
+    const { data, error } = await supabase.functions.invoke('lpexpress-sync')
     setSyncing(false)
     if (error) { console.error('Tracking sync failed:', error.message); return }
     if (data?.activated > 0) await load()
@@ -106,7 +106,7 @@ export function Orders() {
   }
 
   async function handleSetStatus(ids: string[], status: OrderStatus, note?: string) {
-    const { error } = await supabaseAdmin
+    const { error } = await supabase
       .from('orders')
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .update({ status, updated_at: new Date().toISOString(), ...(note !== undefined ? { return_note: note } : {}) } as any)

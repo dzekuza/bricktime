@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import { DataTable, SortableHeader } from '@/components/DataTable'
 
 interface MissingPartRequest {
@@ -32,12 +32,12 @@ export function MissingParts() {
 
   useEffect(() => {
     Promise.all([
-      supabaseAdmin
+      supabase
         .from('missing_part_requests')
         .select('*')
         .order('created_at', { ascending: false }),
-      supabaseAdmin.from('subscribers').select('id, name, email'),
-      supabaseAdmin.from('products').select('id, title'),
+      supabase.from('subscribers').select('id, name, email'),
+      supabase.from('products').select('id, title'),
     ]).then(([{ data: requests }, { data: subs }, { data: products }]) => {
       const subMap = Object.fromEntries((subs ?? []).map((s) => [s.id, s]))
       const prodMap = Object.fromEntries((products ?? []).map((p) => [p.id, p]))
@@ -68,7 +68,7 @@ export function MissingParts() {
 
   async function markResolved(id: string) {
     setResolving((prev) => new Set(prev).add(id))
-    await supabaseAdmin
+    await supabase
       .from('missing_part_requests')
       .update({ status: 'resolved' })
       .eq('id', id)

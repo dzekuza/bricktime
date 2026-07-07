@@ -28,7 +28,7 @@ import {
   type Subscriber,
   type SubscriberStatus,
 } from '@/data/subscribers'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 const PLAN_PRICES: Record<string, number> = { nano: 7, mini: 12, standard: 19, pro: 28, mega: 49 }
 import { DataTable, SortableHeader, selectionColumn } from '@/components/DataTable'
@@ -53,8 +53,8 @@ export function Subscribers() {
   useEffect(() => {
     async function load() {
       const [{ data: subs }, { data: orderRows }] = await Promise.all([
-        supabaseAdmin.from('subscribers').select('*').order('joined_at', { ascending: false }),
-        supabaseAdmin.from('orders').select('subscriber_id'),
+        supabase.from('subscribers').select('*').order('joined_at', { ascending: false }),
+        supabase.from('orders').select('subscriber_id'),
       ])
 
       const countMap: Record<string, number> = {}
@@ -98,7 +98,7 @@ export function Subscribers() {
   }
 
   async function handleSetStatus(ids: string[], status: SubscriberStatus) {
-    const { error } = await supabaseAdmin
+    const { error } = await supabase
       .from('subscribers')
       .update({ status, updated_at: new Date().toISOString() })
       .in('id', ids)
@@ -116,7 +116,7 @@ export function Subscribers() {
   }
 
   async function handleDelete(ids: string[]) {
-    const { error } = await supabaseAdmin.from('subscribers').delete().in('id', ids)
+    const { error } = await supabase.from('subscribers').delete().in('id', ids)
     if (error) { console.error('Delete failed:', error.message); return }
     setItems((prev) => prev.filter((s) => !ids.includes(s.id)))
   }

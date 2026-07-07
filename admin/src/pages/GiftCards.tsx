@@ -4,7 +4,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import { DataTable, SortableHeader } from '@/components/DataTable'
 import type { Tables } from '@/lib/database.types'
 
@@ -105,7 +105,7 @@ export function GiftCards() {
   const [query, setQuery] = useState('')
 
   useEffect(() => {
-    supabaseAdmin
+    supabase
       .from('gift_cards')
       .select('*')
       .order('created_at', { ascending: false })

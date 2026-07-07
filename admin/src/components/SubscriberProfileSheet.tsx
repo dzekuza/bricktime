@@ -21,7 +21,7 @@ function noteKey(subId: string) {
 type Penalty = { amount: number; reason: string }
 import { type Subscriber, type SubscriberStatus, planColors, subscriberStatusColors } from '@/data/subscribers'
 import { orderStatusColors, type OrderStatus } from '@/data/orders'
-import { supabase, supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 interface SheetOrder {
   id: string
@@ -86,7 +86,7 @@ export function SubscriberProfileSheet({
           ? { amount: data.penalty_amount, reason: data.penalty_reason ?? '' }
           : null)
       })
-    supabaseAdmin
+    supabase
       .from('subscriber_penalties')
       .select('id, amount, reason, status, created_at, resolved_at')
       .eq('subscriber_email', email)
@@ -119,11 +119,11 @@ export function SubscriberProfileSheet({
     const amount = parseFloat(penaltyAmount)
     const reason = penaltyReason.trim()
     await Promise.all([
-      supabaseAdmin
+      supabase
         .from('subscribers')
         .update({ penalty_amount: amount, penalty_reason: reason || null })
         .eq('email', subscriber.email),
-      supabaseAdmin
+      supabase
         .from('subscriber_penalties')
         .insert({ subscriber_email: subscriber.email, amount, reason: reason || null }),
     ])
@@ -138,12 +138,12 @@ export function SubscriberProfileSheet({
     if (!subscriber) return
     const pending = penaltyHistory.find((p) => p.status === 'pending')
     await Promise.all([
-      supabaseAdmin
+      supabase
         .from('subscribers')
         .update({ penalty_amount: null, penalty_reason: null })
         .eq('email', subscriber.email),
       pending
-        ? supabaseAdmin
+        ? supabase
             .from('subscriber_penalties')
             .update({ status: 'forgiven', resolved_at: new Date().toISOString() })
             .eq('id', pending.id)
