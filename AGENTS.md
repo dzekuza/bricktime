@@ -1,117 +1,41 @@
 # AGENTS.md
 
-This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
+BRICKTIME storefront (`vite-app`) — customer-facing landing page + LEGO-rental subscription flow.
+React 19 · Vite 7 · TS · Tailwind v4 (`@tailwindcss/vite`, no config file) · shadcn `radix-nova` · GSAP.
 
-## Monorepo Structure
-
-This repo contains two independent Vite apps under `/Users/rysardgvozdovic/Desktop/projects/bricks/`:
-
-- **`vite-app/`** — Customer-facing landing page and rental flow
-- **`admin/`** — Admin dashboard (products, subscribers, orders, plans, settings)
-
-Both apps share the same stack but are completely separate projects with their own `package.json`, `node_modules`, and `vite.config.ts`. Run commands from within each app's directory.
-
-## Commands
+## Commands (pnpm)
 
 ```bash
-# Development
-pnpm dev          # start dev server (run from vite-app/ or admin/)
+pnpm dev          # dev server
 pnpm build        # tsc -b && vite build
 pnpm typecheck    # tsc --noEmit
 pnpm lint         # eslint .
-pnpm format       # prettier --write "**/*.{ts,tsx}"
-pnpm preview      # serve production build
+pnpm format       # prettier --write
 ```
 
-## Stack
+## Layout
 
-Both apps: **React 19 + Vite 7 + TypeScript + Tailwind CSS v4 + shadcn/ui**
+- `src/` — this app. `pages/`, `components/` (+ `components/ui/` shadcn), `lib/`, `hooks/`, `data/`, `contexts/`. Alias `@/` → `src/`.
+- `supabase/functions/` — **Deno edge functions** (Stripe checkout, gift cards, penalties, billing portal, LP Express shipping). `supabase/migrations/` — SQL.
+- `admin/` — **git submodule** (`bricktime-admin`), a separate app. Don't edit it from here unless asked.
+- Ignore siblings `next-app/`, `explainer-video/`, `bricktime/` unless asked.
 
-- shadcn style: `radix-nova`, CSS variables, Lucide icons — configured via `components.json`
-- Path alias: `@/` → `src/`
-- **admin only**: TanStack Table v8 (via shared `DataTable` component), Recharts
+## Service model
 
-## vite-app Architecture
+LEGO rental subscription. Users pick a tier (Nano → Mega) giving a monthly **€ budget**, claim
+catalog products (`/archive`) within budget, hold multiple at once (Σ value ≤ budget), and **return**
+to free up budget. Products are tier-gated. Copy is **Lithuanian** — match tone, don't translate to English.
 
-**Landing page + customer flow.** No backend — all data is static/mocked.
+## Data & backend
 
-**Service model** — BRICKTIME is a LEGO rental subscription:
-- Users subscribe to a tier (Nano / Mini / Standard / Pro / Mega)
-- Each tier gives a monthly **€ budget** (Nano €50 → Mega €600)
-- Users **browse the product catalog** (`/archive`) and claim products within their budget
-- Products are **tier-gated** — some require Standard+ or Pro+ to access
-- Users can hold multiple products simultaneously as long as total value ≤ budget
-- To get new products they must **return** current ones (prepaid label)
-- Higher tier = larger budget + access to higher-value/exclusive products
+- Supabase for auth/DB/payments — client in `src/lib/supabase.ts`, generated types in `src/lib/database.types.ts`.
+- Payments/shipping run through the edge functions above (Stripe + LP Express/Unisend). Secrets via `Deno.env` — never hardcode.
+- Some landing content is still static (`src/data/`, inline arrays).
 
-Routes in `App.tsx`:
-- `/` → `Home` — assembles all landing sections (Nav, Hero, Marquee, HowItWorks, WhatsInside, Plans, Testimonials, FAQ, BigCTA, Footer, FloatingVideoWidget)
-- `/archive` → products listing
-- `/plans` → subscription plans page (full page with comparison table, FAQ, trust tiles)
-- `/community` → leaderboard + activity feed (data in `src/data/community.ts`)
-- `/drop` → individual product drop detail page
-- `/account` → account with LEGO-head avatar picker (`public/avatars/`)
-- `/subscribe`, `/checkout` → subscription/rental flow pages
+## Design system
 
-**Animations**: GSAP is used throughout. `src/hooks/useReveal.ts` handles scroll-reveal. Section components use GSAP hover animations with highlighted heading spans.
-
-**Fonts**:
-- Body: Space Grotesk + JetBrains Mono (Google Fonts, loaded in `index.css`)
-- Display: Bricolage Grotesque variable font (self-hosted at `public/BricolageGrotesque.ttf`)
-- Brand logo SVG: `public/bricktime.svg`
-
-## Admin Architecture
-
-**Internal dashboard.** No backend — mock data lives in `src/data/` (orders.ts, products.ts, subscribers.ts).
-
-All routes nest under `AppLayout` (sidebar + layout shell via `AppSidebar`).
-
-Key components:
-- `DataTable.tsx` — shared TanStack Table wrapper used by Products, Subscribers, Orders pages
-- `ProductEditDialog.tsx` — tabbed sheet supporting both add and edit modes
-- `OrderDetailSheet.tsx` — slide-over with live status sync
-- `SubscriberProfileSheet.tsx` — subscriber detail with account info
-
-## UI Conventions
-
-- shadcn components live in `src/components/ui/` — add new ones via `pnpm dlx shadcn@latest add <component>`
-- Tailwind v4 is configured via the `@tailwindcss/vite` plugin (no `tailwind.config.js` file)
-- `src/lib/utils.ts` exports the `cn()` helper (clsx + tailwind-merge)
-
-### CSS Component Classes (`src/index.css`)
-
-Prefer these over repeating raw Tailwind strings:
-
-| Class | What it does |
-|---|---|
-| `brick-card` | `border-2 border-ink rounded-2xl md:rounded-3xl shadow-[6px_6px_0_#001B21]` |
-| `brick-card-hover` | `transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[10px_10px_0_#001B21]` |
-| `brick-hover-sm` | `transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#001B21]` |
-| `label-mono` | `font-mono text-[11px] tracking-[.22em] uppercase` |
-| `heading-display` | `font-display uppercase leading-[.88] tracking-[-0.01em]` — use for all display headings |
-| `font-display` | Sets Bricolage Grotesque at weight 800 |
-
-### Display Type Scale (`src/index.css`)
-
-Fluid sizes for display text — pair with `heading-display` or `font-display`:
-
-| Class | Size |
-|---|---|
-| `text-d-hero` | `clamp(52px, 7vw, 104px)` |
-| `text-d-xl` | `clamp(42px, 5vw, 80px)` |
-| `text-d-lg` | `clamp(36px, 4vw, 68px)` |
-| `text-d-md` | `clamp(28px, 3.5vw, 52px)` |
-| `text-d-sm` | `clamp(24px, 2.8vw, 40px)` |
-| `text-d-xs` | `clamp(18px, 2vw, 28px)` |
-
-### GSAP
-
-- Never set `boxShadow` or animated `transform` via className — GSAP writes these directly to the style attribute
-- `src/hooks/useReveal.ts` — scroll-reveal via `.reveal` / `.reveal.visible` CSS classes
-- GSAP spanRef elements must keep their `style` prop intact (GSAP owns it)
-
-## Data
-
-- **vite-app**: all data is static/mocked — lives in `src/data/` (`community.ts`) and inline arrays in component files
-- **admin**: mock data in `src/data/` (`orders.ts`, `products.ts`, `subscribers.ts`)
-- Supabase is integrated for auth/DB (client configured in `src/lib/supabase.ts`)
+Bold brutalist "brick" look, light-mode only. Tokens/classes in `src/index.css`: brand colors
+(`ink #001B21`, `brand-*`, `cream`), fonts (`font-display` Bricolage 800 / `font-sans` Space Grotesk /
+`font-mono` JetBrains), component classes `brick-card`, `brick-card-hover`, `brick-hover-sm`, `label-mono`,
+`heading-display`, `text-d-*` scale, `studs-*`. Never hardcode colors/radii/fonts. GSAP owns inline
+`boxShadow`/animated `transform` — use the `brick-*` hover classes for lift, not className shadows.

@@ -15,6 +15,7 @@ import { supabase } from "@/lib/supabase"
 import { getPlanDisplayName } from "@/lib/plan-branding"
 import { usePlans } from "@/hooks/usePlans"
 import { TerminalPicker } from "@/components/TerminalPicker"
+import { ProfileEditDialog, type ProfileValues } from "@/components/ProfileEditDialog"
 import type { LpTerminal } from "@/lib/lpexpress"
 
 const HOME_DELIVERY_PLANS = ['pro', 'mega', 'mystery_s', 'mystery_m']
@@ -107,6 +108,8 @@ export default function Checkout() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [homeDelivery, setHomeDelivery] = useState(false)
   const [terminal, setTerminal] = useState<LpTerminal | null>(null)
+  const [profileData, setProfileData] = useState<Partial<Record<keyof ProfileValues, string | null>> | null>(null)
+  const [profileOpen, setProfileOpen] = useState(false)
   const [giftCardInput, setGiftCardInput] = useState("")
   const [appliedGiftCard, setAppliedGiftCard] = useState<{ code: string; amountCents: number } | null>(null)
   const [giftCardError, setGiftCardError] = useState<string | null>(null)
@@ -134,7 +137,7 @@ export default function Checkout() {
     if (!user) { setUserSub(null); return }
     supabase
       .from("subscribers")
-      .select("plan, status, home_delivery")
+      .select("plan, status, home_delivery, name, last_name, phone, street, house_no, flat, city, postal_code")
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
@@ -145,6 +148,13 @@ export default function Checkout() {
           }
         } else {
           setUserSub(null)
+        }
+        if (data) {
+          setProfileData({
+            name: data.name, last_name: data.last_name, phone: data.phone,
+            street: data.street, house_no: data.house_no, flat: data.flat,
+            city: data.city, postal_code: data.postal_code,
+          })
         }
       })
   }, [user])
@@ -157,6 +167,18 @@ export default function Checkout() {
     () => !!productId && userSub !== null && userSub.level >= requiredTier.level,
     [productId, userSub, requiredTier]
   )
+
+  // ── contact / delivery readiness ─────────────────────────────────────────
+  const hasPhone = !!profileData?.phone?.trim()
+  const hasAddress = !!(
+    profileData?.street?.trim() &&
+    profileData?.house_no?.trim() &&
+    profileData?.city?.trim() &&
+    profileData?.postal_code?.trim()
+  )
+  // Phone is always needed (LP terminal SMS / courier); an address is needed
+  // only for to-door delivery; a terminal only for paštomatas.
+  const canConfirm = hasPhone && (homeDelivery ? hasAddress : !!terminal)
 
   // ── gift card purchase handler ───────────────────────────────────────────
   const [gcLoading, setGcLoading] = useState(false)
@@ -712,6 +734,47 @@ export default function Checkout() {
                     </div>
                   )}
 
+                  {/* Contact + delivery address */}
+                  <div className="mt-6">
+                    <p className="label-mono mb-2 text-ink/40">Kontaktai{homeDelivery ? " ir adresas" : ""}</p>
+                    <div
+                      className={[
+                        "flex items-start justify-between gap-3 rounded-2xl border-2 px-5 py-4",
+                        hasPhone && (!homeDelivery || hasAddress)
+                          ? "border-ink/15 bg-ink/[.02]"
+                          : "border-brand-orange bg-brand-orange/5",
+                      ].join(" ")}
+                    >
+                      <div className="min-w-0 space-y-1">
+                        <p className="font-mono text-[13px] text-ink">
+                          <span className="text-ink/40">Tel.:</span>{" "}
+                          {hasPhone ? (
+                            profileData?.phone
+                          ) : (
+                            <span className="font-bold text-brand-orange">Įvesk telefono nr.</span>
+                          )}
+                        </p>
+                        {homeDelivery && (
+                          <p className="font-mono text-[13px] text-ink">
+                            <span className="text-ink/40">Adresas:</span>{" "}
+                            {hasAddress ? (
+                              `${profileData?.street} ${profileData?.house_no}${profileData?.flat ? `-${profileData.flat}` : ""}, ${profileData?.city} ${profileData?.postal_code}`
+                            ) : (
+                              <span className="font-bold text-brand-orange">Užpildyk pristatymo adresą</span>
+                            )}
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setProfileOpen(true)}
+                        className="brick-hover-sm shrink-0 rounded-full border-2 border-ink bg-paper px-4 py-1.5 font-mono text-[11px] font-bold text-ink transition-all"
+                      >
+                        Redaguoti
+                      </button>
+                    </div>
+                  </div>
+
                   {/* Order row summary */}
                   <div className="mt-6 flex items-center justify-between rounded-2xl border-2 border-ink/10 bg-ink/[.02] px-5 py-4">
                     <div>
@@ -731,15 +794,19 @@ export default function Checkout() {
                   <div className="mt-auto pt-6">
                     <button
                       onClick={() => setShowModal(true)}
-                      disabled={!homeDelivery && !terminal}
+                      disabled={!canConfirm}
                       className="brick-hover-sm flex w-full items-center justify-between rounded-[28px] border-2 border-ink bg-brand-orange px-6 py-4 text-paper transition-all disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                     >
                       <span className="font-display text-[22px] leading-none">Patvirtinti užsakymą</span>
                       <span className="font-display text-[32px] leading-none">→</span>
                     </button>
-                    {!homeDelivery && !terminal && (
+                    {!canConfirm && (
                       <p className="mt-2 text-center font-mono text-[12px] text-ink/50">
-                        Pasirink paštomatą, kad galėtum tęsti
+                        {!hasPhone
+                          ? "Įvesk telefono numerį, kad galėtum tęsti"
+                          : homeDelivery
+                            ? "Užpildyk pristatymo adresą, kad galėtum tęsti"
+                            : "Pasirink paštomatą, kad galėtum tęsti"}
                       </p>
                     )}
                     <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
@@ -1000,6 +1067,17 @@ export default function Checkout() {
           <AuthForm onClose={() => setShowAuthModal(false)} />
         </DialogContent>
       </Dialog>
+
+      {user && (
+        <ProfileEditDialog
+          userId={user.id}
+          email={user.email ?? ""}
+          open={profileOpen}
+          onOpenChange={setProfileOpen}
+          initial={profileData ?? {}}
+          onSaved={(vals) => setProfileData(vals)}
+        />
+      )}
     </div>
   )
 }

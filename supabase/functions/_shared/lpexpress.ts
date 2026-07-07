@@ -25,6 +25,20 @@ function env(key: string): string {
   return v
 }
 
+/** Normalize a Lithuanian phone number to the +370XXXXXXXX format LP requires.
+ *  Accepts +37060000000, 37060000000, 860000000, 60000000, 00370…, and spaced
+ *  variants. Returns the input unchanged if it isn't recognizably LT (so
+ *  non-LT numbers pass through to LP's own validation). */
+export function ltPhone(raw: string): string {
+  let d = (raw || "").replace(/\D/g, "") // digits only
+  d = d.replace(/^00/, "") // 00370… → 370…
+  if (d.startsWith("370")) d = d.slice(3)
+  else if (d.length === 9 && d.startsWith("8")) d = d.slice(1) // local 8XXXXXXXX
+  // A valid LT mobile is 8 digits (6XXXXXXX). If we can't get there, hand the
+  // original back and let LP reject it with a clear message.
+  return d.length === 8 ? `+370${d}` : raw
+}
+
 // ── auth ────────────────────────────────────────────────────────────────────
 let cachedToken: { value: string; expiresAt: number } | null = null
 
@@ -155,7 +169,7 @@ function bricktimeParty() {
     },
     contacts: {
       email: Deno.env.get("LP_SENDER_EMAIL") ?? undefined,
-      phone: Deno.env.get("LP_SENDER_PHONE") ?? undefined,
+      phone: Deno.env.get("LP_SENDER_PHONE") ? ltPhone(Deno.env.get("LP_SENDER_PHONE")!) : undefined,
     },
   }
 }
@@ -175,7 +189,7 @@ export async function createLabel(input: CreateLabelInput): Promise<CreateLabelR
         receiver: {
           name: input.receiver.name,
           address: { countryCode: input.receiver.countryCode ?? "LT", terminalId: input.terminalId },
-          contacts: { phone: input.receiver.phone, email: input.receiver.email },
+          contacts: { phone: ltPhone(input.receiver.phone), email: input.receiver.email },
         },
       }
     : {
@@ -192,7 +206,7 @@ export async function createLabel(input: CreateLabelInput): Promise<CreateLabelR
             building: input.receiver.building,
             flat: input.receiver.flat,
           },
-          contacts: { phone: input.receiver.phone, email: input.receiver.email },
+          contacts: { phone: ltPhone(input.receiver.phone), email: input.receiver.email },
         },
         sender: bricktimeParty(),
       }
@@ -241,7 +255,7 @@ export async function createReturnLabel(input: CreateReturnLabelInput): Promise<
     sender: {
       name: input.customer.name,
       address: { countryCode: "LT", terminalId: input.terminalId },
-      contacts: { phone: input.customer.phone, email: input.customer.email },
+      contacts: { phone: ltPhone(input.customer.phone), email: input.customer.email },
     },
     receiver: bricktimeParty(),
   }

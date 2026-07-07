@@ -762,43 +762,64 @@ export type Database = {
         Row: {
           avatar_bg: string
           avatar_id: number
+          city: string | null
           email: string
+          flat: string | null
           home_delivery: boolean
+          house_no: string | null
           id: string
           joined_at: string
+          last_name: string | null
           name: string
           penalty_amount: number | null
           penalty_reason: string | null
+          phone: string | null
           plan: Database["public"]["Enums"]["plan_tier"]
+          postal_code: string | null
           status: Database["public"]["Enums"]["subscriber_status"]
+          street: string | null
           updated_at: string
         }
         Insert: {
           avatar_bg?: string
           avatar_id?: number
+          city?: string | null
           email: string
+          flat?: string | null
           home_delivery?: boolean
+          house_no?: string | null
           id: string
           joined_at?: string
+          last_name?: string | null
           name: string
           penalty_amount?: number | null
           penalty_reason?: string | null
+          phone?: string | null
           plan?: Database["public"]["Enums"]["plan_tier"]
+          postal_code?: string | null
           status?: Database["public"]["Enums"]["subscriber_status"]
+          street?: string | null
           updated_at?: string
         }
         Update: {
           avatar_bg?: string
           avatar_id?: number
+          city?: string | null
           email?: string
+          flat?: string | null
           home_delivery?: boolean
+          house_no?: string | null
           id?: string
           joined_at?: string
+          last_name?: string | null
           name?: string
           penalty_amount?: number | null
           penalty_reason?: string | null
+          phone?: string | null
           plan?: Database["public"]["Enums"]["plan_tier"]
+          postal_code?: string | null
           status?: Database["public"]["Enums"]["subscriber_status"]
+          street?: string | null
           updated_at?: string
         }
         Relationships: []

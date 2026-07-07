@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { TerminalPicker } from "@/components/TerminalPicker"
 import { createReturnLabel, fetchLabelPdf, downloadPdf, type LpTerminal } from "@/lib/lpexpress"
@@ -7,6 +7,7 @@ interface ReturnDialogProps {
   orderId: string | null
   productTitle?: string
   defaultName: string
+  defaultPhone?: string
   open: boolean
   onOpenChange: (open: boolean) => void
   /** Called after a return label is created — passes the return barcode so the parent can update its state. */
@@ -16,16 +17,22 @@ interface ReturnDialogProps {
 /** Prepaid-return flow: customer picks the paštomatas they'll drop the parcel at
  *  + a contact phone, we generate the return label and set the order to
  *  return_requested. */
-export function ReturnDialog({ orderId, productTitle, defaultName, open, onOpenChange, onComplete }: ReturnDialogProps) {
+export function ReturnDialog({ orderId, productTitle, defaultName, defaultPhone = "", open, onOpenChange, onComplete }: ReturnDialogProps) {
   const [terminal, setTerminal] = useState<LpTerminal | null>(null)
-  const [phone, setPhone] = useState("")
+  const [phone, setPhone] = useState(defaultPhone)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState<{ barcode: string | null } | null>(null)
 
+  // Prefill the phone from the saved profile each time the dialog opens
+  // (the profile may load after this component first mounts).
+  useEffect(() => {
+    if (open) setPhone(defaultPhone)
+  }, [open, defaultPhone])
+
   function reset() {
     setTerminal(null)
-    setPhone("")
+    setPhone(defaultPhone)
     setError(null)
     setDone(null)
     setSubmitting(false)

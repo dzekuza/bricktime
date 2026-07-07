@@ -10,6 +10,7 @@ import { usePlans } from "@/hooks/usePlans"
 import { MissingPartDialog } from "@/components/MissingPartDialog"
 import { OrderTracking } from "@/components/OrderTracking"
 import { ReturnDialog } from "@/components/ReturnDialog"
+import { ProfileEditDialog } from "@/components/ProfileEditDialog"
 import { fetchLabelPdf, downloadPdf } from "@/lib/lpexpress"
 
 // ── predefined avatars ──────────────────────────────────────────────────────
@@ -43,6 +44,14 @@ interface SubscriberData {
   joined_at: string
   penalty_amount: number | null
   penalty_reason: string | null
+  name?: string | null
+  last_name?: string | null
+  phone?: string | null
+  street?: string | null
+  house_no?: string | null
+  flat?: string | null
+  city?: string | null
+  postal_code?: string | null
 }
 
 interface AchievementRecord {
@@ -171,7 +180,7 @@ function AchievementsSection({
 
 // ── page ───────────────────────────────────────────────────────────────────
 export default function Account() {
-  const { user, profile, signOut } = useAuth()
+  const { user, profile, signOut, refreshProfile } = useAuth()
   const { plans: dbPlans } = usePlans()
   const tierOptions = useMemo(
     () => dbPlans.map((p, i) => ({
@@ -193,6 +202,7 @@ export default function Account() {
   const [rentedOrders, setRentedOrders] = useState<RentedOrder[]>([])
   const [ordersLoading, setOrdersLoading] = useState(true)
   const [returnDialogOrder, setReturnDialogOrder] = useState<RentedOrder | null>(null)
+  const [profileOpen, setProfileOpen] = useState(false)
   const [penaltyHistory, setPenaltyHistory] = useState<Array<{
     id: string; amount: number; reason: string | null; status: string; created_at: string | null; resolved_at: string | null
   }>>([])
@@ -282,7 +292,7 @@ export default function Account() {
     Promise.all([
       supabase
         .from("subscribers")
-        .select("plan, status, email, joined_at, penalty_amount, penalty_reason")
+        .select("plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code")
         .eq("id", user.id)
         .single(),
       supabase
@@ -509,9 +519,17 @@ export default function Account() {
                   </button>
                 </div>
                 <div className="flex-1">
-                  <h1 className="heading-display text-d-lg mt-2 leading-[.9] text-ink">
-                    {profile?.name ?? user.email?.split("@")[0]}
-                  </h1>
+                  <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <h1 className="heading-display text-d-lg leading-[.9] text-ink">
+                      {[profile?.name, subscriber?.last_name].filter(Boolean).join(" ") || user.email?.split("@")[0]}
+                    </h1>
+                    <button
+                      onClick={() => setProfileOpen(true)}
+                      className="brick-hover-sm inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-paper px-4 py-1.5 font-mono text-[12px] font-bold text-ink transition-all"
+                    >
+                      Redaguoti profilį →
+                    </button>
+                  </div>
                   <p className="mt-1.5 text-[15px] text-ink/60">
                     {subscriber?.email ?? user.email}
                   </p>
@@ -588,12 +606,12 @@ export default function Account() {
               style={{ background: activeTier.bg }}
             >
               <div>
-                <div
+                <h2
                   className="text-d-xl mt-3 font-display leading-[.88] uppercase"
                   style={{ color: activeTier.textColor }}
                 >
                   {activeTier.name}
-                </div>
+                </h2>
                 <div className="mt-2 flex items-baseline gap-1.5">
                   <span
                     className="text-d-sm font-display leading-none"
@@ -1101,11 +1119,35 @@ export default function Account() {
       <ReturnDialog
         orderId={returnDialogOrder?.id ?? null}
         productTitle={returnDialogOrder?.productTitle}
-        defaultName={user?.email?.split("@")[0] ?? "Klientas"}
+        defaultName={[profile?.name, subscriber?.last_name].filter(Boolean).join(" ") || user?.email?.split("@")[0] || "Klientas"}
+        defaultPhone={subscriber?.phone ?? ""}
         open={returnDialogOrder !== null}
         onOpenChange={(open) => { if (!open) setReturnDialogOrder(null) }}
         onComplete={onReturnComplete}
       />
+
+      {user && (
+        <ProfileEditDialog
+          userId={user.id}
+          email={subscriber?.email ?? user.email ?? ""}
+          open={profileOpen}
+          onOpenChange={setProfileOpen}
+          initial={{
+            name: profile?.name ?? "",
+            last_name: subscriber?.last_name ?? "",
+            phone: subscriber?.phone ?? "",
+            street: subscriber?.street ?? "",
+            house_no: subscriber?.house_no ?? "",
+            flat: subscriber?.flat ?? "",
+            city: subscriber?.city ?? "",
+            postal_code: subscriber?.postal_code ?? "",
+          }}
+          onSaved={(vals) => {
+            setSubscriber((s) => (s ? { ...s, ...vals } : s))
+            refreshProfile()
+          }}
+        />
+      )}
     </div>
   )
 }

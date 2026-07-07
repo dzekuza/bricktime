@@ -9,6 +9,7 @@ interface AuthContextValue {
   loading: boolean
   error: string | null
   signOut: () => Promise<void>
+  refreshProfile: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -31,33 +32,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
+  async function loadProfile(userId: string) {
+    const { data, error: err } = await supabase
+      .from('subscribers')
+      .select('id, name, avatar_id, avatar_bg, plan')
+      .eq('id', userId)
+      .single()
+    if (err) {
+      setError(err.message)
+    } else if (data) {
+      setProfile({ id: data.id, name: data.name, avatarId: data.avatar_id, avatarBg: data.avatar_bg, plan: data.plan ?? null })
+    }
+    setLoading(false)
+  }
+
   useEffect(() => {
     if (!user) {
       setProfile(null)
       setLoading(false)
       return
     }
-    supabase
-      .from('subscribers')
-      .select('id, name, avatar_id, avatar_bg, plan')
-      .eq('id', user.id)
-      .single()
-      .then(({ data, error: err }) => {
-        if (err) {
-          setError(err.message)
-        } else if (data) {
-          setProfile({ id: data.id, name: data.name, avatarId: data.avatar_id, avatarBg: data.avatar_bg, plan: data.plan ?? null })
-        }
-        setLoading(false)
-      })
+    loadProfile(user.id)
   }, [user])
+
+  async function refreshProfile() {
+    if (user) await loadProfile(user.id)
+  }
 
   async function signOut() {
     await supabase.auth.signOut()
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, error, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, error, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   )
