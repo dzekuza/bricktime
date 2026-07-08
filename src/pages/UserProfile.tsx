@@ -5,7 +5,7 @@ import Footer from "@/components/Footer"
 import { supabase } from "@/lib/supabase"
 import { avatarSrc } from "@/lib/avatars"
 import { achievementDefs, getRelativeTime, drops } from "@/data/community"
-import { getPlanDisplayName } from "@/lib/plan-branding"
+import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
 
 const tierColors: Record<string, string> = {
   mega: "#FB4903",
@@ -15,11 +15,11 @@ const tierColors: Record<string, string> = {
   nano: "#F5F1EB",
 }
 const tierLabel: Record<string, string> = {
-  mega: getPlanDisplayName("mega"),
-  pro: getPlanDisplayName("pro"),
-  standard: getPlanDisplayName("standard"),
-  mini: getPlanDisplayName("mini"),
-  nano: getPlanDisplayName("nano"),
+  mega: getSubscriptionDisplayName("mega"),
+  pro: getSubscriptionDisplayName("pro"),
+  standard: getSubscriptionDisplayName("standard"),
+  mini: getSubscriptionDisplayName("mini"),
+  nano: getSubscriptionDisplayName("nano"),
 }
 
 interface UserProfile {

@@ -14,7 +14,7 @@ import "./index.css"
 import App from "./App.tsx"
 import { BreadcrumbProvider } from "@/contexts/BreadcrumbContext"
 import { AuthProvider } from "@/contexts/AuthContext"
-import { PlansProvider } from "@/contexts/PlansContext"
+import { SubscriptionsProvider } from "@/contexts/SubscriptionsContext"
 
 // Prevent browser from restoring scroll position on reload so hero animation always plays
 if ('scrollRestoration' in history) {
@@ -26,11 +26,11 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <PlansProvider>
+        <SubscriptionsProvider>
           <BreadcrumbProvider>
             <App />
           </BreadcrumbProvider>
-        </PlansProvider>
+        </SubscriptionsProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>

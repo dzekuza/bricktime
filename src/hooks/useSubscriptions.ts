@@ -1,6 +1,6 @@
-import { usePlansContext } from '@/contexts/PlansContext'
+import { useSubscriptionsContext } from '@/contexts/SubscriptionsContext'
 
-export interface DbPlan {
+export interface DbSubscription {
   id: string
   name: string
   tagline: string | null
@@ -20,6 +20,6 @@ export interface DbPlan {
   cta_label: string | null
 }
 
-export function usePlans() {
-  return usePlansContext()
+export function useSubscriptions() {
+  return useSubscriptionsContext()
 }

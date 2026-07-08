@@ -155,13 +155,13 @@ export default function Hero() {
           </span>
           <br />
           <span className="inline-block italic skew-x-[-8deg]">
-            Suaugusiems
+            Visiems
           </span>
         </h1>
 
         {/* Subtext */}
         <p className="mt-7 mx-auto max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">
-          Nuomokis išskirtinius rinkinius su mėnesine prenumerata. Pasirink planą, išsirink norimą rinkinį, gauk jį į namus ar paštomatą, surink ir keisk į naują kada panorėjęs.
+          Konstruok įspūdingiausius originalius LEGO® rinkinius be didelių išlaidų. Pasirink prenumeratą, išsirink norimą rinkinį, mėgaukis konstravimo procesu ir, baigęs, rinkis kitą projektą.
         </p>
 
         {/* CTAs */}
@@ -171,7 +171,7 @@ export default function Hero() {
             size="lg"
             className="flex-1 md:flex-none rounded-full border-2 border-ink bg-brand-yellow text-ink font-bold text-[16px] hover:bg-brand-yellow [a]:hover:bg-brand-yellow hover:text-ink brick-hover-sm"
           >
-            <a href="#plans">Prenumeruoti <ArrowRightIcon data-icon="inline-end" /></a>
+            <a href="#subscriptions">Prenumeruoti <ArrowRightIcon data-icon="inline-end" /></a>
           </Button>
           <Button
             asChild
@@ -179,7 +179,7 @@ export default function Hero() {
             size="lg"
             className="flex-1 md:flex-none rounded-full border-2 border-ink bg-paper text-ink text-[16px] font-bold hover:bg-paper hover:text-ink brick-hover-sm"
           >
-            <a href="/archive">Peržiūrėti rinkiniai</a>
+            <a href="/archive">Peržiūrėti rinkinius</a>
           </Button>
         </div>
 

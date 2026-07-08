@@ -3,7 +3,7 @@ import { ArrowRight, ChevronDown, Check } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useReveal } from '@/hooks/useReveal'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { getPlanBrickSvg, getPlanTheme } from '@/lib/plan-branding'
+import { getSubscriptionBrickSvg, getSubscriptionTheme } from '@/lib/subscription-branding'
 
 type Product = {
   id: number
@@ -34,7 +34,7 @@ const SORT_OPTIONS = [
   { value: 'newest',     label: 'Naujausi' },
   { value: 'popular',    label: 'Populiariausi' },
   { value: 'pieces',     label: 'Daugiausiai detalių' },
-  { value: 'plan',       label: 'Aukščiausias planas' },
+  { value: 'plan',       label: 'Aukščiausia prenumerata' },
   { value: 'price_asc',  label: 'Pigiausi' },
   { value: 'price_desc', label: 'Brangiausi' },
 ] as const
@@ -95,7 +95,7 @@ const PRODUCTS: Product[] = [
 
 const FILTER_OPTIONS = {
   series:  { label: 'Serija',       all: 'Visos serijos', options: ['Star Wars™', 'Creator Expert', 'Technic', 'City'] },
-  plan:    { label: 'Prenumerata',  all: 'Visi planai',   options: ['Mėgėjas', 'Meistras', 'Pro', 'Legenda'] },
+  plan:    { label: 'Prenumerata',  all: 'Visos prenumeratos', options: ['Mėgėjas', 'Kūrėjas', 'Meistras', 'Pro', 'Legenda'] },
   age:     { label: 'Amžius',       all: 'Visi amžiai',  options: ['10+', '12+', '16+', '18+'] },
 } as const
 
@@ -196,14 +196,14 @@ function SortPill({
 }
 
 function ProductCard({ product, delay }: { product: Product; delay: number }) {
-  const planTheme = getPlanTheme(product.stats.plan)
+  const planTheme = getSubscriptionTheme(product.stats.plan)
   const statEntries = [
     ['Detalės', product.stats.pieces],
     ['Metai', product.stats.year],
     ['Amžius', product.stats.age],
     ['Kaina', product.stats.price],
     ['Kategorija', product.stats.category],
-    ['Planas', product.stats.plan],
+    ['Prenumerata', product.stats.plan],
   ] as const
 
   return (
@@ -219,7 +219,7 @@ function ProductCard({ product, delay }: { product: Product; delay: number }) {
           alt={product.name}
           className="h-full w-full object-contain p-6"
         />
-        <img src={getPlanBrickSvg(product.stats.plan)} alt="" className="pointer-events-none absolute left-4 top-4 h-10 w-auto select-none" />
+        <img src={getSubscriptionBrickSvg(product.stats.plan)} alt="" className="pointer-events-none absolute left-4 top-4 h-10 w-auto select-none" />
         {product.isNew && (
           <div className="absolute right-3 top-3 -rotate-12">
             <div

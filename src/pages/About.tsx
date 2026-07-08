@@ -103,7 +103,7 @@ export default function About() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="brick-card bg-ink p-6 md:p-8">
                   <p className="heading-display text-d-md text-brand-yellow">€0</p>
-                  <p className="mt-3 text-[14px] leading-[1.6] text-paper/70">Pristatymo mokesčio visuose planuose</p>
+                  <p className="mt-3 text-[14px] leading-[1.6] text-paper/70">Pristatymo mokesčio visose prenumeratose</p>
                 </div>
 <div className="brick-card p-6 md:p-8 col-span-2" style={{ background: '#5CDB9C' }}>
                   <p className="heading-display text-d-sm text-ink">Atšauk bet kada.</p>
@@ -151,7 +151,7 @@ export default function About() {
                 <span className="inline-block italic text-brand-yellow skew-x-[-8deg]">šiandien.</span>
               </h2>
               <p className="max-w-[44ch] text-[17px] leading-[1.65] text-paper/65">
-                Pasirink planą, peržiūrėk katalogą ir pirmasis rinkinys keliaus tiesiai pas tave.
+                Pasirink prenumeratą, peržiūrėk katalogą ir pirmasis rinkinys keliaus tiesiai pas tave.
               </p>
               <div className="flex flex-wrap justify-center gap-3">
                 <Link

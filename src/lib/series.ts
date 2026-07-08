@@ -10,7 +10,7 @@ export const SERIES = [
   "Marvel",
   "Minecraft",
   "Minifigūrėlės",
-  "Pokėmonai",
+  "Pokemonai",
   "Star Wars",
   "Technic",
   "Batman",

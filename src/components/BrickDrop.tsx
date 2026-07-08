@@ -98,7 +98,7 @@ export default function BrickDrop() {
         {/* CTA */}
         <div className="mt-16 flex justify-center">
           <a
-            href="#plans"
+            href="#subscriptions"
             className="inline-flex items-center gap-2 rounded-full border-2 border-paper bg-paper px-8 py-4 font-bold text-[15px] text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(245,241,235,.3)]"
           >
             Pradėti prenumeratą <ArrowRightIcon className="size-4" />

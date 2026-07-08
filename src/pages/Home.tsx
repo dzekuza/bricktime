@@ -8,7 +8,7 @@ import { NextDrop } from '@/components/NextDrop'
 const FeaturedProducts = lazy(() => import('@/components/FeaturedProducts'))
 const HowItWorks = lazy(() => import('@/components/HowItWorks'))
 const WhatsInside = lazy(() => import('@/components/WhatsInside'))
-const Plans = lazy(() => import('@/components/Plans'))
+const Subscriptions = lazy(() => import('@/components/Subscriptions'))
 const Testimonials = lazy(() => import('@/components/Testimonials'))
 const FAQ = lazy(() => import('@/components/FAQ'))
 const Footer = lazy(() => import('@/components/Footer'))
@@ -26,7 +26,7 @@ export default function Home() {
         <Suspense fallback={null}>
           <FeaturedProducts />
           <HowItWorks />
-          <Plans onSubscribe={(plan, billing) => navigate(`/checkout?plan=${plan.id}&billing=${billing}`)} />
+          <Subscriptions onSubscribe={(plan, billing) => navigate(`/checkout?plan=${plan.id}&billing=${billing}`)} />
           <WhatsInside />
           <Testimonials />
           <FAQ />

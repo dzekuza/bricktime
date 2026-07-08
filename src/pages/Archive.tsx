@@ -16,6 +16,9 @@ const SUBSCRIPTION_CHIPS = [
   { key: "nano",      label: "Mėgėjas" },
   { key: "mini",      label: "Kūrėjas" },
   { key: "standard",  label: "Meistras" },
+  // NOTE: client's approved list says "Pro -> Legenda", but the rest of the
+  // codebase already pairs "Legenda" with "mega" (see subscription-branding.ts).
+  // Kept "pro" as "Pro" pending clarification.
   { key: "pro",       label: "Pro" },
   { key: "mega",      label: "Legenda" },
   { key: "mystery_s", label: "Mystery Box S" },
@@ -27,10 +30,11 @@ const AGE_CHIPS = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18] as const
 // ── helpers ─────────────────────────────────────────────────────────────────
 // ── sort popover ────────────────────────────────────────────────────────────
 const SORT_OPTIONS = [
-  { value: "newest", label: "Naujausi" },
-  { value: "oldest", label: "Seniausi" },
-  { value: "az",     label: "A → Ž" },
-  { value: "za",     label: "Ž → A" },
+  { value: "popular",   label: "Populiariausi" },
+  { value: "newest",    label: "Naujausi" },
+  { value: "bricks-desc", label: "Daugiausia detalių" },
+  { value: "bricks-asc",  label: "Mažiausia detalių" },
+  { value: "available", label: "Laisvi dabar" },
 ] as const
 
 type SortValue = (typeof SORT_OPTIONS)[number]["value"]
@@ -184,12 +188,14 @@ export default function Archive() {
         ageFilter.length === 0 ||
         p.minAge == null ||
         ageFilter.includes(String(p.minAge))
-      return tierOk && seriesOk && ageOk
+      const availableOk = sortBy !== "available" || p.status === "available"
+      return tierOk && seriesOk && ageOk && availableOk
     })
     .sort((a, b) => {
-      if (sortBy === "oldest") return (a.id as number) - (b.id as number)
-      if (sortBy === "az") return (a.title ?? "").localeCompare(b.title ?? "", "lt")
-      if (sortBy === "za") return (b.title ?? "").localeCompare(a.title ?? "", "lt")
+      if (sortBy === "bricks-desc") return b.bricks - a.bricks
+      if (sortBy === "bricks-asc") return a.bricks - b.bricks
+      if (sortBy === "popular") return Number(b.featured) - Number(a.featured) || (b.id as number) - (a.id as number)
+      // "newest" and "available" both fall back to newest-first ordering
       return (b.id as number) - (a.id as number)
     })
 
@@ -219,7 +225,7 @@ export default function Archive() {
                 vietoje
               </h1>
               <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">
-                Vos keli paprasti žingsniai iki naujo konstravimo projekto tavo namuose. Pasirink planą pagal savo poreikius, išsirink norimą rinkinį, gauk jį į namus ar paštomatą ir keisk į naują kada panorėjęs.
+                Vos keli paprasti žingsniai iki naujo konstravimo projekto tavo namuose. Pasirink prenumeratą pagal savo poreikius, išsirink norimą rinkinį, gauk jį į namus ar paštomatą ir keisk į naują kada panorėjęs.
               </p>
             </div>
             <div className="hidden lg:block">
@@ -242,13 +248,13 @@ export default function Archive() {
           <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <FilterPopover
-                label="Serija"
+                label={seriesFilter.length === 0 ? "Visos temos" : "Tema"}
                 options={SERIES.map((s) => ({ value: s, label: s }))}
                 selected={seriesFilter}
                 onChange={setSeriesFilter}
               />
               <FilterPopover
-                label="Prenumerata"
+                label="Filtrai pagal prenumeratą"
                 options={SUBSCRIPTION_CHIPS.map(({ key, label }) => ({
                   value: key,
                   label,

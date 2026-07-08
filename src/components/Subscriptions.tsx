@@ -14,7 +14,7 @@ const BRICK_BY_COLOR: Record<string, string> = {
   '#4da2ff': '/bricks/brick-blue.svg',
   '#5c4ade': '/bricks/brick-purple.svg',
 }
-import { usePlans, type DbPlan } from "@/hooks/usePlans"
+import { useSubscriptions, type DbSubscription } from "@/hooks/useSubscriptions"
 
 function onCardEnter(e: React.MouseEvent<HTMLDivElement>) {
   gsap.killTweensOf(e.currentTarget.querySelector(".plan-price"))
@@ -60,13 +60,13 @@ function AnimatedPrice({ value, color }: { value: number; color: string }) {
   )
 }
 
-export default function Plans({ onSubscribe }: {
-  onSubscribe?: (plan: DbPlan, billing: 'monthly' | 'yearly') => void
+export default function Subscriptions({ onSubscribe }: {
+  onSubscribe?: (plan: DbSubscription, billing: 'monthly' | 'yearly') => void
 } = {}) {
   const ref = useReveal<HTMLDivElement>()
   const containerRef = useRef<HTMLDivElement>(null)
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly')
-  const { plans, loading } = usePlans()
+  const { subscriptions, loading } = useSubscriptions()
   const { profile } = useAuth()
 
   useEffect(() => {
@@ -88,7 +88,7 @@ export default function Plans({ onSubscribe }: {
 
   return (
     <section
-      id="plans"
+      id="subscriptions"
       ref={containerRef}
       className="relative overflow-x-clip bg-paper pb-10 md:pb-20"
     >
@@ -118,7 +118,7 @@ export default function Plans({ onSubscribe }: {
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 rounded-full border-2 px-4 py-1.5 font-mono text-[11px] tracking-[.08em] uppercase transition-all border-ink bg-ink text-paper">
                   <span>1</span>
-                  <span>Pasirinkti planą</span>
+                  <span>Pasirinkti prenumeratą</span>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right size-4 text-ink/30" aria-hidden="true">
                   <path d="M5 12h14" />
@@ -155,7 +155,7 @@ export default function Plans({ onSubscribe }: {
                     </div>
                   </div>
                 ))
-              : plans.map((plan, i) => (
+              : subscriptions.map((plan, i) => (
                   <div
                     key={plan.id}
                     className="reveal brick-card sticky lg:relative lg:!top-0 flex min-w-0 flex-1 flex-col p-5 pt-8 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-[transform,box-shadow] duration-300 ease-out hover:z-10 hover:-translate-y-3 hover:shadow-[10px_10px_0_rgba(245,241,235,.25)] lg:p-6 lg:pt-8"
@@ -231,7 +231,7 @@ export default function Plans({ onSubscribe }: {
                         className="mt-6 w-full rounded-full border-2 border-ink text-[14px] font-bold tracking-[.02em] opacity-60 cursor-default"
                         style={{ background: plan.cta_bg, color: plan.cta_text }}
                       >
-                        Tavo planas ✓
+                        Tavo prenumerata ✓
                       </Button>
                     ) : onSubscribe ? (
                       <Button
