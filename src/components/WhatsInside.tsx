@@ -19,12 +19,12 @@ const features = [
   {
     num: '03',
     title: 'Jokių ilgalaikių įsipareigojimų',
-    body: 'Pakeisk planą, pristabdyk prenumeratą arba atšauk ją bet kuriuo metu.',
+    body: 'Pakeisk prenumeratą, pristabdyk ją arba atšauk bet kuriuo metu.',
   },
   {
     num: '04',
-    title: 'Nauji rinkiniai kas mėnesį',
-    body: 'Atrask naujus LEGO® modelius ir gauk ankstyvą prieigą prie naujų papildymų.',
+    title: 'Naujas rinkinys kas savaitę',
+    body: 'Konstruok. Keisk. Kartok. Nemokamas pristatymas.',
   },
 ]
 

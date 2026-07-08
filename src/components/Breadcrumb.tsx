@@ -8,7 +8,7 @@ const EXACT: Record<string, Crumb[]> = {
   '/archive':                 [{ label: 'Rinkiniai' }],
   '/account':                 [{ label: 'Paskyra' }],
   '/community':               [{ label: 'Bendruomenė' }],
-  '/subscribe':               [{ label: 'Planai' }],
+  '/subscribe':               [{ label: 'Prenumeratos' }],
   '/checkout':                [{ label: 'Apmokėjimas' }],
   '/merch':                   [{ label: 'Merch' }],
   '/gift-cards':              [{ label: 'Dovanų kortelės' }],

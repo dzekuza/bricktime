@@ -41,7 +41,7 @@ function HelpPage({
                     to="/subscribe"
                     className="brick-hover-sm inline-flex items-center gap-2 rounded-full border-2 border-ink bg-ink px-5 py-3 text-[14px] font-bold text-paper"
                   >
-                    Pasirinkti planą
+                    Pasirinkti prenumeratą
                     <ArrowRightIcon className="size-4" />
                   </Link>
                   <Link
@@ -125,24 +125,24 @@ export function FAQPage() {
       accent="rgba(255, 215, 49, 0.72)"
       summary={[
         { label: 'Atsakymai', value: 'Svarbiausia informacija viename puslapyje.' },
-        { label: 'Planai', value: 'Kiekvienas planas turi savo mėnesinį € biudžetą.' },
+        { label: 'Prenumeratos', value: 'Kiekviena prenumerata turi savo mėnesinį € biudžetą.' },
         { label: 'Keitimas', value: 'Grąžinus aktyvius produktus gali rinktis kitus.' },
       ]}
       sections={[
         {
           title: 'Kaip veikia mėnesinis biudžetas?',
           body:
-            'Kiekvienas planas atrakina nustatytą mėnesinį biudžetą, kurį gali paskirstyti keliems produktams vienu metu. Svarbi ne vienetų suma, o jų bendra vertė kataloge.',
+            'Kiekviena prenumerata atrakina nustatytą mėnesinį biudžetą, kurį gali paskirstyti keliems produktams vienu metu. Svarbi ne vienetų suma, o jų bendra vertė kataloge.',
         },
         {
           title: 'Ar galiu turėti daugiau nei vieną produktą?',
           body:
-            'Taip. Gali laikyti tiek produktų, kiek telpa į tavo plano limitą. Kai nori išsirinkti naujus, pirmiausia inicijuoji grąžinimą ir po patvirtinimo limitas vėl atsilaisvina.',
+            'Taip. Gali laikyti tiek produktų, kiek telpa į tavo prenumeratos limitą. Kai nori išsirinkti naujus, pirmiausia inicijuoji grąžinimą ir po patvirtinimo limitas vėl atsilaisvina.',
         },
         {
           title: 'Ar visi produktai prieinami visiems planams?',
           body:
-            'Ne. Dalis dropų ir aukštesnės vertės rinkinių yra tier-gated. Kuo aukštesnis planas, tuo platesnis archyvas ir ankstesnė prieiga prie išskirtinių leidimų.',
+            'Ne. Dalis dropų ir aukštesnės vertės rinkinių yra tier-gated. Kuo aukštesnė prenumerata, tuo platesnis archyvas ir ankstesnė prieiga prie išskirtinių leidimų.',
         },
       ]}
       checklist={[
@@ -160,7 +160,7 @@ export function PausePage() {
     <HelpPage
       eyebrow="Pagalba / Praleisti / pristabdyti"
       title="Praleisti / pristabdyti"
-      intro="Kartais statybos ritmas sulėtėja. Šiame puslapyje aiškiai aprašyta, kada gali praleisti mėnesį, kaip veikia pristabdymas ir kas nutinka tavo planui tuo metu."
+      intro="Kartais statybos ritmas sulėtėja. Šiame puslapyje aiškiai aprašyta, kada gali praleisti mėnesį, kaip veikia pristabdymas ir kas nutinka tavo prenumeratai tuo metu."
       accent="rgba(255, 174, 231, 0.72)"
       summary={[
         { label: 'Lankstumas', value: 'Per metus gali praleisti iki 3 mėnesių.' },
@@ -176,20 +176,20 @@ export function PausePage() {
         {
           title: 'Ką reiškia pristabdymas?',
           body:
-            'Pristabdžius planą naujos siuntos ir nauji mokesčiai nestartuos, kol plano neatnaujinsi. Tavo paskyra išlieka aktyvi, tačiau naujų produktų rezervuoti negalėsi.',
+            'Pristabdžius prenumeratą naujos siuntos ir nauji mokesčiai nestartuos, kol jos neatnaujinsi. Tavo paskyra išlieka aktyvi, tačiau naujų produktų rezervuoti negalėsi.',
         },
         {
           title: 'Kaip atnaujinti prenumeratą?',
           body:
-            'Kai būsi pasiruošęs grįžti, atnaujini planą iš paskyros ir kitas atsiskaitymo ciklas vėl suteikia tavo mėnesinį biudžetą. Planą gali tęsti tuo pačiu arba kitu tier.',
+            'Kai būsi pasiruošęs grįžti, atnaujini prenumeratą iš paskyros ir kitas atsiskaitymo ciklas vėl suteikia tavo mėnesinį biudžetą. Prenumeratą gali tęsti tuo pačiu arba kitu tier.',
         },
       ]}
       checklist={[
         'Praleidimas taikomas ateinančiam ciklui, ne jau pradėtam mėnesiui.',
         'Aktyvūs produktai turi būti grąžinimo procese, jei nori pilno pauzės režimo.',
-        'Atnaujinus planą, tavo prieigos ir katalogo matomumas grįžta pagal pasirinktą tier.',
+        'Atnaujinus prenumeratą, tavo prieigos ir katalogo matomumas grįžta pagal pasirinktą tier.',
       ]}
-      note="Jei nori pristabdyti planą tą pačią dieną, geriausia tai padaryti dar prieš naujo mėnesio apmokėjimą. Tokiu atveju išvengsi papildomo ciklo aktyvavimo."
+      note="Jei nori pristabdyti prenumeratą tą pačią dieną, geriausia tai padaryti dar prieš naujo mėnesio apmokėjimą. Tokiu atveju išvengsi papildomo ciklo aktyvavimo."
     />
   )
 }
@@ -204,7 +204,7 @@ export function ShippingPage() {
       heroImage="/images/build-sailboat.jpg"
       summary={[
         { label: 'Geografija', value: 'Pristatome į 42 šalis.' },
-        { label: 'Standartas', value: 'Standartinis pristatymas įtrauktas visuose planuose.' },
+        { label: 'Standartas', value: 'Standartinis pristatymas įtrauktas visose prenumeratose.' },
         { label: 'Greitis', value: 'Skubus pristatymas taikomas aukštesniuose tier.' },
       ]}
       sections={[
@@ -216,12 +216,12 @@ export function ShippingPage() {
         {
           title: 'Kiek trunka pristatymas?',
           body:
-            'Standartinis pristatymas Europoje įprastai trunka 3–5 darbo dienas. Tolimesnėse rinkose terminas gali būti ilgesnis, o aukštesni planai gauna spartesnį maršrutą, kai tai prieinama.',
+            'Standartinis pristatymas Europoje įprastai trunka 3–5 darbo dienas. Tolimesnėse rinkose terminas gali būti ilgesnis, o aukštesnės prenumeratos gauna spartesnį maršrutą, kai tai prieinama.',
         },
         {
-          title: 'Kas įskaičiuota į planą?',
+          title: 'Kas įskaičiuota į prenumeratą?',
           body:
-            'Visi planai apima standartinį siuntos pristatymą. Standard, Pro ir Mega nariai gali gauti prioritetinį apdorojimą bei greitesnį pristatymo lygį, priklausomai nuo regiono.',
+            'Visos prenumeratos apima standartinį siuntos pristatymą. Standard, Pro ir Mega nariai gali gauti prioritetinį apdorojimą bei greitesnį pristatymo lygį, priklausomai nuo regiono.',
         },
       ]}
       checklist={[
@@ -229,7 +229,7 @@ export function ShippingPage() {
         'Adreso pakeitimus verta atlikti prieš naujo užsakymo patvirtinimą.',
         'Jei siunta vėluoja, pagalbos komanda gali patikrinti konkretų sekimo statusą.',
       ]}
-      note="Pristatymo greitis priklauso nuo tavo regiono ir pasirinkto plano. Jei užsakymas ypač laukiamos naujienos dalis, rekomenduojame aukštesnį tier su prioritetiniu siuntos paruošimu."
+      note="Pristatymo greitis priklauso nuo tavo regiono ir pasirinktos prenumeratos. Jei užsakymas ypač laukiamos naujienos dalis, rekomenduojame aukštesnį tier su prioritetiniu siuntos paruošimu."
     />
   )
 }
@@ -239,7 +239,7 @@ export function ReturnsPage() {
     <HelpPage
       eyebrow="Pagalba / Grąžinimai"
       title="Grąžinimai"
-      intro="Kai norisi naujo rinkinio, grąžinimo procesas turi būti paprastas. Šis puslapis aprašo, kaip inicijuoti grąžinimą, ką supakuoti ir kada vėl atsirakina tavo planų biudžetas."
+      intro="Kai norisi naujo rinkinio, grąžinimo procesas turi būti paprastas. Šis puslapis aprašo, kaip inicijuoti grąžinimą, ką supakuoti ir kada vėl atsirakina tavo prenumeratos biudžetas."
       accent="rgba(93, 219, 156, 0.72)"
       heroImage="/images/build-cactus.jpg"
       summary={[
@@ -261,7 +261,7 @@ export function ReturnsPage() {
         {
           title: 'Kada galiu rinktis kitą produktą?',
           body:
-            'Kai grąžinimas pasiekia mūsų komandą ir yra patvirtinamas, tavo plano vertės limitas atnaujinamas. Tada gali iškart grįžti į archyvą ar laukti kito dropo.',
+            'Kai grąžinimas pasiekia mūsų komandą ir yra patvirtinamas, tavo prenumeratos vertės limitas atnaujinamas. Tada gali iškart grįžti į archyvą ar laukti kito dropo.',
         },
       ]}
       checklist={[

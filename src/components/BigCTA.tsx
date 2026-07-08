@@ -78,7 +78,7 @@ export default function BigCTA() {
               </h2>
             </div>
             <p className="mt-4 max-w-[44ch] text-[16px] leading-[1.65] text-paper/80">
-              Pasirink planą ir naršyk katalogą jau šiandien. Grąžink bet kada —
+              Pasirink prenumeratą ir naršyk katalogą jau šiandien. Grąžink bet kada —
               be papildomų mokesčių.
             </p>
           </div>
@@ -116,7 +116,7 @@ export default function BigCTA() {
                 size="lg"
                 className="w-full rounded-full border-2 border-paper/30 bg-brand-yellow text-[16px] font-bold text-ink transition-[transform,box-shadow] duration-150 ease-out hover:-translate-x-[3px] hover:-translate-y-[3px] hover:bg-brand-yellow hover:text-ink hover:shadow-[6px_6px_0_rgba(245,241,235,.2)] active:translate-x-0 active:translate-y-0 active:scale-[0.97] active:shadow-none"
               >
-                <a href="#plans">
+                <a href="#subscriptions">
                   Pradėti prenumeratą <ArrowRightIcon data-icon="inline-end" />
                 </a>
               </Button>

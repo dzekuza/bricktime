@@ -612,7 +612,7 @@ function LeaderboardPanel() {
 
       <div className="brick-card overflow-hidden">
         <div className="grid grid-cols-[28px_1fr_60px_44px] bg-ink px-4 py-2.5 gap-3">
-          {['#', 'Narys', 'Planas', 'pts'].map((col) => (
+          {['#', 'Narys', 'Prenumerata', 'pts'].map((col) => (
             <p key={col} className="font-mono text-[9px] uppercase tracking-widest text-paper/50">{col}</p>
           ))}
         </div>

@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useAuth } from '@/hooks/useAuth'
 import { avatarSrc } from '@/lib/avatars'
 import { AuthForm } from '@/components/AuthForm'
-import { usePlans } from '@/hooks/usePlans'
+import { useSubscriptions } from '@/hooks/useSubscriptions'
 
 const PLAN_COLORS: Record<string, { bg: string; text: string }> = {
   nano:     { bg: '#F5F1EB', text: '#001B21' },
@@ -69,8 +69,8 @@ function AvatarPopover() {
 // ── Plan chip (shown when subscribed) ────────────────────────────────────────
 
 function PlanChip({ plan }: { plan: string }) {
-  const { plans } = usePlans()
-  const dbPlan = plans.find(p => p.id === plan)
+  const { subscriptions } = useSubscriptions()
+  const dbPlan = subscriptions.find(p => p.id === plan)
   const bg = dbPlan?.bg_color ?? PLAN_COLORS[plan]?.bg ?? '#F5F1EB'
   const text = dbPlan?.text_color ?? PLAN_COLORS[plan]?.text ?? '#001B21'
   const name = dbPlan?.name ?? (plan.charAt(0).toUpperCase() + plan.slice(1))
@@ -139,7 +139,7 @@ export default function Nav() {
               to="/subscribe"
               className={`hidden md:flex relative text-[15px] font-semibold text-ink after:absolute after:-bottom-1.5 after:left-0 after:right-0 after:h-[2px] after:bg-ink after:content-[''] after:transition-transform after:duration-200 after:origin-left ${pathname.startsWith('/subscribe') ? 'after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100'}`}
             >
-              Planai
+              Prenumeratos
             </Link>
             <div className="flex items-center">
               {user && profile?.plan ? (
@@ -150,7 +150,7 @@ export default function Nav() {
                   size="sm"
                   className="hidden rounded-full border-2 border-ink bg-ink text-paper font-bold brick-hover-sm md:inline-flex mr-3"
                 >
-                  <Link to="/subscribe">Prenumeruoti <ArrowRightIcon data-icon="inline-end" /></Link>
+                  <Link to="/subscribe">Pradėk konstruoti <ArrowRightIcon data-icon="inline-end" /></Link>
                 </Button>
               )}
               <AvatarPopover />
@@ -216,7 +216,7 @@ export default function Nav() {
                 transition: 'opacity 0.2s ease 120ms',
               }}
             >
-              Prenumeruoti <ArrowRightIcon className="inline size-4 ml-1" />
+              Pradėk konstruoti <ArrowRightIcon className="inline size-4 ml-1" />
             </Link>
           )}
         </div>

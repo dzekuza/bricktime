@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { getPlanDisplayName } from '@/lib/plan-branding'
+import { getSubscriptionDisplayName } from '@/lib/subscription-branding'
 
 interface DropProduct {
   id: number
@@ -22,13 +22,13 @@ interface TimeLeft {
 }
 
 const TIER_LABELS: Record<string, string> = {
-  nano:      getPlanDisplayName('nano'),
-  mini:      getPlanDisplayName('mini'),
-  standard:  getPlanDisplayName('standard'),
-  pro:       getPlanDisplayName('pro'),
-  mega:      getPlanDisplayName('mega'),
-  mystery_s: getPlanDisplayName('mystery_s') ?? 'Mystery Box S',
-  mystery_m: getPlanDisplayName('mystery_m') ?? 'Mystery Box M',
+  nano:      getSubscriptionDisplayName('nano'),
+  mini:      getSubscriptionDisplayName('mini'),
+  standard:  getSubscriptionDisplayName('standard'),
+  pro:       getSubscriptionDisplayName('pro'),
+  mega:      getSubscriptionDisplayName('mega'),
+  mystery_s: getSubscriptionDisplayName('mystery_s') ?? 'Mystery Box S',
+  mystery_m: getSubscriptionDisplayName('mystery_m') ?? 'Mystery Box M',
 }
 
 function pad(n: number): string {

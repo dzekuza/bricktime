@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { StarIcon, ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
-import { getPlanDisplayName } from "@/lib/plan-branding"
+import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
 import { ProductCard, dbToProduct, type Product } from "@/components/ProductCard"
 
 type Review = { stars: number; quote: string; name: string; meta: string; avatarColor: string; initials: string }
@@ -84,7 +84,7 @@ const reviews = [
 const tiers = [
   {
     key: "nano",
-    name: getPlanDisplayName("nano"),
+    name: getSubscriptionDisplayName("nano"),
     price: 9,
     annualPrice: 7,
     spec: "60–90 bricks",
@@ -93,7 +93,7 @@ const tiers = [
   },
   {
     key: "mini",
-    name: getPlanDisplayName("mini"),
+    name: getSubscriptionDisplayName("mini"),
     price: 14,
     annualPrice: 11,
     spec: "120–180 bricks",
@@ -102,7 +102,7 @@ const tiers = [
   },
   {
     key: "standard",
-    name: getPlanDisplayName("standard"),
+    name: getSubscriptionDisplayName("standard"),
     price: 24,
     annualPrice: 19,
     spec: "240–320 bricks",
@@ -111,7 +111,7 @@ const tiers = [
   },
   {
     key: "pro",
-    name: getPlanDisplayName("pro"),
+    name: getSubscriptionDisplayName("pro"),
     price: 35,
     annualPrice: 28,
     spec: "340–400 bricks",
@@ -120,7 +120,7 @@ const tiers = [
   },
   {
     key: "mega",
-    name: getPlanDisplayName("mega"),
+    name: getSubscriptionDisplayName("mega"),
     price: 55,
     annualPrice: 44,
     spec: "420–520 bricks",
@@ -488,6 +488,17 @@ export default function Drop() {
                   "A five-storey postwar apartment block in mint and cream, complete with a working mailbox door, three planted balconies, and the universe's first scheduled crossover — Otto's bus is the bus from product №14."}
               </p>
 
+              {/* Legal / safety notice — LEGO® age warning + trademark disclaimer */}
+              <div className="mt-5 max-w-[48ch] rounded-2xl border-2 border-ink/15 bg-ink/[.02] px-4 py-3.5">
+                {/* TODO: add EN 71-6 age warning SVG symbol once asset is provided by client */}
+                <p className="text-[12px] leading-[1.6] text-ink/55">
+                  Svarbu: LEGO® rinkinyje yra smulkių detalių, todėl jis netinka vaikams iki 3 metų. Rekomenduojame rinkinį naudoti pagal gamintojo nurodytą amžiaus rekomendaciją.
+                </p>
+                <p className="mt-2 text-[11px] leading-[1.5] text-ink/40">
+                  LEGO® yra registruotas prekės ženklas, priklausantis „LEGO Group“ įmonių grupei, kuri nėra susijusi, neremia ir kitaip neprisideda prie šios veiklos vystymo.
+                </p>
+              </div>
+
               {/* Spec grid */}
               <div className="mt-8 grid grid-cols-3 gap-x-3 gap-y-4 border-t border-ink/10 pt-5">
                 {[
@@ -496,7 +507,7 @@ export default function Drop() {
                   { label: "Amžius",    val: product?.rating ?? "—" },
                   { label: "Kaina",     val: product?.value != null ? `€${product.value}` : "—" },
                   { label: "Kategorija", val: product?.category ?? "—" },
-                  { label: "Planas",    val: getPlanDisplayName(product?.tier ?? "standard") + "+" },
+                  { label: "Prenumerata", val: getSubscriptionDisplayName(product?.tier ?? "standard") + "+" },
                 ].map(({ label, val }) => (
                   <div key={label} className="flex flex-col gap-1">
                     <span className="label-mono text-[12px] text-ink/40">{label}</span>
@@ -518,7 +529,7 @@ export default function Drop() {
                     {tiers[DROP_REQUIRED_TIER].name}
                   </div>
                   <span className="text-[14px] text-ink/50">
-                    reikalingas planas
+                    reikalinga prenumerata
                   </span>
                 </div>
 

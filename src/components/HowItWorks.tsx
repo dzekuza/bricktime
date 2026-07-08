@@ -1,25 +1,26 @@
 import { useRef, useEffect } from 'react'
 import gsap from 'gsap'
 import { useReveal } from '@/hooks/useReveal'
-import { getPlanBrickImage } from '@/lib/plan-branding'
+import { getSubscriptionBrickImage } from '@/lib/subscription-branding'
+import { HowItWorksFreedom } from '@/components/how-it-works-freedom'
 
 const steps = [
   {
     num: '01',
-    title: 'Pasirink\nplaną',
-    body: 'Pasirink planą pagal savo biudžetą ir statymo lygį — kuo didesnis planas, tuo daugiau pasirinkimo.',
+    title: 'Pasirink\nprenumeratą',
+    body: 'Pasirink prenumeratą pagal savo poreikius – kiekviena jų atveria skirtingas LEGO® rinkinių galimybes.',
     brick: 'nano',
   },
   {
     num: '02',
     title: 'Išsirink\nrinkinį',
-    body: 'Išsirink rinkinį pagal savo pasirinktą planą — nuo mažesnių modelių iki kolekcinių projektų.',
+    body: 'Išsirink LEGO® rinkinį, kuris labiausiai įkvepia, o mes pasirūpinsime jo pristatymu.',
     brick: 'standard',
   },
   {
     num: '03',
-    title: 'Grąžink,\nkeišk, atrask',
-    body: 'Grąžink rinkinius ir pasiimk naujus iš katalogo — be papildomų mokesčių.',
+    title: 'Grąžink,\nkeisk, kartok',
+    body: 'Baigęs konstruoti, grąžink rinkinį ir pasiruošk kitam LEGO® projektui.',
     brick: 'mega',
   },
 ]
@@ -40,7 +41,7 @@ function onCardLeave(e: React.MouseEvent<HTMLDivElement>) {
 }
 
 function Brick({ plan }: { plan: string }) {
-  const image = getPlanBrickImage(plan)
+  const image = getSubscriptionBrickImage(plan)
 
   if (!image) return null
 
@@ -76,17 +77,17 @@ export default function HowItWorks() {
             <h2
               className="heading-display text-d-lg mt-3 text-ink"
             >
-              Pasirink planą
+              Kaip tai
               <br />
               <span
                 className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
               >
-                Pradėk
+                veikia?
               </span>{' '}
-              Statyti
+              Pradėk konstruoti
             </h2>
             <p className="mt-5 max-w-[50ch] text-[16px] leading-[1.65] text-ink/65">
-              Vos keli paprasti žingsniai iki naujo konstravimo projekto tavo namuose. Pasirink planą pagal savo poreikius, išsirink norimą rinkinį, gauk jį į namus ar paštomatą ir keisk į naują kada panorėjęs, be ilgalaikių įsipareigojimų.
+              Vos keli paprasti žingsniai iki naujo konstravimo projekto tavo namuose.
             </p>
           </div>
 
@@ -118,6 +119,8 @@ export default function HowItWorks() {
               </div>
             </div>
           ))}
+
+          <HowItWorksFreedom />
         </div>
       </div>
     </section>

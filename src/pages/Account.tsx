@@ -6,7 +6,7 @@ import type { PlanTier } from "@/lib/database.types"
 
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase"
-import { usePlans } from "@/hooks/usePlans"
+import { useSubscriptions } from "@/hooks/useSubscriptions"
 import { MissingPartDialog } from "@/components/MissingPartDialog"
 import { OrderTracking } from "@/components/OrderTracking"
 import { ReturnDialog } from "@/components/ReturnDialog"
@@ -121,7 +121,7 @@ function AchievementsSection({
                 return (
                   <div
                     key={def.id}
-                    className="relative cursor-default rounded-2xl border-2 p-3 transition-all md:p-4 overflow-visible"
+                    className="relative cursor-default overflow-visible rounded-2xl border-2 p-3 transition-all md:p-4"
                     style={{
                       background: unlocked ? def.color : "transparent",
                       borderStyle: unlocked ? "solid" : "dashed",
@@ -137,7 +137,12 @@ function AchievementsSection({
                     onMouseEnter={() => setHoveredId(def.id)}
                     onMouseLeave={() => setHoveredId(null)}
                   >
-                    <div style={{ opacity: unlocked ? 1 : 0.4, filter: unlocked ? "none" : "grayscale(1)" }}>
+                    <div
+                      style={{
+                        opacity: unlocked ? 1 : 0.4,
+                        filter: unlocked ? "none" : "grayscale(1)",
+                      }}
+                    >
                       {def.image ? (
                         <img
                           src={def.image}
@@ -181,16 +186,17 @@ function AchievementsSection({
 // ── page ───────────────────────────────────────────────────────────────────
 export default function Account() {
   const { user, profile, signOut, refreshProfile } = useAuth()
-  const { plans: dbPlans } = usePlans()
+  const { subscriptions: dbPlans } = useSubscriptions()
   const tierOptions = useMemo(
-    () => dbPlans.map((p, i) => ({
-      key: p.id as PlanTier,
-      name: p.name,
-      price: p.price,
-      bg: p.bg_color,
-      textColor: p.text_color,
-      level: i + 1,
-    })),
+    () =>
+      dbPlans.map((p, i) => ({
+        key: p.id as PlanTier,
+        name: p.name,
+        price: p.price,
+        bg: p.bg_color,
+        textColor: p.text_color,
+        level: i + 1,
+      })),
     [dbPlans]
   )
   const [subscriber, setSubscriber] = useState<SubscriberData | null>(null)
@@ -201,44 +207,73 @@ export default function Account() {
   const [planChangeError, setPlanChangeError] = useState("")
   const [rentedOrders, setRentedOrders] = useState<RentedOrder[]>([])
   const [ordersLoading, setOrdersLoading] = useState(true)
-  const [returnDialogOrder, setReturnDialogOrder] = useState<RentedOrder | null>(null)
+  const [returnDialogOrder, setReturnDialogOrder] =
+    useState<RentedOrder | null>(null)
   const [profileOpen, setProfileOpen] = useState(false)
-  const [penaltyHistory, setPenaltyHistory] = useState<Array<{
-    id: string; amount: number; reason: string | null; status: string; created_at: string | null; resolved_at: string | null
-  }>>([])
-  const [stripeInvoices, setStripeInvoices] = useState<Array<{
-    id: string; amount: number; currency: string; description: string; date: number; status: string | null; pdf: string | null
-  }>>([])
+  const [penaltyHistory, setPenaltyHistory] = useState<
+    Array<{
+      id: string
+      amount: number
+      reason: string | null
+      status: string
+      created_at: string | null
+      resolved_at: string | null
+    }>
+  >([])
+  const [stripeInvoices, setStripeInvoices] = useState<
+    Array<{
+      id: string
+      amount: number
+      currency: string
+      description: string
+      date: number
+      status: string | null
+      pdf: string | null
+    }>
+  >([])
   const [billingLoading, setBillingLoading] = useState(false)
   const [portalLoading, setPortalLoading] = useState(false)
   const [portalError, setPortalError] = useState("")
   const [selectedTier, setSelectedTier] = useState(2)
-  const [missingPartOrder, setMissingPartOrder] = useState<RentedOrder | null>(null)
+  const [missingPartOrder, setMissingPartOrder] = useState<RentedOrder | null>(
+    null
+  )
   const [selectedAvatarId, setSelectedAvatarId] = useState(
     profile?.avatarId ?? 0
   )
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
-  const [giftCards, setGiftCards] = useState<Array<{
-    id: string; code: string; amount_cents: number; recipient_email: string
-    buyer_email: string; message: string | null; status: string
-    expires_at: string; created_at: string
-  }>>([])
+  const [giftCards, setGiftCards] = useState<
+    Array<{
+      id: string
+      code: string
+      amount_cents: number
+      recipient_email: string
+      buyer_email: string
+      message: string | null
+      status: string
+      expires_at: string
+      created_at: string
+    }>
+  >([])
   const [giftCardsLoading, setGiftCardsLoading] = useState(true)
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
 
   async function payPenalty() {
     if (!user?.email || !subscriber?.penalty_amount) return
     const origin = window.location.origin
-    const { data, error } = await supabase.functions.invoke("create-penalty-checkout", {
-      body: {
-        userId: user.id,
-        userEmail: user.email,
-        amount: subscriber.penalty_amount,
-        reason: subscriber.penalty_reason ?? undefined,
-        successUrl: `${origin}/account?penalty_paid=true`,
-        cancelUrl: `${origin}/account`,
-      },
-    })
+    const { data, error } = await supabase.functions.invoke(
+      "create-penalty-checkout",
+      {
+        body: {
+          userId: user.id,
+          userEmail: user.email,
+          amount: subscriber.penalty_amount,
+          reason: subscriber.penalty_reason ?? undefined,
+          successUrl: `${origin}/account?penalty_paid=true`,
+          cancelUrl: `${origin}/account`,
+        },
+      }
+    )
     if (error || !data?.url) {
       console.error("Penalty checkout failed:", error?.message)
       return
@@ -261,7 +296,9 @@ export default function Account() {
         .eq("subscriber_email", user.email)
         .eq("status", "pending"),
     ]).then(() => {
-      setSubscriber((s) => (s ? { ...s, penalty_amount: null, penalty_reason: null } : s))
+      setSubscriber((s) =>
+        s ? { ...s, penalty_amount: null, penalty_reason: null } : s
+      )
       window.history.replaceState({}, "", "/account")
     })
   }, [user])
@@ -292,7 +329,9 @@ export default function Account() {
     Promise.all([
       supabase
         .from("subscribers")
-        .select("plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code")
+        .select(
+          "plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code"
+        )
         .eq("id", user.id)
         .single(),
       supabase
@@ -325,7 +364,9 @@ export default function Account() {
       .select("id, amount, reason, status, created_at, resolved_at")
       .eq("subscriber_email", user.email)
       .order("created_at", { ascending: false })
-      .then(({ data }) => { if (data) setPenaltyHistory(data) })
+      .then(({ data }) => {
+        if (data) setPenaltyHistory(data)
+      })
 
     setBillingLoading(true)
     supabase.functions
@@ -339,21 +380,30 @@ export default function Account() {
   useEffect(() => {
     if (!user) return
     Promise.all([
-      supabase.from("orders").select("*").eq("subscriber_id", user.id).not("status", "eq", "returned"),
+      supabase
+        .from("orders")
+        .select("*")
+        .eq("subscriber_id", user.id)
+        .not("status", "eq", "returned"),
       supabase.from("products").select("id, title, image_url"),
     ]).then(([{ data: orders }, { data: products }]) => {
-      const productMap = Object.fromEntries((products ?? []).map((p) => [p.id, p]))
+      const productMap = Object.fromEntries(
+        (products ?? []).map((p) => [p.id, p])
+      )
       setRentedOrders(
         (orders ?? []).map((o) => ({
           id: o.id,
           productId: o.product_id,
-          productTitle: productMap[o.product_id]?.title ?? `Produktas #${o.product_id}`,
+          productTitle:
+            productMap[o.product_id]?.title ?? `Produktas #${o.product_id}`,
           productImage: productMap[o.product_id]?.image_url ?? null,
           status: o.status,
           startDate: o.start_date,
           dueDate: o.due_date,
           amount: o.amount,
-          returnNote: (o as Record<string, unknown>).return_note as string | undefined,
+          returnNote: (o as Record<string, unknown>).return_note as
+            | string
+            | undefined,
           homeDelivery: o.home_delivery ?? false,
           terminalName: o.lp_terminal_name,
           barcode: o.lp_barcode,
@@ -367,10 +417,12 @@ export default function Account() {
   useEffect(() => {
     if (!user?.email) return
     supabase
-      .from('gift_cards')
-      .select('id, code, amount_cents, recipient_email, buyer_email, message, status, expires_at, created_at')
+      .from("gift_cards")
+      .select(
+        "id, code, amount_cents, recipient_email, buyer_email, message, status, expires_at, created_at"
+      )
       .or(`recipient_email.eq.${user.email},buyer_email.eq.${user.email}`)
-      .order('created_at', { ascending: false })
+      .order("created_at", { ascending: false })
       .then(({ data }) => {
         setGiftCards((data as typeof giftCards) ?? [])
         setGiftCardsLoading(false)
@@ -384,9 +436,18 @@ export default function Account() {
     })
   }
 
-  const FALLBACK_TIER = { key: '' as PlanTier, name: '–', price: 0, bg: '#F5F1EB', textColor: '#001B21', level: 0 }
+  const FALLBACK_TIER = {
+    key: "" as PlanTier,
+    name: "–",
+    price: 0,
+    bg: "#F5F1EB",
+    textColor: "#001B21",
+    level: 0,
+  }
   const activeTier = subscriber
-    ? (tierOptions.find((t) => t.key === subscriber.plan) ?? tierOptions[0] ?? FALLBACK_TIER)
+    ? (tierOptions.find((t) => t.key === subscriber.plan) ??
+      tierOptions[0] ??
+      FALLBACK_TIER)
     : (tierOptions[0] ?? FALLBACK_TIER)
   const activeAvatar = avatarOptions[selectedAvatarId] ?? avatarOptions[0]
   const totalPoints = calculatePoints(
@@ -440,12 +501,17 @@ export default function Account() {
     if (!user?.email) return
     setPortalLoading(true)
     setPortalError("")
-    const { data, error } = await supabase.functions.invoke("create-billing-portal", {
-      body: { userEmail: user.email, returnUrl: window.location.href },
-    })
+    const { data, error } = await supabase.functions.invoke(
+      "create-billing-portal",
+      {
+        body: { userEmail: user.email, returnUrl: window.location.href },
+      }
+    )
     setPortalLoading(false)
     if (error || !data?.url) {
-      setPortalError(data?.error ?? error?.message ?? "Nepavyko atidaryti. Bandyk dar kartą.")
+      setPortalError(
+        data?.error ?? error?.message ?? "Nepavyko atidaryti. Bandyk dar kartą."
+      )
       return
     }
     window.location.href = data.url
@@ -456,7 +522,9 @@ export default function Account() {
   function onReturnComplete(orderId: string, barcode: string | null) {
     setRentedOrders((prev) =>
       prev.map((o) =>
-        o.id === orderId ? { ...o, status: "return_requested", returnBarcode: barcode } : o
+        o.id === orderId
+          ? { ...o, status: "return_requested", returnBarcode: barcode }
+          : o
       )
     )
   }
@@ -497,7 +565,7 @@ export default function Account() {
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
             {/* User tile */}
-            <div className="flex min-h-[340px] flex-col rounded-2xl border-2 border-ink bg-paper shadow-[6px_6px_0_#001B21] p-6 md:rounded-3xl md:p-9 lg:col-span-7">
+            <div className="flex min-h-[340px] flex-col rounded-2xl border-2 border-ink bg-paper p-6 shadow-[6px_6px_0_#001B21] md:rounded-3xl md:p-9 lg:col-span-7">
               <div className="flex items-start gap-5">
                 <div className="shrink-0">
                   <button
@@ -521,7 +589,9 @@ export default function Account() {
                 <div className="flex-1">
                   <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
                     <h1 className="heading-display text-d-lg leading-[.9] text-ink">
-                      {[profile?.name, subscriber?.last_name].filter(Boolean).join(" ") || user.email?.split("@")[0]}
+                      {[profile?.name, subscriber?.last_name]
+                        .filter(Boolean)
+                        .join(" ") || user.email?.split("@")[0]}
                     </h1>
                     <button
                       onClick={() => setProfileOpen(true)}
@@ -575,7 +645,10 @@ export default function Account() {
               <div className="mt-auto grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
                 {[
                   { val: postCount, label: "Įrašai" },
-                  { val: `${activeTier.level}/${tierOptions.length || 5}`, label: "Plano lygis" },
+                  {
+                    val: `${activeTier.level}/${tierOptions.length || 5}`,
+                    label: "Prenumeratos lygis",
+                  },
                   { val: memberSince, label: "Narys nuo" },
                   { val: totalPoints, label: "Taškai" },
                 ].map((s) => (
@@ -602,7 +675,7 @@ export default function Account() {
 
             {/* Subscription tile */}
             <div
-              className="brick-card flex md:min-h-[340px] flex-col p-6 md:p-9 lg:col-span-5"
+              className="brick-card flex flex-col p-6 md:min-h-[340px] md:p-9 lg:col-span-5"
               style={{ background: activeTier.bg }}
             >
               <div>
@@ -657,7 +730,7 @@ export default function Account() {
                   className="flex-1 rounded-full border-2 border-ink bg-ink px-3 py-2 text-[14px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
                   onClick={() => setShowUpgrade(!showUpgrade)}
                 >
-                  Keisti planą
+                  Keisti prenumeratą
                 </button>
                 <button
                   className="flex-1 rounded-full border-2 border-ink bg-paper px-3 py-2 text-[14px] font-bold text-ink transition-all hover:bg-ink/5"
@@ -672,9 +745,7 @@ export default function Account() {
             {/* Upgrade plan picker */}
             {showUpgrade && (
               <div className="brick-card bg-paper p-3 md:p-8 lg:col-span-12">
-                <h3 className="label-mono mb-5 text-ink">
-                  Keisti planą
-                </h3>
+                <h3 className="label-mono mb-5 text-ink">Keisti prenumeratą</h3>
                 <div className="grid grid-cols-3 gap-3 lg:grid-cols-6">
                   {tierOptions.map((t, i) => (
                     <button
@@ -719,18 +790,25 @@ export default function Account() {
                 </div>
                 <div className="mt-5 flex flex-col gap-3">
                   {planChangeError && (
-                    <p className="font-mono text-[11px] text-red-500">{planChangeError}</p>
+                    <p className="font-mono text-[11px] text-red-500">
+                      {planChangeError}
+                    </p>
                   )}
                   <div className="flex gap-3">
                     <button
                       onClick={handlePlanChange}
                       disabled={planChanging}
-                      className="flex-1 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[14px] font-bold text-paper transition-[transform,box-shadow] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] disabled:opacity-50 disabled:pointer-events-none"
+                      className="flex-1 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[14px] font-bold text-paper transition-[transform,box-shadow] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] disabled:pointer-events-none disabled:opacity-50"
                     >
-                      {planChanging ? "Kraunama…" : `Patvirtinti keitimą į ${tierOptions[selectedTier]?.name ?? '…'} →`}
+                      {planChanging
+                        ? "Kraunama…"
+                        : `Patvirtinti keitimą į ${tierOptions[selectedTier]?.name ?? "…"} →`}
                     </button>
                     <button
-                      onClick={() => { setShowUpgrade(false); setPlanChangeError("") }}
+                      onClick={() => {
+                        setShowUpgrade(false)
+                        setPlanChangeError("")
+                      }}
                       className="rounded-full border-2 border-ink px-5 py-2.5 text-[14px] font-semibold text-ink transition-colors hover:bg-ink/5"
                     >
                       Atšaukti
@@ -753,14 +831,16 @@ export default function Account() {
       {subscriber?.penalty_amount != null && (
         <section className="bg-paper py-10 md:py-20">
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-            <div className="brick-card flex flex-col gap-4 border-red-500 bg-red-50 p-5 md:p-7 md:flex-row md:items-center md:justify-between shadow-[6px_6px_0_#ef4444]">
+            <div className="brick-card flex flex-col gap-4 border-red-500 bg-red-50 p-5 shadow-[6px_6px_0_#ef4444] md:flex-row md:items-center md:justify-between md:p-7">
               <div className="flex flex-col gap-1">
                 <p className="label-mono text-red-600">Nesumokėta bauda</p>
-                <p className="font-display text-d-sm text-red-700">
+                <p className="text-d-sm font-display text-red-700">
                   €{subscriber.penalty_amount.toFixed(2)}
                 </p>
                 {subscriber.penalty_reason && (
-                  <p className="mt-1 text-[14px] text-red-600/80">{subscriber.penalty_reason}</p>
+                  <p className="mt-1 text-[14px] text-red-600/80">
+                    {subscriber.penalty_reason}
+                  </p>
                 )}
               </div>
               <button
@@ -778,20 +858,33 @@ export default function Account() {
       <section className="bg-paper py-10 md:py-20">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.02em] text-ink">
-            Užsakymų<br />
-            <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>istorija.</span>
+            Užsakymų
+            <br />
+            <span
+              className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
+              style={{ transformOrigin: "center center" }}
+            >
+              istorija.
+            </span>
           </h2>
 
           {ordersLoading ? (
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[0, 1, 2].map((i) => (
-                <div key={i} className="brick-card animate-pulse bg-ink/5 p-5 md:p-6 min-h-[200px]" />
+                <div
+                  key={i}
+                  className="brick-card min-h-[200px] animate-pulse bg-ink/5 p-5 md:p-6"
+                />
               ))}
             </div>
           ) : rentedOrders.length === 0 ? (
-            <div className="mt-6 brick-card bg-paper p-8 md:p-12 flex flex-col items-center text-center gap-3">
-              <p className="font-display text-[18px] text-ink/40 uppercase">Nėra aktyvių nuomų</p>
-              <p className="font-mono text-[12px] text-ink/30">Pasirink produktą iš katalogo ir pradėk nuomą.</p>
+            <div className="brick-card mt-6 flex flex-col items-center gap-3 bg-paper p-8 text-center md:p-12">
+              <p className="font-display text-[18px] text-ink/40 uppercase">
+                Nėra aktyvių nuomų
+              </p>
+              <p className="font-mono text-[12px] text-ink/30">
+                Pasirink produktą iš katalogo ir pradėk nuomą.
+              </p>
               <a
                 href="/archive"
                 className="mt-2 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[13px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
@@ -802,7 +895,10 @@ export default function Account() {
           ) : (
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {rentedOrders.map((order) => (
-                <div key={order.id} className="brick-card flex flex-col bg-paper p-5 md:p-6">
+                <div
+                  key={order.id}
+                  className="brick-card flex flex-col bg-paper p-5 md:p-6"
+                >
                   {order.productImage && (
                     <img
                       src={order.productImage}
@@ -845,7 +941,9 @@ export default function Account() {
                       <p className="font-mono text-[10px] tracking-[.14em] text-rose-500 uppercase">
                         Priežastis
                       </p>
-                      <p className="mt-0.5 text-[13px] text-rose-700">{order.returnNote}</p>
+                      <p className="mt-0.5 text-[13px] text-rose-700">
+                        {order.returnNote}
+                      </p>
                     </div>
                   )}
                   {/* Delivery method */}
@@ -862,7 +960,9 @@ export default function Account() {
                   {order.barcode && <OrderTracking barcode={order.barcode} />}
                   {order.returnBarcode && (
                     <div className="mt-2">
-                      <p className="label-mono mb-1 text-ink/40">Grąžinimo siunta</p>
+                      <p className="label-mono mb-1 text-ink/40">
+                        Grąžinimo siunta
+                      </p>
                       <OrderTracking barcode={order.returnBarcode} />
                     </div>
                   )}
@@ -871,15 +971,20 @@ export default function Account() {
                     iki {order.dueDate} · €{order.amount}/mėn.
                   </div>
                   <div className="mt-auto pt-4">
-                    {(order.status === "active" || order.status === "overdue" || order.status === "return_declined") && (
+                    {(order.status === "active" ||
+                      order.status === "overdue" ||
+                      order.status === "return_declined") && (
                       <button
                         onClick={() => setReturnDialogOrder(order)}
                         className="w-full rounded-full border-2 border-ink bg-ink px-4 py-2.5 text-[13px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
                       >
-                        {order.status === "return_declined" ? "Prašyti dar kartą" : "Prašyti grąžinimo"}
+                        {order.status === "return_declined"
+                          ? "Prašyti dar kartą"
+                          : "Prašyti grąžinimo"}
                       </button>
                     )}
-                    {(order.status === "active" || order.status === "overdue") && (
+                    {(order.status === "active" ||
+                      order.status === "overdue") && (
                       <button
                         onClick={() => setMissingPartOrder(order)}
                         className="mt-2 w-full rounded-full border-2 border-ink/30 bg-transparent px-4 py-2.5 text-[13px] font-bold text-ink/60 transition-all hover:border-ink hover:text-ink"
@@ -887,21 +992,22 @@ export default function Account() {
                         Pranešti apie trūkstamą detalę
                       </button>
                     )}
-                    {order.status === "return_requested" && (
-                      order.returnBarcode ? (
+                    {order.status === "return_requested" &&
+                      (order.returnBarcode ? (
                         <button
                           onClick={() => downloadReturnLabel(order.id)}
                           disabled={downloadingLabel === order.id}
                           className="w-full rounded-full border-2 border-ink bg-brand-orange px-4 py-2.5 text-[13px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] disabled:opacity-50"
                         >
-                          {downloadingLabel === order.id ? "Ruošiama…" : "Atsisiųsti grąžinimo etiketę"}
+                          {downloadingLabel === order.id
+                            ? "Ruošiama…"
+                            : "Atsisiųsti grąžinimo etiketę"}
                         </button>
                       ) : (
                         <div className="w-full rounded-full border-2 border-amber-300 bg-amber-50 px-4 py-2.5 text-center text-[13px] font-bold text-amber-700">
                           Grąžinimas prašomas
                         </div>
-                      )
-                    )}
+                      ))}
                     {order.status === "processing" && (
                       <div className="w-full rounded-full border-2 border-blue-200 bg-blue-50 px-4 py-2.5 text-center text-[13px] font-bold text-blue-700">
                         Ruošiama siuntai
@@ -919,8 +1025,14 @@ export default function Account() {
       <section className="bg-paper py-10 md:py-20">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.02em] text-ink">
-            Mano<br />
-            <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>mokėjimai.</span>
+            Mano
+            <br />
+            <span
+              className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
+              style={{ transformOrigin: "center center" }}
+            >
+              mokėjimai.
+            </span>
           </h2>
 
           <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-12">
@@ -929,34 +1041,33 @@ export default function Account() {
               <p className="label-mono text-ink/40">Aktyvi prenumerata</p>
               <div className="mt-3 flex items-end justify-between">
                 <div>
-                  <p className="font-display text-d-md leading-none uppercase text-ink">
+                  <p className="text-d-md font-display leading-none text-ink uppercase">
                     {activeTier.name}
                   </p>
                   <p className="mt-1 font-mono text-[13px] text-ink/60">
                     €{activeTier.price}/mėn. · kasmet atnaujinama
                   </p>
                 </div>
-                <span
-                  className="rounded-full border-2 border-ink px-3 py-1 font-mono text-[10px] tracking-[.14em] uppercase bg-green-400 text-ink"
-                >
+                <span className="rounded-full border-2 border-ink bg-green-400 px-3 py-1 font-mono text-[10px] tracking-[.14em] text-ink uppercase">
                   {subscriber?.status ?? "–"}
                 </span>
               </div>
-              <div className="mt-6 border-t border-ink/10 pt-5 flex flex-col gap-2">
+              <div className="mt-6 flex flex-col gap-2 border-t border-ink/10 pt-5">
                 {portalError && (
-                  <p className="font-mono text-[11px] text-red-500">{portalError}</p>
+                  <p className="font-mono text-[11px] text-red-500">
+                    {portalError}
+                  </p>
                 )}
                 <button
                   onClick={openBillingPortal}
                   disabled={portalLoading}
-                  className="brick-hover-sm w-full rounded-xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[11px] tracking-[.14em] text-paper uppercase transition-all disabled:opacity-50 disabled:pointer-events-none"
+                  className="brick-hover-sm w-full rounded-xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[11px] tracking-[.14em] text-paper uppercase transition-all disabled:pointer-events-none disabled:opacity-50"
                 >
                   {portalLoading ? "Kraunama…" : "Tvarkyti prenumeratą →"}
                 </button>
                 <p className="text-center font-mono text-[10px] text-ink/30">
                   Kortelė · istorija · atšaukimas
                 </p>
-
               </div>
             </div>
 
@@ -969,24 +1080,40 @@ export default function Account() {
                 </div>
               ) : stripeInvoices.length === 0 && penaltyHistory.length === 0 ? (
                 <div className="mt-6 flex flex-col items-center justify-center py-8 text-center">
-                  <p className="font-display text-[32px] leading-none text-ink/10 uppercase">Tuščia</p>
-                  <p className="mt-2 font-mono text-[11px] text-ink/30">Mokėjimų istorija bus rodoma čia</p>
+                  <p className="font-display text-[32px] leading-none text-ink/10 uppercase">
+                    Tuščia
+                  </p>
+                  <p className="mt-2 font-mono text-[11px] text-ink/30">
+                    Mokėjimų istorija bus rodoma čia
+                  </p>
                 </div>
               ) : (
                 <div className="mt-4 flex flex-col divide-y divide-ink/8">
                   {stripeInvoices.map((inv) => (
-                    <div key={inv.id} className="flex items-center justify-between py-3.5">
+                    <div
+                      key={inv.id}
+                      className="flex items-center justify-between py-3.5"
+                    >
                       <div className="flex flex-col gap-0.5">
-                        <p className="text-[14px] font-medium text-ink">{inv.description}</p>
+                        <p className="text-[14px] font-medium text-ink">
+                          {inv.description}
+                        </p>
                         <p className="font-mono text-[11px] text-ink/40">
-                          {new Date(inv.date * 1000).toLocaleDateString("lt-LT", {
-                            year: "numeric", month: "short", day: "numeric",
-                          })}
+                          {new Date(inv.date * 1000).toLocaleDateString(
+                            "lt-LT",
+                            {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            }
+                          )}
                         </p>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="font-display text-[20px] leading-none text-ink">
-                          {inv.currency.toUpperCase() === "EUR" ? "€" : inv.currency.toUpperCase()}
+                          {inv.currency.toUpperCase() === "EUR"
+                            ? "€"
+                            : inv.currency.toUpperCase()}
                           {inv.amount.toFixed(2)}
                         </span>
                         {inv.pdf ? (
@@ -1007,24 +1134,44 @@ export default function Account() {
                     </div>
                   ))}
                   {penaltyHistory.map((p) => (
-                    <div key={p.id} className="flex items-center justify-between py-3.5">
+                    <div
+                      key={p.id}
+                      className="flex items-center justify-between py-3.5"
+                    >
                       <div className="flex flex-col gap-0.5">
-                        <p className="text-[14px] font-medium text-ink">{p.reason ?? "Bauda"}</p>
+                        <p className="text-[14px] font-medium text-ink">
+                          {p.reason ?? "Bauda"}
+                        </p>
                         <p className="font-mono text-[11px] text-ink/40">
-                          {new Date(p.created_at ?? "").toLocaleDateString("lt-LT", {
-                            year: "numeric", month: "short", day: "numeric",
-                          })}
+                          {new Date(p.created_at ?? "").toLocaleDateString(
+                            "lt-LT",
+                            {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            }
+                          )}
                         </p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="font-display text-[20px] leading-none text-ink">€{p.amount.toFixed(2)}</span>
-                        <span className={[
-                          "rounded-full border px-2.5 py-0.5 font-mono text-[9px] tracking-[.12em] uppercase",
-                          p.status === "paid" ? "border-green-400 bg-green-50 text-green-600"
-                            : p.status === "forgiven" ? "border-ink/20 bg-ink/5 text-ink/40"
-                            : "border-red-400 bg-red-50 text-red-500",
-                        ].join(" ")}>
-                          {p.status === "paid" ? "Bauda sumokėta" : p.status === "forgiven" ? "Atleista" : "Laukiama"}
+                        <span className="font-display text-[20px] leading-none text-ink">
+                          €{p.amount.toFixed(2)}
+                        </span>
+                        <span
+                          className={[
+                            "rounded-full border px-2.5 py-0.5 font-mono text-[9px] tracking-[.12em] uppercase",
+                            p.status === "paid"
+                              ? "border-green-400 bg-green-50 text-green-600"
+                              : p.status === "forgiven"
+                                ? "border-ink/20 bg-ink/5 text-ink/40"
+                                : "border-red-400 bg-red-50 text-red-500",
+                          ].join(" ")}
+                        >
+                          {p.status === "paid"
+                            ? "Bauda sumokėta"
+                            : p.status === "forgiven"
+                              ? "Atleista"
+                              : "Laukiama"}
                         </span>
                       </div>
                     </div>
@@ -1041,8 +1188,14 @@ export default function Account() {
         <section className="bg-paper py-10 md:py-20">
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.02em] text-ink">
-              Dovanų<br />
-              <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>kortelės.</span>
+              Dovanų
+              <br />
+              <span
+                className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
+                style={{ transformOrigin: "center center" }}
+              >
+                kortelės.
+              </span>
             </h2>
 
             <div className="mt-8">
@@ -1055,23 +1208,44 @@ export default function Account() {
                   {giftCards.map((gc) => {
                     const isBuyer = gc.buyer_email === user?.email
                     const isRecipient = gc.recipient_email === user?.email
-                    const role = isBuyer && isRecipient ? 'Nupirkta sau' : isBuyer ? 'Nupirkta' : 'Gauta'
-                    const isActive = gc.status === 'active'
-                    const isUsed = gc.status === 'used'
-                    const expires = new Date(gc.expires_at).toLocaleDateString('lt-LT', { year: 'numeric', month: 'short', day: 'numeric' })
+                    const role =
+                      isBuyer && isRecipient
+                        ? "Nupirkta sau"
+                        : isBuyer
+                          ? "Nupirkta"
+                          : "Gauta"
+                    const isActive = gc.status === "active"
+                    const isUsed = gc.status === "used"
+                    const expires = new Date(gc.expires_at).toLocaleDateString(
+                      "lt-LT",
+                      { year: "numeric", month: "short", day: "numeric" }
+                    )
 
                     return (
-                      <div key={gc.id} className="brick-card flex flex-col gap-4 bg-paper p-5 md:p-6 sm:flex-row sm:items-center sm:justify-between">
+                      <div
+                        key={gc.id}
+                        className="brick-card flex flex-col gap-4 bg-paper p-5 sm:flex-row sm:items-center sm:justify-between md:p-6"
+                      >
                         <div className="flex flex-col gap-1.5">
                           <div className="flex items-center gap-2.5">
-                            <span className="label-mono text-ink/40">{role}</span>
-                            <span className={[
-                              'rounded-full border px-2.5 py-0.5 font-mono text-[9px] tracking-[.12em] uppercase',
-                              isActive ? 'border-green-400 bg-green-50 text-green-600'
-                                : isUsed ? 'border-ink/20 bg-ink/5 text-ink/40'
-                                : 'border-red-300 bg-red-50 text-red-400',
-                            ].join(' ')}>
-                              {isActive ? 'Aktyvus' : isUsed ? 'Panaudotas' : 'Pasibaigęs'}
+                            <span className="label-mono text-ink/40">
+                              {role}
+                            </span>
+                            <span
+                              className={[
+                                "rounded-full border px-2.5 py-0.5 font-mono text-[9px] tracking-[.12em] uppercase",
+                                isActive
+                                  ? "border-green-400 bg-green-50 text-green-600"
+                                  : isUsed
+                                    ? "border-ink/20 bg-ink/5 text-ink/40"
+                                    : "border-red-300 bg-red-50 text-red-400",
+                              ].join(" ")}
+                            >
+                              {isActive
+                                ? "Aktyvus"
+                                : isUsed
+                                  ? "Panaudotas"
+                                  : "Pasibaigęs"}
                             </span>
                           </div>
                           <span className="font-mono text-[22px] font-bold tracking-[.1em] text-ink">
@@ -1081,16 +1255,20 @@ export default function Account() {
                             €{gc.amount_cents / 100} · Galioja iki {expires}
                           </p>
                           {gc.message && (
-                            <p className="mt-1 max-w-[40ch] text-[13px] italic text-ink/55">"{gc.message}"</p>
+                            <p className="mt-1 max-w-[40ch] text-[13px] text-ink/55 italic">
+                              "{gc.message}"
+                            </p>
                           )}
                         </div>
 
                         {isActive && (
                           <button
                             onClick={() => copyCode(gc.code)}
-                            className="brick-hover-sm self-start rounded-xl border-2 border-ink px-4 py-2.5 font-mono text-[11px] font-bold uppercase tracking-[.1em] text-ink transition-all sm:self-auto"
+                            className="brick-hover-sm self-start rounded-xl border-2 border-ink px-4 py-2.5 font-mono text-[11px] font-bold tracking-[.1em] text-ink uppercase transition-all sm:self-auto"
                           >
-                            {copiedCode === gc.code ? '✓ Nukopijuota' : 'Kopijuoti kodą'}
+                            {copiedCode === gc.code
+                              ? "✓ Nukopijuota"
+                              : "Kopijuoti kodą"}
                           </button>
                         )}
                       </div>
@@ -1108,7 +1286,9 @@ export default function Account() {
       {missingPartOrder && user && (
         <MissingPartDialog
           open={missingPartOrder !== null}
-          onOpenChange={(open) => { if (!open) setMissingPartOrder(null) }}
+          onOpenChange={(open) => {
+            if (!open) setMissingPartOrder(null)
+          }}
           orderId={missingPartOrder.id}
           productId={missingPartOrder.productId}
           productTitle={missingPartOrder.productTitle}
@@ -1119,10 +1299,16 @@ export default function Account() {
       <ReturnDialog
         orderId={returnDialogOrder?.id ?? null}
         productTitle={returnDialogOrder?.productTitle}
-        defaultName={[profile?.name, subscriber?.last_name].filter(Boolean).join(" ") || user?.email?.split("@")[0] || "Klientas"}
+        defaultName={
+          [profile?.name, subscriber?.last_name].filter(Boolean).join(" ") ||
+          user?.email?.split("@")[0] ||
+          "Klientas"
+        }
         defaultPhone={subscriber?.phone ?? ""}
         open={returnDialogOrder !== null}
-        onOpenChange={(open) => { if (!open) setReturnDialogOrder(null) }}
+        onOpenChange={(open) => {
+          if (!open) setReturnDialogOrder(null)
+        }}
         onComplete={onReturnComplete}
       />
 

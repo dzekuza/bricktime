@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { ArrowRightIcon } from "lucide-react"
-import { getPlanDisplayName, getPlanTheme, getPlanBrickSvg } from "@/lib/plan-branding"
+import { getSubscriptionDisplayName, getSubscriptionTheme, getSubscriptionBrickSvg } from "@/lib/subscription-branding"
 
 export type Tier =
   | "nano"
@@ -31,11 +31,12 @@ export interface Product {
   minAge?: number | null
   price?: number | null
   image?: string
+  status: "available" | "limited" | "sold_out"
 }
 
 function planTier(plan: string, level: number) {
-  const theme = getPlanTheme(plan)
-  return { label: getPlanDisplayName(plan), bg: theme?.bg ?? "#1C1C2E", textColor: theme?.textColor ?? "#F5F1EB", level }
+  const theme = getSubscriptionTheme(plan)
+  return { label: getSubscriptionDisplayName(plan), bg: theme?.bg ?? "#1C1C2E", textColor: theme?.textColor ?? "#F5F1EB", level }
 }
 
 
@@ -96,6 +97,7 @@ export function dbToProduct(row: Record<string, unknown>): Product {
     minAge: row.min_age as number | null | undefined,
     price: row.value as number | null | undefined,
     image: row.image_url as string | undefined,
+    status: (status as Product["status"]) ?? "available",
   }
 }
 
@@ -180,7 +182,7 @@ export function ProductCard({ product }: { product: Product }) {
         image={product.image}
         className="relative h-[280px] border-b-2 border-ink"
       >
-        <img src={getPlanBrickSvg(product.requiredTier)} alt="" className="pointer-events-none absolute left-[14px] top-[14px] z-10 h-10 w-auto select-none" />
+        <img src={getSubscriptionBrickSvg(product.requiredTier)} alt="" className="pointer-events-none absolute left-[14px] top-[14px] z-10 h-10 w-auto select-none" />
 
         {product.badge && (
           <div
@@ -227,7 +229,7 @@ export function ProductCard({ product }: { product: Product }) {
             <p className="font-mono text-[12px] font-bold text-ink capitalize">{product.category || "—"}</p>
           </div>
           <div>
-            <p className="label-mono text-ink/40 text-[9px]">Planas</p>
+            <p className="label-mono text-ink/40 text-[9px]">Prenumerata</p>
             <p className="font-mono text-[12px] font-bold text-ink">{tier.label}</p>
           </div>
         </div>

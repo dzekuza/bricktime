@@ -5,8 +5,8 @@ import { supabase } from "@/lib/supabase"
 import type { PlanTier } from "@/lib/database.types"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
-import Plans from "@/components/Plans"
-import type { DbPlan } from "@/hooks/usePlans"
+import Subscriptions from "@/components/Subscriptions"
+import type { DbSubscription } from "@/hooks/useSubscriptions"
 import {
   ArrowRightIcon,
   ShieldCheckIcon,
@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { useReveal } from "@/hooks/useReveal"
-import { usePlans } from "@/hooks/usePlans"
+import { useSubscriptions } from "@/hooks/useSubscriptions"
 
 // ── static data ────────────────────────────────────────────────────────────
 
@@ -34,7 +34,7 @@ const faqs = [
   },
   {
     q: "Ar galiu pasirinkti konkretų rinkinį?",
-    a: "Taip — pasirinkę planą galite naršyti katalogą ir išsirinkti norimą rinkinį pagal savo biudžetą.",
+    a: "Taip — pasirinkę prenumeratą galite naršyti katalogą ir išsirinkti norimą rinkinį pagal savo biudžetą.",
   },
   {
     q: "Kaip veikia grąžinimas?",
@@ -53,7 +53,7 @@ export default function Subscribe() {
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const { user, profile } = useAuth()
-  const { plans } = usePlans()
+  const { subscriptions: plans } = useSubscriptions()
 
   const planIndex = useMemo(
     () => Object.fromEntries(plans.map((p, i) => [p.id, i])),
@@ -149,7 +149,7 @@ export default function Subscribe() {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  function handlePlanSubscribe(selectedP: DbPlan, planBilling: 'monthly' | 'yearly') {
+  function handlePlanSubscribe(selectedP: DbSubscription, planBilling: 'monthly' | 'yearly') {
     navigate(`/checkout?plan=${selectedP.id}&billing=${planBilling}`)
   }
 
@@ -352,7 +352,7 @@ export default function Subscribe() {
               <h1 className="heading-display text-d-xl tracking-[-0.015em] text-ink">
                 {step === "plan" ? (
                   <>
-                    Pasirink planą
+                    Pasirink prenumeratą
                     <br />
                     <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">Pradėk</span>
                     {" "}statyti
@@ -363,7 +363,7 @@ export default function Subscribe() {
               </h1>
               <p className="mt-6 max-w-[46ch] text-[17px] leading-[1.65] text-ink/65">
                 {step === "plan"
-                  ? "Pasirink planą pagal savo biudžetą, mėgstamų rinkinių dydį ir konstravimo patirtį — nuo pirmųjų projektų iki didelių kolekcinių modelių bei išskirtinių premium serijų."
+                  ? "Pasirink prenumeratą pagal savo biudžetą, mėgstamų rinkinių dydį ir konstravimo patirtį — nuo pirmųjų projektų iki didelių kolekcinių modelių bei išskirtinių premium serijų."
                   : `Tik vienas žingsnis iki pirmosios BRICKTIME ${plan?.name ?? ""} dėžutės.`}
               </p>
 
@@ -381,7 +381,7 @@ export default function Subscribe() {
       </section>
 
       {step === "plan" ? (
-        <Plans onSubscribe={handlePlanSubscribe} />
+        <Subscriptions onSubscribe={handlePlanSubscribe} />
       ) : (
         /* ── Payment form ───────────────────────────────────────────── */
         <section className="bg-paper pt-4 pb-20">
@@ -487,7 +487,7 @@ export default function Subscribe() {
                         style={{ color: plan.text_color }}
                       >
                         <span>
-                          {plan.name} planas (
+                          {plan.name} prenumerata (
                           {billing === "monthly" ? "mėnesinis" : "metinis"})
                         </span>
                         <span className="font-display text-xl">
@@ -640,7 +640,7 @@ export default function Subscribe() {
                   onClick={() => setStep("plan")}
                   className="text-center font-mono text-[12px] tracking-[.14em] text-ink/50 uppercase transition-colors hover:text-ink"
                 >
-                  ← Keisti planą
+                  ← Keisti prenumeratą
                 </button>
               </div>
             </div>
@@ -658,7 +658,7 @@ export default function Subscribe() {
             <div className="reveal lg:col-span-12">
               <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink">
                 Palygink<br />
-                <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>planus.</span>
+                <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>prenumeratas.</span>
               </h2>
             </div>
             <div
@@ -768,7 +768,7 @@ export default function Subscribe() {
                 {[
                   { num: "01", title: "Nemokamas pristatymas", body: "Visi LEGO® rinkiniai pristatomi į paštomatą nemokamai visoje Lietuvoje." },
                   { num: "02", title: "Keisk rinkinius bet kada", body: "Surink, grąžink ir išsirink naują rinkinį kada panorėjęs — be papildomų mokesčių." },
-                  { num: "03", title: "Jokių ilgalaikių įsipareigojimų", body: "Pakeisk planą, pristabdyk prenumeratą arba atšauk ją bet kuriuo metu." },
+                  { num: "03", title: "Jokių ilgalaikių įsipareigojimų", body: "Pakeisk prenumeratą, pristabdyk ją arba atšauk bet kuriuo metu." },
                   { num: "04", title: "Nauji rinkiniai kas mėnesį", body: "Atrask naujus LEGO® modelius ir gauk ankstyvą prieigą prie naujų papildymų." },
                 ].map((item, i) => (
                   <div
@@ -866,14 +866,14 @@ export default function Subscribe() {
                   </span>
                 </h3>
                 <p className="mt-3 text-[15px] leading-[1.6] text-paper/70">
-                  Pasirink planą, išsirink norimus modelius ir keisk juos kada panorėjęs — be ilgalaikių įsipareigojimų.
+                  Pasirink prenumeratą, išsirink norimus modelius ir keisk juos kada panorėjęs — be ilgalaikių įsipareigojimų.
                 </p>
               </div>
               <a
-                href="#plans"
+                href="#subscriptions"
                 className="mt-6 inline-flex items-center justify-center rounded-full border-2 border-ink bg-brand-yellow px-6 py-3 text-center text-[15px] font-bold text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,0,0,.2)]"
               >
-                Pasirinkti planą →
+                Pasirinkti prenumeratą →
               </a>
             </div>
 

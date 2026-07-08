@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import gsap from "gsap"
 import {
   Accordion,
@@ -7,29 +7,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { useReveal } from "@/hooks/useReveal"
-
-const faqs = [
-  {
-    q: "Ar visi rinkiniai yra originalūs?",
-    a: "Aukštos kokybės ABS plastikas prie pramoninio standarto 1,6 mm tolerancijos. Visiškai suderinamos su bet kokios suderinamos markės kaladėlėmis — užsispaudžia, laiko ir išsiskiria švariai.",
-  },
-  {
-    q: "Kas jei trūksta detalės?",
-    a: "Praneši mums — išsiųsime trūkstamą detalę nemokamai. Kiekvienas rinkinys tikrinamas prieš išsiunčiant, tačiau jei kažkas pasimeta kelyje, sutvarkome be jokių papildomų klausimų.",
-  },
-  {
-    q: "Ar galiu pasirinkti konkretų rinkinį?",
-    a: "Taip! Katalogas atviras visiems prenumeratoriams — rinksies pagal savo planą ir biudžetą. Kuo aukštesnis planas, tuo daugiau rinkinių prieinama.",
-  },
-  {
-    q: "Kaip veikia grąžinimas?",
-    a: "Iš paskyros skydelio užsakyk nemokamą grąžinimo etiketę, supakuok rinkinį ir išsiųsk. Kai tik grąžinimas patvirtinamas — biudžetas atsinaujina ir gali rinktis naujus rinkinius.",
-  },
-  {
-    q: "Ar galiu pristabdyti prenumeratą?",
-    a: "Taip, prenumeratą galima pristabdyti bet kada iš paskyros. Pristabdymo metu mokestis neskaičiuojamas, o likęs biudžetas išsaugomas.",
-  },
-]
+import { Button } from "@/components/ui/button"
+import { faqs } from "@/data/faq"
 
 const stats = [
   { value: "12 400+", label: "Aktyvūs prenumeratoriai", yellow: false },
@@ -39,6 +18,7 @@ const stats = [
 ]
 
 export default function FAQ() {
+  const [expanded, setExpanded] = useState(false)
   const ref = useReveal<HTMLDivElement>()
   const zeroRiskRef = useRef<HTMLSpanElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -102,7 +82,7 @@ export default function FAQ() {
               defaultValue="item-0"
               className="mt-6"
             >
-              {faqs.map((faq, i) => (
+              {(expanded ? faqs : faqs.slice(0, 8)).map((faq, i) => (
                 <AccordionItem key={i} value={`item-${i}`} className="py-0.5">
                   <AccordionTrigger className="py-4 text-left text-[16px] leading-snug font-bold hover:no-underline">
                     {faq.q}
@@ -115,6 +95,14 @@ export default function FAQ() {
                 </AccordionItem>
               ))}
             </Accordion>
+
+            <Button
+              variant="outline"
+              onClick={() => setExpanded((v) => !v)}
+              className="mt-4 rounded-full border-2 border-ink bg-paper text-[14px] font-bold text-ink hover:bg-paper hover:text-ink brick-hover-sm"
+            >
+              {expanded ? "Rodyti mažiau" : "Rodyti daugiau"}
+            </Button>
           </div>
 
           {/* Stats tile — col-span-5 */}
@@ -160,7 +148,7 @@ export default function FAQ() {
                 Vis dar abejoji?
               </p>
               <h3 className="heading-display text-d-sm mt-3 leading-[.9] text-paper">
-                Naujausi
+                Nebesiribok
                 <br />
                 <span
                   ref={zeroRiskRef}
@@ -170,19 +158,19 @@ export default function FAQ() {
                     transformOrigin: "center",
                   }}
                 >
-                  Lego Rinkiniai.
+                  Konstruok!
                 </span>
               </h3>
               <p className="mt-3 text-[15px] leading-[1.6] text-paper/70">
-                Pasirink planą, išsirink norimus modelius ir keisk juos kada
-                panorėjęs — be ilgalaikių įsipareigojimų.
+                Prisijunk prie Brick Time ir atrask įspūdingiausius LEGO®
+                rinkinius be didelių išlaidų.
               </p>
             </div>
             <a
-              href="#plans"
+              href="#subscriptions"
               className="mt-6 inline-flex items-center justify-center rounded-full border-2 border-ink bg-brand-yellow px-6 py-3 text-center text-[15px] font-bold text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,0,0,.2)]"
             >
-              Pasirinkti planą →
+              Pasirinkti prenumeratą →
             </a>
           </div>
         </div>
