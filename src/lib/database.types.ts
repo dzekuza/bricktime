@@ -776,6 +776,8 @@ export type Database = {
           phone: string | null
           plan: Database["public"]["Enums"]["plan_tier"]
           postal_code: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           status: Database["public"]["Enums"]["subscriber_status"]
           street: string | null
           updated_at: string
@@ -797,6 +799,8 @@ export type Database = {
           phone?: string | null
           plan?: Database["public"]["Enums"]["plan_tier"]
           postal_code?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           status?: Database["public"]["Enums"]["subscriber_status"]
           street?: string | null
           updated_at?: string
@@ -818,6 +822,8 @@ export type Database = {
           phone?: string | null
           plan?: Database["public"]["Enums"]["plan_tier"]
           postal_code?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           status?: Database["public"]["Enums"]["subscriber_status"]
           street?: string | null
           updated_at?: string

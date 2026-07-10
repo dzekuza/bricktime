@@ -1,4 +1,5 @@
 import Stripe from "https://esm.sh/stripe@14.21.0"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2024-06-20",
@@ -16,16 +17,35 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { userEmail } = await req.json()
+    const { userId, userEmail } = await req.json()
 
-    const customers = await stripe.customers.list({ email: userEmail, limit: 1 })
-    if (!customers.data.length) {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    )
+
+    let customerId: string | null = null
+
+    if (userId) {
+      const { data: subscriber } = await supabase
+        .from("subscribers")
+        .select("stripe_customer_id")
+        .eq("id", userId)
+        .maybeSingle()
+      customerId = subscriber?.stripe_customer_id ?? null
+    }
+
+    if (!customerId) {
+      const customers = await stripe.customers.list({ email: userEmail, limit: 1 })
+      customerId = customers.data[0]?.id ?? null
+    }
+
+    if (!customerId) {
       return new Response(JSON.stringify({ invoices: [] }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       })
     }
 
-    const customerId = customers.data[0].id
     const invoices = await stripe.invoices.list({
       customer: customerId,
       limit: 24,

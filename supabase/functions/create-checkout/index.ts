@@ -64,7 +64,18 @@ Deno.serve(async (req) => {
       client_reference_id: userId,
       success_url: successUrl,
       cancel_url: cancelUrl,
-      metadata: { userId, planKey },
+      metadata: {
+        userId,
+        planKey,
+        homeDelivery: homeDelivery ? "true" : "false",
+      },
+      subscription_data: {
+        metadata: {
+          userId,
+          planKey,
+          homeDelivery: homeDelivery ? "true" : "false",
+        },
+      },
     })
 
     if (giftCardCode) {

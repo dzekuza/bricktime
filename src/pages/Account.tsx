@@ -370,7 +370,7 @@ export default function Account() {
 
     setBillingLoading(true)
     supabase.functions
-      .invoke("get-billing-history", { body: { userEmail: user.email } })
+      .invoke("get-billing-history", { body: { userId: user.id, userEmail: user.email } })
       .then(({ data }) => {
         if (data?.invoices) setStripeInvoices(data.invoices)
         setBillingLoading(false)
@@ -504,7 +504,7 @@ export default function Account() {
     const { data, error } = await supabase.functions.invoke(
       "create-billing-portal",
       {
-        body: { userEmail: user.email, returnUrl: window.location.href },
+        body: { userId: user.id, userEmail: user.email, returnUrl: window.location.href },
       }
     )
     setPortalLoading(false)
