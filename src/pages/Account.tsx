@@ -13,6 +13,9 @@ import { ReturnDialog } from "@/components/ReturnDialog"
 import { ProfileEditDialog } from "@/components/ProfileEditDialog"
 import { fetchLabelPdf, downloadPdf } from "@/lib/lpexpress"
 
+const HOME_DELIVERY_PLANS = ["pro", "mega", "mystery_s", "mystery_m"]
+const HOME_DELIVERY_FEE = 3
+
 // ── predefined avatars ──────────────────────────────────────────────────────
 const avatarOptions = [
   {
@@ -52,6 +55,7 @@ interface SubscriberData {
   flat?: string | null
   city?: string | null
   postal_code?: string | null
+  home_delivery?: boolean
 }
 
 interface AchievementRecord {
@@ -235,6 +239,7 @@ export default function Account() {
   const [portalLoading, setPortalLoading] = useState(false)
   const [portalError, setPortalError] = useState("")
   const [selectedTier, setSelectedTier] = useState(2)
+  const [upgradeHomeDelivery, setUpgradeHomeDelivery] = useState(false)
   const [missingPartOrder, setMissingPartOrder] = useState<RentedOrder | null>(
     null
   )
@@ -309,12 +314,15 @@ export default function Account() {
     if (q.get("plan_changed") !== "true" || !user) return
     const planKey = q.get("plan") as PlanTier | null
     if (!planKey) return
+    const hasHomeDelivery = q.get("home_delivery") === "1"
     supabase
       .from("subscribers")
-      .update({ plan: planKey, status: "active" })
+      .update({ plan: planKey, status: "active", home_delivery: hasHomeDelivery })
       .eq("id", user.id)
       .then(() => {
-        setSubscriber((s) => (s ? { ...s, plan: planKey } : s))
+        setSubscriber((s) =>
+          s ? { ...s, plan: planKey, home_delivery: hasHomeDelivery } : s
+        )
         setShowUpgrade(false)
         window.history.replaceState({}, "", "/account")
       })
@@ -330,7 +338,7 @@ export default function Account() {
       supabase
         .from("subscribers")
         .select(
-          "plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code"
+          "plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code, home_delivery"
         )
         .eq("id", user.id)
         .single(),
@@ -356,6 +364,23 @@ export default function Account() {
       setPostCount(count ?? 0)
     })
   }, [user])
+
+  useEffect(() => {
+    const selected = tierOptions[selectedTier]
+    const eligible = HOME_DELIVERY_PLANS.includes(selected?.key ?? "")
+
+    if (!eligible) {
+      setUpgradeHomeDelivery(false)
+      return
+    }
+
+    if (selected?.key === subscriber?.plan) {
+      setUpgradeHomeDelivery(subscriber?.home_delivery ?? false)
+      return
+    }
+
+    setUpgradeHomeDelivery(false)
+  }, [selectedTier, subscriber])
 
   useEffect(() => {
     if (!user?.email) return
@@ -473,6 +498,8 @@ export default function Account() {
   async function handlePlanChange() {
     if (!user) return
     const newTier = tierOptions[selectedTier] ?? FALLBACK_TIER
+    const isHomeDeliveryEligible = HOME_DELIVERY_PLANS.includes(newTier.key)
+    const nextHomeDelivery = isHomeDeliveryEligible && upgradeHomeDelivery
     if (newTier.key === subscriber?.plan) {
       setPlanChangeError("Jau esi šiame plane.")
       return
@@ -485,8 +512,9 @@ export default function Account() {
         planKey: newTier.key,
         userId: user.id,
         userEmail: user.email ?? "",
-        successUrl: `${origin}/account?plan_changed=true&plan=${newTier.key}`,
+        successUrl: `${origin}/account?plan_changed=true&plan=${newTier.key}${nextHomeDelivery ? "&home_delivery=1" : ""}`,
         cancelUrl: `${origin}/account`,
+        homeDelivery: nextHomeDelivery,
       },
     })
     setPlanChanging(false)
@@ -789,6 +817,43 @@ export default function Account() {
                   ))}
                 </div>
                 <div className="mt-5 flex flex-col gap-3">
+                  {HOME_DELIVERY_PLANS.includes(
+                    tierOptions[selectedTier]?.key ?? ""
+                  ) && (
+                    <div className="rounded-2xl border-2 border-ink/15 bg-ink/[.03] p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-semibold text-ink">
+                            Kurjeris į duris
+                          </span>
+                          <span className="font-mono text-[11px] text-ink/55">
+                            +€{HOME_DELIVERY_FEE}/mėn.
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={upgradeHomeDelivery}
+                          onClick={() => setUpgradeHomeDelivery((v) => !v)}
+                          className="relative h-6 w-11 shrink-0 rounded-full border-2 border-ink transition-colors"
+                          style={{
+                            background: upgradeHomeDelivery
+                              ? "#001B21"
+                              : "rgba(0,27,33,0.15)",
+                          }}
+                        >
+                          <span
+                            className="absolute top-0.5 h-4 w-4 rounded-full border-2 border-ink bg-paper transition-transform"
+                            style={{
+                              transform: upgradeHomeDelivery
+                                ? "translateX(20px)"
+                                : "translateX(2px)",
+                            }}
+                          />
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   {planChangeError && (
                     <p className="font-mono text-[11px] text-red-500">
                       {planChangeError}

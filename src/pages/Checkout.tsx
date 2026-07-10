@@ -632,7 +632,7 @@ export default function Checkout() {
                     <div>
                       <p className="label-mono text-ink/40">Pristatymas</p>
                       <p className="mt-0.5 font-display text-[15px] text-ink">
-                        {homeDelivery ? "Į duris" : "Paštomatas"}
+                        {homeDelivery ? "Kurjeris į duris" : "Paštomatas"}
                       </p>
                     </div>
                     <span
@@ -861,7 +861,7 @@ export default function Checkout() {
                           },
                           {
                             value: true,
-                            label: "Į duris",
+                            label: "Kurjeris į duris",
                             note: `+€${HOME_DELIVERY_FEE}`,
                             accent: "bg-brand-yellow",
                           },

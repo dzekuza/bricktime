@@ -57,6 +57,9 @@ const bricks: BrickEntry[] = [
 const FLOAT_AMP = 12
 // Seconds before the drop
 
+const HERO_VIDEO_SRC = '/hero-video.mp4'
+const HERO_VIDEO_POSTER = '/hero-video-poster.jpeg'
+
 export default function Hero() {
   const bricksRef = useRef<HTMLDivElement>(null)
   const spanRef = useRef<HTMLSpanElement>(null)
@@ -197,15 +200,21 @@ export default function Hero() {
 
       {/* Video below bricks scope */}
       <div className="mx-auto max-w-[1320px] px-4 md:px-7 pb-16">
-        <div className="w-full overflow-hidden rounded-[28px] md:rounded-3xl border-2 border-ink shadow-[6px_6px_0_#001B21] aspect-[4/3] md:aspect-[16/7]">
+        <div className="relative w-full overflow-hidden rounded-[28px] border-2 border-ink shadow-[6px_6px_0_#001B21] aspect-[4/3] md:aspect-[16/7] md:rounded-3xl">
+          <img
+            src={HERO_VIDEO_POSTER}
+            alt="BRICKTIME hero"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
           <video
-            className="h-full w-full object-cover"
+            className="relative z-[1] h-full w-full object-cover"
             autoPlay
             muted
             loop
             playsInline
+            poster={HERO_VIDEO_POSTER}
           >
-            <source src="/hero-video.mp4" type="video/mp4" />
+            <source src={HERO_VIDEO_SRC} type="video/mp4" />
           </video>
         </div>
       </div>
