@@ -13,6 +13,7 @@ import MerchPage from '@/pages/Merch'
 import MerchDrop from '@/pages/MerchDrop'
 import GiftCards from '@/pages/GiftCards'
 import About from '@/pages/About'
+import PrivacyPolicy from '@/pages/PrivacyPolicy'
 import LoadingScreen from '@/components/LoadingScreen'
 
 export default function App() {
@@ -49,6 +50,7 @@ export default function App() {
         <Route path="/pristatymas" element={<ShippingPage />} />
         <Route path="/grazinimai" element={<ReturnsPage />} />
         <Route path="/apie" element={<About />} />
+        <Route path="/privatumo-politika" element={<PrivacyPolicy />} />
       </Routes>
     </>
   )
