@@ -1,33 +1,46 @@
-import { useState, useCallback, useEffect } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
-import Home from '@/pages/Home'
-import Archive from '@/pages/Archive'
-import Account from '@/pages/Account'
-import Subscribe from '@/pages/Subscribe'
-import Checkout from '@/pages/Checkout'
-import Community from '@/pages/Community'
-import Drop from '@/pages/Drop'
-import UserProfile from '@/pages/UserProfile'
-import { FAQPage, PausePage, ReturnsPage, ShippingPage } from '@/pages/HelpPages'
-import MerchPage from '@/pages/Merch'
-import MerchDrop from '@/pages/MerchDrop'
-import GiftCards from '@/pages/GiftCards'
-import About from '@/pages/About'
-import PrivacyPolicy from '@/pages/PrivacyPolicy'
-import LoadingScreen from '@/components/LoadingScreen'
+import { useState, useCallback, useEffect } from "react"
+import { Routes, Route, useLocation } from "react-router-dom"
+import Home from "@/pages/Home"
+import Archive from "@/pages/Archive"
+import Account from "@/pages/Account"
+import Subscribe from "@/pages/Subscribe"
+import Checkout from "@/pages/Checkout"
+import Community from "@/pages/Community"
+import Drop from "@/pages/Drop"
+import UserProfile from "@/pages/UserProfile"
+import {
+  FAQPage,
+  PausePage,
+  ReturnsPage,
+  ShippingPage,
+} from "@/pages/HelpPages"
+import MerchPage from "@/pages/Merch"
+import MerchDrop from "@/pages/MerchDrop"
+import GiftCards from "@/pages/GiftCards"
+import About from "@/pages/About"
+import PrivacyPolicy from "@/pages/PrivacyPolicy"
+import LoadingScreen from "@/components/LoadingScreen"
+import CookieConsentBanner from "@/components/CookieConsentBanner"
+import { useConsentContext } from "@/contexts/ConsentContext"
+import { trackPageview } from "@/lib/analytics"
 
 export default function App() {
-  const [loaded, setLoaded] = useState(() => window.location.pathname !== '/')
+  const [loaded, setLoaded] = useState(() => window.location.pathname !== "/")
   const handleDone = useCallback(() => setLoaded(true), [])
   const location = useLocation()
+  const { analyticsGranted } = useConsentContext()
 
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" })
   }, [location.pathname, location.search])
+
+  useEffect(() => {
+    if (analyticsGranted) trackPageview(location.pathname)
+  }, [location.pathname, analyticsGranted])
 
   // If user navigates away from '/' before the loading screen finishes, dismiss it immediately
   useEffect(() => {
-    if (location.pathname !== '/') setLoaded(true)
+    if (location.pathname !== "/") setLoaded(true)
   }, [location.pathname])
 
   return (
@@ -52,6 +65,7 @@ export default function App() {
         <Route path="/apie" element={<About />} />
         <Route path="/privatumo-politika" element={<PrivacyPolicy />} />
       </Routes>
+      <CookieConsentBanner />
     </>
   )
 }
