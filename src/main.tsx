@@ -3,21 +3,16 @@ import { createRoot } from "react-dom/client"
 import { BrowserRouter } from "react-router-dom"
 
 if (import.meta.env.DEV) {
-  // @ts-expect-error -- react-grab has no types
-  import("react-grab").then(
-    ({
-      unregisterPlugin,
-      registerPlugin,
-      claudeChatPlugin,
-    }: {
-      unregisterPlugin: (s: string) => void
-      registerPlugin: (p: unknown) => void
-      claudeChatPlugin: unknown
-    }) => {
-      unregisterPlugin("comment")
-      registerPlugin(claudeChatPlugin)
-    }
-  )
+  import("react-grab").then((mod) => {
+    const { unregisterPlugin, registerPlugin, claudeChatPlugin } =
+      mod as unknown as {
+        unregisterPlugin: (s: string) => void
+        registerPlugin: (p: unknown) => void
+        claudeChatPlugin: unknown
+      }
+    unregisterPlugin("comment")
+    registerPlugin(claudeChatPlugin)
+  })
 }
 
 import "./index.css"

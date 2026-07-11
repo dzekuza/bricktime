@@ -41,10 +41,10 @@ export function loadMetaPixel() {
   if (pixelLoaded || !META_PIXEL_ID) return
   pixelLoaded = true
 
-  const fbq: Window["fbq"] = function (...args: unknown[]) {
-    if (fbq!.callMethod) fbq!.callMethod(...args)
-    else fbq!.queue!.push(args)
-  }
+  const fbq = function (...args: unknown[]) {
+    if (fbq.callMethod) fbq.callMethod(...args)
+    else fbq.queue!.push(args)
+  } as NonNullable<Window["fbq"]>
   fbq.queue = []
   fbq.loaded = true
   fbq.version = "2.0"
