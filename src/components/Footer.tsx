@@ -1,27 +1,31 @@
-import { Link } from 'react-router-dom'
-import { Separator } from '@/components/ui/separator'
+import { Link } from "react-router-dom"
+import { Separator } from "@/components/ui/separator"
 
 const footerLinks = {
   Atrask: [
-    { label: 'Prenumeratos', href: '/subscribe' },
-    { label: 'Rinkiniai', href: '/archive' },
-    { label: 'Bendruomenė', href: '/community' },
-    { label: 'Dovanų kortelės', href: '/gift-cards' },
+    { label: "Prenumeratos", href: "/subscribe" },
+    { label: "Rinkiniai", href: "/archive" },
+    { label: "Bendruomenė", href: "/community" },
+    { label: "Dovanų kortelės", href: "/gift-cards" },
   ],
   Pagalba: [
-    { label: 'D.U.K.', href: '/duk' },
-    { label: 'Kontaktai', href: 'mailto:info@bricktime.lt' },
-    { label: 'Pristatymas', href: '/pristatymas' },
-    { label: 'Grąžinimai', href: '/grazinimai' },
+    { label: "D.U.K.", href: "/duk" },
+    { label: "Kontaktai", href: "mailto:info@bricktime.lt" },
+    { label: "Pristatymas", href: "/pristatymas" },
+    { label: "Grąžinimai", href: "/grazinimai" },
   ],
   Įmonė: [
-    { label: 'Apie mus', href: '/apie' },
-    { label: 'Merch', href: '/merch' },
-    { label: 'Privatumo politika', href: '/privatumo-politika' },
+    { label: "Apie mus", href: "/apie" },
+    { label: "Merch", href: "/merch" },
+    { label: "Privatumo politika", href: "/privatumo-politika" },
   ],
 }
 
-const socials = ['Facebook', 'Instagram', 'TikTok']
+const socials = [
+  { label: "Facebook", href: "#" },
+  { label: "Instagram", href: "https://www.instagram.com/bricktimeuk/" },
+  { label: "TikTok", href: "#" },
+]
 
 export default function Footer() {
   return (
@@ -33,16 +37,20 @@ export default function Footer() {
           <div className="col-span-2 md:col-span-1">
             <img src="/bricktime.svg" alt="BRICKTIME" className="h-12 w-auto" />
             <p className="mt-4 max-w-[32ch] text-[14px] leading-relaxed text-ink/60">
-              Pirmoji originalių LEGO® rinkinių prenumerata Lietuvoje. Konstruok daugiau, atrask naujus projektus ir mėgaukis LEGO® be didelių išlaidų.
+              Pirmoji originalių LEGO® rinkinių prenumerata Lietuvoje. Konstruok
+              daugiau, atrask naujus projektus ir mėgaukis LEGO® be didelių
+              išlaidų.
             </p>
             <div className="mt-6 flex gap-2.5">
               {socials.map((s) => (
                 <a
-                  key={s}
-                  href="#"
+                  key={s.label}
+                  href={s.href}
+                  target={s.href === "#" ? undefined : "_blank"}
+                  rel={s.href === "#" ? undefined : "noopener noreferrer"}
                   className="rounded-full border-2 border-ink px-3.5 py-1.5 text-[13px] font-semibold text-ink transition-colors hover:bg-ink hover:text-paper"
                 >
-                  {s}
+                  {s.label}
                 </a>
               ))}
             </div>
@@ -51,12 +59,10 @@ export default function Footer() {
           {/* Links */}
           {Object.entries(footerLinks).map(([section, links]) => (
             <div key={section}>
-              <h4 className="mb-4 label-mono text-ink/40">
-                {section}
-              </h4>
+              <h4 className="label-mono mb-4 text-ink/40">{section}</h4>
               <ul className="flex flex-col gap-2.5">
                 {links.map((link) =>
-                  link.href.startsWith('mailto:') ? (
+                  link.href.startsWith("mailto:") ? (
                     <li key={link.label}>
                       <a
                         href={link.href}
@@ -85,10 +91,15 @@ export default function Footer() {
 
         <div className="flex flex-wrap justify-between gap-4 font-mono text-[13px] text-ink/50">
           <span>© 2026 Brick Time MB.</span>
-          <span>BRICKTIME™ — originalus prekės ženklas · nesusijęs su jokiu žaislų gamintoju</span>
+          <span>
+            BRICKTIME™ — originalus prekės ženklas · nesusijęs su jokiu žaislų
+            gamintoju
+          </span>
         </div>
         <p className="mt-3 max-w-[68ch] text-[11px] leading-relaxed text-ink/35">
-          LEGO® yra registruotas prekės ženklas, priklausantis „LEGO Group“ įmonių grupei, kuri nėra susijusi, neremia ir kitaip neprisideda prie šios veiklos vystymo.
+          LEGO® yra registruotas prekės ženklas, priklausantis „LEGO Group“
+          įmonių grupei, kuri nėra susijusi, neremia ir kitaip neprisideda prie
+          šios veiklos vystymo.
         </p>
       </div>
     </footer>
