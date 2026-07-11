@@ -62,7 +62,7 @@ export default function FAQ() {
             <img
               src="/faq-mascot.svg"
               alt=""
-              className="absolute right-6 top-6 w-[100px] md:w-[128px]"
+              className="absolute top-6 right-6 w-[100px] md:w-[128px]"
               aria-hidden="true"
             />
             <h2 className="heading-display text-d-lg mt-3 text-ink">
@@ -99,20 +99,18 @@ export default function FAQ() {
             <Button
               variant="outline"
               onClick={() => setExpanded((v) => !v)}
-              className="mt-4 rounded-full border-2 border-ink bg-paper text-[14px] font-bold text-ink hover:bg-paper hover:text-ink brick-hover-sm"
+              className="brick-hover-sm mt-4 rounded-full border-2 border-ink bg-paper text-[14px] font-bold text-ink hover:bg-paper hover:text-ink"
             >
               {expanded ? "Rodyti mažiau" : "Rodyti daugiau"}
             </Button>
           </div>
 
           {/* Stats tile — col-span-5 */}
-          <div
-            className="reveal grid grid-cols-2 gap-4 rounded-2xl border-2 border-ink bg-ink p-6 shadow-[6px_6px_0_rgba(245,241,235,.1)] md:rounded-3xl md:p-8 lg:col-span-5"
-          >
+          <div className="reveal grid grid-cols-2 gap-4 rounded-2xl border-2 border-ink bg-ink p-6 shadow-[6px_6px_0_rgba(245,241,235,.1)] md:rounded-3xl md:p-8 lg:col-span-5">
             {stats.map((s, i) => (
               <div
                 key={i}
-                className={`flex md:min-h-[100px] flex-col justify-between rounded-xl p-3 md:rounded-2xl md:p-5 ${
+                className={`flex flex-col justify-between rounded-xl p-3 md:min-h-[100px] md:rounded-2xl md:p-5 ${
                   s.yellow
                     ? "border-2 border-paper bg-brand-yellow"
                     : "border border-paper/15"
@@ -121,15 +119,19 @@ export default function FAQ() {
                 {s.yellow ? (
                   <p className="font-display leading-[.9]">
                     <span className="text-[22px] text-ink">★</span>
-                    <span className="text-[36px] md:text-[44px] text-ink">{s.value}</span>
+                    <span className="text-[36px] text-ink md:text-[44px]">
+                      {s.value}
+                    </span>
                     <span className="text-[18px] text-ink/50">/5</span>
                   </p>
                 ) : (
-                  <p className="text-[28px] md:text-d-xs font-display leading-[.9] text-paper">
+                  <p className="md:text-d-xs font-display text-[28px] leading-[.9] text-paper">
                     {s.value}
                   </p>
                 )}
-                <div className={`mt-2 font-mono text-[10px] tracking-[.16em] uppercase ${s.yellow ? "text-ink/50" : "text-paper/50"}`}>
+                <div
+                  className={`mt-2 font-mono text-[10px] tracking-[.16em] uppercase ${s.yellow ? "text-ink/50" : "text-paper/50"}`}
+                >
                   {s.label}
                 </div>
               </div>
@@ -167,7 +169,7 @@ export default function FAQ() {
               </p>
             </div>
             <a
-              href="#subscriptions"
+              href="/subscribe"
               className="mt-6 inline-flex items-center justify-center rounded-full border-2 border-ink bg-brand-yellow px-6 py-3 text-center text-[15px] font-bold text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,0,0,.2)]"
             >
               Pasirinkti prenumeratą →

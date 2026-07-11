@@ -3,37 +3,47 @@ import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import { ChevronDownIcon, CheckIcon, XIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { supabase } from "@/lib/supabase"
 import { SERIES } from "@/lib/series"
-import { ProductCard, dbToProduct, type Product } from "@/components/ProductCard"
+import {
+  ProductCard,
+  dbToProduct,
+  type Product,
+} from "@/components/ProductCard"
 import { NextDrop } from "@/components/NextDrop"
 
 // ── types ──────────────────────────────────────────────────────────────────
 
 // ── filter constants ────────────────────────────────────────────────────────
 const SUBSCRIPTION_CHIPS = [
-  { key: "nano",      label: "Mėgėjas" },
-  { key: "mini",      label: "Kūrėjas" },
-  { key: "standard",  label: "Meistras" },
-  // NOTE: client's approved list says "Pro -> Legenda", but the rest of the
-  // codebase already pairs "Legenda" with "mega" (see subscription-branding.ts).
-  // Kept "pro" as "Pro" pending clarification.
-  { key: "pro",       label: "Pro" },
-  { key: "mega",      label: "Legenda" },
+  { key: "nano", label: "Mėgėjas" },
+  { key: "mini", label: "Kūrėjas" },
+  { key: "standard", label: "Meistras" },
+  { key: "legenda", label: "Legenda" },
   { key: "mystery_s", label: "Mystery Box S" },
   { key: "mystery_m", label: "Mystery Box M" },
 ] as const
+
+// "Legenda" is a single client-facing tier name covering two underlying DB
+// tiers ("pro" and "mega") — expand it when matching products.
+const TIER_GROUPS: Record<string, string[]> = {
+  legenda: ["pro", "mega"],
+}
 
 const AGE_CHIPS = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18] as const
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 // ── sort popover ────────────────────────────────────────────────────────────
 const SORT_OPTIONS = [
-  { value: "popular",   label: "Populiariausi" },
-  { value: "newest",    label: "Naujausi" },
+  { value: "popular", label: "Populiariausi" },
+  { value: "newest", label: "Naujausi" },
   { value: "bricks-desc", label: "Daugiausia detalių" },
-  { value: "bricks-asc",  label: "Mažiausia detalių" },
+  { value: "bricks-asc", label: "Mažiausia detalių" },
   { value: "available", label: "Laisvi dabar" },
 ] as const
 
@@ -52,16 +62,24 @@ function SortPopover({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-4 py-1.5 brick-hover-sm data-[state=open]:bg-ink data-[state=open]:text-paper">
-          <span className="label-mono whitespace-nowrap font-bold">Rūšiuoti: {label}</span>
+        <button className="brick-hover-sm flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-4 py-1.5 data-[state=open]:bg-ink data-[state=open]:text-paper">
+          <span className="label-mono font-bold whitespace-nowrap">
+            Rūšiuoti: {label}
+          </span>
           <ChevronDownIcon className="size-3 text-current opacity-50" />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-56 rounded-2xl border-2 border-ink p-1 shadow-[4px_4px_0_#001B21]">
+      <PopoverContent
+        align="end"
+        className="w-56 rounded-2xl border-2 border-ink p-1 shadow-[4px_4px_0_#001B21]"
+      >
         {SORT_OPTIONS.map((opt) => (
           <button
             key={opt.value}
-            onClick={() => { onChange(opt.value); setOpen(false) }}
+            onClick={() => {
+              onChange(opt.value)
+              setOpen(false)
+            }}
             className="flex w-full items-center justify-between rounded-xl px-3 py-2 hover:bg-ink/5"
           >
             <span className="label-mono whitespace-nowrap">{opt.label}</span>
@@ -98,12 +116,12 @@ function FilterPopover({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button
-          className="flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-4 py-1.5 brick-hover-sm data-[state=open]:bg-ink data-[state=open]:text-paper"
-        >
-          <span className="label-mono whitespace-nowrap font-bold">{label}</span>
+        <button className="brick-hover-sm flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-4 py-1.5 data-[state=open]:bg-ink data-[state=open]:text-paper">
+          <span className="label-mono font-bold whitespace-nowrap">
+            {label}
+          </span>
           {active && (
-            <span className="flex size-4 items-center justify-center rounded-full bg-ink/10 text-[10px] font-bold leading-none text-ink">
+            <span className="flex size-4 items-center justify-center rounded-full bg-ink/10 text-[10px] leading-none font-bold text-ink">
               {selected.length}
             </span>
           )}
@@ -123,10 +141,8 @@ function FilterPopover({
                 key={value}
                 onClick={() => toggle(value)}
                 className={[
-                  "flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left font-mono text-[11px] tracking-[.04em] uppercase font-semibold transition-colors",
-                  checked
-                    ? "bg-ink text-paper"
-                    : "text-ink hover:bg-ink/5",
+                  "flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left font-mono text-[11px] font-semibold tracking-[.04em] uppercase transition-colors",
+                  checked ? "bg-ink text-paper" : "text-ink hover:bg-ink/5",
                 ].join(" ")}
               >
                 <span
@@ -148,7 +164,7 @@ function FilterPopover({
           <div className="mt-1 border-t border-ink/10 pt-1">
             <button
               onClick={() => onChange([])}
-              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 font-mono text-[10px] tracking-[.06em] uppercase text-ink/40 transition-colors hover:text-ink"
+              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 font-mono text-[10px] tracking-[.06em] text-ink/40 uppercase transition-colors hover:text-ink"
             >
               <XIcon className="size-3" />
               Išvalyti
@@ -182,8 +198,11 @@ export default function Archive() {
 
   const filteredProducts = products
     .filter((p) => {
-      const tierOk = tierFilter.length === 0 || tierFilter.includes(p.requiredTier)
-      const seriesOk = seriesFilter.length === 0 || seriesFilter.includes(p.category)
+      const tierOk =
+        tierFilter.length === 0 ||
+        tierFilter.some((t) => (TIER_GROUPS[t] ?? [t]).includes(p.requiredTier))
+      const seriesOk =
+        seriesFilter.length === 0 || seriesFilter.includes(p.category)
       const ageOk =
         ageFilter.length === 0 ||
         p.minAge == null ||
@@ -194,7 +213,11 @@ export default function Archive() {
     .sort((a, b) => {
       if (sortBy === "bricks-desc") return b.bricks - a.bricks
       if (sortBy === "bricks-asc") return a.bricks - b.bricks
-      if (sortBy === "popular") return Number(b.featured) - Number(a.featured) || (b.id as number) - (a.id as number)
+      if (sortBy === "popular")
+        return (
+          Number(b.featured) - Number(a.featured) ||
+          (b.id as number) - (a.id as number)
+        )
       // "newest" and "available" both fall back to newest-first ordering
       return (b.id as number) - (a.id as number)
     })
@@ -218,21 +241,25 @@ export default function Archive() {
           <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
             <div>
               <h1 className="heading-display text-d-xl tracking-[-0.015em] text-ink">
-                Visi rinkiniai<br />
+                Visi rinkiniai
+                <br />
                 <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">
                   vienoje
                 </span>{" "}
                 vietoje
               </h1>
               <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">
-                Vos keli paprasti žingsniai iki naujo konstravimo projekto tavo namuose. Pasirink prenumeratą pagal savo poreikius, išsirink norimą rinkinį, gauk jį į namus ar paštomatą ir keisk į naują kada panorėjęs.
+                Vos keli paprasti žingsniai iki naujo konstravimo projekto tavo
+                namuose. Pasirink prenumeratą pagal savo poreikius, išsirink
+                norimą rinkinį, gauk jį į namus ar paštomatą ir keisk į naują
+                kada panorėjęs.
               </p>
             </div>
             <div className="hidden lg:block">
               <img
                 src="/images/build-castle.jpg"
                 alt="LEGO rinkiniai"
-                className="w-full rounded-2xl border-2 border-ink object-cover aspect-[2/1] shadow-[6px_6px_0_#001B21]"
+                className="aspect-[2/1] w-full rounded-2xl border-2 border-ink object-cover shadow-[6px_6px_0_#001B21]"
               />
             </div>
           </div>
@@ -274,12 +301,12 @@ export default function Archive() {
               {hasActiveFilter && (
                 <>
                   <span className="mx-1 h-5 w-px bg-ink/20" />
-                  <span className="font-mono text-[11px] tracking-[.06em] uppercase text-ink/50">
+                  <span className="font-mono text-[11px] tracking-[.06em] text-ink/50 uppercase">
                     {filteredProducts.length} iš {products.length}
                   </span>
                   <button
                     onClick={clearFilters}
-                    className="inline-flex items-center gap-1 font-mono text-[11px] tracking-[.06em] uppercase text-ink/40 transition-colors hover:text-ink"
+                    className="inline-flex items-center gap-1 font-mono text-[11px] tracking-[.06em] text-ink/40 uppercase transition-colors hover:text-ink"
                   >
                     <XIcon className="size-3" />
                     Išvalyti
@@ -307,10 +334,7 @@ export default function Archive() {
                   </div>
                 ))
               : filteredProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                  />
+                  <ProductCard key={product.id} product={product} />
                 ))}
           </div>
 
@@ -323,7 +347,8 @@ export default function Archive() {
               Rodyti daugiau ↓
             </Button>
             <p className="label-mono mt-3.5 text-ink/55">
-              Rodoma {filteredProducts.length} iš {products.length} · Naujausi pirmiausia
+              Rodoma {filteredProducts.length} iš {products.length} · Naujausi
+              pirmiausia
             </p>
           </div>
         </div>

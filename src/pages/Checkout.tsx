@@ -1224,6 +1224,20 @@ export default function Checkout() {
                     ))}
                   </div>
 
+                  {/* Safety notice */}
+                  <div className="mt-5 flex gap-3 rounded-2xl border-2 border-ink/15 bg-ink/[.02] px-4 py-3.5">
+                    <img
+                      src="/en71-badge.svg"
+                      alt="EN 71 saugos ženklas"
+                      className="mt-0.5 h-8 w-8 shrink-0"
+                    />
+                    <p className="text-[12px] leading-[1.6] text-ink/55">
+                      Svarbu: LEGO® rinkinyje yra smulkių detalių, todėl jis
+                      netinka vaikams iki 3 metų. Rekomenduojame rinkinį naudoti
+                      pagal gamintojo nurodytą amžiaus rekomendaciją.
+                    </p>
+                  </div>
+
                   {/* CTA */}
                   <div className="mt-auto pt-6">
                     {purchaseError && (
@@ -1332,6 +1346,12 @@ export default function Checkout() {
                 </div>
               </div>
             </div>
+
+            <p className="mt-3 text-[11px] leading-[1.5] text-ink/45">
+              Svarbu: LEGO® rinkinyje yra smulkių detalių, todėl jis netinka
+              vaikams iki 3 metų. Rekomenduojame rinkinį naudoti pagal gamintojo
+              nurodytą amžiaus rekomendaciją.
+            </p>
 
             <div className="mt-5 flex flex-col gap-2">
               <Button

@@ -36,12 +36,7 @@ const SUBSCRIPTION_BRANDING = {
     },
   },
   pro: {
-    // NOTE: client's approved rename list says "Pro -> Legenda", but every
-    // other part of this codebase (admin early-access picker, featured
-    // products data) already pairs "Legenda" with the "mega" tier instead.
-    // Kept as "Pro" pending client clarification on which DB tier
-    // ("pro" or "mega") the approved "Legenda" name actually refers to.
-    displayName: "Pro",
+    displayName: "Legenda",
     brickImage: "/plans/master.svg",
     brickSvg: "/bricks/brick-pink.svg",
     theme: {
@@ -98,10 +93,14 @@ function normalizeSubscriptionKey(
   if (!plan) return null
 
   const normalized = plan.trim().toLowerCase().replace(/\+$/, "").trim()
-  if (normalized in SUBSCRIPTION_BRANDING) return normalized as SubscriptionBrandingKey
+  if (normalized in SUBSCRIPTION_BRANDING)
+    return normalized as SubscriptionBrandingKey
 
-  for (const key of Object.keys(SUBSCRIPTION_BRANDING) as SubscriptionBrandingKey[]) {
-    if (SUBSCRIPTION_BRANDING[key].displayName.toLowerCase() === normalized) return key
+  for (const key of Object.keys(
+    SUBSCRIPTION_BRANDING
+  ) as SubscriptionBrandingKey[]) {
+    if (SUBSCRIPTION_BRANDING[key].displayName.toLowerCase() === normalized)
+      return key
   }
   return null
 }
@@ -126,7 +125,9 @@ export function getSubscriptionTheme(plan: string | null | undefined) {
   return key ? SUBSCRIPTION_BRANDING[key].theme : null
 }
 
-export function getSubscriptionBrickSvg(plan: string | null | undefined): string {
+export function getSubscriptionBrickSvg(
+  plan: string | null | undefined
+): string {
   const key = normalizeSubscriptionKey(plan)
   return key ? SUBSCRIPTION_BRANDING[key].brickSvg : "/bricks/brick-yellow.svg"
 }
