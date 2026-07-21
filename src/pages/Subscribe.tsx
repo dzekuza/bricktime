@@ -7,21 +7,22 @@ import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import Subscriptions from "@/components/Subscriptions"
 import type { DbSubscription } from "@/hooks/useSubscriptions"
-import {
-  ArrowRightIcon,
-  ShieldCheckIcon,
-  CalendarXIcon,
-} from "lucide-react"
+import { ArrowRightIcon, ShieldCheckIcon, CalendarXIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { useReveal } from "@/hooks/useReveal"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
+import { HERO_VIDEO_URL } from "@/lib/media"
 
 // ── static data ────────────────────────────────────────────────────────────
 
-const HOME_DELIVERY_PLANS = ['pro', 'mega', 'mystery_s', 'mystery_m']
+const HOME_DELIVERY_PLANS = ["pro", "mega", "mystery_s", "mystery_m"]
 const HOME_DELIVERY_FEE = 3
-
 
 const faqs = [
   {
@@ -46,7 +47,6 @@ const faqs = [
   },
 ]
 
-
 // ── page ───────────────────────────────────────────────────────────────────
 
 export default function Subscribe() {
@@ -62,9 +62,7 @@ export default function Subscribe() {
 
   // Resolve initial plan from URL param; default to index 1 (second plan) if "standard" not found
   const initialPlan =
-    planIndex[params.get("plan") ?? "standard"] ??
-    planIndex["standard"] ??
-    1
+    planIndex[params.get("plan") ?? "standard"] ?? planIndex["standard"] ?? 1
 
   const [selectedPlan, setSelectedPlan] = useState(initialPlan)
   const [billing] = useState<"monthly" | "annual">("monthly")
@@ -96,7 +94,7 @@ export default function Subscribe() {
 
   // reset home delivery toggle when switching to an ineligible plan
   useEffect(() => {
-    if (!HOME_DELIVERY_PLANS.includes(plan?.id ?? '')) setHomeDelivery(false)
+    if (!HOME_DELIVERY_PLANS.includes(plan?.id ?? "")) setHomeDelivery(false)
   }, [plan?.id])
 
   const [purchasing, setPurchasing] = useState(false)
@@ -117,23 +115,28 @@ export default function Subscribe() {
     if (appliedCoupon) return
     const giftCode = params.get("code")
     if (giftCode) {
-      supabase.functions.invoke('verify-gift-card', { body: { code: giftCode.toUpperCase() } }).then(({ data }) => {
-        if (data?.valid) {
-          setAppliedCoupon({
-            code: giftCode.toUpperCase(),
-            discount_type: "fixed",
-            discount_value: data.amountCents / 100,
-            duration_months: null,
-            giftCardCode: giftCode.toUpperCase(),
-          })
-        }
-      })
+      supabase.functions
+        .invoke("verify-gift-card", { body: { code: giftCode.toUpperCase() } })
+        .then(({ data }) => {
+          if (data?.valid) {
+            setAppliedCoupon({
+              code: giftCode.toUpperCase(),
+              discount_type: "fixed",
+              discount_value: data.amountCents / 100,
+              duration_months: null,
+              giftCardCode: giftCode.toUpperCase(),
+            })
+          }
+        })
       return
     }
     const couponCode = params.get("coupon")
     if (couponCode) {
-      supabase.from("coupons")
-        .select("code, discount_type, discount_value, duration_months, max_uses, uses_count, expires_at, active")
+      supabase
+        .from("coupons")
+        .select(
+          "code, discount_type, discount_value, duration_months, max_uses, uses_count, expires_at, active"
+        )
         .eq("code", couponCode.toUpperCase())
         .single()
         .then(({ data }) => {
@@ -149,7 +152,10 @@ export default function Subscribe() {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  function handlePlanSubscribe(selectedP: DbSubscription, planBilling: 'monthly' | 'yearly') {
+  function handlePlanSubscribe(
+    selectedP: DbSubscription,
+    planBilling: "monthly" | "yearly"
+  ) {
     navigate(`/checkout?plan=${selectedP.id}&billing=${planBilling}`)
   }
 
@@ -162,7 +168,8 @@ export default function Subscribe() {
     setPurchasing(true)
     setPurchaseError("")
     const planKey = plan.id as PlanTier
-    const basePrice = billing === "annual" ? (plan.annual_price ?? plan.price) : plan.price
+    const basePrice =
+      billing === "annual" ? (plan.annual_price ?? plan.price) : plan.price
     const discountedPrice = getDiscountedPrice(basePrice)
     const hasDiscount = appliedCoupon != null && discountedPrice < basePrice
     const origin = window.location.origin
@@ -171,10 +178,12 @@ export default function Subscribe() {
         planKey,
         userId: user.id,
         userEmail: user.email ?? form.email,
-        successUrl: `${origin}/subscribe?success=true&plan=${planKey}${homeDelivery ? '&home_delivery=1' : ''}`,
+        successUrl: `${origin}/subscribe?success=true&plan=${planKey}${homeDelivery ? "&home_delivery=1" : ""}`,
         cancelUrl: `${origin}/subscribe?plan=${planKey}`,
         ...(hasDiscount && { discountedAmount: discountedPrice }),
-        ...(appliedCoupon?.giftCardCode && { giftCardCode: appliedCoupon.giftCardCode }),
+        ...(appliedCoupon?.giftCardCode && {
+          giftCardCode: appliedCoupon.giftCardCode,
+        }),
         homeDelivery,
       },
     })
@@ -203,7 +212,7 @@ export default function Subscribe() {
           status: "active",
           home_delivery: hasHomeDelivery,
         },
-        { onConflict: "id" },
+        { onConflict: "id" }
       )
       .then(() => setSubmitted(true))
   }, [user, params])
@@ -216,7 +225,7 @@ export default function Subscribe() {
     const { data, error } = await supabase
       .from("coupons")
       .select(
-        "code, discount_type, discount_value, duration_months, max_uses, uses_count, expires_at, active",
+        "code, discount_type, discount_value, duration_months, max_uses, uses_count, expires_at, active"
       )
       .eq("code", code)
       .single()
@@ -224,9 +233,12 @@ export default function Subscribe() {
     if (error || !data) {
       // Not a coupon — try as a gift card
       setCouponLoading(true)
-      const { data: gcData, error: gcError } = await supabase.functions.invoke('verify-gift-card', {
-        body: { code },
-      })
+      const { data: gcData, error: gcError } = await supabase.functions.invoke(
+        "verify-gift-card",
+        {
+          body: { code },
+        }
+      )
       setCouponLoading(false)
       if (gcError || !gcData?.valid) {
         setCouponError(gcData?.error ?? "Kodas nerastas")
@@ -275,11 +287,16 @@ export default function Subscribe() {
   const annualPrice = plan?.annual_price ?? monthlyPrice
   const price = billing === "monthly" ? monthlyPrice : annualPrice
   const total = billing === "monthly" ? price : price * 10
-  const isHomeDeliveryEligible = HOME_DELIVERY_PLANS.includes(plan?.id ?? '') && billing === "monthly"
-  const deliveryFee = isHomeDeliveryEligible && homeDelivery ? HOME_DELIVERY_FEE : 0
+  const isHomeDeliveryEligible =
+    HOME_DELIVERY_PLANS.includes(plan?.id ?? "") && billing === "monthly"
+  const deliveryFee =
+    isHomeDeliveryEligible && homeDelivery ? HOME_DELIVERY_FEE : 0
 
   const comparisonFeatures = useMemo(
-    () => Array.from(new Set(plans.flatMap((p) => Object.keys(p.comparison_data ?? {})))),
+    () =>
+      Array.from(
+        new Set(plans.flatMap((p) => Object.keys(p.comparison_data ?? {})))
+      ),
     [plans]
   )
 
@@ -296,7 +313,7 @@ export default function Subscribe() {
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
               <div
-                className="brick-card flex min-h-[420px] flex-col items-center justify-center p-8 md:p-16 text-center lg:col-span-12"
+                className="brick-card flex min-h-[420px] flex-col items-center justify-center p-8 text-center md:p-16 lg:col-span-12"
                 style={{ background: "#5DDB9C" }}
               >
                 <div
@@ -347,18 +364,28 @@ export default function Subscribe() {
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="bg-paper">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div ref={heroRef} className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
+          <div
+            ref={heroRef}
+            className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2"
+          >
             <div>
               <h1 className="heading-display text-d-xl tracking-[-0.015em] text-ink">
                 {step === "plan" ? (
                   <>
                     Pasirink prenumeratą
                     <br />
-                    <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">Pradėk</span>
-                    {" "}statyti
+                    <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">
+                      Pradėk
+                    </span>{" "}
+                    statyti
                   </>
                 ) : (
-                  <>Užbaik <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">užsakymą.</span></>
+                  <>
+                    Užbaik{" "}
+                    <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">
+                      užsakymą.
+                    </span>
+                  </>
                 )}
               </h1>
               <p className="mt-6 max-w-[46ch] text-[17px] leading-[1.65] text-ink/65">
@@ -366,13 +393,18 @@ export default function Subscribe() {
                   ? "Pasirink prenumeratą pagal savo biudžetą, mėgstamų rinkinių dydį ir konstravimo patirtį — nuo pirmųjų projektų iki didelių kolekcinių modelių bei išskirtinių premium serijų."
                   : `Tik vienas žingsnis iki pirmosios BRICKTIME ${plan?.name ?? ""} dėžutės.`}
               </p>
-
             </div>
 
             <div className="hidden lg:block">
-              <div className="relative overflow-hidden rounded-2xl border-2 border-ink aspect-[2/1]">
-                <video className="h-full w-full object-cover" autoPlay muted loop playsInline>
-                  <source src="/subscribe-hero.mp4" type="video/mp4" />
+              <div className="relative aspect-[2/1] overflow-hidden rounded-2xl border-2 border-ink">
+                <video
+                  className="h-full w-full object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                >
+                  <source src={HERO_VIDEO_URL} type="video/mp4" />
                 </video>
               </div>
             </div>
@@ -387,9 +419,7 @@ export default function Subscribe() {
         <section className="bg-paper pt-4 pb-20">
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-              <div
-                className="brick-card bg-cream p-6 md:p-10 lg:col-span-7"
-              >
+              <div className="brick-card bg-cream p-6 md:p-10 lg:col-span-7">
                 <h3 className="label-mono mb-7 text-ink/50">
                   Mokėjimo duomenys
                 </h3>
@@ -470,7 +500,10 @@ export default function Subscribe() {
                     style={{ background: plan.bg_color }}
                   >
                     <div className="flex items-start justify-between gap-4">
-                      <h3 className="heading-display text-d-xs" style={{ color: plan.text_color }}>
+                      <h3
+                        className="heading-display text-d-xs"
+                        style={{ color: plan.text_color }}
+                      >
                         Užsakymo suvestinė
                       </h3>
                       {plan.brick_image && (
@@ -535,15 +568,25 @@ export default function Subscribe() {
                         <div
                           className="flex items-center justify-between rounded-xl border-2 px-3 py-2.5 transition-colors"
                           style={{
-                            borderColor: homeDelivery ? plan.text_color : `${plan.text_color}30`,
-                            background: homeDelivery ? `${plan.text_color}10` : 'transparent',
+                            borderColor: homeDelivery
+                              ? plan.text_color
+                              : `${plan.text_color}30`,
+                            background: homeDelivery
+                              ? `${plan.text_color}10`
+                              : "transparent",
                           }}
                         >
                           <div className="flex flex-col gap-0.5">
-                            <span className="text-[13px] font-semibold" style={{ color: plan.text_color }}>
+                            <span
+                              className="text-[13px] font-semibold"
+                              style={{ color: plan.text_color }}
+                            >
                               Pristatymas į duris
                             </span>
-                            <span className="font-mono text-[11px]" style={{ color: `${plan.text_color}60` }}>
+                            <span
+                              className="font-mono text-[11px]"
+                              style={{ color: `${plan.text_color}60` }}
+                            >
                               +€{HOME_DELIVERY_FEE}/mėn.
                             </span>
                           </div>
@@ -555,14 +598,18 @@ export default function Subscribe() {
                             className="relative h-6 w-11 shrink-0 rounded-full border-2 transition-colors"
                             style={{
                               borderColor: plan.text_color,
-                              background: homeDelivery ? plan.text_color : `${plan.text_color}20`,
+                              background: homeDelivery
+                                ? plan.text_color
+                                : `${plan.text_color}20`,
                             }}
                           >
                             <span
                               className="absolute top-0.5 h-4 w-4 rounded-full border-2 bg-paper transition-transform"
                               style={{
                                 borderColor: plan.text_color,
-                                transform: homeDelivery ? 'translateX(20px)' : 'translateX(2px)',
+                                transform: homeDelivery
+                                  ? "translateX(20px)"
+                                  : "translateX(2px)",
                               }}
                             />
                           </button>
@@ -591,7 +638,7 @@ export default function Subscribe() {
                       ) : (
                         <div className="flex gap-2">
                           <input
-                            className="flex-1 rounded-xl border-2 border-ink bg-paper px-4 py-2.5 font-mono text-[13px] uppercase placeholder:normal-case placeholder:text-ink/30 focus:outline-none"
+                            className="flex-1 rounded-xl border-2 border-ink bg-paper px-4 py-2.5 font-mono text-[13px] uppercase placeholder:text-ink/30 placeholder:normal-case focus:outline-none"
                             placeholder="Coupon code"
                             value={couponInput}
                             onChange={(e) => {
@@ -628,7 +675,11 @@ export default function Subscribe() {
                       <span className="font-display text-[40px] leading-none">
                         €
                         {appliedCoupon
-                          ? (getDiscountedPrice(billing === "annual" ? total : price) + deliveryFee).toFixed(2)
+                          ? (
+                              getDiscountedPrice(
+                                billing === "annual" ? total : price
+                              ) + deliveryFee
+                            ).toFixed(2)
                           : billing === "annual"
                             ? total
                             : price + deliveryFee}
@@ -657,15 +708,22 @@ export default function Subscribe() {
           >
             <div className="reveal lg:col-span-12">
               <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink">
-                Palygink<br />
-                <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>prenumeratas.</span>
+                Palygink
+                <br />
+                <span
+                  className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
+                  style={{ transformOrigin: "center center" }}
+                >
+                  prenumeratas.
+                </span>
               </h2>
             </div>
-            <div
-              className="reveal brick-card bg-cream overflow-x-auto lg:col-span-12"
-            >
+            <div className="reveal brick-card overflow-x-auto bg-cream lg:col-span-12">
               {plans.length > 0 && (
-                <table className="w-full table-fixed border-collapse" style={{ minWidth: `${plans.length * 120}px` }}>
+                <table
+                  className="w-full table-fixed border-collapse"
+                  style={{ minWidth: `${plans.length * 120}px` }}
+                >
                   <thead>
                     <tr className="border-b-2 border-ink">
                       <th className="sticky left-0 z-20 bg-[#F5F1EB] p-3 text-left font-mono text-[11px] tracking-[.18em] text-ink/40 uppercase md:p-5">
@@ -685,7 +743,7 @@ export default function Subscribe() {
                           </span>
                           {p.featured && (
                             <div className="mt-3 h-7">
-                              <span className="inline-flex items-center rotate-2 rounded border-2 border-ink px-3 py-1 font-mono text-[11px] tracking-[.08em] uppercase bg-ink text-paper">
+                              <span className="inline-flex rotate-2 items-center rounded border-2 border-ink bg-ink px-3 py-1 font-mono text-[11px] tracking-[.08em] text-paper uppercase">
                                 Populiariausias
                               </span>
                             </div>
@@ -738,16 +796,24 @@ export default function Subscribe() {
           <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:gap-20">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <div>
-                <h2 className="heading-display text-d-lg tracking-[-0.015em] mt-4 text-ink">
-                  Prenumerata<br />
-                  <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>be rizikos.</span>
+                <h2 className="heading-display text-d-lg mt-4 tracking-[-0.015em] text-ink">
+                  Prenumerata
+                  <br />
+                  <span
+                    className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
+                    style={{ transformOrigin: "center center" }}
+                  >
+                    be rizikos.
+                  </span>
                 </h2>
                 <p className="mt-6 max-w-[40ch] text-[17px] leading-[1.65] text-ink/65">
-                  Lanksti LEGO® rinkinių prenumerata su nemokamu pristatymu ir galimybe keisti rinkinius kada tik panorėjus. Statyk daugiau, sutaupyk ir nebeleisk rinkiniams dulkėti lentynose.
+                  Lanksti LEGO® rinkinių prenumerata su nemokamu pristatymu ir
+                  galimybe keisti rinkinius kada tik panorėjus. Statyk daugiau,
+                  sutaupyk ir nebeleisk rinkiniams dulkėti lentynose.
                 </p>
                 <Link
                   to="/subscribe"
-                  className="mt-8 inline-flex items-center gap-2 rounded-full border-2 border-ink bg-ink px-7 py-3.5 text-[15px] font-bold text-paper brick-hover-sm"
+                  className="brick-hover-sm mt-8 inline-flex items-center gap-2 rounded-full border-2 border-ink bg-ink px-7 py-3.5 text-[15px] font-bold text-paper"
                 >
                   Pradėti prenumeratą
                   <ArrowRightIcon className="size-4" />
@@ -766,22 +832,42 @@ export default function Subscribe() {
             <div ref={trustRef}>
               <div className="flex flex-col gap-4">
                 {[
-                  { num: "01", title: "Nemokamas pristatymas", body: "Visi LEGO® rinkiniai pristatomi į paštomatą nemokamai visoje Lietuvoje." },
-                  { num: "02", title: "Keisk rinkinius bet kada", body: "Surink, grąžink ir išsirink naują rinkinį kada panorėjęs — be papildomų mokesčių." },
-                  { num: "03", title: "Jokių ilgalaikių įsipareigojimų", body: "Pakeisk prenumeratą, pristabdyk ją arba atšauk bet kuriuo metu." },
-                  { num: "04", title: "Nauji rinkiniai kas mėnesį", body: "Atrask naujus LEGO® modelius ir gauk ankstyvą prieigą prie naujų papildymų." },
+                  {
+                    num: "01",
+                    title: "Nemokamas pristatymas",
+                    body: "Visi LEGO® rinkiniai pristatomi į paštomatą nemokamai visoje Lietuvoje.",
+                  },
+                  {
+                    num: "02",
+                    title: "Keisk rinkinius bet kada",
+                    body: "Surink, grąžink ir išsirink naują rinkinį kada panorėjęs — be papildomų mokesčių.",
+                  },
+                  {
+                    num: "03",
+                    title: "Jokių ilgalaikių įsipareigojimų",
+                    body: "Pakeisk prenumeratą, pristabdyk ją arba atšauk bet kuriuo metu.",
+                  },
+                  {
+                    num: "04",
+                    title: "Nauji rinkiniai kas mėnesį",
+                    body: "Atrask naujus LEGO® modelius ir gauk ankstyvą prieigą prie naujų papildymų.",
+                  },
                 ].map((item, i) => (
                   <div
                     key={item.num}
                     className="reveal brick-card brick-card-hover relative flex gap-6 overflow-hidden bg-paper p-6 md:p-8"
                     style={{ transitionDelay: `${i * 60}ms` }}
                   >
-                    <div className="font-display text-ink/10 select-none leading-[.8] absolute top-2 right-4 text-d-hero">
+                    <div className="text-d-hero absolute top-2 right-4 font-display leading-[.8] text-ink/10 select-none">
                       {item.num}
                     </div>
-                    <div className="pt-1 max-w-[80%]">
-                      <h3 className="heading-display text-d-xs text-ink">{item.title}</h3>
-                      <p className="mt-3 text-[15px] leading-[1.65] text-ink/65">{item.body}</p>
+                    <div className="max-w-[80%] pt-1">
+                      <h3 className="heading-display text-d-xs text-ink">
+                        {item.title}
+                      </h3>
+                      <p className="mt-3 text-[15px] leading-[1.65] text-ink/65">
+                        {item.body}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -795,14 +881,13 @@ export default function Subscribe() {
       <section id="faq" className="bg-paper py-10 md:py-20">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div ref={faqRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-
             {/* FAQ accordion card */}
             <div className="reveal brick-card relative bg-paper p-6 md:p-9 lg:col-span-7 lg:row-span-2">
               <img
                 src="/faq-mascot.svg"
                 alt=""
                 aria-hidden
-                className="absolute right-6 top-6 w-[100px] md:w-[128px]"
+                className="absolute top-6 right-6 w-[100px] md:w-[128px]"
               />
               <h2 className="heading-display text-d-lg mt-3 text-ink">
                 <span
@@ -821,7 +906,9 @@ export default function Subscribe() {
                       {faq.q}
                     </AccordionTrigger>
                     <AccordionContent>
-                      <p className="max-w-[58ch] pb-4 text-[15px] leading-[1.65] text-ink/70">{faq.a}</p>
+                      <p className="max-w-[58ch] pb-4 text-[15px] leading-[1.65] text-ink/70">
+                        {faq.a}
+                      </p>
                     </AccordionContent>
                   </AccordionItem>
                 ))}
@@ -831,42 +918,68 @@ export default function Subscribe() {
             {/* Stats card */}
             <div className="reveal grid grid-cols-2 gap-4 rounded-2xl border-2 border-ink bg-ink p-6 shadow-[6px_6px_0_rgba(245,241,235,.1)] md:rounded-3xl md:p-8 lg:col-span-5">
               <div className="flex flex-col justify-between rounded-xl border border-paper/15 p-3 md:min-h-[100px] md:rounded-2xl md:p-5">
-                <p className="font-display text-[28px] leading-[.9] text-paper md:text-d-xs">12 400+</p>
-                <div className="mt-2 font-mono text-[10px] tracking-[.16em] uppercase text-paper/50">Aktyvūs prenumeratoriai</div>
+                <p className="md:text-d-xs font-display text-[28px] leading-[.9] text-paper">
+                  12 400+
+                </p>
+                <div className="mt-2 font-mono text-[10px] tracking-[.16em] text-paper/50 uppercase">
+                  Aktyvūs prenumeratoriai
+                </div>
               </div>
               <div className="flex flex-col justify-between rounded-xl border-2 border-paper bg-brand-yellow p-3 md:min-h-[100px] md:rounded-2xl md:p-5">
                 <p className="font-display leading-[.9]">
                   <span className="text-[22px] text-ink">★</span>
-                  <span className="text-[36px] text-ink md:text-[44px]">4.9</span>
+                  <span className="text-[36px] text-ink md:text-[44px]">
+                    4.9
+                  </span>
                   <span className="text-[18px] text-ink/50">/5</span>
                 </p>
-                <div className="mt-2 font-mono text-[10px] tracking-[.16em] uppercase text-ink/50">Vidutinis įvertinimas</div>
+                <div className="mt-2 font-mono text-[10px] tracking-[.16em] text-ink/50 uppercase">
+                  Vidutinis įvertinimas
+                </div>
               </div>
               <div className="flex flex-col justify-between rounded-xl border border-paper/15 p-3 md:min-h-[100px] md:rounded-2xl md:p-5">
-                <p className="font-display text-[28px] leading-[.9] text-paper md:text-d-xs">26</p>
-                <div className="mt-2 font-mono text-[10px] tracking-[.16em] uppercase text-paper/50">Išsiųstų rinkinių</div>
+                <p className="md:text-d-xs font-display text-[28px] leading-[.9] text-paper">
+                  26
+                </p>
+                <div className="mt-2 font-mono text-[10px] tracking-[.16em] text-paper/50 uppercase">
+                  Išsiųstų rinkinių
+                </div>
               </div>
               <div className="flex flex-col justify-between rounded-xl border border-paper/15 p-3 md:min-h-[100px] md:rounded-2xl md:p-5">
-                <p className="font-display text-[28px] leading-[.9] text-paper md:text-d-xs">170</p>
-                <div className="mt-2 font-mono text-[10px] tracking-[.16em] uppercase text-paper/50">Aktyvių rinkinių</div>
+                <p className="md:text-d-xs font-display text-[28px] leading-[.9] text-paper">
+                  170
+                </p>
+                <div className="mt-2 font-mono text-[10px] tracking-[.16em] text-paper/50 uppercase">
+                  Aktyvių rinkinių
+                </div>
               </div>
             </div>
 
             {/* CTA card */}
-            <div className="reveal brick-card flex flex-col justify-between p-6 md:p-8 lg:col-span-5" style={{ background: "#5C4ADE" }}>
+            <div
+              className="reveal brick-card flex flex-col justify-between p-6 md:p-8 lg:col-span-5"
+              style={{ background: "#5C4ADE" }}
+            >
               <div>
-                <p className="font-mono text-[10px] tracking-[.22em] uppercase text-paper/60">Vis dar abejoji?</p>
+                <p className="font-mono text-[10px] tracking-[.22em] text-paper/60 uppercase">
+                  Vis dar abejoji?
+                </p>
                 <h3 className="heading-display text-d-sm mt-3 leading-[.9] text-paper">
-                  Naujausi<br />
+                  Naujausi
+                  <br />
                   <span
                     className="inline-block border-[3px] border-paper/40 bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(245,241,235,.2)]"
-                    style={{ transform: "rotate(-1.5deg)", transformOrigin: "center center" }}
+                    style={{
+                      transform: "rotate(-1.5deg)",
+                      transformOrigin: "center center",
+                    }}
                   >
                     Lego Rinkiniai.
                   </span>
                 </h3>
                 <p className="mt-3 text-[15px] leading-[1.6] text-paper/70">
-                  Pasirink prenumeratą, išsirink norimus modelius ir keisk juos kada panorėjęs — be ilgalaikių įsipareigojimų.
+                  Pasirink prenumeratą, išsirink norimus modelius ir keisk juos
+                  kada panorėjęs — be ilgalaikių įsipareigojimų.
                 </p>
               </div>
               <a
@@ -876,7 +989,6 @@ export default function Subscribe() {
                 Pasirinkti prenumeratą →
               </a>
             </div>
-
           </div>
         </div>
       </section>
