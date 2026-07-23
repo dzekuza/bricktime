@@ -65,7 +65,7 @@ const SUBSCRIPTION_BRANDING = {
     },
   },
   mystery_s: {
-    displayName: "Mystery Box S",
+    displayName: "Mystery box Mėgėjams",
     brickImage: null,
     brickSvg: "/bricks/brick-yellow.svg",
     theme: {
@@ -77,7 +77,7 @@ const SUBSCRIPTION_BRANDING = {
     },
   },
   mystery_m: {
-    displayName: "Mystery Box M",
+    displayName: "Mystery Box Kūrėjams",
     brickImage: null,
     brickSvg: "/bricks/brick-pink.svg",
     theme: {
@@ -98,10 +98,14 @@ function normalizeSubscriptionKey(
   if (!plan) return null
 
   const normalized = plan.trim().toLowerCase().replace(/\+$/, "").trim()
-  if (normalized in SUBSCRIPTION_BRANDING) return normalized as SubscriptionBrandingKey
+  if (normalized in SUBSCRIPTION_BRANDING)
+    return normalized as SubscriptionBrandingKey
 
-  for (const key of Object.keys(SUBSCRIPTION_BRANDING) as SubscriptionBrandingKey[]) {
-    if (SUBSCRIPTION_BRANDING[key].displayName.toLowerCase() === normalized) return key
+  for (const key of Object.keys(
+    SUBSCRIPTION_BRANDING
+  ) as SubscriptionBrandingKey[]) {
+    if (SUBSCRIPTION_BRANDING[key].displayName.toLowerCase() === normalized)
+      return key
   }
   return null
 }
@@ -126,7 +130,9 @@ export function getSubscriptionTheme(plan: string | null | undefined) {
   return key ? SUBSCRIPTION_BRANDING[key].theme : null
 }
 
-export function getSubscriptionBrickSvg(plan: string | null | undefined): string {
+export function getSubscriptionBrickSvg(
+  plan: string | null | undefined
+): string {
   const key = normalizeSubscriptionKey(plan)
   return key ? SUBSCRIPTION_BRANDING[key].brickSvg : "/bricks/brick-yellow.svg"
 }

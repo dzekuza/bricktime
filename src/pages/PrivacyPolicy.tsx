@@ -24,7 +24,7 @@ const sections: Section[] = [
     title: "Slapukų naudojimas",
     body: [
       "Interneto svetainėje naudojami slapukai padeda užtikrinti tinkamą svetainės veikimą, optimalų greitį bei saugumą, analizuoti lankytojų srautus ir tobulinti naudotojo patirtį.",
-      "Naršymo metu gali būti naudojami būtini ir analitiniai slapukai, taip pat trečiųjų šalių, pavyzdžiui, Facebook ir Instagram, įskiepiai. Informaciją apie konkrečius slapukus galite matyti savo naršyklės nustatymuose.",
+      "Naršymo metu gali būti naudojami būtini ir analitiniai slapukai, taip pat trečiųjų šalių, pavyzdžiui, Facebook, Instagram ir TikTok, įskiepiai, į kuriuos taip pat įdiegti slapukai. Informaciją apie konkrečius slapukus galite matyti savo naršyklės nustatymuose.",
       "Slapukus galite apriboti arba užblokuoti savo naršyklėje, tačiau tokiu atveju dalis svetainės funkcijų gali veikti netinkamai arba būti neprieinamos.",
     ],
     bullets: [
@@ -130,7 +130,7 @@ const contactRows = [
   ["Adresas", "Pasakų g. 10-1, Vilnius"],
   ["Telefonas", "+370 682 11695"],
   ["El. paštas", "info@bricktime.lt"],
-  ["Redakcija", "2026-07-12"],
+  ["Redakcija", "2026-07-16"],
 ]
 
 export default function PrivacyPolicy() {

@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom'
-import { ArrowRightIcon } from 'lucide-react'
-import Nav from '@/components/Nav'
-import Footer from '@/components/Footer'
+import { Link } from "react-router-dom"
+import { ArrowRightIcon } from "lucide-react"
+import Nav from "@/components/Nav"
+import Footer from "@/components/Footer"
 
 type HelpPageProps = {
   eyebrow: string
@@ -13,6 +13,7 @@ type HelpPageProps = {
   sections: { title: string; body: string }[]
   checklist: string[]
   note: string
+  helpNote?: { title: string; body: string }
 }
 
 function HelpPage({
@@ -23,6 +24,7 @@ function HelpPage({
   sections,
   checklist,
   note,
+  helpNote,
 }: HelpPageProps) {
   return (
     <>
@@ -35,7 +37,9 @@ function HelpPage({
                 <h1 className="heading-display text-d-xl max-w-[14ch] tracking-[-0.015em] text-ink">
                   {title}
                 </h1>
-                <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">{intro}</p>
+                <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">
+                  {intro}
+                </p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Link
                     to="/subscribe"
@@ -57,7 +61,7 @@ function HelpPage({
                   <img
                     src={heroImage}
                     alt={title}
-                    className="w-full rounded-2xl border-2 border-ink object-cover aspect-[2/1] shadow-[6px_6px_0_#001B21]"
+                    className="aspect-[2/1] w-full rounded-2xl border-2 border-ink object-cover shadow-[6px_6px_0_#001B21]"
                   />
                 </div>
               )}
@@ -69,11 +73,16 @@ function HelpPage({
           <div className="mx-auto grid max-w-[1320px] gap-6 px-4 md:px-7 lg:grid-cols-[1.2fr_.8fr]">
             <div className="grid gap-4">
               {sections.map((section, index) => (
-                <article key={section.title} className="brick-card bg-paper p-6 md:p-8">
+                <article
+                  key={section.title}
+                  className="brick-card bg-paper p-6 md:p-8"
+                >
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="label-mono text-ink/40">0{index + 1}</p>
-                      <h2 className="heading-display text-d-xs mt-3 text-ink">{section.title}</h2>
+                      <h2 className="heading-display text-d-xs mt-3 text-ink">
+                        {section.title}
+                      </h2>
                     </div>
                   </div>
                   <p className="mt-4 max-w-[62ch] text-[15px] leading-7 text-ink/72 md:text-[16px]">
@@ -88,7 +97,10 @@ function HelpPage({
                 <p className="label-mono text-paper/50">Trumpai</p>
                 <ul className="mt-5 space-y-3">
                   {checklist.map((item) => (
-                    <li key={item} className="flex gap-3 text-[15px] leading-6 text-paper/78">
+                    <li
+                      key={item}
+                      className="flex gap-3 text-[15px] leading-6 text-paper/78"
+                    >
                       <span className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full border border-paper/30 bg-brand-yellow" />
                       <span>{item}</span>
                     </li>
@@ -96,17 +108,33 @@ function HelpPage({
                 </ul>
               </div>
 
-              <div className="brick-card p-6 md:p-8" style={{ background: accent }}>
+              <div
+                className="brick-card p-6 md:p-8"
+                style={{ background: accent }}
+              >
                 <p className="label-mono text-ink/55">Pastaba</p>
-                <p className="mt-4 text-[15px] leading-7 text-ink/78 md:text-[16px]">{note}</p>
+                <p className="mt-4 text-[15px] leading-7 text-ink/78 md:text-[16px]">
+                  {note}
+                </p>
                 <a
                   href="mailto:hello@bricktime.lt"
                   className="brick-hover-sm mt-6 inline-flex items-center gap-2 rounded-full border-2 border-ink bg-paper px-5 py-3 text-[14px] font-bold text-ink"
                 >
-                  Susisiekti dėl pagalbos
+                  Susisiekti su mumis
                   <ArrowRightIcon className="size-4" />
                 </a>
               </div>
+
+              {helpNote && (
+                <div className="brick-card bg-paper p-6 md:p-8">
+                  <h2 className="heading-display text-d-xs text-ink">
+                    {helpNote.title}
+                  </h2>
+                  <p className="mt-4 text-[15px] leading-7 text-ink/72 md:text-[16px]">
+                    {helpNote.body}
+                  </p>
+                </div>
+              )}
             </aside>
           </div>
         </section>
@@ -121,36 +149,42 @@ export function FAQPage() {
     <HelpPage
       eyebrow="Pagalba / D.U.K."
       title="D.U.K."
-      intro="Trumpi atsakymai į dažniausius klausimus apie BRICKTIME prenumeratą, biudžetą, produktų keitimą ir kaip viskas veikia nuo pirmo mėnesio."
+      intro="Čia rasi atsakymus į dažniausiai užduodamus klausimus apie BrickTime – nuo prenumeratų ir LEGO® rinkinių iki pristatymo, grąžinimo bei paslaugos veikimo."
       accent="rgba(255, 215, 49, 0.72)"
       summary={[
-        { label: 'Atsakymai', value: 'Svarbiausia informacija viename puslapyje.' },
-        { label: 'Prenumeratos', value: 'Kiekviena prenumerata turi savo mėnesinį € biudžetą.' },
-        { label: 'Keitimas', value: 'Grąžinus aktyvius produktus gali rinktis kitus.' },
+        {
+          label: "Atsakymai",
+          value: "Svarbiausia informacija viename puslapyje.",
+        },
+        {
+          label: "Prenumeratos",
+          value: "Kiekviena prenumerata turi savo mėnesinį € biudžetą.",
+        },
+        {
+          label: "Keitimas",
+          value: "Grąžinus aktyvius produktus gali rinktis kitus.",
+        },
       ]}
       sections={[
         {
-          title: 'Kaip veikia mėnesinis biudžetas?',
-          body:
-            'Kiekviena prenumerata atrakina nustatytą mėnesinį biudžetą, kurį gali paskirstyti keliems produktams vienu metu. Svarbi ne vienetų suma, o jų bendra vertė kataloge.',
+          title: "Kaip veikia mėnesinis biudžetas?",
+          body: "Kiekviena prenumerata atrakina nustatytą mėnesinį biudžetą, kurį gali paskirstyti keliems produktams vienu metu. Svarbi ne vienetų suma, o jų bendra vertė kataloge.",
         },
         {
-          title: 'Ar galiu turėti daugiau nei vieną produktą?',
-          body:
-            'Taip. Gali laikyti tiek produktų, kiek telpa į tavo prenumeratos limitą. Kai nori išsirinkti naujus, pirmiausia inicijuoji grąžinimą ir po patvirtinimo limitas vėl atsilaisvina.',
+          title: "Ar galiu turėti daugiau nei vieną produktą?",
+          body: "Taip. Gali laikyti tiek produktų, kiek telpa į tavo prenumeratos limitą. Kai nori išsirinkti naujus, pirmiausia inicijuoji grąžinimą ir po patvirtinimo limitas vėl atsilaisvina.",
         },
         {
-          title: 'Ar visi produktai prieinami visiems planams?',
-          body:
-            'Ne. Dalis dropų ir aukštesnės vertės rinkinių yra tier-gated. Kuo aukštesnė prenumerata, tuo platesnis archyvas ir ankstesnė prieiga prie išskirtinių leidimų.',
+          title: "Ar visi produktai prieinami visiems planams?",
+          body: "Ne. Dalis dropų ir aukštesnės vertės rinkinių yra tier-gated. Kuo aukštesnė prenumerata, tuo platesnis archyvas ir ankstesnė prieiga prie išskirtinių leidimų.",
         },
       ]}
       checklist={[
-        'Prenumerata veikia mėnesio ciklais, be ilgalaikio įsipareigojimo.',
-        'Grąžinimo patvirtinimas atlaisvina tavo biudžetą kitam pasirinkimui.',
-        'Katalogas nuolat kinta, todėl verta sekti naujus dropus ir archyvą.',
+        "Prenumeratos laikotarpis pradedamas skaičiuoti nuo jos aktyvavimo dienos.",
+        "LEGO® rinkinį gali laikyti neribotą laiką, kol tavo prenumerata yra aktyvi.",
+        "Prieš grąžindamas rinkinį nepamiršk paskyroje pranešti apie trūkstamas detales.",
       ]}
-      note="Jei ieškai specifinės informacijos apie siuntas, pauzę ar grąžinimo eigą, apačioje footer’yje rasi atskirus dedikuotus puslapius su išplėstomis taisyklėmis."
+      note="Kiekvienas grąžintas LEGO® rinkinys kruopščiai patikrinamas ir surūšiuojamas pagal oficialią LEGO® instrukciją. Taip užtikriname, kad kiekvienas BrickTime narys gautų pilną, tvarkingą ir naujam konstravimo projektui paruoštą rinkinį."
     />
   )
 }
@@ -163,31 +197,34 @@ export function PausePage() {
       intro="Kartais statybos ritmas sulėtėja. Šiame puslapyje aiškiai aprašyta, kada gali praleisti mėnesį, kaip veikia pristabdymas ir kas nutinka tavo prenumeratai tuo metu."
       accent="rgba(255, 174, 231, 0.72)"
       summary={[
-        { label: 'Lankstumas', value: 'Per metus gali praleisti iki 3 mėnesių.' },
-        { label: 'Mokėjimai', value: 'Pristabdžius naujas sąskaitas sustabdome iki atnaujinimo.' },
-        { label: 'Paskyra', value: 'Valdymas vyksta tavo account skiltyje.' },
+        {
+          label: "Lankstumas",
+          value: "Per metus gali praleisti iki 3 mėnesių.",
+        },
+        {
+          label: "Mokėjimai",
+          value: "Pristabdžius naujas sąskaitas sustabdome iki atnaujinimo.",
+        },
+        { label: "Paskyra", value: "Valdymas vyksta tavo account skiltyje." },
       ]}
       sections={[
         {
-          title: 'Kada verta praleisti mėnesį?',
-          body:
-            'Jei keliauji, nori užbaigti jau turimą rinkinį ar tiesiog mėnesiui atsitraukti nuo naujų siuntų, gali praleisti ateinantį ciklą prieš kitą sąskaitos išrašymo datą.',
+          title: "Kada verta praleisti mėnesį?",
+          body: "Jei keliauji, nori užbaigti jau turimą rinkinį ar tiesiog mėnesiui atsitraukti nuo naujų siuntų, gali praleisti ateinantį ciklą prieš kitą sąskaitos išrašymo datą.",
         },
         {
-          title: 'Ką reiškia pristabdymas?',
-          body:
-            'Pristabdžius prenumeratą naujos siuntos ir nauji mokesčiai nestartuos, kol jos neatnaujinsi. Tavo paskyra išlieka aktyvi, tačiau naujų produktų rezervuoti negalėsi.',
+          title: "Ką reiškia pristabdymas?",
+          body: "Pristabdžius prenumeratą naujos siuntos ir nauji mokesčiai nestartuos, kol jos neatnaujinsi. Tavo paskyra išlieka aktyvi, tačiau naujų produktų rezervuoti negalėsi.",
         },
         {
-          title: 'Kaip atnaujinti prenumeratą?',
-          body:
-            'Kai būsi pasiruošęs grįžti, atnaujini prenumeratą iš paskyros ir kitas atsiskaitymo ciklas vėl suteikia tavo mėnesinį biudžetą. Prenumeratą gali tęsti tuo pačiu arba kitu tier.',
+          title: "Kaip atnaujinti prenumeratą?",
+          body: "Kai būsi pasiruošęs grįžti, atnaujini prenumeratą iš paskyros ir kitas atsiskaitymo ciklas vėl suteikia tavo mėnesinį biudžetą. Prenumeratą gali tęsti tuo pačiu arba kitu tier.",
         },
       ]}
       checklist={[
-        'Praleidimas taikomas ateinančiam ciklui, ne jau pradėtam mėnesiui.',
-        'Aktyvūs produktai turi būti grąžinimo procese, jei nori pilno pauzės režimo.',
-        'Atnaujinus prenumeratą, tavo prieigos ir katalogo matomumas grįžta pagal pasirinktą tier.',
+        "Praleidimas taikomas ateinančiam ciklui, ne jau pradėtam mėnesiui.",
+        "Aktyvūs produktai turi būti grąžinimo procese, jei nori pilno pauzės režimo.",
+        "Atnaujinus prenumeratą, tavo prieigos ir katalogo matomumas grįžta pagal pasirinktą tier.",
       ]}
       note="Jei nori pristabdyti prenumeratą tą pačią dieną, geriausia tai padaryti dar prieš naujo mėnesio apmokėjimą. Tokiu atveju išvengsi papildomo ciklo aktyvavimo."
     />
@@ -199,37 +236,48 @@ export function ShippingPage() {
     <HelpPage
       eyebrow="Pagalba / Pristatymas"
       title="Pristatymas"
-      intro="BRICKTIME siuntas siunčia taip, kad pakeitimas tarp rinkinių būtų kuo sklandesnis. Čia rasi pagrindines pristatymo taisykles, terminus ir ką tikėtis po užsakymo."
+      intro="BrickTime rūpinasi, kad LEGO® rinkinių pristatymas būtų kuo sklandesnis. Čia rasi svarbiausią informaciją apie pristatymo būdus, terminus ir tai, ko tikėtis po užsakymo."
       accent="rgba(77, 162, 255, 0.72)"
       heroImage="/images/build-sailboat.jpg"
       summary={[
-        { label: 'Geografija', value: 'Pristatome į 42 šalis.' },
-        { label: 'Standartas', value: 'Standartinis pristatymas įtrauktas visose prenumeratose.' },
-        { label: 'Greitis', value: 'Skubus pristatymas taikomas aukštesniuose tier.' },
+        { label: "Geografija", value: "Pristatome į 42 šalis." },
+        {
+          label: "Standartas",
+          value: "Standartinis pristatymas įtrauktas visose prenumeratose.",
+        },
+        {
+          label: "Greitis",
+          value: "Skubus pristatymas taikomas aukštesniuose tier.",
+        },
       ]}
       sections={[
         {
-          title: 'Kada siunta iškeliauja?',
-          body:
-            'Patvirtinus užsakymą ir rezervavus produktus, siunta ruošiama išsiuntimui. Dauguma užsakymų iškeliauja per 1–2 darbo dienas, o sekimo informacija pateikiama paskyroje.',
+          title: "Kada siunta iškeliauja?",
+          body: "Patvirtinus užsakymą, pradedame ruošti tavo LEGO® rinkinį siuntimui. Siunta įprastai iškeliauja per 1–2 darbo dienas.",
         },
         {
-          title: 'Kiek trunka pristatymas?',
-          body:
-            'Standartinis pristatymas Europoje įprastai trunka 3–5 darbo dienas. Tolimesnėse rinkose terminas gali būti ilgesnis, o aukštesnės prenumeratos gauna spartesnį maršrutą, kai tai prieinama.',
+          title: "Kiek trunka pristatymas?",
+          body: "Pristatymas Lietuvoje įprastai trunka 3–5 darbo dienas nuo siuntos išsiuntimo.",
         },
         {
-          title: 'Kas įskaičiuota į prenumeratą?',
-          body:
-            'Visos prenumeratos apima standartinį siuntos pristatymą. Standard, Pro ir Mega nariai gali gauti prioritetinį apdorojimą bei greitesnį pristatymo lygį, priklausomai nuo regiono.',
+          title: "Ar pristatymas įskaičiuotas?",
+          body: "Taip. LEGO® rinkinių pristatymas įskaičiuotas į visas BrickTime prenumeratas. Pristatymo būdas priklauso nuo pasirinktos prenumeratos.",
+        },
+        {
+          title: "Kaip sekti siuntą?",
+          body: "Kai siunta bus išsiųsta, jos būseną ir sekimo informaciją galėsi matyti savo BrickTime paskyroje.",
+        },
+        {
+          title: "Negaunu siuntos – ką daryti?",
+          body: "Jei siunta vėluoja arba kyla klausimų dėl pristatymo, susisiek su mumis – padėsime išspręsti situaciją.",
         },
       ]}
       checklist={[
-        'Sekimo numerį matysi paskyroje vos tik siunta bus užregistruota.',
-        'Adreso pakeitimus verta atlikti prieš naujo užsakymo patvirtinimą.',
-        'Jei siunta vėluoja, pagalbos komanda gali patikrinti konkretų sekimo statusą.',
+        "Siuntos sekimo informaciją rasi savo BrickTime paskyroje, kai siunta bus išsiųsta.",
+        "LEGO® rinkinio pristatymas įskaičiuotas į visas BrickTime prenumeratas.",
+        "Pristatymo būdas priklauso nuo pasirinktos prenumeratos.",
       ]}
-      note="Pristatymo greitis priklauso nuo tavo regiono ir pasirinktos prenumeratos. Jei užsakymas ypač laukiamos naujienos dalis, rekomenduojame aukštesnį tier su prioritetiniu siuntos paruošimu."
+      note="Pradedame ruošti tavo LEGO® rinkinį vos patvirtinus užsakymą. Siunta įprastai iškeliauja per 1–2 darbo dienas, o pristatymas Lietuvoje dažniausiai trunka 3–5 darbo dienas."
     />
   )
 }
@@ -239,37 +287,53 @@ export function ReturnsPage() {
     <HelpPage
       eyebrow="Pagalba / Grąžinimai"
       title="Grąžinimai"
-      intro="Kai norisi naujo rinkinio, grąžinimo procesas turi būti paprastas. Šis puslapis aprašo, kaip inicijuoti grąžinimą, ką supakuoti ir kada vėl atsirakina tavo prenumeratos biudžetas."
+      intro="Baigei konstruoti? Laikas kitam rinkiniui. Grąžinimo procesas paprastas ir greitas. Čia sužinosi, kaip inicijuoti grąžinimą, kaip tinkamai paruošti rinkinį siuntimui ir kada galėsi išsirinkti kitą LEGO® rinkinį."
       accent="rgba(93, 219, 156, 0.72)"
       heroImage="/images/build-cactus.jpg"
       summary={[
-        { label: 'Etiketė', value: 'Grąžinimo etiketę inicijuoji savo paskyroje.' },
-        { label: 'Pakuotė', value: 'Siunčiama su apsauga, kad produktas grįžtų saugiai.' },
-        { label: 'Biudžetas', value: 'Patvirtinus grąžinimą, limitas atsinaujina naujam pasirinkimui.' },
+        {
+          label: "Etiketė",
+          value: "Grąžinimo etiketę inicijuoji savo paskyroje.",
+        },
+        {
+          label: "Pakuotė",
+          value: "Siunčiama su apsauga, kad produktas grįžtų saugiai.",
+        },
+        {
+          label: "Biudžetas",
+          value:
+            "Patvirtinus grąžinimą, limitas atsinaujina naujam pasirinkimui.",
+        },
       ]}
       sections={[
         {
-          title: 'Kaip pradėti grąžinimą?',
-          body:
-            'Paskyros lange pasirenki aktyvų produktą ir inicijuoji grąžinimą. Sistema sugeneruoja tolesnius veiksmus, o tu gauni aiškią siuntos grąžinimo eigą.',
+          title: "Kaip paruošti rinkinį siuntimui?",
+          body: "Išrink LEGO® rinkinį, detales sudėk į pridėtą (-us) maišelį (-ius), instrukciją – į apsauginį maišelį ir viską saugiai supakuok į dėžę. Grąžink rinkinį su visomis detalėmis ir priedais, kad kitas narys galėtų mėgautis pilna BrickTime patirtimi.",
         },
         {
-          title: 'Ką reikia įdėti į siuntą?',
-          body:
-            'Supakuok produktą saugiai ir grąžink su visomis priklausančiomis dalimis bei aksesuarais. Taip užtikrinama, kad kitas narys gautų pilną patirtį, o tavo pakeitimas neužstrigtų.',
+          title: "Kaip grąžinti rinkinį?",
+          body: "Rinkinį grąžink tokiu pačiu būdu, kokiu jis buvo pristatytas. Jei gavai per paštomatą – grąžink per paštomatą. Jei pristatė kurjeris – grąžinimą atlik per kurjerį.",
         },
         {
-          title: 'Kada galiu rinktis kitą produktą?',
-          body:
-            'Kai grąžinimas pasiekia mūsų komandą ir yra patvirtinamas, tavo prenumeratos vertės limitas atnaujinamas. Tada gali iškart grįžti į archyvą ar laukti kito dropo.',
+          title: "Trūksta detalės?",
+          body: "Jei pastebėjai, kad trūksta detalės, prieš inicijuodamas grąžinimą prisijunk prie savo paskyros ir užpildyk trūkstamos detalės formą. Tai padės mums greičiau patikrinti rinkinį ir užtikrins sklandų grąžinimo procesą. Svarbu: apie trūkstamą detalę būtina pranešti prieš grąžinant rinkinį. Jei trūkumas bus nustatytas tik patikros metu, jis bus vertinamas pagal BrickTime taisykles.",
+        },
+        {
+          title: "Kada galėsiu rinktis kitą rinkinį?",
+          body: "Gavę tavo siuntą, rinkinį patikrinsime per 3 darbo dienas. Po sėkmingos patikros tavo užsakymas bus užbaigtas. Jei tavo prenumeratos laikotarpiui jau priklauso naujas užsakymas, galėsi išsirinkti kitą LEGO® rinkinį pagal savo prenumeratą.",
         },
       ]}
       checklist={[
-        'Grąžinimą verta inicijuoti iš anksto, jei nori greitai pereiti prie kito rinkinio.',
-        'Saugus supakavimas padeda išvengti papildomos patikros.',
-        'Patvirtintas grąžinimas atlaisvina vietą tavo kitam pasirinkimui.',
+        "Inicijuok grąžinimą savo paskyroje.",
+        "Jei trūksta detalės – pranešk prieš grąžinimą.",
+        "Rinkinį grąžink tuo pačiu būdu, kuriuo jis buvo pristatytas.",
+        "Patikrą atliekame per 3 darbo dienas.",
       ]}
       note="Jei nori keisti produktą kuo greičiau, grąžinimą inicijuok dar prieš išsirenkant kitą rinkinį. Taip tavo limitas bus atnaujintas vos tik siunta bus patvirtinta."
+      helpNote={{
+        title: "Reikia pagalbos?",
+        body: "Neradai atsakymo į savo klausimą? Peržiūrėk DUK arba susisiek su mūsų komanda – mielai padėsime.",
+      }}
     />
   )
 }

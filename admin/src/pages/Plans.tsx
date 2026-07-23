@@ -1,21 +1,35 @@
-import { useState, useEffect } from 'react'
-import { PencilIcon, CheckIcon, PlusIcon, Trash2Icon } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
-import { Badge } from '@/components/ui/badge'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { supabase } from '@/lib/supabase'
+import { useState, useEffect } from "react"
+import { PencilIcon, CheckIcon, PlusIcon, Trash2Icon } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+} from "@/components/ui/sheet"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { supabase } from "@/lib/supabase"
 
-type PlanId = 'nano' | 'mini' | 'standard' | 'pro' | 'mega' | 'mystery_s' | 'mystery_m'
+type PlanId =
+  | "nano"
+  | "mini"
+  | "standard"
+  | "pro"
+  | "mega"
+  | "mystery_s"
+  | "mystery_m"
 
 interface DbPlan {
   id: PlanId
   name: string | null
   tagline: string | null
+  cta_label: string | null
   price: number
   annual_price: number | null
   featured: boolean
@@ -27,7 +41,7 @@ interface DbPlan {
   subscribers: number
 }
 
-type EditState = Omit<DbPlan, 'subscribers'>
+type EditState = Omit<DbPlan, "subscribers">
 
 export function Plans() {
   const [plans, setPlans] = useState<DbPlan[]>([])
@@ -38,8 +52,8 @@ export function Plans() {
   useEffect(() => {
     async function load() {
       const [{ data: planRows }, { data: subRows }] = await Promise.all([
-        supabase.from('plans').select('*').order('sort_order'),
-        supabase.from('subscribers').select('plan').eq('status', 'active'),
+        supabase.from("plans").select("*").order("sort_order"),
+        supabase.from("subscribers").select("plan").eq("status", "active"),
       ])
       const subCountMap: Record<string, number> = {}
       for (const s of subRows ?? []) {
@@ -48,7 +62,10 @@ export function Plans() {
       setPlans(
         (planRows ?? []).map((p) => ({
           ...p,
-          perks: (Array.isArray(p.perks) ? p.perks : []) as Array<{ label: string; included: boolean }>,
+          perks: (Array.isArray(p.perks) ? p.perks : []) as Array<{
+            label: string
+            included: boolean
+          }>,
           subscribers: subCountMap[p.id] ?? 0,
         })) as DbPlan[]
       )
@@ -65,10 +82,11 @@ export function Plans() {
     if (!editPlan) return
     setSaving(true)
     const { error } = await supabase
-      .from('plans')
+      .from("plans")
       .update({
         name: editPlan.name,
         tagline: editPlan.tagline,
+        cta_label: editPlan.cta_label,
         price: editPlan.price,
         annual_price: editPlan.annual_price,
         featured: editPlan.featured,
@@ -77,11 +95,14 @@ export function Plans() {
         text_color: editPlan.text_color,
         perks: editPlan.perks,
       })
-      .eq('id', editPlan.id)
+      .eq("id", editPlan.id)
     setSaving(false)
-    if (error) { console.error('Save failed:', error.message); return }
+    if (error) {
+      console.error("Save failed:", error.message)
+      return
+    }
     setPlans((prev) =>
-      prev.map((p) => p.id === editPlan.id ? { ...p, ...editPlan } : p)
+      prev.map((p) => (p.id === editPlan.id ? { ...p, ...editPlan } : p))
     )
     setEditPlan(null)
   }
@@ -89,11 +110,16 @@ export function Plans() {
   async function toggleActive(plan: DbPlan) {
     const next = !plan.active
     const { error } = await supabase
-      .from('plans')
+      .from("plans")
       .update({ active: next })
-      .eq('id', plan.id)
-    if (error) { console.error('Toggle failed:', error.message); return }
-    setPlans((prev) => prev.map((p) => p.id === plan.id ? { ...p, active: next } : p))
+      .eq("id", plan.id)
+    if (error) {
+      console.error("Toggle failed:", error.message)
+      return
+    }
+    setPlans((prev) =>
+      prev.map((p) => (p.id === plan.id ? { ...p, active: next } : p))
+    )
   }
 
   const activePlans = plans.filter((p) => p.active)
@@ -107,7 +133,7 @@ export function Plans() {
           <h1 className="text-2xl font-semibold tracking-tight">Plans</h1>
           <p className="text-sm text-muted-foreground">
             {loading
-              ? 'Loading…'
+              ? "Loading…"
               : `${activePlans.length} active plans · ${totalSubscribers} subscribers · €${totalMrr.toLocaleString()} MRR`}
           </p>
         </div>
@@ -131,31 +157,40 @@ export function Plans() {
                 <Card
                   key={plan.id}
                   className={[
-                    'flex flex-col overflow-hidden py-0 transition-opacity',
-                    !plan.active && 'opacity-50',
-                  ].join(' ')}
+                    "flex flex-col overflow-hidden py-0 transition-opacity",
+                    !plan.active && "opacity-50",
+                  ].join(" ")}
                 >
                   {/* Coloured header strip */}
                   <div
                     className="flex items-start justify-between gap-3 px-6 py-5"
-                    style={{ background: plan.bg_color, color: plan.text_color }}
+                    style={{
+                      background: plan.bg_color,
+                      color: plan.text_color,
+                    }}
                   >
                     <div className="flex flex-col gap-1">
                       <span className="font-mono text-xs tracking-[.18em] uppercase opacity-70">
                         {plan.id}
                       </span>
-                      <span className="text-2xl font-bold leading-none">
+                      <span className="text-2xl leading-none font-bold">
                         {plan.name ?? plan.id}
                       </span>
                       {plan.tagline && (
-                        <span className="mt-1 text-sm opacity-80">{plan.tagline}</span>
+                        <span className="mt-1 text-sm opacity-80">
+                          {plan.tagline}
+                        </span>
                       )}
                     </div>
                     <div className="flex shrink-0 items-center gap-1">
                       {plan.featured && (
                         <Badge
                           className="font-mono text-[10px] tracking-[.08em] uppercase"
-                          style={{ background: 'rgba(0,0,0,.25)', color: plan.text_color, border: 'none' }}
+                          style={{
+                            background: "rgba(0,0,0,.25)",
+                            color: plan.text_color,
+                            border: "none",
+                          }}
                         >
                           Popular
                         </Badge>
@@ -189,29 +224,40 @@ export function Plans() {
 
                     {/* Perks */}
                     <ul className="flex flex-col gap-1.5">
-                      {plan.perks.filter((p) => p.included).map((perk) => (
-                        <li key={perk.label} className="flex items-start gap-2 text-sm">
-                          <CheckIcon className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" aria-hidden />
-                          {perk.label}
-                        </li>
-                      ))}
+                      {plan.perks
+                        .filter((p) => p.included)
+                        .map((perk) => (
+                          <li
+                            key={perk.label}
+                            className="flex items-start gap-2 text-sm"
+                          >
+                            <CheckIcon
+                              className="mt-0.5 size-3.5 shrink-0 text-muted-foreground"
+                              aria-hidden
+                            />
+                            {perk.label}
+                          </li>
+                        ))}
                     </ul>
 
                     {/* Footer */}
                     <div className="mt-auto flex items-center justify-between border-t pt-3 text-sm text-muted-foreground">
                       <span>{plan.subscribers} active</span>
                       <div className="flex items-center gap-3">
-                        <span>€{(plan.price * plan.subscribers).toLocaleString()} MRR</span>
+                        <span>
+                          €{(plan.price * plan.subscribers).toLocaleString()}{" "}
+                          MRR
+                        </span>
                         <button
                           onClick={() => toggleActive(plan)}
                           className={[
-                            'font-mono text-[11px] tracking-[.06em] uppercase transition-colors',
+                            "font-mono text-[11px] tracking-[.06em] uppercase transition-colors",
                             plan.active
-                              ? 'text-green-600 hover:text-red-500'
-                              : 'text-red-400 hover:text-green-600',
-                          ].join(' ')}
+                              ? "text-green-600 hover:text-red-500"
+                              : "text-red-400 hover:text-green-600",
+                          ].join(" ")}
                         >
-                          {plan.active ? 'Active' : 'Inactive'}
+                          {plan.active ? "Active" : "Inactive"}
                         </button>
                       </div>
                     </div>
@@ -222,10 +268,17 @@ export function Plans() {
       </div>
 
       {/* Full plan edit sheet */}
-      <Sheet open={!!editPlan} onOpenChange={(open) => { if (!open) setEditPlan(null) }}>
+      <Sheet
+        open={!!editPlan}
+        onOpenChange={(open) => {
+          if (!open) setEditPlan(null)
+        }}
+      >
         <SheetContent className="flex flex-col gap-0 overflow-y-auto sm:max-w-md">
           <SheetHeader className="border-b px-6 py-5">
-            <SheetTitle>Edit plan — {editPlan?.name ?? editPlan?.id}</SheetTitle>
+            <SheetTitle>
+              Edit plan — {editPlan?.name ?? editPlan?.id}
+            </SheetTitle>
           </SheetHeader>
 
           {editPlan && (
@@ -235,7 +288,7 @@ export function Plans() {
                 <div className="flex flex-col gap-1.5">
                   <Label>Name</Label>
                   <Input
-                    value={editPlan.name ?? ''}
+                    value={editPlan.name ?? ""}
                     onChange={(e) =>
                       setEditPlan((p) => p && { ...p, name: e.target.value })
                     }
@@ -244,11 +297,25 @@ export function Plans() {
                 <div className="flex flex-col gap-1.5">
                   <Label>Tagline</Label>
                   <Input
-                    value={editPlan.tagline ?? ''}
+                    value={editPlan.tagline ?? ""}
                     onChange={(e) =>
-                      setEditPlan((p) => p && { ...p, tagline: e.target.value || null })
+                      setEditPlan(
+                        (p) => p && { ...p, tagline: e.target.value || null }
+                      )
                     }
                     placeholder="Optional"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label>Button label</Label>
+                  <Input
+                    value={editPlan.cta_label ?? ""}
+                    onChange={(e) =>
+                      setEditPlan(
+                        (p) => p && { ...p, cta_label: e.target.value || null }
+                      )
+                    }
+                    placeholder="Pradėti"
                   />
                 </div>
               </div>
@@ -267,7 +334,9 @@ export function Plans() {
                       step={0.01}
                       value={editPlan.price}
                       onChange={(e) =>
-                        setEditPlan((p) => p && { ...p, price: Number(e.target.value) })
+                        setEditPlan(
+                          (p) => p && { ...p, price: Number(e.target.value) }
+                        )
                       }
                     />
                   </div>
@@ -277,13 +346,16 @@ export function Plans() {
                       type="number"
                       min={1}
                       step={0.01}
-                      value={editPlan.annual_price ?? ''}
+                      value={editPlan.annual_price ?? ""}
                       onChange={(e) =>
-                        setEditPlan((p) =>
-                          p && {
-                            ...p,
-                            annual_price: e.target.value ? Number(e.target.value) : null,
-                          }
+                        setEditPlan(
+                          (p) =>
+                            p && {
+                              ...p,
+                              annual_price: e.target.value
+                                ? Number(e.target.value)
+                                : null,
+                            }
                         )
                       }
                       placeholder="Optional"
@@ -305,14 +377,18 @@ export function Plans() {
                         type="color"
                         value={editPlan.bg_color}
                         onChange={(e) =>
-                          setEditPlan((p) => p && { ...p, bg_color: e.target.value })
+                          setEditPlan(
+                            (p) => p && { ...p, bg_color: e.target.value }
+                          )
                         }
                         className="h-9 w-10 cursor-pointer rounded border border-input bg-transparent p-0.5"
                       />
                       <Input
                         value={editPlan.bg_color}
                         onChange={(e) =>
-                          setEditPlan((p) => p && { ...p, bg_color: e.target.value })
+                          setEditPlan(
+                            (p) => p && { ...p, bg_color: e.target.value }
+                          )
                         }
                         className="font-mono text-xs"
                       />
@@ -325,14 +401,18 @@ export function Plans() {
                         type="color"
                         value={editPlan.text_color}
                         onChange={(e) =>
-                          setEditPlan((p) => p && { ...p, text_color: e.target.value })
+                          setEditPlan(
+                            (p) => p && { ...p, text_color: e.target.value }
+                          )
                         }
                         className="h-9 w-10 cursor-pointer rounded border border-input bg-transparent p-0.5"
                       />
                       <Input
                         value={editPlan.text_color}
                         onChange={(e) =>
-                          setEditPlan((p) => p && { ...p, text_color: e.target.value })
+                          setEditPlan(
+                            (p) => p && { ...p, text_color: e.target.value }
+                          )
                         }
                         className="font-mono text-xs"
                       />
@@ -342,7 +422,10 @@ export function Plans() {
                 {/* Live preview strip */}
                 <div
                   className="rounded-lg px-4 py-3 text-sm font-semibold"
-                  style={{ background: editPlan.bg_color, color: editPlan.text_color }}
+                  style={{
+                    background: editPlan.bg_color,
+                    color: editPlan.text_color,
+                  }}
                 >
                   {editPlan.name ?? editPlan.id}
                 </div>
@@ -383,8 +466,12 @@ export function Plans() {
                     size="sm"
                     variant="outline"
                     onClick={() =>
-                      setEditPlan((p) =>
-                        p && { ...p, perks: [...p.perks, { label: '', included: true }] }
+                      setEditPlan(
+                        (p) =>
+                          p && {
+                            ...p,
+                            perks: [...p.perks, { label: "", included: true }],
+                          }
                       )
                     }
                   >
@@ -398,13 +485,14 @@ export function Plans() {
                       <Switch
                         checked={perk.included}
                         onCheckedChange={(v) =>
-                          setEditPlan((p) =>
-                            p && {
-                              ...p,
-                              perks: p.perks.map((pk, idx) =>
-                                idx === i ? { ...pk, included: v } : pk
-                              ),
-                            }
+                          setEditPlan(
+                            (p) =>
+                              p && {
+                                ...p,
+                                perks: p.perks.map((pk, idx) =>
+                                  idx === i ? { ...pk, included: v } : pk
+                                ),
+                              }
                           )
                         }
                       />
@@ -412,13 +500,16 @@ export function Plans() {
                         className="flex-1 text-sm"
                         value={perk.label}
                         onChange={(e) =>
-                          setEditPlan((p) =>
-                            p && {
-                              ...p,
-                              perks: p.perks.map((pk, idx) =>
-                                idx === i ? { ...pk, label: e.target.value } : pk
-                              ),
-                            }
+                          setEditPlan(
+                            (p) =>
+                              p && {
+                                ...p,
+                                perks: p.perks.map((pk, idx) =>
+                                  idx === i
+                                    ? { ...pk, label: e.target.value }
+                                    : pk
+                                ),
+                              }
                           )
                         }
                         placeholder="Feature description"
@@ -428,8 +519,12 @@ export function Plans() {
                         variant="ghost"
                         className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
                         onClick={() =>
-                          setEditPlan((p) =>
-                            p && { ...p, perks: p.perks.filter((_, idx) => idx !== i) }
+                          setEditPlan(
+                            (p) =>
+                              p && {
+                                ...p,
+                                perks: p.perks.filter((_, idx) => idx !== i),
+                              }
                           )
                         }
                       >
@@ -451,7 +546,7 @@ export function Plans() {
               Cancel
             </Button>
             <Button onClick={handleSave} disabled={saving}>
-              {saving ? 'Saving…' : 'Save changes'}
+              {saving ? "Saving…" : "Save changes"}
             </Button>
           </SheetFooter>
         </SheetContent>
