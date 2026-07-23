@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom"
 import { ArrowRightIcon } from "lucide-react"
-import { getSubscriptionDisplayName, getSubscriptionTheme, getSubscriptionBrickSvg } from "@/lib/subscription-branding"
+import {
+  getSubscriptionDisplayName,
+  getSubscriptionTheme,
+  getSubscriptionBrickSvg,
+} from "@/lib/subscription-branding"
 
 export type Tier =
   | "nano"
@@ -36,24 +40,41 @@ export interface Product {
 
 function planTier(plan: string, level: number) {
   const theme = getSubscriptionTheme(plan)
-  return { label: getSubscriptionDisplayName(plan), bg: theme?.bg ?? "#1C1C2E", textColor: theme?.textColor ?? "#F5F1EB", level }
+  return {
+    label: getSubscriptionDisplayName(plan),
+    bg: theme?.bg ?? "#1C1C2E",
+    textColor: theme?.textColor ?? "#F5F1EB",
+    level,
+  }
 }
 
-
 // eslint-disable-next-line react-refresh/only-export-components
-export const tierConfig: Record<Tier, { label: string; bg: string; textColor: string; level: number }> = {
-  nano:      planTier("nano",     1),
-  mini:      planTier("mini",     2),
-  standard:  planTier("standard", 3),
-  pro:       planTier("pro",      4),
-  mega:      planTier("mega",     5),
-  mystery_s: { label: "Mystery Box S", bg: "#FFD731", textColor: "#001B21", level: 0 },
-  mystery_m: { label: "Mystery Box M", bg: "#FFAEE7", textColor: "#001B21", level: 0 },
+export const tierConfig: Record<
+  Tier,
+  { label: string; bg: string; textColor: string; level: number }
+> = {
+  nano: planTier("nano", 1),
+  mini: planTier("mini", 2),
+  standard: planTier("standard", 3),
+  pro: planTier("pro", 4),
+  mega: planTier("mega", 5),
+  mystery_s: planTier("mystery_s", 0),
+  mystery_m: planTier("mystery_m", 0),
 }
 
 const LT_MONTHS = [
-  "sausis", "vasaris", "kovas", "balandis", "gegužė", "birželis",
-  "liepa", "rugpjūtis", "rugsėjis", "spalis", "lapkritis", "gruodis",
+  "sausis",
+  "vasaris",
+  "kovas",
+  "balandis",
+  "gegužė",
+  "birželis",
+  "liepa",
+  "rugpjūtis",
+  "rugsėjis",
+  "spalis",
+  "lapkritis",
+  "gruodis",
 ]
 
 function formatReleaseDate(iso: string | null): string {
@@ -101,9 +122,15 @@ export function dbToProduct(row: Record<string, unknown>): Product {
   }
 }
 
-function MockModel({ colors, heights }: { colors: string[]; heights: number[] }) {
+function MockModel({
+  colors,
+  heights,
+}: {
+  colors: string[]
+  heights: number[]
+}) {
   return (
-    <div className="relative z-10 flex items-end gap-1.5 px-5 pb-0 h-[180px]">
+    <div className="relative z-10 flex h-[180px] items-end gap-1.5 px-5 pb-0">
       {colors.map((color, i) => (
         <div
           key={i}
@@ -182,7 +209,11 @@ export function ProductCard({ product }: { product: Product }) {
         image={product.image}
         className="relative h-[280px] border-b-2 border-ink"
       >
-        <img src={getSubscriptionBrickSvg(product.requiredTier)} alt="" className="pointer-events-none absolute left-[14px] top-[14px] z-10 h-10 w-auto select-none" />
+        <img
+          src={getSubscriptionBrickSvg(product.requiredTier)}
+          alt=""
+          className="pointer-events-none absolute top-[14px] left-[14px] z-10 h-10 w-auto select-none"
+        />
 
         {product.badge && (
           <div
@@ -190,47 +221,68 @@ export function ProductCard({ product }: { product: Product }) {
             style={{ background: badgeBg, color: badgeColor }}
           >
             {product.badgeLabel?.split(" ").map((w, i) => (
-              <span key={i} className="block">{w}</span>
+              <span key={i} className="block">
+                {w}
+              </span>
             ))}
           </div>
         )}
         {!product.image && (
           <div className="absolute right-0 bottom-0 left-0 flex items-end justify-center">
-            <MockModel colors={product.brickColors} heights={product.brickHeights} />
+            <MockModel
+              colors={product.brickColors}
+              heights={product.brickHeights}
+            />
           </div>
         )}
       </StudBg>
 
       <div className="flex flex-1 flex-col gap-3 p-4 md:p-5">
         <div>
-          <h3 className="heading-display text-d-xs text-ink leading-[.95]">{product.title}</h3>
-          <p className="mt-1 font-mono text-[11px] tracking-[.12em] text-ink/50 uppercase">{product.subtitle}</p>
+          <h3 className="heading-display text-d-xs leading-[.95] text-ink">
+            {product.title}
+          </h3>
+          <p className="mt-1 font-mono text-[11px] tracking-[.12em] text-ink/50 uppercase">
+            {product.subtitle}
+          </p>
         </div>
 
         <div className="grid grid-cols-3 gap-x-3 gap-y-2.5 border-t border-ink/10 pt-3">
           <div>
-            <p className="label-mono text-ink/40 text-[9px]">Detalės</p>
-            <p className="font-mono text-[12px] font-bold text-ink">{product.bricks}</p>
+            <p className="label-mono text-[9px] text-ink/40">Detalės</p>
+            <p className="font-mono text-[12px] font-bold text-ink">
+              {product.bricks}
+            </p>
           </div>
           <div>
-            <p className="label-mono text-ink/40 text-[9px]">Metai</p>
-            <p className="font-mono text-[12px] font-bold text-ink">{product.year}</p>
+            <p className="label-mono text-[9px] text-ink/40">Metai</p>
+            <p className="font-mono text-[12px] font-bold text-ink">
+              {product.year}
+            </p>
           </div>
           <div>
-            <p className="label-mono text-ink/40 text-[9px]">Amžius</p>
-            <p className="font-mono text-[12px] font-bold text-ink">{product.minAge ? `${product.minAge}+` : "—"}</p>
+            <p className="label-mono text-[9px] text-ink/40">Amžius</p>
+            <p className="font-mono text-[12px] font-bold text-ink">
+              {product.minAge ? `${product.minAge}+` : "—"}
+            </p>
           </div>
           <div>
-            <p className="label-mono text-ink/40 text-[9px]">Kaina</p>
-            <p className="font-mono text-[12px] font-bold text-ink">{product.price ? `€${product.price}` : "—"}</p>
+            <p className="label-mono text-[9px] text-ink/40">Kaina</p>
+            <p className="font-mono text-[12px] font-bold text-ink">
+              {product.price ? `€${product.price}` : "—"}
+            </p>
           </div>
           <div>
-            <p className="label-mono text-ink/40 text-[9px]">Kategorija</p>
-            <p className="font-mono text-[12px] font-bold text-ink capitalize">{product.category || "—"}</p>
+            <p className="label-mono text-[9px] text-ink/40">Kategorija</p>
+            <p className="font-mono text-[12px] font-bold text-ink capitalize">
+              {product.category || "—"}
+            </p>
           </div>
           <div>
-            <p className="label-mono text-ink/40 text-[9px]">Prenumerata</p>
-            <p className="font-mono text-[12px] font-bold text-ink">{tier.label}</p>
+            <p className="label-mono text-[9px] text-ink/40">Prenumerata</p>
+            <p className="font-mono text-[12px] font-bold text-ink">
+              {tier.label}
+            </p>
           </div>
         </div>
 

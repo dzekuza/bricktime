@@ -10,9 +10,20 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { StarIcon, ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
 import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
-import { ProductCard, dbToProduct, type Product } from "@/components/ProductCard"
+import {
+  ProductCard,
+  dbToProduct,
+  type Product,
+} from "@/components/ProductCard"
 
-type Review = { stars: number; quote: string; name: string; meta: string; avatarColor: string; initials: string }
+type Review = {
+  stars: number
+  quote: string
+  name: string
+  meta: string
+  avatarColor: string
+  initials: string
+}
 
 function ReviewCard({ review: r }: { review: Review }) {
   return (
@@ -23,16 +34,23 @@ function ReviewCard({ review: r }: { review: Review }) {
             <StarIcon key={j} className="size-4 fill-current" />
           ))}
         </div>
-        <p className="font-display text-[20px] leading-[1.05] tracking-[.005em] uppercase">{r.quote}</p>
+        <p className="font-display text-[20px] leading-[1.05] tracking-[.005em] uppercase">
+          {r.quote}
+        </p>
         <div className="mt-auto flex items-center gap-2.5 border-t border-dashed border-ink/18 pt-3">
           <Avatar className="size-9 border-2 border-ink">
-            <AvatarFallback style={{ background: r.avatarColor }} className="text-[12px] font-bold text-ink">
+            <AvatarFallback
+              style={{ background: r.avatarColor }}
+              className="text-[12px] font-bold text-ink"
+            >
               {r.initials}
             </AvatarFallback>
           </Avatar>
           <div>
             <b className="text-[14px]">{r.name}</b>
-            <small className="mt-0.5 block font-mono text-[10px] tracking-[.14em] text-ink/55 uppercase">{r.meta}</small>
+            <small className="mt-0.5 block font-mono text-[10px] tracking-[.14em] text-ink/55 uppercase">
+              {r.meta}
+            </small>
           </div>
         </div>
       </CardContent>
@@ -205,7 +223,10 @@ function RelatedCarousel({ products }: { products: Product[] }) {
   function scroll(dir: "prev" | "next") {
     if (!ref.current) return
     const cardW = ref.current.children[0]?.clientWidth ?? 0
-    ref.current.scrollBy({ left: dir === "next" ? cardW + 16 : -(cardW + 16), behavior: "smooth" })
+    ref.current.scrollBy({
+      left: dir === "next" ? cardW + 16 : -(cardW + 16),
+      behavior: "smooth",
+    })
   }
 
   useEffect(() => {
@@ -226,8 +247,14 @@ function RelatedCarousel({ products }: { products: Product[] }) {
       {/* Header row: heading left, controls right */}
       <div className="mb-6 flex items-end justify-between gap-4">
         <h2 className="heading-display text-d-md tracking-[-0.015em] text-ink">
-          Gali<br />
-          <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>patikti.</span>
+          Gali
+          <br />
+          <span
+            className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
+            style={{ transformOrigin: "center center" }}
+          >
+            patikti.
+          </span>
         </h2>
         {products.length > visibleCount && (
           <div className="flex shrink-0 items-center gap-3 pb-1">
@@ -245,7 +272,10 @@ function RelatedCarousel({ products }: { products: Product[] }) {
                   onClick={() => {
                     if (!ref.current) return
                     const cardW = ref.current.children[0]?.clientWidth ?? 0
-                    ref.current.scrollTo({ left: i * (cardW + 16), behavior: "smooth" })
+                    ref.current.scrollTo({
+                      left: i * (cardW + 16),
+                      behavior: "smooth",
+                    })
                   }}
                   aria-label={`Produktas ${i + 1}`}
                   className={`h-2 rounded-full border border-ink transition-all duration-300 ${i === active ? "w-6 bg-ink" : "w-2 bg-transparent"}`}
@@ -266,10 +296,13 @@ function RelatedCarousel({ products }: { products: Product[] }) {
       {/* Scroll track */}
       <div
         ref={ref}
-        className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none -mx-3 px-3 py-3"
+        className="scrollbar-none -mx-3 flex snap-x snap-mandatory gap-4 overflow-x-auto px-3 py-3"
       >
         {products.map((p) => (
-          <div key={p.id} className="w-[calc(33.333%-11px)] shrink-0 snap-start">
+          <div
+            key={p.id}
+            className="w-[calc(33.333%-11px)] shrink-0 snap-start"
+          >
             <ProductCard product={p} />
           </div>
         ))}
@@ -302,7 +335,7 @@ export default function Drop() {
           setLabel(p.title)
         }
       })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   useEffect(() => {
@@ -359,18 +392,24 @@ export default function Drop() {
           },
         ]
 
-  const lightboxPrev = useCallback(() => setActiveThumb((i) => (i - 1 + thumbs.length) % thumbs.length), [thumbs.length])
-  const lightboxNext = useCallback(() => setActiveThumb((i) => (i + 1) % thumbs.length), [thumbs.length])
+  const lightboxPrev = useCallback(
+    () => setActiveThumb((i) => (i - 1 + thumbs.length) % thumbs.length),
+    [thumbs.length]
+  )
+  const lightboxNext = useCallback(
+    () => setActiveThumb((i) => (i + 1) % thumbs.length),
+    [thumbs.length]
+  )
 
   useEffect(() => {
     if (!lightboxOpen) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') lightboxPrev()
-      else if (e.key === 'ArrowRight') lightboxNext()
-      else if (e.key === 'Escape') setLightboxOpen(false)
+      if (e.key === "ArrowLeft") lightboxPrev()
+      else if (e.key === "ArrowRight") lightboxNext()
+      else if (e.key === "Escape") setLightboxOpen(false)
     }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
   }, [lightboxOpen, lightboxPrev, lightboxNext])
 
   return (
@@ -380,13 +419,13 @@ export default function Drop() {
       {/* ── Product Hero ── */}
       <section className="bg-paper py-4">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-<div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2">
+          <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2">
             {/* Gallery tile */}
             <div className="brick-card p-4">
               <div className="flex flex-col gap-4">
                 {/* Main image */}
                 <div
-                  className="relative h-[520px] overflow-hidden rounded-[24px] border-2 border-ink cursor-zoom-in"
+                  className="relative h-[520px] cursor-zoom-in overflow-hidden rounded-[24px] border-2 border-ink"
                   style={{ background: thumbs[activeThumb].bg }}
                   onClick={() => setLightboxOpen(true)}
                 >
@@ -416,19 +455,19 @@ export default function Drop() {
                     <img
                       src="/wanrr.svg"
                       alt="Warning"
-                      className="absolute bottom-4 right-4 w-[100px] pointer-events-none select-none"
+                      className="pointer-events-none absolute right-4 bottom-4 w-[100px] select-none"
                     />
                   )}
                 </div>
 
                 {/* Thumbnails */}
-                <div className="flex gap-3 overflow-x-auto pb-1 md:grid md:grid-cols-4 md:overflow-visible md:pb-0 scrollbar-none">
+                <div className="scrollbar-none flex gap-3 overflow-x-auto pb-1 md:grid md:grid-cols-4 md:overflow-visible md:pb-0">
                   {thumbs.map((t, i) => (
                     <button
                       key={i}
                       onClick={() => setActiveThumb(i)}
                       className={[
-                        "relative h-[90px] w-[90px] shrink-0 md:w-auto overflow-hidden rounded-lg border-2 border-ink transition-all",
+                        "relative h-[90px] w-[90px] shrink-0 overflow-hidden rounded-lg border-2 border-ink transition-all md:w-auto",
                         activeThumb === i
                           ? "outline outline-[3px] outline-offset-2 outline-brand-yellow"
                           : "hover:opacity-80",
@@ -476,9 +515,7 @@ export default function Drop() {
               <h1 className="heading-display text-d-lg mt-7 tracking-[-0.01em] text-ink">
                 {product?.title ?? "Mailbox Row"}
                 <br />+{" "}
-                <span
-                  className="inline-block text-brand-indigo italic skew-x-[-8deg]"
-                >
+                <span className="inline-block skew-x-[-8deg] text-brand-indigo italic">
                   {product?.subtitle ?? "Postman Otto"}
                 </span>
               </h1>
@@ -489,29 +526,56 @@ export default function Drop() {
               </p>
 
               {/* Legal / safety notice — LEGO® age warning + trademark disclaimer */}
-              <div className="mt-5 max-w-[48ch] rounded-2xl border-2 border-ink/15 bg-ink/[.02] px-4 py-3.5">
-                {/* TODO: add EN 71-6 age warning SVG symbol once asset is provided by client */}
-                <p className="text-[12px] leading-[1.6] text-ink/55">
-                  Svarbu: LEGO® rinkinyje yra smulkių detalių, todėl jis netinka vaikams iki 3 metų. Rekomenduojame rinkinį naudoti pagal gamintojo nurodytą amžiaus rekomendaciją.
-                </p>
-                <p className="mt-2 text-[11px] leading-[1.5] text-ink/40">
-                  LEGO® yra registruotas prekės ženklas, priklausantis „LEGO Group“ įmonių grupei, kuri nėra susijusi, neremia ir kitaip neprisideda prie šios veiklos vystymo.
-                </p>
+              <div className="mt-5 flex max-w-[48ch] gap-3 rounded-2xl border-2 border-ink/15 bg-ink/[.02] px-4 py-3.5">
+                {/* EN 71-6 age warning pictogram: standard "not for under 3" toy-safety symbol */}
+                <img
+                  src="/age-warning.svg"
+                  alt=""
+                  aria-hidden="true"
+                  className="mt-0.5 h-10 w-10 shrink-0"
+                />
+                <div>
+                  <p className="text-[12px] leading-[1.6] text-ink/55">
+                    Svarbu: LEGO® rinkinyje yra smulkių detalių, todėl jis
+                    netinka vaikams iki 3 metų. Rekomenduojame rinkinį naudoti
+                    pagal gamintojo nurodytą amžiaus rekomendaciją.
+                  </p>
+                  <p className="mt-2 text-[11px] leading-[1.5] text-ink/40">
+                    LEGO® yra registruotas prekės ženklas, priklausantis „LEGO
+                    Group“ įmonių grupei, kuri nėra susijusi, neremia ir kitaip
+                    neprisideda prie šios veiklos vystymo.
+                  </p>
+                </div>
               </div>
 
               {/* Spec grid */}
               <div className="mt-8 grid grid-cols-3 gap-x-3 gap-y-4 border-t border-ink/10 pt-5">
                 {[
-                  { label: "Detalės",   val: String(product?.bricks ?? "—") },
-                  { label: "Metai",     val: product?.year ? String(product.year) : "—" },
-                  { label: "Amžius",    val: product?.rating ?? "—" },
-                  { label: "Kaina",     val: product?.value != null ? `€${product.value}` : "—" },
+                  { label: "Detalės", val: String(product?.bricks ?? "—") },
+                  {
+                    label: "Metai",
+                    val: product?.year ? String(product.year) : "—",
+                  },
+                  { label: "Amžius", val: product?.rating ?? "—" },
+                  {
+                    label: "Kaina",
+                    val: product?.value != null ? `€${product.value}` : "—",
+                  },
                   { label: "Kategorija", val: product?.category ?? "—" },
-                  { label: "Prenumerata", val: getSubscriptionDisplayName(product?.tier ?? "standard") + "+" },
+                  {
+                    label: "Prenumerata",
+                    val:
+                      getSubscriptionDisplayName(product?.tier ?? "standard") +
+                      "+",
+                  },
                 ].map(({ label, val }) => (
                   <div key={label} className="flex flex-col gap-1">
-                    <span className="label-mono text-[12px] text-ink/40">{label}</span>
-                    <span className="font-mono text-[14px] font-bold text-ink capitalize">{val}</span>
+                    <span className="label-mono text-[12px] text-ink/40">
+                      {label}
+                    </span>
+                    <span className="font-mono text-[14px] font-bold text-ink capitalize">
+                      {val}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -534,8 +598,8 @@ export default function Drop() {
                 </div>
 
                 <p className="mt-4 text-[14px] leading-[1.6] text-ink/70">
-                  Šis produktas įskaičiuotas į tavo prenumeratą — jokio
-                  papildomo mokesčio. Tiesiog nuomoki, sustatyk ir grąžink.
+                  Šis rinkinys įskaičiuotas į tavo prenumeratą – jokio papildomo
+                  mokesčio. Tiesiog užsisakyk, konstruok ir grąžink.
                 </p>
 
                 <Button
@@ -544,15 +608,12 @@ export default function Drop() {
                   className="mt-5 w-full justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)]"
                 >
                   <Link to={`/checkout?product=${product?.id}`}>
-                    Pradėti nuomą →
+                    Rinkis šį rinkinį →
                   </Link>
                 </Button>
 
                 <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] tracking-[.16em] text-ink/40 uppercase">
-                  {[
-                    "Nemokamas pristatymas",
-                    "Atšauk bet kada",
-                  ].map((s) => (
+                  {["Nemokamas pristatymas", "Atšauk bet kada"].map((s) => (
                     <span key={s} className="flex items-center gap-1.5">
                       <span className="size-2 rounded-full bg-ink/30" />
                       {s}
@@ -834,7 +895,7 @@ export default function Drop() {
               {product.compatibility.map((c) => (
                 <div
                   key={c.drop}
-                  className="brick-card brick-card-hover flex flex-col gap-3.5 p-6 md:p-7 text-ink lg:col-span-4"
+                  className="brick-card brick-card-hover flex flex-col gap-3.5 p-6 text-ink md:p-7 lg:col-span-4"
                   style={{ background: c.bg }}
                 >
                   <h3 className="label-mono text-ink/50">{c.drop}</h3>
@@ -856,10 +917,16 @@ export default function Drop() {
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
             {/* Row 1: Rating tile */}
-            <div className="lg:col-span-7 flex flex-col justify-center py-2">
+            <div className="flex flex-col justify-center py-2 lg:col-span-7">
               <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink">
-                Ką sako<br />
-                <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]" style={{ transformOrigin: "center center" }}>nuomotojai.</span>
+                Ką sako
+                <br />
+                <span
+                  className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
+                  style={{ transformOrigin: "center center" }}
+                >
+                  nuomotojai.
+                </span>
               </h2>
             </div>
 
@@ -909,7 +976,6 @@ export default function Drop() {
 
           {/* You might also like */}
           {related.length > 0 && <RelatedCarousel products={related} />}
-
         </div>
       </section>
 
@@ -923,11 +989,25 @@ export default function Drop() {
         >
           {/* Prev */}
           <button
-            className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full border-2 border-paper/30 bg-ink/60 p-3 text-paper transition-all hover:border-paper hover:bg-ink"
-            onClick={(e) => { e.stopPropagation(); lightboxPrev() }}
+            className="absolute top-1/2 left-4 -translate-y-1/2 rounded-full border-2 border-paper/30 bg-ink/60 p-3 text-paper transition-all hover:border-paper hover:bg-ink"
+            onClick={(e) => {
+              e.stopPropagation()
+              lightboxPrev()
+            }}
             aria-label="Ankstesnis"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
           </button>
 
           {/* Image */}
@@ -947,20 +1027,45 @@ export default function Drop() {
 
           {/* Next */}
           <button
-            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full border-2 border-paper/30 bg-ink/60 p-3 text-paper transition-all hover:border-paper hover:bg-ink"
-            onClick={(e) => { e.stopPropagation(); lightboxNext() }}
+            className="absolute top-1/2 right-4 -translate-y-1/2 rounded-full border-2 border-paper/30 bg-ink/60 p-3 text-paper transition-all hover:border-paper hover:bg-ink"
+            onClick={(e) => {
+              e.stopPropagation()
+              lightboxNext()
+            }}
             aria-label="Kitas"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M9 18l6-6-6-6" />
+            </svg>
           </button>
 
           {/* Close */}
           <button
-            className="absolute right-4 top-4 rounded-full border-2 border-paper/30 bg-ink/60 p-2 text-paper transition-all hover:border-paper hover:bg-ink"
+            className="absolute top-4 right-4 rounded-full border-2 border-paper/30 bg-ink/60 p-2 text-paper transition-all hover:border-paper hover:bg-ink"
             onClick={() => setLightboxOpen(false)}
             aria-label="Uždaryti"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
           </button>
         </div>
       )}

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
-import { getSubscriptionDisplayName } from '@/lib/subscription-branding'
+import { useState, useEffect } from "react"
+import { supabase } from "@/lib/supabase"
+import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
 
 interface DropProduct {
   id: number
@@ -22,17 +22,17 @@ interface TimeLeft {
 }
 
 const TIER_LABELS: Record<string, string> = {
-  nano:      getSubscriptionDisplayName('nano'),
-  mini:      getSubscriptionDisplayName('mini'),
-  standard:  getSubscriptionDisplayName('standard'),
-  pro:       getSubscriptionDisplayName('pro'),
-  mega:      getSubscriptionDisplayName('mega'),
-  mystery_s: getSubscriptionDisplayName('mystery_s') ?? 'Mystery Box S',
-  mystery_m: getSubscriptionDisplayName('mystery_m') ?? 'Mystery Box M',
+  nano: getSubscriptionDisplayName("nano"),
+  mini: getSubscriptionDisplayName("mini"),
+  standard: getSubscriptionDisplayName("standard"),
+  pro: getSubscriptionDisplayName("pro"),
+  mega: getSubscriptionDisplayName("mega"),
+  mystery_s: getSubscriptionDisplayName("mystery_s") ?? "Mystery box Mėgėjams",
+  mystery_m: getSubscriptionDisplayName("mystery_m") ?? "Mystery Box Kūrėjams",
 }
 
 function pad(n: number): string {
-  return String(n).padStart(2, '0')
+  return String(n).padStart(2, "0")
 }
 
 function getTimeLeft(target: Date): TimeLeft {
@@ -46,9 +46,16 @@ function getTimeLeft(target: Date): TimeLeft {
 }
 
 export function NextDrop() {
-  const [product, setProduct] = useState<DropProduct | null | undefined>(undefined)
+  const [product, setProduct] = useState<DropProduct | null | undefined>(
+    undefined
+  )
   const [userTier, setUserTier] = useState<string | null>(null)
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  })
   const [released, setReleased] = useState(false)
   const [now] = useState(() => Date.now())
 
@@ -56,10 +63,12 @@ export function NextDrop() {
   useEffect(() => {
     async function fetchDrop() {
       const { data } = await supabase
-        .from('products')
-        .select('id, title, subtitle, image_url, bg, release_date, early_access_tiers, early_access_hours, tier')
-        .gt('release_date', new Date().toISOString())
-        .order('release_date', { ascending: true })
+        .from("products")
+        .select(
+          "id, title, subtitle, image_url, bg, release_date, early_access_tiers, early_access_hours, tier"
+        )
+        .gt("release_date", new Date().toISOString())
+        .order("release_date", { ascending: true })
         .limit(1)
         .maybeSingle()
 
@@ -74,9 +83,9 @@ export function NextDrop() {
       const { data: authData } = await supabase.auth.getUser()
       if (!authData.user) return
       const { data: sub } = await supabase
-        .from('subscribers')
-        .select('plan')
-        .eq('id', authData.user.id)
+        .from("subscribers")
+        .select("plan")
+        .eq("id", authData.user.id)
         .single()
       if (sub) setUserTier(sub.plan)
     }
@@ -108,44 +117,57 @@ export function NextDrop() {
   if (product === null || !product.release_date) return null
 
   const releaseDate = new Date(product.release_date)
-  const earlyAccessStart = new Date(releaseDate.getTime() - product.early_access_hours * 3600 * 1000)
-  const inEarlyWindow = now >= earlyAccessStart.getTime() && now < releaseDate.getTime()
-  const earlyAccessGranted = inEarlyWindow && userTier !== null && product.early_access_tiers.includes(userTier)
+  const earlyAccessStart = new Date(
+    releaseDate.getTime() - product.early_access_hours * 3600 * 1000
+  )
+  const inEarlyWindow =
+    now >= earlyAccessStart.getTime() && now < releaseDate.getTime()
+  const earlyAccessGranted =
+    inEarlyWindow &&
+    userTier !== null &&
+    product.early_access_tiers.includes(userTier)
 
   const earlyTierNames = product.early_access_tiers
     .map((t) => TIER_LABELS[t] ?? t)
-    .join(', ')
+    .join(", ")
 
   const countdownBoxes = [
-    { val: timeLeft.days, label: 'Dienos', short: 'd.' },
-    { val: timeLeft.hours, label: 'Valandos', short: 'val.' },
-    { val: timeLeft.minutes, label: 'Minutės', short: 'min.' },
-    { val: timeLeft.seconds, label: 'Sekundės', short: 'sek.' },
+    { val: timeLeft.days, label: "Dienos", short: "d." },
+    { val: timeLeft.hours, label: "Valandos", short: "val." },
+    { val: timeLeft.minutes, label: "Minutės", short: "min." },
+    { val: timeLeft.seconds, label: "Sekundės", short: "sek." },
   ]
 
   return (
     <section className="pt-16 pb-4 md:pb-6">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         <div className="brick-card flex flex-col gap-6 bg-paper px-6 py-8 md:flex-row md:items-center md:justify-between md:px-12 md:py-10">
-
           {released ? (
             <>
-              <h2 className="heading-display text-d-md text-ink shrink-0">
-                Naujas rinkinys<br />jau prieinamas!
+              <h2 className="heading-display text-d-md shrink-0 text-ink">
+                Naujas rinkinys
+                <br />
+                jau prieinamas!
               </h2>
-              <a href="/archive" className="label-mono text-brand-yellow underline underline-offset-4">
+              <a
+                href="/archive"
+                className="label-mono text-brand-yellow underline underline-offset-4"
+              >
                 Peržiūrėti katalogą →
               </a>
             </>
           ) : (
             <>
               <div className="shrink-0">
-                <h2 className="heading-display text-d-sm text-ink leading-[.9]">
+                <h2 className="heading-display text-d-sm leading-[.9] text-ink">
                   Naujas rinkinys
                 </h2>
                 <span
-                  className="mt-1 inline-block border-[3px] border-ink/30 bg-brand-yellow px-[.12em] heading-display text-d-sm text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
-                  style={{ transform: 'rotate(-1.5deg)', transformOrigin: 'center' }}
+                  className="heading-display text-d-sm mt-1 inline-block border-[3px] border-ink/30 bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
+                  style={{
+                    transform: "rotate(-1.5deg)",
+                    transformOrigin: "center",
+                  }}
                 >
                   Netrukus
                 </span>
@@ -155,9 +177,11 @@ export function NextDrop() {
                 {countdownBoxes.map(({ val, label, short }) => (
                   <div
                     key={label}
-                    className="flex flex-1 flex-col items-center gap-1 rounded-3xl border-2 border-ink/20 bg-paper px-3 py-4 md:px-4 text-center"
+                    className="flex flex-1 flex-col items-center gap-1 rounded-3xl border-2 border-ink/20 bg-paper px-3 py-4 text-center md:px-4"
                   >
-                    <span className="heading-display text-[32px] md:text-[40px] leading-none text-ink">{pad(val)}</span>
+                    <span className="heading-display text-[32px] leading-none text-ink md:text-[40px]">
+                      {pad(val)}
+                    </span>
                     <span className="label-mono text-ink/50">
                       <span className="md:hidden">{short}</span>
                       <span className="hidden md:inline">{label}</span>
@@ -173,7 +197,8 @@ export function NextDrop() {
               )}
               {inEarlyWindow && !earlyAccessGranted && earlyTierNames && (
                 <p className="label-mono shrink-0 text-ink/50 md:max-w-[200px]">
-                  {earlyTierNames} nariams {product.early_access_hours}h anksčiau
+                  {earlyTierNames} nariams {product.early_access_hours}h
+                  anksčiau
                 </p>
               )}
             </>

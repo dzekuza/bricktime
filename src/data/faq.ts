@@ -5,7 +5,7 @@ export interface FaqItem {
 
 export const faqs: FaqItem[] = [
   {
-    q: "Kaip veikia Brick Time?",
+    q: "Kaip veikia BrickTime?",
     a: "Išsirink tau tinkamiausią prenumeratą ir pasirink LEGO® rinkinį pagal jos suteikiamas galimybes. Kiekvienam naujam prenumeratos laikotarpiui galėsi rinktis naujus rinkinius arba jų kombinacijas – priklausomai nuo pasirinktos prenumeratos.",
   },
   {
@@ -18,7 +18,7 @@ export const faqs: FaqItem[] = [
   },
   {
     q: "Kas yra Briksiai?",
-    a: "Briksiai – tai Brick Time lojalumo taškai, kuriuos gausi naudodamasis prenumerata. Kuo ilgiau būsi Brick Time bendruomenės dalimi, tuo daugiau Briksių sukaupsi. Ateityje juos galėsi panaudoti įvairioms papildomoms naudoms, bendruomenės iniciatyvoms ir išskirtinėms privilegijoms.",
+    a: "Briksiai – tai BrickTime taškų valiuta. Juos gaunate su savo prenumerata, o jų kiekis priklauso nuo pasirinkto plano. Kiekvienas LEGO rinkinys turi savo Briksių vertę, todėl pagal sukauptus Briksius lengvai matysite, kuriuos rinkinius galite pasirinkti. Kuo aukštesnė prenumerata, tuo daugiau Briksių gaunate ir tuo didesnį rinkinių pasirinkimą turite.",
   },
   {
     q: "Ar galiu pasirinkti konkretų LEGO® rinkinį?",
@@ -30,11 +30,11 @@ export const faqs: FaqItem[] = [
   },
   {
     q: "Kaip vyksta grąžinimas?",
-    a: "Baigęs konstruoti, prisijunk prie savo Brick Time paskyros ir suformuok grąžinimą. Sistema sugeneruos visą grąžinimui reikalingą informaciją, o rinkinį grąžinsi tokiu pačiu būdu, kokiu jis buvo pristatytas – per LP EXPRESS paštomatą arba kurjerį.",
+    a: "Baigęs konstruoti, prisijunk prie savo BrickTime paskyros ir suformuok grąžinimą. Sistema sugeneruos visą grąžinimui reikalingą informaciją, o rinkinį grąžinsi tokiu pačiu būdu, kokiu jis buvo pristatytas – per LP EXPRESS paštomatą arba kurjerį.",
   },
   {
     q: "Ką daryti, jei konstruodamas pastebėjau, kad trūksta detalės?",
-    a: "Jeigu konstruodamas pastebėjai, kad rinkinyje trūksta vienos ar kelių detalių, prieš grąžindamas rinkinį prisijunk prie savo Brick Time paskyros ir užpildyk Trūkstamos detalės formą. Taip užfiksuosime informaciją ir užtikrinsime, kad už anksčiau trūkusias detales nebūsi laikomas atsakingu.",
+    a: "Jeigu konstruodamas pastebėjai, kad rinkinyje trūksta vienos ar kelių detalių, prieš grąžindamas rinkinį prisijunk prie savo BrickTime paskyros ir užpildyk Trūkstamos detalės formą. Taip užfiksuosime informaciją ir užtikrinsime, kad už anksčiau trūkusias detales nebūsi laikomas atsakingu.",
   },
   {
     q: "Ar galiu pasirinkti daugiau LEGO® rinkinių tame pačiame prenumeratos laikotarpyje?",
@@ -66,7 +66,7 @@ export const faqs: FaqItem[] = [
   },
   {
     q: "Ar visi LEGO® rinkiniai yra originalūs?",
-    a: "Taip. Visi Brick Time kataloge esantys rinkiniai yra originalūs LEGO®.",
+    a: "Taip. Visi BrickTime kataloge esantys rinkiniai yra originalūs LEGO®.",
   },
   {
     q: "Ar LEGO® rinkiniai pristatomi su instrukcija?",
@@ -74,14 +74,14 @@ export const faqs: FaqItem[] = [
   },
   {
     q: "Ar galiu pakeisti, pristabdyti arba nutraukti prenumeratą?",
-    a: "Taip. Bet kuriuo metu galėsi pakeisti prenumeratą į kitą, ją pristabdyti arba nutraukti. Visus šiuos veiksmus galėsi atlikti savo Brick Time paskyroje.",
+    a: "Taip. Bet kuriuo metu galėsi pakeisti prenumeratą į kitą, ją pristabdyti arba nutraukti. Visus šiuos veiksmus galėsi atlikti savo BrickTime paskyroje.",
   },
   {
     q: "Kaip dažnai papildomas LEGO® rinkinių katalogas?",
     a: "Katalogą reguliariai papildome naujais LEGO® rinkiniais. Svetainėje visada matysi laikmatį iki kito katalogo papildymo, todėl pirmasis sužinosi apie naujai pasirodžiusius rinkinius.",
   },
   {
-    q: "Ar galiu padovanoti Brick Time prenumeratą?",
-    a: "Taip. Gali įsigyti Brick Time elektroninę dovanų kortelę ir padovanoti LEGO® konstravimo džiaugsmą savo artimiesiems ar draugams.",
+    q: "Ar galiu padovanoti BrickTime prenumeratą?",
+    a: "Taip. Gali įsigyti BrickTime elektroninę dovanų kortelę ir padovanoti LEGO® konstravimo džiaugsmą savo artimiesiems ar draugams.",
   },
 ]

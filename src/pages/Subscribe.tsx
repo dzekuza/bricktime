@@ -302,7 +302,6 @@ export default function Subscribe() {
 
   const heroRef = useReveal<HTMLDivElement>()
   const compareRef = useReveal<HTMLDivElement>()
-  const trustRef = useReveal<HTMLDivElement>()
   const faqRef = useReveal<HTMLDivElement>()
 
   if (submitted && plan) {
@@ -374,10 +373,10 @@ export default function Subscribe() {
                   <>
                     Pasirink prenumeratą
                     <br />
+                    Pradėk{" "}
                     <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">
-                      Pradėk
-                    </span>{" "}
-                    statyti
+                      konstruoti.
+                    </span>
                   </>
                 ) : (
                   <>
@@ -390,7 +389,7 @@ export default function Subscribe() {
               </h1>
               <p className="mt-6 max-w-[46ch] text-[17px] leading-[1.65] text-ink/65">
                 {step === "plan"
-                  ? "Pasirink prenumeratą pagal savo biudžetą, mėgstamų rinkinių dydį ir konstravimo patirtį — nuo pirmųjų projektų iki didelių kolekcinių modelių bei išskirtinių premium serijų."
+                  ? "Pasirink prenumeratą pagal savo poreikius, mėgstamų rinkinių dydį ir konstravimo patirtį – nuo pirmųjų projektų iki didžiausių Premium LEGO® rinkinių."
                   : `Tik vienas žingsnis iki pirmosios BRICKTIME ${plan?.name ?? ""} dėžutės.`}
               </p>
             </div>
@@ -790,93 +789,6 @@ export default function Subscribe() {
         </div>
       </section>
 
-      {/* ── Trust signals ────────────────────────────────────────────── */}
-      <section className="relative bg-paper py-10 md:py-20">
-        <div className="relative z-10 mx-auto max-w-[1320px] px-4 md:px-7">
-          <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:gap-20">
-            <div className="lg:sticky lg:top-28 lg:self-start">
-              <div>
-                <h2 className="heading-display text-d-lg mt-4 tracking-[-0.015em] text-ink">
-                  Prenumerata
-                  <br />
-                  <span
-                    className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
-                    style={{ transformOrigin: "center center" }}
-                  >
-                    be rizikos.
-                  </span>
-                </h2>
-                <p className="mt-6 max-w-[40ch] text-[17px] leading-[1.65] text-ink/65">
-                  Lanksti LEGO® rinkinių prenumerata su nemokamu pristatymu ir
-                  galimybe keisti rinkinius kada tik panorėjus. Statyk daugiau,
-                  sutaupyk ir nebeleisk rinkiniams dulkėti lentynose.
-                </p>
-                <Link
-                  to="/subscribe"
-                  className="brick-hover-sm mt-8 inline-flex items-center gap-2 rounded-full border-2 border-ink bg-ink px-7 py-3.5 text-[15px] font-bold text-paper"
-                >
-                  Pradėti prenumeratą
-                  <ArrowRightIcon className="size-4" />
-                </Link>
-                <div className="brick-card mt-8 h-[260px] overflow-hidden">
-                  <img
-                    src="/images/build-cactus.jpg"
-                    alt="Statytojas dedantis paskutinę detalę"
-                    className="h-full w-full object-cover"
-                    style={{ objectPosition: "center 35%" }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div ref={trustRef}>
-              <div className="flex flex-col gap-4">
-                {[
-                  {
-                    num: "01",
-                    title: "Nemokamas pristatymas",
-                    body: "Visi LEGO® rinkiniai pristatomi į paštomatą nemokamai visoje Lietuvoje.",
-                  },
-                  {
-                    num: "02",
-                    title: "Keisk rinkinius bet kada",
-                    body: "Surink, grąžink ir išsirink naują rinkinį kada panorėjęs — be papildomų mokesčių.",
-                  },
-                  {
-                    num: "03",
-                    title: "Jokių ilgalaikių įsipareigojimų",
-                    body: "Pakeisk prenumeratą, pristabdyk ją arba atšauk bet kuriuo metu.",
-                  },
-                  {
-                    num: "04",
-                    title: "Nauji rinkiniai kas mėnesį",
-                    body: "Atrask naujus LEGO® modelius ir gauk ankstyvą prieigą prie naujų papildymų.",
-                  },
-                ].map((item, i) => (
-                  <div
-                    key={item.num}
-                    className="reveal brick-card brick-card-hover relative flex gap-6 overflow-hidden bg-paper p-6 md:p-8"
-                    style={{ transitionDelay: `${i * 60}ms` }}
-                  >
-                    <div className="text-d-hero absolute top-2 right-4 font-display leading-[.8] text-ink/10 select-none">
-                      {item.num}
-                    </div>
-                    <div className="max-w-[80%] pt-1">
-                      <h3 className="heading-display text-d-xs text-ink">
-                        {item.title}
-                      </h3>
-                      <p className="mt-3 text-[15px] leading-[1.65] text-ink/65">
-                        {item.body}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ── FAQ ──────────────────────────────────────────────────────── */}
       <section id="faq" className="bg-paper py-10 md:py-20">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
@@ -962,10 +874,10 @@ export default function Subscribe() {
             >
               <div>
                 <p className="font-mono text-[10px] tracking-[.22em] text-paper/60 uppercase">
-                  Vis dar abejoji?
+                  Pasiruošęs pradėti?
                 </p>
                 <h3 className="heading-display text-d-sm mt-3 leading-[.9] text-paper">
-                  Naujausi
+                  Atrask savo
                   <br />
                   <span
                     className="inline-block border-[3px] border-paper/40 bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(245,241,235,.2)]"
@@ -974,20 +886,20 @@ export default function Subscribe() {
                       transformOrigin: "center center",
                     }}
                   >
-                    Lego Rinkiniai.
+                    LEGO® rinkinius.
                   </span>
                 </h3>
                 <p className="mt-3 text-[15px] leading-[1.6] text-paper/70">
-                  Pasirink prenumeratą, išsirink norimus modelius ir keisk juos
-                  kada panorėjęs — be ilgalaikių įsipareigojimų.
+                  Peržiūrėk visus mūsų turimus LEGO® rinkinius ir išsirink, kurį
+                  konstruosi pirmiausia.
                 </p>
               </div>
-              <a
-                href="#subscriptions"
+              <Link
+                to="/archive"
                 className="mt-6 inline-flex items-center justify-center rounded-full border-2 border-ink bg-brand-yellow px-6 py-3 text-center text-[15px] font-bold text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,0,0,.2)]"
               >
-                Pasirinkti prenumeratą →
-              </a>
+                Peržiūrėti rinkinius
+              </Link>
             </div>
           </div>
         </div>
