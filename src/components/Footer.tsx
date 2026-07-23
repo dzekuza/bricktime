@@ -18,6 +18,7 @@ const footerLinks = {
     { label: "Apie mus", href: "/apie" },
     { label: "Merch", href: "/merch" },
     { label: "Privatumo politika", href: "/privatumo-politika" },
+    { label: "Parduotuvės taisyklės", href: "/parduotuves-taisykles" },
   ],
 }
 

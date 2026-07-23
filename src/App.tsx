@@ -19,6 +19,7 @@ import MerchDrop from "@/pages/MerchDrop"
 import GiftCards from "@/pages/GiftCards"
 import About from "@/pages/About"
 import PrivacyPolicy from "@/pages/PrivacyPolicy"
+import StoreRules from "@/pages/StoreRules"
 import LoadingScreen from "@/components/LoadingScreen"
 import CookieConsentBanner from "@/components/CookieConsentBanner"
 import { useConsentContext } from "@/contexts/ConsentContext"
@@ -64,6 +65,7 @@ export default function App() {
         <Route path="/grazinimai" element={<ReturnsPage />} />
         <Route path="/apie" element={<About />} />
         <Route path="/privatumo-politika" element={<PrivacyPolicy />} />
+        <Route path="/parduotuves-taisykles" element={<StoreRules />} />
       </Routes>
       <CookieConsentBanner />
     </>
