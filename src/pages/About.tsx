@@ -46,9 +46,8 @@ export default function About() {
                 <h1 className="heading-display text-d-xl max-w-[14ch] tracking-[-0.015em] text-ink">
                   Mes{" "}
                   <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">
-                    mylime
-                  </span>{" "}
-                  LEGO®
+                    mylime LEGO®
+                  </span>
                   <br />
                   taip, kaip ir tu.
                 </h1>

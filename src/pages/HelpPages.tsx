@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { ArrowRightIcon } from "lucide-react"
 import Nav from "@/components/Nav"
@@ -13,7 +14,7 @@ type HelpPageProps = {
   sections: { title: string; body: string }[]
   checklist: string[]
   note: string
-  helpNote?: { title: string; body: string }
+  helpNote?: { title: string; body: ReactNode }
 }
 
 function HelpPage({
@@ -332,7 +333,25 @@ export function ReturnsPage() {
       note="Jei nori keisti produktą kuo greičiau, grąžinimą inicijuok dar prieš išsirenkant kitą rinkinį. Taip tavo limitas bus atnaujintas vos tik siunta bus patvirtinta."
       helpNote={{
         title: "Reikia pagalbos?",
-        body: "Neradai atsakymo į savo klausimą? Peržiūrėk DUK arba susisiek su mūsų komanda – mielai padėsime.",
+        body: (
+          <>
+            Neradai atsakymo į savo klausimą? Peržiūrėk{" "}
+            <Link
+              to="/duk"
+              className="font-bold text-ink underline underline-offset-2"
+            >
+              DUK
+            </Link>{" "}
+            arba{" "}
+            <a
+              href="mailto:hello@bricktime.lt"
+              className="font-bold text-ink underline underline-offset-2"
+            >
+              susisiek su mūsų komanda
+            </a>{" "}
+            – mielai padėsime.
+          </>
+        ),
       }}
     />
   )
