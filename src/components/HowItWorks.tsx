@@ -87,8 +87,9 @@ export default function HowItWorks() {
               Kaip tai veikia?
               <br />
               <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]">
-                Pradėk konstruoti
-              </span>
+                Pradėk
+              </span>{" "}
+              konstruoti
             </h2>
             <p className="mt-5 max-w-[50ch] text-[16px] leading-[1.65] text-ink/65">
               Vos keli paprasti žingsniai iki naujo konstravimo projekto tavo

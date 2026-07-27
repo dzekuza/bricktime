@@ -216,7 +216,7 @@ export default function MerchPage() {
               </h1>
               <p className="mt-6 max-w-[48ch] text-[17px] leading-[1.65] text-ink/65">
                 Kokybiški drabužiai ir aksesuarai žmonėms, kuriuos vienija
-                kūryba, konstravimas ir BrickTime bendruomenė.
+                kūryba, konstravimas ir Brick Time bendruomenė.
               </p>
             </div>
             <div className="hidden lg:block">

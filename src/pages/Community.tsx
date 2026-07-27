@@ -950,7 +950,7 @@ export default function Community() {
                 </span>
               </h1>
               <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">
-                Prisijunk prie BrickTime bendruomenės, dalinkis savo kūriniais,
+                Prisijunk prie Brick Time bendruomenės, dalinkis savo kūriniais,
                 dalyvauk iššūkiuose, rink bendruomenės taškus ir varžykis dėl
                 prizų. Kuo aktyvesnis esi, tuo daugiau galimybių laimėti LEGO®
                 rinkinius ir kitus apdovanojimus.

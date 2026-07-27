@@ -31,7 +31,7 @@ export default function FAQ({
   ctaEyebrow = "Vis dar abejoji?",
   ctaLine = "Nebesiribok",
   ctaHighlight = "Konstruok!",
-  ctaBody = "Prisijunk prie BrickTime ir atrask įspūdingiausius LEGO® rinkinius be didelių išlaidų.",
+  ctaBody = "Prisijunk prie Brick Time ir atrask įspūdingiausius LEGO® rinkinius be didelių išlaidų.",
   ctaLabel = "Pasirinkti prenumeratą →",
   ctaHref = "#subscriptions",
 }: FAQProps) {

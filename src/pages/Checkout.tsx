@@ -988,7 +988,7 @@ export default function Checkout() {
                     <p className="text-[13px] leading-[1.55] text-ink/60">
                       Jeigu konstruodamas pastebėsi, kad rinkinyje trūksta
                       detalės, prieš grąžindamas rinkinį būtinai pranešk apie
-                      tai savo BrickTime paskyroje. Taip užtikrinsime, kad už
+                      tai savo Brick Time paskyroje. Taip užtikrinsime, kad už
                       anksčiau trūkusias detales nebūsi laikomas atsakingu.
                     </p>
                   </div>

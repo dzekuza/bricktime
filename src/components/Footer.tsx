@@ -85,7 +85,7 @@ export default function Footer() {
         <Separator className="mt-16 mb-6 bg-ink/[.18]" />
 
         <div className="flex flex-wrap justify-between gap-4 font-mono text-[13px] text-ink/50">
-          <span>© 2026 BrickTime MB.</span>
+          <span>© 2026 Brick Time MB.</span>
           <span>
             BRICKTIME™ — originalus prekės ženklas · nesusijęs su jokiu žaislų
             gamintoju

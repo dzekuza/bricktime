@@ -9,7 +9,7 @@ const VALUES = [
     num: "01",
     bg: "#FFD731",
     title: "Konstruok be ribų",
-    body: "Pamiršk vieną rinkinį per metus. Su BrickTime gali nuolat atrasti naujus LEGO® rinkinius ir mėgautis konstravimu tiek, kiek norisi.",
+    body: "Pamiršk vieną rinkinį per metus. Su Brick Time gali nuolat atrasti naujus LEGO® rinkinius ir mėgautis konstravimu tiek, kiek norisi.",
   },
   {
     num: "02",
@@ -54,7 +54,7 @@ export default function About() {
                 </h1>
                 <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">
                   Tikime, kad geriausia LEGO® rinkinio dalis – konstravimo
-                  procesas. Todėl sukūrėme BrickTime – pirmąją Lietuvoje LEGO®
+                  procesas. Todėl sukūrėme Brick Time – pirmąją Lietuvoje LEGO®
                   prenumeratos paslaugą, leidžiančią konstruoti vis naujus
                   rinkinius be didelių išlaidų ir vietos stokos.
                 </p>
@@ -107,7 +107,7 @@ export default function About() {
                 <p className="mt-4 max-w-[52ch] text-[16px] leading-[1.75] text-ink/70">
                   Būdami LEGO® entuziastais supratome, kad norisi vis naujų
                   iššūkių, tačiau įspūdingi rinkiniai užima daug vietos ir
-                  kainuoja nemažai. Todėl sukūrėme BrickTime – kad galėtum
+                  kainuoja nemažai. Todėl sukūrėme Brick Time – kad galėtum
                   konstruoti daugiau, o kaupti mažiau.
                 </p>
               </div>
@@ -148,7 +148,7 @@ export default function About() {
                 className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
                 style={{ transformOrigin: "center center" }}
               >
-                BrickTime?
+                Brick Time?
               </span>
             </h2>
             <div
