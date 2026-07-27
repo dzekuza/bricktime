@@ -149,7 +149,7 @@ export function FAQPage() {
     <HelpPage
       eyebrow="Pagalba / D.U.K."
       title="D.U.K."
-      intro="Čia rasi atsakymus į dažniausiai užduodamus klausimus apie BrickTime – nuo prenumeratų ir LEGO® rinkinių iki pristatymo, grąžinimo bei paslaugos veikimo."
+      intro="Čia rasi atsakymus į dažniausiai užduodamus klausimus apie Brick Time – nuo prenumeratų ir LEGO® rinkinių iki pristatymo, grąžinimo bei paslaugos veikimo."
       accent="rgba(255, 215, 49, 0.72)"
       summary={[
         {
@@ -184,7 +184,7 @@ export function FAQPage() {
         "LEGO® rinkinį gali laikyti neribotą laiką, kol tavo prenumerata yra aktyvi.",
         "Prieš grąžindamas rinkinį nepamiršk paskyroje pranešti apie trūkstamas detales.",
       ]}
-      note="Kiekvienas grąžintas LEGO® rinkinys kruopščiai patikrinamas ir surūšiuojamas pagal oficialią LEGO® instrukciją. Taip užtikriname, kad kiekvienas BrickTime narys gautų pilną, tvarkingą ir naujam konstravimo projektui paruoštą rinkinį."
+      note="Kiekvienas grąžintas LEGO® rinkinys kruopščiai patikrinamas ir surūšiuojamas pagal oficialią LEGO® instrukciją. Taip užtikriname, kad kiekvienas Brick Time narys gautų pilną, tvarkingą ir naujam konstravimo projektui paruoštą rinkinį."
     />
   )
 }
@@ -236,7 +236,7 @@ export function ShippingPage() {
     <HelpPage
       eyebrow="Pagalba / Pristatymas"
       title="Pristatymas"
-      intro="BrickTime rūpinasi, kad LEGO® rinkinių pristatymas būtų kuo sklandesnis. Čia rasi svarbiausią informaciją apie pristatymo būdus, terminus ir tai, ko tikėtis po užsakymo."
+      intro="Brick Time rūpinasi, kad LEGO® rinkinių pristatymas būtų kuo sklandesnis. Čia rasi svarbiausią informaciją apie pristatymo būdus, terminus ir tai, ko tikėtis po užsakymo."
       accent="rgba(77, 162, 255, 0.72)"
       heroImage="/images/build-sailboat.jpg"
       summary={[
@@ -261,11 +261,11 @@ export function ShippingPage() {
         },
         {
           title: "Ar pristatymas įskaičiuotas?",
-          body: "Taip. LEGO® rinkinių pristatymas įskaičiuotas į visas BrickTime prenumeratas. Pristatymo būdas priklauso nuo pasirinktos prenumeratos.",
+          body: "Taip. LEGO® rinkinių pristatymas įskaičiuotas į visas Brick Time prenumeratas. Pristatymo būdas priklauso nuo pasirinktos prenumeratos.",
         },
         {
           title: "Kaip sekti siuntą?",
-          body: "Kai siunta bus išsiųsta, jos būseną ir sekimo informaciją galėsi matyti savo BrickTime paskyroje.",
+          body: "Kai siunta bus išsiųsta, jos būseną ir sekimo informaciją galėsi matyti savo Brick Time paskyroje.",
         },
         {
           title: "Negaunu siuntos – ką daryti?",
@@ -273,8 +273,8 @@ export function ShippingPage() {
         },
       ]}
       checklist={[
-        "Siuntos sekimo informaciją rasi savo BrickTime paskyroje, kai siunta bus išsiųsta.",
-        "LEGO® rinkinio pristatymas įskaičiuotas į visas BrickTime prenumeratas.",
+        "Siuntos sekimo informaciją rasi savo Brick Time paskyroje, kai siunta bus išsiųsta.",
+        "LEGO® rinkinio pristatymas įskaičiuotas į visas Brick Time prenumeratas.",
         "Pristatymo būdas priklauso nuo pasirinktos prenumeratos.",
       ]}
       note="Pradedame ruošti tavo LEGO® rinkinį vos patvirtinus užsakymą. Siunta įprastai iškeliauja per 1–2 darbo dienas, o pristatymas Lietuvoje dažniausiai trunka 3–5 darbo dienas."
@@ -308,7 +308,7 @@ export function ReturnsPage() {
       sections={[
         {
           title: "Kaip paruošti rinkinį siuntimui?",
-          body: "Išrink LEGO® rinkinį, detales sudėk į pridėtą (-us) maišelį (-ius), instrukciją – į apsauginį maišelį ir viską saugiai supakuok į dėžę. Grąžink rinkinį su visomis detalėmis ir priedais, kad kitas narys galėtų mėgautis pilna BrickTime patirtimi.",
+          body: "Išrink LEGO® rinkinį, detales sudėk į pridėtą (-us) maišelį (-ius), instrukciją – į apsauginį maišelį ir viską saugiai supakuok į dėžę. Grąžink rinkinį su visomis detalėmis ir priedais, kad kitas narys galėtų mėgautis pilna Brick Time patirtimi.",
         },
         {
           title: "Kaip grąžinti rinkinį?",
@@ -316,7 +316,7 @@ export function ReturnsPage() {
         },
         {
           title: "Trūksta detalės?",
-          body: "Jei pastebėjai, kad trūksta detalės, prieš inicijuodamas grąžinimą prisijunk prie savo paskyros ir užpildyk trūkstamos detalės formą. Tai padės mums greičiau patikrinti rinkinį ir užtikrins sklandų grąžinimo procesą. Svarbu: apie trūkstamą detalę būtina pranešti prieš grąžinant rinkinį. Jei trūkumas bus nustatytas tik patikros metu, jis bus vertinamas pagal BrickTime taisykles.",
+          body: "Jei pastebėjai, kad trūksta detalės, prieš inicijuodamas grąžinimą prisijunk prie savo paskyros ir užpildyk trūkstamos detalės formą. Tai padės mums greičiau patikrinti rinkinį ir užtikrins sklandų grąžinimo procesą. Svarbu: apie trūkstamą detalę būtina pranešti prieš grąžinant rinkinį. Jei trūkumas bus nustatytas tik patikros metu, jis bus vertinamas pagal Brick Time taisykles.",
         },
         {
           title: "Kada galėsiu rinktis kitą rinkinį?",

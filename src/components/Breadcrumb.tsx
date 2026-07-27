@@ -1,31 +1,46 @@
-import { useContext } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { BreadcrumbContext } from '@/contexts/BreadcrumbContext'
+import { useContext } from "react"
+import { Link, useLocation } from "react-router-dom"
+import { BreadcrumbContext } from "@/contexts/BreadcrumbContext"
 
 type Crumb = { label: string; to?: string }
 
 const EXACT: Record<string, Crumb[]> = {
-  '/archive':                 [{ label: 'Rinkiniai' }],
-  '/account':                 [{ label: 'Paskyra' }],
-  '/community':               [{ label: 'Bendruomenė' }],
-  '/subscribe':               [{ label: 'Prenumeratos' }],
-  '/checkout':                [{ label: 'Apmokėjimas' }],
-  '/merch':                   [{ label: 'Merch' }],
-  '/gift-cards':              [{ label: 'Dovanų kortelės' }],
-  '/duk':                     [{ label: 'D.U.K.' }],
-  '/praleisti-pristabdyti':   [{ label: 'Pristabdyti' }],
-  '/pristatymas':             [{ label: 'Pristatymas' }],
-  '/grazinimai':              [{ label: 'Grąžinimai' }],
+  "/archive": [{ label: "Rinkiniai" }],
+  "/account": [{ label: "Paskyra" }],
+  "/community": [{ label: "Bendruomenė" }],
+  "/subscribe": [{ label: "Prenumeratos" }],
+  "/checkout": [{ label: "Apmokėjimas" }],
+  "/merch": [{ label: "Merch" }],
+  "/gift-cards": [{ label: "Dovanų kuponai" }],
+  "/duk": [{ label: "D.U.K." }],
+  "/praleisti-pristabdyti": [{ label: "Pristabdyti" }],
+  "/pristatymas": [{ label: "Pristatymas" }],
+  "/grazinimai": [{ label: "Grąžinimai" }],
 }
 
 const PREFIX: Array<{ match: string; parent: Crumb; fallback: string }> = [
-  { match: '/drop/',    parent: { label: 'Rinkiniai',    to: '/archive' },   fallback: 'Rinkinio detalės' },
-  { match: '/merch/',   parent: { label: 'Merch',        to: '/merch' },     fallback: 'Produktas' },
-  { match: '/profile/', parent: { label: 'Bendruomenė',  to: '/community' }, fallback: 'Profilis' },
+  {
+    match: "/drop/",
+    parent: { label: "Rinkiniai", to: "/archive" },
+    fallback: "Rinkinio detalės",
+  },
+  {
+    match: "/merch/",
+    parent: { label: "Merch", to: "/merch" },
+    fallback: "Produktas",
+  },
+  {
+    match: "/profile/",
+    parent: { label: "Bendruomenė", to: "/community" },
+    fallback: "Profilis",
+  },
 ]
 
-function getCrumbs(pathname: string, dynamicLabel: string | null): Crumb[] | null {
-  if (pathname === '/') return null
+function getCrumbs(
+  pathname: string,
+  dynamicLabel: string | null
+): Crumb[] | null {
+  if (pathname === "/") return null
 
   const exact = EXACT[pathname]
   if (exact) return exact
@@ -46,7 +61,7 @@ export default function Breadcrumb() {
   const crumbs = getCrumbs(pathname, dynamicLabel)
   if (!crumbs) return null
 
-  const all: Crumb[] = [{ label: 'Bricktime', to: '/' }, ...crumbs]
+  const all: Crumb[] = [{ label: "Bricktime", to: "/" }, ...crumbs]
 
   return (
     <div className="mx-auto max-w-[1320px] px-4 md:px-7">
@@ -56,16 +71,20 @@ export default function Breadcrumb() {
           return (
             <span key={i} className="flex items-center gap-2.5">
               {i > 0 && (
-                <span className="font-mono text-[11px] tracking-[.18em] uppercase text-ink/30 select-none">/</span>
+                <span className="font-mono text-[11px] tracking-[.18em] text-ink/30 uppercase select-none">
+                  /
+                </span>
               )}
               {isLast || !crumb.to ? (
-                <span className={`font-mono text-[11px] tracking-[.18em] uppercase ${isLast ? 'font-bold text-ink' : 'text-ink/55'}`}>
+                <span
+                  className={`font-mono text-[11px] tracking-[.18em] uppercase ${isLast ? "font-bold text-ink" : "text-ink/55"}`}
+                >
                   {crumb.label}
                 </span>
               ) : (
                 <Link
                   to={crumb.to}
-                  className="font-mono text-[11px] tracking-[.18em] uppercase text-ink/55 transition-colors hover:text-ink"
+                  className="font-mono text-[11px] tracking-[.18em] text-ink/55 uppercase transition-colors hover:text-ink"
                 >
                   {crumb.label}
                 </Link>

@@ -26,7 +26,7 @@ const PLAN_COLORS: Record<string, { bg: string; text: string }> = {
 const links = [
   { label: "Rinkiniai", to: "/archive" },
   { label: "Merch", to: "/merch" },
-  { label: "Dovanų kortelė", to: "/gift-cards" },
+  { label: "Dovanų kuponas", to: "/gift-cards" },
   { label: "Bendruomenė", to: "/community" },
 ]
 

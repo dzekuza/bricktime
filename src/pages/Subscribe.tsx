@@ -344,10 +344,10 @@ export default function Subscribe() {
                   <>
                     Pasirink prenumeratą
                     <br />
-                    Pradėk{" "}
                     <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">
-                      konstruoti.
-                    </span>
+                      Pradėk
+                    </span>{" "}
+                    konstruoti.
                   </>
                 ) : (
                   <>
