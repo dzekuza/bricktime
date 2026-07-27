@@ -5,16 +5,11 @@ import { supabase } from "@/lib/supabase"
 import type { PlanTier } from "@/lib/database.types"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
+import FAQ from "@/components/FAQ"
 import Subscriptions from "@/components/Subscriptions"
 import type { DbSubscription } from "@/hooks/useSubscriptions"
 import { ArrowRightIcon, ShieldCheckIcon, CalendarXIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
 import { useReveal } from "@/hooks/useReveal"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
 import { HERO_VIDEO_URL } from "@/lib/media"
@@ -23,29 +18,6 @@ import { HERO_VIDEO_URL } from "@/lib/media"
 
 const HOME_DELIVERY_PLANS = ["pro", "mega", "mystery_s", "mystery_m"]
 const HOME_DELIVERY_FEE = 3
-
-const faqs = [
-  {
-    q: "Ar visi rinkiniai yra originalūs?",
-    a: "Aukštos kokybės ABS plastikas prie pramoninio standarto 1,6 mm tolerancijos. Visiškai suderinamos su bet kokios suderinamos markės kaladėlėmis — užsispaudžia, laiko ir išsiskiria švariai.",
-  },
-  {
-    q: "Kas jei trūksta detalės?",
-    a: "Pranešk mums ir mes kuo greičiau išsiųsime trūkstamą detalę nemokamai.",
-  },
-  {
-    q: "Ar galiu pasirinkti konkretų rinkinį?",
-    a: "Taip — pasirinkę prenumeratą galite naršyti katalogą ir išsirinkti norimą rinkinį pagal savo biudžetą.",
-  },
-  {
-    q: "Kaip veikia grąžinimas?",
-    a: "Grąžinimui išsiunčiame iš anksto apmokėtą grąžinimo etiketę. Tiesiog supakuok rinkinį ir nunes į paštomatą.",
-  },
-  {
-    q: "Ar galiu pristabdyti prenumeratą?",
-    a: "Taip — per metus galima pristabdyti iki 3 mėnesių. Mokėjimas sustabdomas, rinkiniai laukia tavęs.",
-  },
-]
 
 // ── page ───────────────────────────────────────────────────────────────────
 
@@ -302,7 +274,6 @@ export default function Subscribe() {
 
   const heroRef = useReveal<HTMLDivElement>()
   const compareRef = useReveal<HTMLDivElement>()
-  const faqRef = useReveal<HTMLDivElement>()
 
   if (submitted && plan) {
     return (
@@ -789,121 +760,14 @@ export default function Subscribe() {
         </div>
       </section>
 
-      {/* ── FAQ ──────────────────────────────────────────────────────── */}
-      <section id="faq" className="bg-paper py-10 md:py-20">
-        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div ref={faqRef} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-            {/* FAQ accordion card */}
-            <div className="reveal brick-card relative bg-paper p-6 md:p-9 lg:col-span-7 lg:row-span-2">
-              <img
-                src="/faq-mascot.svg"
-                alt=""
-                aria-hidden
-                className="absolute top-6 right-6 w-[100px] md:w-[128px]"
-              />
-              <h2 className="heading-display text-d-lg mt-3 text-ink">
-                <span
-                  className="inline-block border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
-                  style={{ transform: "rotate(-1.5deg)" }}
-                >
-                  Dažniausi
-                </span>
-                <br />
-                klausimai.
-              </h2>
-              <Accordion type="single" collapsible className="mt-6 w-full">
-                {faqs.map((faq, i) => (
-                  <AccordionItem key={i} value={`faq-${i}`}>
-                    <AccordionTrigger className="py-4 text-left text-[16px] leading-snug font-bold hover:no-underline">
-                      {faq.q}
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <p className="max-w-[58ch] pb-4 text-[15px] leading-[1.65] text-ink/70">
-                        {faq.a}
-                      </p>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </div>
-
-            {/* Stats card */}
-            <div className="reveal grid grid-cols-2 gap-4 rounded-2xl border-2 border-ink bg-ink p-6 shadow-[6px_6px_0_rgba(245,241,235,.1)] md:rounded-3xl md:p-8 lg:col-span-5">
-              <div className="flex flex-col justify-between rounded-xl border border-paper/15 p-3 md:min-h-[100px] md:rounded-2xl md:p-5">
-                <p className="md:text-d-xs font-display text-[28px] leading-[.9] text-paper">
-                  12 400+
-                </p>
-                <div className="mt-2 font-mono text-[10px] tracking-[.16em] text-paper/50 uppercase">
-                  Aktyvūs prenumeratoriai
-                </div>
-              </div>
-              <div className="flex flex-col justify-between rounded-xl border-2 border-paper bg-brand-yellow p-3 md:min-h-[100px] md:rounded-2xl md:p-5">
-                <p className="font-display leading-[.9]">
-                  <span className="text-[22px] text-ink">★</span>
-                  <span className="text-[36px] text-ink md:text-[44px]">
-                    4.9
-                  </span>
-                  <span className="text-[18px] text-ink/50">/5</span>
-                </p>
-                <div className="mt-2 font-mono text-[10px] tracking-[.16em] text-ink/50 uppercase">
-                  Vidutinis įvertinimas
-                </div>
-              </div>
-              <div className="flex flex-col justify-between rounded-xl border border-paper/15 p-3 md:min-h-[100px] md:rounded-2xl md:p-5">
-                <p className="md:text-d-xs font-display text-[28px] leading-[.9] text-paper">
-                  26
-                </p>
-                <div className="mt-2 font-mono text-[10px] tracking-[.16em] text-paper/50 uppercase">
-                  Išsiųstų rinkinių
-                </div>
-              </div>
-              <div className="flex flex-col justify-between rounded-xl border border-paper/15 p-3 md:min-h-[100px] md:rounded-2xl md:p-5">
-                <p className="md:text-d-xs font-display text-[28px] leading-[.9] text-paper">
-                  170
-                </p>
-                <div className="mt-2 font-mono text-[10px] tracking-[.16em] text-paper/50 uppercase">
-                  Aktyvių rinkinių
-                </div>
-              </div>
-            </div>
-
-            {/* CTA card */}
-            <div
-              className="reveal brick-card flex flex-col justify-between p-6 md:p-8 lg:col-span-5"
-              style={{ background: "#5C4ADE" }}
-            >
-              <div>
-                <p className="font-mono text-[10px] tracking-[.22em] text-paper/60 uppercase">
-                  Pasiruošęs pradėti?
-                </p>
-                <h3 className="heading-display text-d-sm mt-3 leading-[.9] text-paper">
-                  Atrask savo
-                  <br />
-                  <span
-                    className="inline-block border-[3px] border-paper/40 bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(245,241,235,.2)]"
-                    style={{
-                      transform: "rotate(-1.5deg)",
-                      transformOrigin: "center center",
-                    }}
-                  >
-                    LEGO® rinkinius.
-                  </span>
-                </h3>
-                <p className="mt-3 text-[15px] leading-[1.6] text-paper/70">
-                  Peržiūrėk visus mūsų turimus LEGO® rinkinius ir išsirink, kurį
-                  konstruosi pirmiausia.
-                </p>
-              </div>
-              <Link
-                to="/archive"
-                className="mt-6 inline-flex items-center justify-center rounded-full border-2 border-ink bg-brand-yellow px-6 py-3 text-center text-[15px] font-bold text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,0,0,.2)]"
-              >
-                Peržiūrėti rinkinius
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      <FAQ
+        ctaEyebrow="Pasiruošęs pradėti?"
+        ctaLine="Atrask savo"
+        ctaHighlight="LEGO® rinkinius."
+        ctaBody="Peržiūrėk visus mūsų turimus LEGO® rinkinius ir išsirink, kurį konstruosi pirmiausia."
+        ctaLabel="Peržiūrėti rinkinius"
+        ctaHref="/archive"
+      />
 
       <Footer />
     </div>

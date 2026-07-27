@@ -181,7 +181,7 @@ export default function GiftCards() {
                     {/* Header */}
                     <div className="mb-6 flex items-center justify-between">
                       <h2 className="heading-display text-d-sm tracking-[-0.01em] text-ink">
-                        €{selectedDenom?.amount} dovanų kortelė
+                        €{selectedDenom?.amount} dovanų kuponas
                       </h2>
                       <button
                         onClick={() => setSelected(null)}
