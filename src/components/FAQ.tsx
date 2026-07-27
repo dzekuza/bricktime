@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from "react"
+import { Link } from "react-router-dom"
 import gsap from "gsap"
 import {
   Accordion,
@@ -17,7 +18,23 @@ const stats = [
   { value: "170", label: "Aktyvių rinkinių", yellow: false },
 ]
 
-export default function FAQ() {
+type FAQProps = {
+  ctaEyebrow?: string
+  ctaLine?: string
+  ctaHighlight?: string
+  ctaBody?: string
+  ctaLabel?: string
+  ctaHref?: string
+}
+
+export default function FAQ({
+  ctaEyebrow = "Vis dar abejoji?",
+  ctaLine = "Nebesiribok",
+  ctaHighlight = "Konstruok!",
+  ctaBody = "Prisijunk prie BrickTime ir atrask įspūdingiausius LEGO® rinkinius be didelių išlaidų.",
+  ctaLabel = "Pasirinkti prenumeratą →",
+  ctaHref = "#subscriptions",
+}: FAQProps) {
   const [expanded, setExpanded] = useState(false)
   const ref = useReveal<HTMLDivElement>()
   const zeroRiskRef = useRef<HTMLSpanElement>(null)
@@ -147,10 +164,10 @@ export default function FAQ() {
           >
             <div>
               <p className="font-mono text-[10px] tracking-[.22em] text-paper/60 uppercase">
-                Vis dar abejoji?
+                {ctaEyebrow}
               </p>
               <h3 className="heading-display text-d-sm mt-3 leading-[.9] text-paper">
-                Nebesiribok
+                {ctaLine}
                 <br />
                 <span
                   ref={zeroRiskRef}
@@ -160,20 +177,28 @@ export default function FAQ() {
                     transformOrigin: "center",
                   }}
                 >
-                  Konstruok!
+                  {ctaHighlight}
                 </span>
               </h3>
               <p className="mt-3 text-[15px] leading-[1.6] text-paper/70">
-                Prisijunk prie BrickTime ir atrask įspūdingiausius LEGO®
-                rinkinius be didelių išlaidų.
+                {ctaBody}
               </p>
             </div>
-            <a
-              href="#subscriptions"
-              className="mt-6 inline-flex items-center justify-center rounded-full border-2 border-ink bg-brand-yellow px-6 py-3 text-center text-[15px] font-bold text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,0,0,.2)]"
-            >
-              Pasirinkti prenumeratą →
-            </a>
+            {ctaHref.startsWith("#") ? (
+              <a
+                href={ctaHref}
+                className="mt-6 inline-flex items-center justify-center rounded-full border-2 border-ink bg-brand-yellow px-6 py-3 text-center text-[15px] font-bold text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,0,0,.2)]"
+              >
+                {ctaLabel}
+              </a>
+            ) : (
+              <Link
+                to={ctaHref}
+                className="mt-6 inline-flex items-center justify-center rounded-full border-2 border-ink bg-brand-yellow px-6 py-3 text-center text-[15px] font-bold text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,0,0,.2)]"
+              >
+                {ctaLabel}
+              </Link>
+            )}
           </div>
         </div>
       </div>
