@@ -15,7 +15,6 @@ const EXACT: Record<string, Crumb[]> = {
   "/duk": [{ label: "D.U.K." }],
   "/praleisti-pristabdyti": [{ label: "Pristabdyti" }],
   "/pristatymas": [{ label: "Pristatymas" }],
-  "/grazinimai": [{ label: "Grąžinimai" }],
 }
 
 const PREFIX: Array<{ match: string; parent: Crumb; fallback: string }> = [
