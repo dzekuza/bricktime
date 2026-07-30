@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { ArrowRightIcon } from "lucide-react"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
+import { faqs } from "@/data/faq"
 
 type HelpPageProps = {
   eyebrow: string
@@ -166,20 +167,7 @@ export function FAQPage() {
           value: "Grąžinus aktyvius produktus gali rinktis kitus.",
         },
       ]}
-      sections={[
-        {
-          title: "Kaip veikia mėnesinis biudžetas?",
-          body: "Kiekviena prenumerata atrakina nustatytą mėnesinį biudžetą, kurį gali paskirstyti keliems produktams vienu metu. Svarbi ne vienetų suma, o jų bendra vertė kataloge.",
-        },
-        {
-          title: "Ar galiu turėti daugiau nei vieną produktą?",
-          body: "Taip. Gali laikyti tiek produktų, kiek telpa į tavo prenumeratos limitą. Kai nori išsirinkti naujus, pirmiausia inicijuoji grąžinimą ir po patvirtinimo limitas vėl atsilaisvina.",
-        },
-        {
-          title: "Ar visi produktai prieinami visiems planams?",
-          body: "Ne. Dalis dropų ir aukštesnės vertės rinkinių yra tier-gated. Kuo aukštesnė prenumerata, tuo platesnis archyvas ir ankstesnė prieiga prie išskirtinių leidimų.",
-        },
-      ]}
+      sections={faqs.map((faq) => ({ title: faq.q, body: faq.a }))}
       checklist={[
         "Prenumeratos laikotarpis pradedamas skaičiuoti nuo jos aktyvavimo dienos.",
         "LEGO® rinkinį gali laikyti neribotą laiką, kol tavo prenumerata yra aktyvi.",

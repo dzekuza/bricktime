@@ -411,7 +411,7 @@ export default function Checkout() {
             <div className="mb-8 flex items-end justify-between gap-4">
               <h1 className="heading-display text-d-lg text-ink">Užsakymas</h1>
               <div className="label-mono hidden items-center gap-2 text-ink/30 md:flex">
-                <span className="text-ink/50">Dovanų kortelės</span>
+                <span className="text-ink/50">Dovanų kuponas</span>
                 <span>→</span>
                 <span className="font-bold text-ink">Patvirtinimas</span>
               </div>
@@ -420,7 +420,7 @@ export default function Checkout() {
               {/* Left summary */}
               <div className="brick-card flex flex-col gap-5 bg-brand-yellow p-8">
                 <div>
-                  <p className="label-mono text-ink/50">Dovanų kortelė</p>
+                  <p className="label-mono text-ink/50">Dovanų kuponas</p>
                   <h2 className="heading-display text-d-xl mt-1 text-ink">
                     {gcDenomLabel}
                   </h2>
@@ -489,7 +489,7 @@ export default function Checkout() {
                   </span>
                 </button>
                 <p className="mt-3 text-center font-mono text-[11px] text-ink/30">
-                  Mokėjimas saugiai apdorojamas per Stripe · Kortelė galioja 1
+                  Mokėjimas saugiai apdorojamas per Stripe · Kuponas galioja 1
                   metus
                 </p>
               </div>
@@ -1148,7 +1148,7 @@ export default function Checkout() {
 
                     <div>
                       <p className="label-mono mb-2 text-ink/40">
-                        Dovanų kortelė
+                        Dovanų kuponas
                       </p>
                       {appliedGiftCard ? (
                         <div className="flex items-center justify-between rounded-2xl border-2 border-brand-mint bg-brand-mint/10 px-4 py-3">

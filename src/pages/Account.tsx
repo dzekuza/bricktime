@@ -317,7 +317,11 @@ export default function Account() {
     const hasHomeDelivery = q.get("home_delivery") === "1"
     supabase
       .from("subscribers")
-      .update({ plan: planKey, status: "active", home_delivery: hasHomeDelivery })
+      .update({
+        plan: planKey,
+        status: "active",
+        home_delivery: hasHomeDelivery,
+      })
       .eq("id", user.id)
       .then(() => {
         setSubscriber((s) =>
@@ -395,7 +399,9 @@ export default function Account() {
 
     setBillingLoading(true)
     supabase.functions
-      .invoke("get-billing-history", { body: { userId: user.id, userEmail: user.email } })
+      .invoke("get-billing-history", {
+        body: { userId: user.id, userEmail: user.email },
+      })
       .then(({ data }) => {
         if (data?.invoices) setStripeInvoices(data.invoices)
         setBillingLoading(false)
@@ -532,7 +538,11 @@ export default function Account() {
     const { data, error } = await supabase.functions.invoke(
       "create-billing-portal",
       {
-        body: { userId: user.id, userEmail: user.email, returnUrl: window.location.href },
+        body: {
+          userId: user.id,
+          userEmail: user.email,
+          returnUrl: window.location.href,
+        },
       }
     )
     setPortalLoading(false)
@@ -977,7 +987,7 @@ export default function Account() {
                   <div className="mt-2.5">
                     {order.status === "active" && (
                       <span className="inline-block rounded-full bg-green-100 px-2.5 py-1 font-mono text-[10px] tracking-[.16em] text-green-800 uppercase">
-                        Nuomojama
+                        Prenumeruojama
                       </span>
                     )}
                     {order.status === "processing" && (
@@ -1259,7 +1269,7 @@ export default function Account() {
                 className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
                 style={{ transformOrigin: "center center" }}
               >
-                kortelės.
+                kuponas.
               </span>
             </h2>
 
