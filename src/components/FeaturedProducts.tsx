@@ -1,12 +1,10 @@
 import { useState, useMemo } from "react"
-import { ArrowRight, ChevronDown, Check } from "lucide-react"
+import { ArrowRight, XIcon } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useReveal } from "@/hooks/useReveal"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { SUBSCRIPTION_CHIPS, AGE_CHIPS } from "@/lib/product-filters"
+import { FilterPopover } from "@/components/FilterPopover"
+import { SortPopover } from "@/components/SortPopover"
 import {
   getSubscriptionBrickSvg,
   getSubscriptionTheme,
@@ -27,11 +25,13 @@ type Product = {
     category: string
     plan: string
   }
-  // numeric fields for sorting
+  // numeric fields for sorting/filtering
   piecesNum: number
   priceNum: number
   yearNum: number
+  ageNum: number | null
   planTier: number // higher = more exclusive
+  planKey: string // matches SUBSCRIPTION_CHIPS key
   popularity: number // higher = more popular
   ctaBg: string
   ctaLabel: string
@@ -88,10 +88,12 @@ const PRODUCTS: Product[] = [
     piecesNum: 3943,
     priceNum: 519.99,
     yearNum: 2025,
+    ageNum: null,
     planTier: 5,
+    planKey: "mega",
     popularity: 2,
     ctaBg: "#FFD731",
-    ctaLabel: "Nuomok su Legenda",
+    ctaLabel: "Prenumeruok su Legenda",
   },
   {
     id: 33,
@@ -112,10 +114,12 @@ const PRODUCTS: Product[] = [
     piecesNum: 1931,
     priceNum: 239.99,
     yearNum: 2023,
+    ageNum: null,
     planTier: 3,
+    planKey: "pro",
     popularity: 3,
     ctaBg: "#55DB9C",
-    ctaLabel: "Nuomok su Pro",
+    ctaLabel: "Prenumeruok su Pro",
   },
   {
     id: 32,
@@ -136,149 +140,37 @@ const PRODUCTS: Product[] = [
     piecesNum: 1200,
     priceNum: 139.99,
     yearNum: 2025,
+    ageNum: null,
     planTier: 2,
+    planKey: "standard",
     popularity: 1,
     ctaBg: "#FFAEE7",
-    ctaLabel: "Nuomok su Meistras",
+    ctaLabel: "Prenumeruok su Meistras",
   },
 ]
 
-const FILTER_OPTIONS = {
-  series: {
-    label: "Visos temos",
-    all: "Visos temos",
-    options: ["Star Wars™", "Creator Expert", "Technic", "City"],
-  },
-  plan: {
-    label: "Filtrai pagal prenumeratą",
-    all: "Filtrai pagal prenumeratą",
-    options: ["Mėgėjas", "Kūrėjas", "Meistras", "Pro", "Legenda"],
-  },
-  age: {
-    label: "Amžius",
-    all: "Visi amžiai",
-    options: ["10+", "12+", "16+", "18+"],
-  },
-} as const
+const SERIES_OPTIONS = ["Star Wars™", "Creator Expert", "Technic", "City"]
 
-type FilterKey = keyof typeof FILTER_OPTIONS
-
-type Filters = Record<FilterKey, string | null>
+type Filters = {
+  series: string[]
+  plan: string[]
+  age: string[]
+}
 
 function applyFilters(products: Product[], filters: Filters): Product[] {
   return products.filter((p) => {
-    if (
-      filters.series &&
-      p.stats.category !== filters.series.replace("™", "")
-    ) {
-      const seriesMatch =
-        p.series === filters.series ||
-        p.stats.category === filters.series.replace("™", "")
-      if (!seriesMatch) return false
-    }
-    if (filters.plan && p.stats.plan !== filters.plan) return false
-    return true
+    const seriesOk =
+      filters.series.length === 0 ||
+      filters.series.some(
+        (s) => p.series === s || p.stats.category === s.replace("™", "")
+      )
+    const planOk = filters.plan.length === 0 || filters.plan.includes(p.planKey)
+    const ageOk =
+      filters.age.length === 0 ||
+      p.ageNum == null ||
+      filters.age.includes(String(p.ageNum))
+    return seriesOk && planOk && ageOk
   })
-}
-
-function FilterPill({
-  filterKey,
-  filters,
-  onFilter,
-}: {
-  filterKey: FilterKey
-  filters: Filters
-  onFilter: (key: FilterKey, value: string | null) => void
-}) {
-  const [open, setOpen] = useState(false)
-  const config = FILTER_OPTIONS[filterKey]
-  const active = filters[filterKey]
-  const label = active ?? config.label
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <button
-          className="brick-hover-sm flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-4 py-1.5 data-[state=open]:bg-ink data-[state=open]:text-paper"
-          style={active ? { backgroundColor: "#FFD731" } : undefined}
-        >
-          <span className="label-mono font-bold">{label}</span>
-          <ChevronDown size={12} className="text-current opacity-50" />
-        </button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        className="w-48 rounded-2xl border-2 border-ink p-1 shadow-[4px_4px_0_#001B21]"
-      >
-        <button
-          onClick={() => {
-            onFilter(filterKey, null)
-            setOpen(false)
-          }}
-          className="flex w-full items-center justify-between rounded-xl px-3 py-2 hover:bg-ink/5"
-        >
-          <span className="label-mono">{config.all}</span>
-          {!active && <Check size={13} className="text-ink" />}
-        </button>
-        {config.options.map((opt) => (
-          <button
-            key={opt}
-            onClick={() => {
-              onFilter(filterKey, opt)
-              setOpen(false)
-            }}
-            className="flex w-full items-center justify-between rounded-xl px-3 py-2 hover:bg-ink/5"
-          >
-            <span className="label-mono">{opt}</span>
-            {active === opt && <Check size={13} className="text-ink" />}
-          </button>
-        ))}
-      </PopoverContent>
-    </Popover>
-  )
-}
-
-function SortPill({
-  selected,
-  onSelect,
-}: {
-  selected: (typeof SORT_OPTIONS)[number]
-  onSelect: (opt: (typeof SORT_OPTIONS)[number]) => void
-}) {
-  const [open, setOpen] = useState(false)
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <button className="brick-hover-sm flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-4 py-1.5 data-[state=open]:bg-ink data-[state=open]:text-paper">
-          <span className="label-mono font-bold whitespace-nowrap">
-            Rūšiuoti: {selected.label}
-          </span>
-          <ChevronDown size={12} className="text-current opacity-50" />
-        </button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        className="w-64 rounded-2xl border-2 border-ink p-1 shadow-[4px_4px_0_#001B21]"
-      >
-        {SORT_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => {
-              onSelect(opt)
-              setOpen(false)
-            }}
-            className="flex w-full items-center justify-between rounded-xl px-3 py-2 hover:bg-ink/5"
-          >
-            <span className="label-mono whitespace-nowrap">{opt.label}</span>
-            {selected.value === opt.value && (
-              <Check size={13} className="text-ink" />
-            )}
-          </button>
-        ))}
-      </PopoverContent>
-    </Popover>
-  )
 }
 
 function ProductCard({ product, delay }: { product: Product; delay: number }) {
@@ -361,40 +253,82 @@ function ProductCard({ product, delay }: { product: Product; delay: number }) {
 
 export default function FeaturedProducts() {
   const ref = useReveal<HTMLDivElement>()
-  const [sort, setSort] = useState<(typeof SORT_OPTIONS)[number]>(
-    SORT_OPTIONS[0]
-  )
-  const [filters, setFilters] = useState<Filters>({
-    series: null,
-    plan: null,
-    age: null,
-  })
+  const [sortBy, setSortBy] = useState<SortValue>("newest")
+  const [seriesFilter, setSeriesFilter] = useState<string[]>([])
+  const [tierFilter, setTierFilter] = useState<string[]>([])
+  const [ageFilter, setAgeFilter] = useState<string[]>([])
 
-  const handleFilter = (key: FilterKey, value: string | null) => {
-    setFilters((prev) => ({ ...prev, [key]: value }))
+  const visible = useMemo(() => {
+    const filters: Filters = {
+      series: seriesFilter,
+      plan: tierFilter,
+      age: ageFilter,
+    }
+    return sortProducts(applyFilters(PRODUCTS, filters), sortBy)
+  }, [seriesFilter, tierFilter, ageFilter, sortBy])
+
+  const sortLabel =
+    SORT_OPTIONS.find((o) => o.value === sortBy)?.label ?? sortBy
+  const hasActiveFilter =
+    seriesFilter.length > 0 || tierFilter.length > 0 || ageFilter.length > 0
+
+  function clearFilters() {
+    setSeriesFilter([])
+    setTierFilter([])
+    setAgeFilter([])
   }
-
-  const visible = useMemo(
-    () => sortProducts(applyFilters(PRODUCTS, filters), sort.value),
-    [filters, sort]
-  )
 
   return (
     <section className="bg-paper py-10 md:py-20">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         {/* Filter bar */}
         <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap gap-2">
-            {(Object.keys(FILTER_OPTIONS) as FilterKey[]).map((key) => (
-              <FilterPill
-                key={key}
-                filterKey={key}
-                filters={filters}
-                onFilter={handleFilter}
-              />
-            ))}
+          <div className="flex flex-wrap items-center gap-2">
+            <FilterPopover
+              label={seriesFilter.length === 0 ? "Visos temos" : "Tema"}
+              options={SERIES_OPTIONS.map((s) => ({ value: s, label: s }))}
+              selected={seriesFilter}
+              onChange={setSeriesFilter}
+            />
+            <FilterPopover
+              label="Filtrai pagal prenumeratą"
+              options={SUBSCRIPTION_CHIPS.map(({ key, label }) => ({
+                value: key,
+                label,
+              }))}
+              selected={tierFilter}
+              onChange={setTierFilter}
+            />
+            <FilterPopover
+              label="Amžius"
+              options={AGE_CHIPS.map((age) => ({
+                value: String(age),
+                label: `${age}+`,
+              }))}
+              selected={ageFilter}
+              onChange={setAgeFilter}
+            />
+            {hasActiveFilter && (
+              <>
+                <span className="mx-1 h-5 w-px bg-ink/20" />
+                <span className="font-mono text-[11px] tracking-[.06em] text-ink/50 uppercase">
+                  {visible.length} iš {PRODUCTS.length}
+                </span>
+                <button
+                  onClick={clearFilters}
+                  className="inline-flex items-center gap-1 font-mono text-[11px] tracking-[.06em] text-ink/40 uppercase transition-colors hover:text-ink"
+                >
+                  <XIcon className="size-3" />
+                  Išvalyti
+                </button>
+              </>
+            )}
           </div>
-          <SortPill selected={sort} onSelect={setSort} />
+          <SortPopover
+            value={sortBy}
+            options={SORT_OPTIONS}
+            onChange={setSortBy}
+          />
         </div>
 
         {/* Cards — horizontal scroll on mobile, 3-col grid on md+ */}
@@ -422,7 +356,7 @@ export default function FeaturedProducts() {
             <ArrowRight size={16} />
           </Link>
           <p className="label-mono text-center text-ink/55">
-            Rodoma {visible.length} iš 170 · {sort.label} pirmiausia
+            Rodoma {visible.length} iš 170 · {sortLabel} pirmiausia
           </p>
         </div>
       </div>

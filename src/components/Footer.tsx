@@ -6,7 +6,7 @@ const footerLinks = {
     { label: "Prenumeratos", href: "/subscribe" },
     { label: "Rinkiniai", href: "/archive" },
     { label: "Bendruomenė", href: "/community" },
-    { label: "Dovanų kortelės", href: "/gift-cards" },
+    { label: "Dovanų kuponas", href: "/gift-cards" },
   ],
   Pagalba: [
     { label: "D.U.K.", href: "/duk" },

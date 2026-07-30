@@ -39,18 +39,18 @@ function SuccessBanner({
   return (
     <div className="brick-card flex flex-col gap-5 bg-[#5DDB9C] p-6 md:p-9">
       <div>
-        <p className="label-mono mb-3 text-ink/60">Dovanų kortelė išsiųsta</p>
+        <p className="label-mono mb-3 text-ink/60">Dovanų kuponas išsiųstas</p>
         <h2 className="heading-display text-d-md text-ink">
           ✓ Mokėjimas gautas!
         </h2>
       </div>
       <p className="text-[16px] leading-relaxed text-ink/70">
-        Dovanų kortelė skirta{" "}
+        Dovanų kuponas skirtas{" "}
         <strong className="text-ink">{recipientEmail}</strong>. Kodą pateik
         gavėjui — jis gali jį panaudoti užsisakydamas prenumeratą ar merch.
       </p>
       <div className="flex flex-col gap-3 rounded-2xl border-2 border-ink bg-paper p-5">
-        <p className="label-mono text-ink/50">Dovanų kortelės kodas</p>
+        <p className="label-mono text-ink/50">Dovanų kupono kodas</p>
         <div className="flex items-center justify-between gap-4">
           <span className="font-mono text-[28px] font-bold tracking-[.12em] text-ink md:text-[36px]">
             {code}
@@ -59,7 +59,7 @@ function SuccessBanner({
         </div>
       </div>
       <p className="font-mono text-[12px] text-ink/50">
-        Galioja 1 metus nuo šiandienos. Kortelė taip pat išsiųsta gavėjui el.
+        Galioja 1 metus nuo šiandienos. Kuponas taip pat išsiųstas gavėjui el.
         paštu.
       </p>
     </div>
@@ -109,7 +109,7 @@ export default function GiftCards() {
           <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
             <div>
               <h1 className="heading-display text-d-xl tracking-[-0.015em] text-ink">
-                DOVANK{" "}
+                DOVANOK{" "}
                 <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">
                   džiaugsmą.
                 </span>
@@ -123,7 +123,7 @@ export default function GiftCards() {
             <div className="hidden lg:block">
               <img
                 src="/images/build-spaceship.jpg"
-                alt="LEGO dovanų kortelė"
+                alt="LEGO dovanų kuponas"
                 className="aspect-[2/1] w-full rounded-2xl border-2 border-ink object-cover shadow-[6px_6px_0_#001B21]"
               />
             </div>
@@ -257,7 +257,7 @@ export default function GiftCards() {
                       </button>
 
                       <p className="font-mono text-[11px] text-ink/35">
-                        Mokėjimas apdorojamas saugiai per Stripe. Kortelė
+                        Mokėjimas apdorojamas saugiai per Stripe. Kuponas
                         galioja 1 metus.
                       </p>
                     </div>

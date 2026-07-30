@@ -82,6 +82,6 @@ export const faqs: FaqItem[] = [
   },
   {
     q: "Ar galiu padovanoti Brick Time prenumeratą?",
-    a: "Taip. Gali įsigyti Brick Time elektroninę dovanų kortelę ir padovanoti LEGO® konstravimo džiaugsmą savo artimiesiems ar draugams.",
+    a: "Taip. Gali įsigyti Brick Time elektroninį dovanų kuponą ir padovanoti LEGO® konstravimo džiaugsmą savo artimiesiems ar draugams.",
   },
 ]

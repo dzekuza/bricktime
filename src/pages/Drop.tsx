@@ -925,7 +925,7 @@ export default function Drop() {
                   className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
                   style={{ transformOrigin: "center center" }}
                 >
-                  nuomotojai.
+                  nariai.
                 </span>
               </h2>
             </div>

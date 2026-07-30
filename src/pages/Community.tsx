@@ -709,7 +709,7 @@ function FeedPanel({ onOpenAuth }: { onOpenAuth: () => void }) {
           className="brick-card brick-hover-sm w-full p-4 text-center"
         >
           <p className="font-mono text-[13px] text-ink/50">
-            Prisijunk norėdamas rašyti į srautą →
+            Prisijunk norėdamas rašyti komentarą →
           </p>
         </button>
       )}
@@ -819,18 +819,18 @@ function LeaderboardPanel() {
         })}
       </div>
 
-      {/* Prizes */}
+      {/* Prizes — displayed in podium order (2nd, 1st, 3rd) to line up with the cards above */}
       <div className="mb-4 grid grid-cols-3 gap-2">
         {(
           [
             {
-              rank: "#1",
+              rank: "#2",
               emoji: "🧥",
               prize: "BRICKTIME džemperis",
               sub: "Mūsų kolekcija",
             },
             {
-              rank: "#2",
+              rank: "#1",
               emoji: "🧱",
               prize: "LEGO rinkinys",
               sub: "Tavo pasirinkimas",
@@ -976,7 +976,7 @@ export default function Community() {
             </div>
 
             <div>
-              <h3 className="label-mono mb-6 text-ink/50">⬢ Srautas</h3>
+              <h3 className="label-mono mb-6 text-ink/50">⬢ Komentarai</h3>
               <FeedPanel onOpenAuth={() => setShowAuthDialog(true)} />
             </div>
           </div>
