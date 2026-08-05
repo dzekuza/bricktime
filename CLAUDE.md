@@ -28,6 +28,9 @@ to free up budget. Products are tier-gated. Copy is **Lithuanian** — match ton
 ## Data & backend
 
 - Supabase for auth/DB/payments — client in `src/lib/supabase.ts`, generated types in `src/lib/database.types.ts`.
+- New files in `supabase/migrations/` sync to the linked remote project automatically — don't assume `supabase db push` is needed; verify with `supabase db push --dry-run` (expect "up to date").
+- `database.types.ts` is duplicated in `admin/src/lib/` (separate app, not shared) — regenerate both after any schema change.
+- Before naming a new migration file, check `ls supabase/migrations/` for an existing timestamp collision — `db push` applies alphabetically and a collision fails with a `schema_migrations` PK violation, not a clear "file exists" error.
 - Payments/shipping run through the edge functions above (Stripe + LP Express/Unisend). Secrets via `Deno.env` — never hardcode.
 - Some landing content is still static (`src/data/`, inline arrays).
 

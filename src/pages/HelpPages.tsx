@@ -1,9 +1,10 @@
-import type { ReactNode } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { ArrowRightIcon } from "lucide-react"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
-import { faqs } from "@/data/faq"
+import { faqs as defaultFaqs } from "@/data/faq"
+import { supabase } from "@/lib/supabase"
 
 type HelpPageProps = {
   eyebrow: string
@@ -147,6 +148,19 @@ function HelpPage({
 }
 
 export function FAQPage() {
+  const [faqs, setFaqs] = useState(defaultFaqs)
+
+  useEffect(() => {
+    supabase
+      .from("faq_items")
+      .select("question, answer")
+      .order("sort_order")
+      .then(({ data }) => {
+        if (!data || data.length === 0) return
+        setFaqs(data.map((f) => ({ q: f.question, a: f.answer })))
+      })
+  }, [])
+
   return (
     <HelpPage
       eyebrow="Pagalba / D.U.K."

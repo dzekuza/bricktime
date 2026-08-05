@@ -55,3 +55,6 @@ brand.css
 index.html
 .env*.local
 CLAUDE.local.md
+
+# ShipStudio metadata
+.shipstudio/

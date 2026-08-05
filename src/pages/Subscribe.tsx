@@ -62,6 +62,19 @@ export default function Subscribe() {
     }))
   }, [user, profile])
 
+  const [heroVideoUrl, setHeroVideoUrl] = useState(HERO_VIDEO_URL)
+
+  useEffect(() => {
+    supabase
+      .from("home_content")
+      .select("hero_video_url")
+      .eq("id", 1)
+      .single()
+      .then(({ data }) => {
+        if (data?.hero_video_url) setHeroVideoUrl(data.hero_video_url)
+      })
+  }, [])
+
   const [homeDelivery, setHomeDelivery] = useState(false)
 
   // reset home delivery toggle when switching to an ineligible plan
@@ -368,13 +381,14 @@ export default function Subscribe() {
             <div className="hidden lg:block">
               <div className="relative aspect-[2/1] overflow-hidden rounded-2xl border-2 border-ink">
                 <video
+                  key={heroVideoUrl}
                   className="h-full w-full object-cover"
                   autoPlay
                   muted
                   loop
                   playsInline
                 >
-                  <source src={HERO_VIDEO_URL} type="video/mp4" />
+                  <source src={heroVideoUrl} type="video/mp4" />
                 </video>
               </div>
             </div>
@@ -762,8 +776,7 @@ export default function Subscribe() {
 
       <FAQ
         ctaEyebrow="Pasiruošęs pradėti?"
-        ctaLine="Atrask savo"
-        ctaHighlight="LEGO® rinkinius."
+        ctaHeading={"Atrask savo\n==LEGO® rinkinius.=="}
         ctaBody="Peržiūrėk visus mūsų turimus LEGO® rinkinius ir išsirink, kurį konstruosi pirmiausia."
         ctaLabel="Peržiūrėti rinkinius"
         ctaHref="/archive"

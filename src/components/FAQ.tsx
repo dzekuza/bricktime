@@ -9,7 +9,9 @@ import {
 } from "@/components/ui/accordion"
 import { useReveal } from "@/hooks/useReveal"
 import { Button } from "@/components/ui/button"
-import { faqs } from "@/data/faq"
+import { HeadingMarkup } from "@/components/HeadingMarkup"
+import { faqs as defaultFaqs } from "@/data/faq"
+import { supabase } from "@/lib/supabase"
 
 const stats = [
   { value: "12 400+", label: "Aktyvūs prenumeratoriai", yellow: false },
@@ -20,31 +22,86 @@ const stats = [
 
 type FAQProps = {
   ctaEyebrow?: string
-  ctaLine?: string
-  ctaHighlight?: string
+  ctaHeading?: string
   ctaBody?: string
   ctaLabel?: string
   ctaHref?: string
 }
 
-export default function FAQ({
-  ctaEyebrow = "Vis dar abejoji?",
-  ctaLine = "Nebesiribok",
-  ctaHighlight = "Konstruok!",
-  ctaBody = "Prisijunk prie Brick Time ir atrask įspūdingiausius LEGO® rinkinius be didelių išlaidų.",
-  ctaLabel = "Pasirinkti prenumeratą →",
-  ctaHref = "#subscriptions",
-}: FAQProps) {
+// Used only when the caller doesn't pass a CTA prop AND home_content hasn't
+// loaded yet — pages that pass explicit props (e.g. Subscribe) always win.
+const DEFAULT_CTA = {
+  ctaEyebrow: "Vis dar abejoji?",
+  ctaHeading: "Nebesiribok\n==Konstruok!==",
+  ctaBody:
+    "Prisijunk prie Brick Time ir atrask įspūdingiausius LEGO® rinkinius be didelių išlaidų.",
+  ctaLabel: "Pasirinkti prenumeratą →",
+  ctaHref: "#subscriptions",
+}
+
+export default function FAQ(props: FAQProps) {
   const [expanded, setExpanded] = useState(false)
   const ref = useReveal<HTMLDivElement>()
   const zeroRiskRef = useRef<HTMLSpanElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const [faqs, setFaqs] = useState(defaultFaqs)
+  const [dbCta, setDbCta] = useState<typeof DEFAULT_CTA | null>(null)
+
+  const cta = {
+    ctaEyebrow: props.ctaEyebrow ?? dbCta?.ctaEyebrow ?? DEFAULT_CTA.ctaEyebrow,
+    ctaHeading: props.ctaHeading ?? dbCta?.ctaHeading ?? DEFAULT_CTA.ctaHeading,
+    ctaBody: props.ctaBody ?? dbCta?.ctaBody ?? DEFAULT_CTA.ctaBody,
+    ctaLabel: props.ctaLabel ?? dbCta?.ctaLabel ?? DEFAULT_CTA.ctaLabel,
+    ctaHref: props.ctaHref ?? dbCta?.ctaHref ?? DEFAULT_CTA.ctaHref,
+  }
 
   useEffect(() => {
     return () => {
       if (!containerRef.current) return
       gsap.killTweensOf(containerRef.current.querySelectorAll("*"))
     }
+  }, [])
+
+  useEffect(() => {
+    // Only fetch Home's CTA copy when this instance isn't fully overridden
+    // by props — Subscribe always passes its own, so skip the request.
+    const ctaKeys: (keyof FAQProps)[] = [
+      "ctaEyebrow",
+      "ctaHeading",
+      "ctaBody",
+      "ctaLabel",
+      "ctaHref",
+    ]
+    const needsDbCta = ctaKeys.some((k) => props[k] === undefined)
+    if (needsDbCta) {
+      supabase
+        .from("home_content")
+        .select(
+          "faq_cta_eyebrow, faq_cta_heading, faq_cta_body, faq_cta_label, faq_cta_href"
+        )
+        .eq("id", 1)
+        .single()
+        .then(({ data }) => {
+          if (!data) return
+          setDbCta({
+            ctaEyebrow: data.faq_cta_eyebrow || DEFAULT_CTA.ctaEyebrow,
+            ctaHeading: data.faq_cta_heading || DEFAULT_CTA.ctaHeading,
+            ctaBody: data.faq_cta_body || DEFAULT_CTA.ctaBody,
+            ctaLabel: data.faq_cta_label || DEFAULT_CTA.ctaLabel,
+            ctaHref: data.faq_cta_href || DEFAULT_CTA.ctaHref,
+          })
+        })
+    }
+
+    supabase
+      .from("faq_items")
+      .select("question, answer")
+      .order("sort_order")
+      .then(({ data }) => {
+        if (!data || data.length === 0) return
+        setFaqs(data.map((f) => ({ q: f.question, a: f.answer })))
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -164,39 +221,36 @@ export default function FAQ({
           >
             <div>
               <p className="font-mono text-[10px] tracking-[.22em] text-paper/60 uppercase">
-                {ctaEyebrow}
+                {cta.ctaEyebrow}
               </p>
               <h3 className="heading-display text-d-sm mt-3 leading-[.9] text-paper">
-                {ctaLine}
-                <br />
-                <span
-                  ref={zeroRiskRef}
-                  className="inline-block border-[3px] border-paper/40 bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(245,241,235,.2)]"
-                  style={{
+                <HeadingMarkup
+                  text={cta.ctaHeading}
+                  highlightRef={zeroRiskRef}
+                  highlightClassName="inline-block border-[3px] border-paper/40 bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(245,241,235,.2)]"
+                  highlightStyle={{
                     transform: "rotate(-1.5deg)",
                     transformOrigin: "center",
                   }}
-                >
-                  {ctaHighlight}
-                </span>
+                />
               </h3>
               <p className="mt-3 text-[15px] leading-[1.6] text-paper/70">
-                {ctaBody}
+                {cta.ctaBody}
               </p>
             </div>
-            {ctaHref.startsWith("#") ? (
+            {cta.ctaHref.startsWith("#") ? (
               <a
-                href={ctaHref}
+                href={cta.ctaHref}
                 className="mt-6 inline-flex items-center justify-center rounded-full border-2 border-ink bg-brand-yellow px-6 py-3 text-center text-[15px] font-bold text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,0,0,.2)]"
               >
-                {ctaLabel}
+                {cta.ctaLabel}
               </a>
             ) : (
               <Link
-                to={ctaHref}
+                to={cta.ctaHref}
                 className="mt-6 inline-flex items-center justify-center rounded-full border-2 border-ink bg-brand-yellow px-6 py-3 text-center text-[15px] font-bold text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,0,0,.2)]"
               >
-                {ctaLabel}
+                {cta.ctaLabel}
               </Link>
             )}
           </div>
