@@ -4,7 +4,7 @@ const SITE_NAME = "Brick Time"
 const SITE_URL = "https://www.bricktime.lt"
 const DEFAULT_DESCRIPTION =
   "LEGO® rinkinių prenumerata Lietuvoje. Rinkis rinkinius pagal savo mėnesinį biudžetą, laikyk kiek nori, grąžink ir keisk į naujus."
-const DEFAULT_IMAGE = "/hero-video-poster.jpeg"
+const DEFAULT_IMAGE = "/og-image.png"
 
 type SeoProps = {
   title: string
