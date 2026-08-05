@@ -22,6 +22,7 @@ import {
 } from "@/components/ProfileEditDialog"
 import type { LpTerminal } from "@/lib/lpexpress"
 import { Seo } from "@/components/Seo"
+import { TermsAgreement } from "@/components/TermsAgreement"
 
 const HOME_DELIVERY_PLANS = ["pro", "mega", "mystery_s", "mystery_m"]
 const HOME_DELIVERY_FEE = 3
@@ -139,6 +140,7 @@ export default function Checkout() {
   const [billing, setBilling] = useState<"monthly" | "annual">(billingParam)
   const [purchasing, setPurchasing] = useState(false)
   const [purchaseError, setPurchaseError] = useState("")
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
   const { subscriptions: plans } = useSubscriptions()
 
   useEffect(() => {
@@ -256,7 +258,8 @@ export default function Checkout() {
   )
   // Phone is always needed (LP terminal SMS / courier); an address is needed
   // only for to-door delivery; a terminal only for paštomatas.
-  const canConfirm = hasPhone && (homeDelivery ? hasAddress : !!terminal)
+  const canConfirm =
+    hasPhone && (homeDelivery ? hasAddress : !!terminal) && agreedToTerms
 
   // ── gift card purchase handler ───────────────────────────────────────────
   const [gcLoading, setGcLoading] = useState(false)
@@ -1050,6 +1053,12 @@ export default function Checkout() {
 
                   {/* CTA */}
                   <div className="mt-auto pt-6">
+                    <TermsAgreement
+                      id="terms-claim"
+                      checked={agreedToTerms}
+                      onCheckedChange={setAgreedToTerms}
+                      className="mb-4"
+                    />
                     <button
                       onClick={() => setShowModal(true)}
                       disabled={!canConfirm}
@@ -1066,9 +1075,11 @@ export default function Checkout() {
                       <p className="mt-2 text-center font-mono text-[12px] text-ink/50">
                         {!hasPhone
                           ? "Įvesk telefono numerį, kad galėtum tęsti"
-                          : homeDelivery
+                          : homeDelivery && !hasAddress
                             ? "Užpildyk pristatymo adresą, kad galėtum tęsti"
-                            : "Pasirink paštomatą, kad galėtum tęsti"}
+                            : !homeDelivery && !terminal
+                              ? "Pasirink paštomatą, kad galėtum tęsti"
+                              : "Sutik su parduotuvės taisyklėmis, kad galėtum tęsti"}
                       </p>
                     )}
                     <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
@@ -1349,11 +1360,20 @@ export default function Checkout() {
                         {purchaseError}
                       </p>
                     )}
+                    <TermsAgreement
+                      id="terms-subscribe"
+                      checked={agreedToTerms}
+                      onCheckedChange={setAgreedToTerms}
+                      className="mb-4"
+                    />
                     <button
                       onClick={
                         !user ? () => setShowAuthModal(true) : handleSubscribe
                       }
-                      disabled={purchasing || (!!user && !requiredPlan)}
+                      disabled={
+                        purchasing ||
+                        (!!user && (!requiredPlan || !agreedToTerms))
+                      }
                       className="brick-hover-sm flex w-full items-center justify-between rounded-[28px] border-2 border-ink bg-brand-orange px-6 py-4 text-paper transition-all disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <span className="font-display text-[22px] leading-none">
@@ -1388,7 +1408,8 @@ export default function Checkout() {
             {isEligible ? (
               <button
                 onClick={() => setShowModal(true)}
-                className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-brand-orange px-5 py-3.5 text-paper"
+                disabled={!canConfirm}
+                className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-brand-orange px-5 py-3.5 text-paper disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <span className="font-display text-[18px] leading-none">
                   Patvirtinti užsakymą
@@ -1419,7 +1440,9 @@ export default function Checkout() {
             ) : (
               <button
                 onClick={!user ? () => setShowAuthModal(true) : handleSubscribe}
-                disabled={purchasing || (!!user && !requiredPlan)}
+                disabled={
+                  purchasing || (!!user && (!requiredPlan || !agreedToTerms))
+                }
                 className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-brand-orange px-5 py-3.5 text-paper disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <span className="font-display text-[18px] leading-none">

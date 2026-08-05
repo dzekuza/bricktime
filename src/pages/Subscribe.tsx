@@ -14,6 +14,7 @@ import { useReveal } from "@/hooks/useReveal"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
 import { HERO_VIDEO_URL } from "@/lib/media"
 import { Seo } from "@/components/Seo"
+import { TermsAgreement } from "@/components/TermsAgreement"
 
 // ── static data ────────────────────────────────────────────────────────────
 
@@ -85,6 +86,7 @@ export default function Subscribe() {
 
   const [purchasing, setPurchasing] = useState(false)
   const [purchaseError, setPurchaseError] = useState("")
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [couponInput, setCouponInput] = useState("")
   const [appliedCoupon, setAppliedCoupon] = useState<{
     code: string
@@ -451,10 +453,16 @@ export default function Subscribe() {
                     {purchaseError}
                   </p>
                 )}
-                <div className="mt-8 flex gap-3">
+                <TermsAgreement
+                  id="terms-subscribe-plan"
+                  checked={agreedToTerms}
+                  onCheckedChange={setAgreedToTerms}
+                  className="mt-6"
+                />
+                <div className="mt-4 flex gap-3">
                   <Button
                     size="lg"
-                    disabled={purchasing || !plan}
+                    disabled={purchasing || !plan || !agreedToTerms}
                     className="brick-hover-sm flex-1 rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper disabled:opacity-50"
                     onClick={handlePurchase}
                   >
