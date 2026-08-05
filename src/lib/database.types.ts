@@ -1438,3 +1438,5 @@ export const Constants = {
     },
   },
 } as const
+
+export type PlanTier = Database["public"]["Enums"]["plan_tier"]
