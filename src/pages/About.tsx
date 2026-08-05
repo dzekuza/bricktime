@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import { useReveal } from "@/hooks/useReveal"
+import { Seo } from "@/components/Seo"
 
 const VALUES = [
   {
@@ -36,6 +37,11 @@ export default function About() {
 
   return (
     <>
+      <Seo
+        title="Apie mus"
+        description="Sužinok, kas yra Brick Time – LEGO® rinkinių prenumeratos paslauga Lietuvoje, ir kodėl konstruoti be ribų yra paprasta."
+        path="/apie"
+      />
       <Nav />
       <main className="bg-paper text-ink">
         {/* Hero */}

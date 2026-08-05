@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { StarIcon, ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
 import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
+import { Seo } from "@/components/Seo"
 import {
   ProductCard,
   dbToProduct,
@@ -414,6 +415,15 @@ export default function Drop() {
 
   return (
     <>
+      <Seo
+        title={product?.title ?? "Rinkinys"}
+        description={
+          product?.subtitle ||
+          product?.description ||
+          "LEGO® rinkinys iš Brick Time katalogo – prieinamas su prenumerata."
+        }
+        path={`/drop/${id}`}
+      />
       <Nav />
 
       {/* ── Product Hero ── */}

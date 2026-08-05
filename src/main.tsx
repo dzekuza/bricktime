@@ -1,6 +1,7 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { BrowserRouter } from "react-router-dom"
+import { HelmetProvider } from "react-helmet-async"
 
 if (import.meta.env.DEV) {
   import("react-grab").then((mod) => {
@@ -30,16 +31,18 @@ window.scrollTo(0, 0)
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
-      <ConsentProvider>
-        <AuthProvider>
-          <SubscriptionsProvider>
-            <BreadcrumbProvider>
-              <App />
-            </BreadcrumbProvider>
-          </SubscriptionsProvider>
-        </AuthProvider>
-      </ConsentProvider>
-    </BrowserRouter>
+    <HelmetProvider>
+      <BrowserRouter>
+        <ConsentProvider>
+          <AuthProvider>
+            <SubscriptionsProvider>
+              <BreadcrumbProvider>
+                <App />
+              </BreadcrumbProvider>
+            </SubscriptionsProvider>
+          </AuthProvider>
+        </ConsentProvider>
+      </BrowserRouter>
+    </HelmetProvider>
   </StrictMode>
 )

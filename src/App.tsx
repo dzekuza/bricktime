@@ -20,6 +20,7 @@ import GiftCards from "@/pages/GiftCards"
 import About from "@/pages/About"
 import PrivacyPolicy from "@/pages/PrivacyPolicy"
 import StoreRules from "@/pages/StoreRules"
+import NotFound from "@/pages/NotFound"
 import LoadingScreen from "@/components/LoadingScreen"
 import CookieConsentBanner from "@/components/CookieConsentBanner"
 import ComingSoonGate from "@/components/ComingSoonGate"
@@ -67,6 +68,7 @@ export default function App() {
         <Route path="/apie" element={<About />} />
         <Route path="/privatumo-politika" element={<PrivacyPolicy />} />
         <Route path="/parduotuves-taisykles" element={<StoreRules />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
       <CookieConsentBanner />
     </ComingSoonGate>

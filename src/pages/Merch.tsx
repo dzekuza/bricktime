@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import { supabase } from "@/lib/supabase"
+import { Seo } from "@/components/Seo"
 
 export interface MerchItem {
   id: string
@@ -201,6 +202,11 @@ export default function MerchPage() {
 
   return (
     <>
+      <Seo
+        title="Merch"
+        description="Brick Time apranga – džemperiai ir marškinėliai LEGO® fanams."
+        path="/merch"
+      />
       <Nav />
 
       {/* Hero */}

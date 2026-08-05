@@ -5,11 +5,13 @@ import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import { faqs as defaultFaqs } from "@/data/faq"
 import { supabase } from "@/lib/supabase"
+import { Seo } from "@/components/Seo"
 
 type HelpPageProps = {
   eyebrow: string
   title: string
   intro: string
+  path: string
   heroImage?: string
   summary: { label: string; value: string }[]
   sections: { title: string; body: string }[]
@@ -20,6 +22,7 @@ type HelpPageProps = {
 function HelpPage({
   title,
   intro,
+  path,
   heroImage,
   sections,
   checklist,
@@ -27,6 +30,7 @@ function HelpPage({
 }: HelpPageProps) {
   return (
     <>
+      <Seo title={title} description={intro} path={path} />
       <Nav />
       <main className="bg-paper text-ink">
         <section className="bg-paper">
@@ -144,6 +148,7 @@ export function FAQPage() {
     <HelpPage
       eyebrow="Pagalba / D.U.K."
       title="D.U.K."
+      path="/duk"
       intro="Čia rasi atsakymus į dažniausiai užduodamus klausimus apie Brick Time – nuo prenumeratų ir LEGO® rinkinių iki pristatymo, grąžinimo bei paslaugos veikimo."
       summary={[
         {
@@ -174,6 +179,7 @@ export function PausePage() {
     <HelpPage
       eyebrow="Pagalba / Praleisti / pristabdyti"
       title="Praleisti / pristabdyti"
+      path="/praleisti-pristabdyti"
       intro="Kartais statybos ritmas sulėtėja. Šiame puslapyje aiškiai aprašyta, kada gali praleisti mėnesį, kaip veikia pristabdymas ir kas nutinka tavo prenumeratai tuo metu."
       summary={[
         {
@@ -214,6 +220,7 @@ export function ShippingPage() {
     <HelpPage
       eyebrow="Pagalba / Pristatymas"
       title="Pristatymas"
+      path="/pristatymas"
       intro="Brick Time rūpinasi, kad LEGO® rinkinių pristatymas būtų kuo sklandesnis. Čia rasi svarbiausią informaciją apie pristatymo būdus, terminus ir tai, ko tikėtis po užsakymo."
       heroImage="/images/build-sailboat.jpg"
       summary={[
@@ -263,6 +270,7 @@ export function ReturnsPage() {
     <HelpPage
       eyebrow="Pagalba / Grąžinimai"
       title="Grąžinimai"
+      path="/grazinimai"
       intro="Baigei konstruoti? Laikas kitam rinkiniui. Grąžinimo procesas paprastas ir greitas. Čia sužinosi, kaip inicijuoti grąžinimą, kaip tinkamai paruošti rinkinį siuntimui ir kada galėsi išsirinkti kitą LEGO® rinkinį."
       heroImage="/images/build-cactus.jpg"
       summary={[

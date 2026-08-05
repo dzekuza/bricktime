@@ -13,6 +13,7 @@ import { OrderTracking } from "@/components/OrderTracking"
 import { ReturnDialog } from "@/components/ReturnDialog"
 import { ProfileEditDialog } from "@/components/ProfileEditDialog"
 import { fetchLabelPdf, downloadPdf } from "@/lib/lpexpress"
+import { Seo } from "@/components/Seo"
 
 const HOME_DELIVERY_PLANS = ["pro", "mega", "mystery_s", "mystery_m"]
 const HOME_DELIVERY_FEE = 3
@@ -598,6 +599,7 @@ export default function Account() {
 
   return (
     <div className="min-h-screen bg-paper">
+      <Seo title="Paskyra" path="/account" noindex />
       <Nav />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}

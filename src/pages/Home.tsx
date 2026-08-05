@@ -4,6 +4,7 @@ import Nav from "@/components/Nav"
 import Hero from "@/components/Hero"
 import Marquee from "@/components/Marquee"
 import { NextDrop } from "@/components/NextDrop"
+import { Seo } from "@/components/Seo"
 
 const FeaturedProducts = lazy(() => import("@/components/FeaturedProducts"))
 const HowItWorks = lazy(() => import("@/components/HowItWorks"))
@@ -19,6 +20,11 @@ export default function Home() {
   const navigate = useNavigate()
   return (
     <>
+      <Seo
+        title="Brick Time – LEGO® rinkinių prenumerata"
+        description="Prenumeruok LEGO® rinkinius pagal savo biudžetą, laikyk kiek nori ir keisk į naujus, kai atsibosta. Pristatymas visoje Lietuvoje."
+        path="/"
+      />
       <Nav />
       <main>
         <Hero />

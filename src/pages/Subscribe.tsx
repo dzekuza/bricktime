@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { useReveal } from "@/hooks/useReveal"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
 import { HERO_VIDEO_URL } from "@/lib/media"
+import { Seo } from "@/components/Seo"
 
 // ── static data ────────────────────────────────────────────────────────────
 
@@ -292,6 +293,7 @@ export default function Subscribe() {
   if (submitted && plan) {
     return (
       <div className="min-h-screen bg-paper">
+        <Seo title="Prenumeratos planai" path="/subscribe" noindex />
         <Nav />
         <section className="py-20">
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
@@ -343,6 +345,11 @@ export default function Subscribe() {
 
   return (
     <div className="min-h-screen bg-paper">
+      <Seo
+        title="Prenumeratos planai"
+        description="Pasirink Brick Time prenumeratos planą pagal savo biudžetą – nuo Nano iki Mega – ir pradėk rinktis LEGO® rinkinius."
+        path="/subscribe"
+      />
       <Nav />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}

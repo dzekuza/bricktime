@@ -21,6 +21,7 @@ import {
   type ProfileValues,
 } from "@/components/ProfileEditDialog"
 import type { LpTerminal } from "@/lib/lpexpress"
+import { Seo } from "@/components/Seo"
 
 const HOME_DELIVERY_PLANS = ["pro", "mega", "mystery_s", "mystery_m"]
 const HOME_DELIVERY_FEE = 3
@@ -731,6 +732,7 @@ export default function Checkout() {
 
   return (
     <div className="min-h-screen bg-paper">
+      <Seo title="Užsakymas" path="/checkout" noindex />
       <Nav />
 
       <section className="pt-6 pb-4">

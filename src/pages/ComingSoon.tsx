@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react"
 import { supabase } from "@/lib/supabase"
+import { Seo } from "@/components/Seo"
 
 function AccessUnlock({ onUnlock }: { onUnlock: (code: string) => boolean }) {
   const [open, setOpen] = useState(false)
@@ -10,7 +11,7 @@ function AccessUnlock({ onUnlock }: { onUnlock: (code: string) => boolean }) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="label-mono text-ink/40 underline decoration-dotted underline-offset-4 transition-colors hover:text-ink/70"
+        className="label-mono text-paper/70 underline decoration-dotted underline-offset-4 transition-colors hover:text-paper"
       >
         Turi prieigos kodą?
       </button>
@@ -79,6 +80,11 @@ export default function ComingSoon({
 
   return (
     <div className="studs-indigo relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-16">
+      <Seo
+        title="Brick Time – LEGO® rinkinių prenumerata netrukus"
+        description="Brick Time – LEGO® rinkinių prenumeratos paslauga Lietuvoje. Prisiregistruok ir sužinok pirmas, kai atidarysime."
+        path="/"
+      />
       <div className="grid-overlay pointer-events-none absolute inset-0" />
 
       <div className="relative z-10 mb-10 flex items-center">

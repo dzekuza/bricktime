@@ -1,5 +1,6 @@
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
+import { Seo } from "@/components/Seo"
 
 type Section = {
   id: string
@@ -136,6 +137,11 @@ const contactRows = [
 export default function PrivacyPolicy() {
   return (
     <>
+      <Seo
+        title="Privatumo politika"
+        description="Brick Time privatumo politika – kaip tvarkome tavo asmens duomenis naudojantis mūsų LEGO® rinkinių prenumeratos paslauga."
+        path="/privatumo-politika"
+      />
       <Nav />
       <main className="bg-paper text-ink">
         <section className="pb-8">

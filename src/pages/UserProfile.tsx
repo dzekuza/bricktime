@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase"
 import { avatarSrc } from "@/lib/avatars"
 import { achievementDefs, getRelativeTime, drops } from "@/data/community"
 import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
+import { Seo } from "@/components/Seo"
 
 const tierColors: Record<string, string> = {
   mega: "#FB4903",
@@ -118,6 +119,11 @@ export default function UserProfile() {
 
   return (
     <div className="min-h-screen bg-paper">
+      <Seo
+        title={profile.name || "Profilis"}
+        path={`/profile/${profile.id}`}
+        noindex
+      />
       <Nav />
 
       <section className="bg-paper py-6 md:pb-16">
@@ -177,7 +183,7 @@ export default function UserProfile() {
               </div>
               <div className="mt-auto pt-6">
                 <span
-                  className="inline-block rounded-full border border-paper/20 px-3 py-1 font-mono text-[11px] font-bold tracking-widest uppercase text-ink"
+                  className="inline-block rounded-full border border-paper/20 px-3 py-1 font-mono text-[11px] font-bold tracking-widest text-ink uppercase"
                   style={{ background: planBg }}
                 >
                   {planName}
