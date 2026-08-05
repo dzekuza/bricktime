@@ -7,6 +7,7 @@ import type { PlanTier } from "@/lib/database.types"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
+import { useCredits } from "@/hooks/useCredits"
 import { MissingPartDialog } from "@/components/MissingPartDialog"
 import { OrderTracking } from "@/components/OrderTracking"
 import { ReturnDialog } from "@/components/ReturnDialog"
@@ -191,6 +192,7 @@ function AchievementsSection({
 export default function Account() {
   const { user, profile, signOut, refreshProfile } = useAuth()
   const { subscriptions: dbPlans } = useSubscriptions()
+  const { totalCredits, remainingCredits } = useCredits()
   const tierOptions = useMemo(
     () =>
       dbPlans.map((p, i) => ({
@@ -689,6 +691,10 @@ export default function Account() {
                   },
                   { val: memberSince, label: "Narys nuo" },
                   { val: totalPoints, label: "Taškai" },
+                  {
+                    val: `${remainingCredits}/${totalCredits}`,
+                    label: "Kreditai",
+                  },
                 ].map((s) => (
                   <div
                     key={s.label}

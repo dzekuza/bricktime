@@ -1,4 +1,4 @@
-import { useSubscriptionsContext } from '@/contexts/SubscriptionsContext'
+import { useSubscriptionsContext } from "@/contexts/SubscriptionsContext"
 
 export interface DbSubscription {
   id: string
@@ -6,6 +6,7 @@ export interface DbSubscription {
   tagline: string | null
   price: number
   annual_price: number | null
+  credits: number
   perks: Array<{ label: string; included: boolean }>
   comparison_data: Record<string, string> | null
   featured: boolean

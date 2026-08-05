@@ -14,6 +14,7 @@ import { useState, useEffect, useMemo } from "react"
 import { supabase } from "@/lib/supabase"
 import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
+import { useCredits } from "@/hooks/useCredits"
 import { TerminalPicker } from "@/components/TerminalPicker"
 import {
   ProfileEditDialog,
@@ -193,11 +194,14 @@ export default function Checkout() {
     () => tierByName[product?.tier ?? tierParam] ?? tiers[2],
     [product?.tier, tierParam]
   )
-  const isEligible = useMemo(
+  const { remainingCredits } = useCredits()
+  const hasTier = useMemo(
     () =>
       !!productId && userSub !== null && userSub.level >= requiredTier.level,
     [productId, userSub, requiredTier]
   )
+  const hasCredits = remainingCredits >= (product?.value ?? 0)
+  const isEligible = hasTier && hasCredits
 
   // ── contact / delivery readiness ─────────────────────────────────────────
   const hasPhone = !!profileData?.phone?.trim()
@@ -608,8 +612,8 @@ export default function Checkout() {
                       ["Metai", product?.year ?? "—"],
                       ["Amžius", product?.rating ?? "—"],
                       [
-                        "Kaina",
-                        product?.value != null ? `€${product?.value}` : "—",
+                        "Briksių vertė",
+                        product?.value != null ? `${product?.value} Kr.` : "—",
                       ],
                       ["Kategorija", product?.category ?? "—"],
                       ["Prenumerata", requiredTier.name + "+"],
@@ -1029,6 +1033,30 @@ export default function Checkout() {
                     </div>
                   </div>
                 </>
+              ) : hasTier ? (
+                <>
+                  {/* Not enough remaining credits */}
+                  <div className="border-b-2 border-ink/10 pb-5">
+                    <h2 className="heading-display text-d-md text-ink">
+                      Nepakanka kreditų
+                    </h2>
+                    <p className="mt-1 text-[13px] text-ink/50">
+                      Šiam produktui reikia {product?.value ?? 0} Kr., o tau
+                      liko {remainingCredits} Kr. Grąžink turimą produktą, kad
+                      atlaisvintum kreditų.
+                    </p>
+                  </div>
+
+                  <div className="mt-auto pt-6">
+                    <Button
+                      asChild
+                      size="lg"
+                      className="brick-hover-sm h-12 w-full rounded-full border-2 border-ink bg-ink text-[15px] font-bold text-paper"
+                    >
+                      <Link to="/account">Žiūrėti mano produktus →</Link>
+                    </Button>
+                  </div>
+                </>
               ) : (
                 <>
                   {/* Plan header */}
@@ -1275,6 +1303,16 @@ export default function Checkout() {
                 </span>
                 <span className="font-display text-[24px] leading-none">→</span>
               </button>
+            ) : hasTier ? (
+              <Link
+                to="/account"
+                className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-ink px-5 py-3.5 text-paper"
+              >
+                <span className="font-display text-[18px] leading-none">
+                  Nepakanka kreditų — žiūrėti produktus
+                </span>
+                <span className="font-display text-[24px] leading-none">→</span>
+              </Link>
             ) : (
               <button
                 onClick={!user ? () => setShowAuthModal(true) : handleSubscribe}
