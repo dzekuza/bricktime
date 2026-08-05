@@ -1,10 +1,12 @@
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import gsap from "gsap"
 import { useReveal } from "@/hooks/useReveal"
 import { getSubscriptionBrickImage } from "@/lib/subscription-branding"
 import { HowItWorksFreedom } from "@/components/how-it-works-freedom"
+import { HeadingMarkup } from "@/components/HeadingMarkup"
+import { supabase } from "@/lib/supabase"
 
-const steps = [
+const DEFAULT_STEPS = [
   {
     num: "01",
     title: "Pasirink\nprenumeratą",
@@ -24,6 +26,12 @@ const steps = [
     brick: "mega",
   },
 ]
+
+const DEFAULT_HEADING = {
+  heading: "Kaip tai veikia?\n==Pradėk== konstruoti",
+  subtitle:
+    "Vos keli paprasti žingsniai iki naujo konstravimo projekto tavo namuose.",
+}
 
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
@@ -69,6 +77,39 @@ function Brick({ plan }: { plan: string }) {
 export default function HowItWorks() {
   const ref = useReveal<HTMLDivElement>()
   const containerRef = useRef<HTMLDivElement>(null)
+  const [heading, setHeading] = useState(DEFAULT_HEADING)
+  const [steps, setSteps] = useState(DEFAULT_STEPS)
+
+  useEffect(() => {
+    supabase
+      .from("home_content")
+      .select("how_it_works_heading, how_it_works_subtitle")
+      .eq("id", 1)
+      .single()
+      .then(({ data }) => {
+        if (!data) return
+        setHeading({
+          heading: data.how_it_works_heading || DEFAULT_HEADING.heading,
+          subtitle: data.how_it_works_subtitle || DEFAULT_HEADING.subtitle,
+        })
+      })
+
+    supabase
+      .from("home_how_it_works_steps")
+      .select("step_number, title, body, brick_key")
+      .order("sort_order")
+      .then(({ data }) => {
+        if (!data || data.length === 0) return
+        setSteps(
+          data.map((s) => ({
+            num: s.step_number,
+            title: s.title,
+            body: s.body,
+            brick: s.brick_key,
+          }))
+        )
+      })
+  }, [])
 
   useEffect(() => {
     return () => {
@@ -84,16 +125,13 @@ export default function HowItWorks() {
           {/* Header tile — full width */}
           <div className="reveal flex flex-col justify-center bg-paper py-6 md:py-9 lg:col-span-12">
             <h2 className="heading-display text-d-lg mt-3 text-ink">
-              Kaip tai veikia?
-              <br />
-              <span className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]">
-                Pradėk
-              </span>{" "}
-              konstruoti
+              <HeadingMarkup
+                text={heading.heading}
+                highlightClassName="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
+              />
             </h2>
             <p className="mt-5 max-w-[50ch] text-[16px] leading-[1.65] text-ink/65">
-              Vos keli paprasti žingsniai iki naujo konstravimo projekto tavo
-              namuose.
+              {heading.subtitle}
             </p>
           </div>
 

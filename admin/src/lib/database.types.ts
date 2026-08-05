@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       achievements: {
@@ -44,6 +69,24 @@ export type Database = {
           id?: string
           label?: string
           points?: number
+        }
+        Relationships: []
+      }
+      coming_soon_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
         }
         Relationships: []
       }
@@ -83,6 +126,30 @@ export type Database = {
           id?: string
           max_uses?: number | null
           uses_count?: number
+        }
+        Relationships: []
+      }
+      faq_items: {
+        Row: {
+          answer: string
+          id: string
+          question: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          id?: string
+          question: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          id?: string
+          question?: string
+          sort_order?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -285,6 +352,183 @@ export type Database = {
           redeemed_by_user_id?: string | null
           status?: string
           stripe_session_id?: string | null
+        }
+        Relationships: []
+      }
+      home_content: {
+        Row: {
+          faq_cta_body: string
+          faq_cta_eyebrow: string
+          faq_cta_heading: string
+          faq_cta_highlight: string
+          faq_cta_href: string
+          faq_cta_label: string
+          faq_cta_line: string
+          hero_cta_primary_label: string
+          hero_cta_secondary_label: string
+          hero_headline: string
+          hero_headline_highlight: string
+          hero_headline_line1: string
+          hero_headline_line3: string
+          hero_poster_url: string | null
+          hero_subtext: string
+          hero_video_url: string | null
+          how_it_works_heading: string
+          how_it_works_heading_highlight: string
+          how_it_works_heading_line1: string
+          how_it_works_heading_line2: string
+          how_it_works_subtitle: string
+          id: number
+          testimonials_heading: string
+          testimonials_heading_highlight: string
+          testimonials_heading_line2: string
+          updated_at: string
+        }
+        Insert: {
+          faq_cta_body?: string
+          faq_cta_eyebrow?: string
+          faq_cta_heading?: string
+          faq_cta_highlight?: string
+          faq_cta_href?: string
+          faq_cta_label?: string
+          faq_cta_line?: string
+          hero_cta_primary_label?: string
+          hero_cta_secondary_label?: string
+          hero_headline?: string
+          hero_headline_highlight?: string
+          hero_headline_line1?: string
+          hero_headline_line3?: string
+          hero_poster_url?: string | null
+          hero_subtext?: string
+          hero_video_url?: string | null
+          how_it_works_heading?: string
+          how_it_works_heading_highlight?: string
+          how_it_works_heading_line1?: string
+          how_it_works_heading_line2?: string
+          how_it_works_subtitle?: string
+          id?: number
+          testimonials_heading?: string
+          testimonials_heading_highlight?: string
+          testimonials_heading_line2?: string
+          updated_at?: string
+        }
+        Update: {
+          faq_cta_body?: string
+          faq_cta_eyebrow?: string
+          faq_cta_heading?: string
+          faq_cta_highlight?: string
+          faq_cta_href?: string
+          faq_cta_label?: string
+          faq_cta_line?: string
+          hero_cta_primary_label?: string
+          hero_cta_secondary_label?: string
+          hero_headline?: string
+          hero_headline_highlight?: string
+          hero_headline_line1?: string
+          hero_headline_line3?: string
+          hero_poster_url?: string | null
+          hero_subtext?: string
+          hero_video_url?: string | null
+          how_it_works_heading?: string
+          how_it_works_heading_highlight?: string
+          how_it_works_heading_line1?: string
+          how_it_works_heading_line2?: string
+          how_it_works_subtitle?: string
+          id?: number
+          testimonials_heading?: string
+          testimonials_heading_highlight?: string
+          testimonials_heading_line2?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      home_how_it_works_steps: {
+        Row: {
+          body: string
+          brick_key: string
+          id: string
+          sort_order: number
+          step_number: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          brick_key: string
+          id?: string
+          sort_order?: number
+          step_number: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          brick_key?: string
+          id?: string
+          sort_order?: number
+          step_number?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      home_marquee_items: {
+        Row: {
+          avatar_url: string | null
+          id: string
+          sort_order: number
+          text: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          id?: string
+          sort_order?: number
+          text: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          id?: string
+          sort_order?: number
+          text?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      home_testimonials: {
+        Row: {
+          avatar_color: string
+          bg: string
+          id: string
+          initials: string
+          meta: string
+          name: string
+          quote: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          avatar_color: string
+          bg: string
+          id?: string
+          initials: string
+          meta: string
+          name: string
+          quote: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          avatar_color?: string
+          bg?: string
+          id?: string
+          initials?: string
+          meta?: string
+          name?: string
+          quote?: string
+          sort_order?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -547,6 +791,7 @@ export type Database = {
           brick_image: string | null
           comparison_data: Json
           created_at: string
+          credits: number
           cta_bg: string
           cta_label: string | null
           cta_text: string
@@ -568,6 +813,7 @@ export type Database = {
           brick_image?: string | null
           comparison_data?: Json
           created_at?: string
+          credits?: number
           cta_bg?: string
           cta_label?: string | null
           cta_text?: string
@@ -589,6 +835,7 @@ export type Database = {
           brick_image?: string | null
           comparison_data?: Json
           created_at?: string
+          credits?: number
           cta_bg?: string
           cta_label?: string | null
           cta_text?: string
@@ -624,6 +871,7 @@ export type Database = {
           id: number
           image_url: string | null
           is_new: boolean
+          isDangerous: boolean
           minifig: Json | null
           minifigs: string
           rating: string | null
@@ -656,6 +904,7 @@ export type Database = {
           id: number
           image_url?: string | null
           is_new?: boolean
+          isDangerous?: boolean
           minifig?: Json | null
           minifigs?: string
           rating?: string | null
@@ -688,6 +937,7 @@ export type Database = {
           id?: number
           image_url?: string | null
           is_new?: boolean
+          isDangerous?: boolean
           minifig?: Json | null
           minifigs?: string
           rating?: string | null
@@ -737,40 +987,73 @@ export type Database = {
         Row: {
           avatar_bg: string
           avatar_id: number
+          cancel_at: string | null
+          city: string | null
           email: string
+          flat: string | null
+          home_delivery: boolean
+          house_no: string | null
           id: string
           joined_at: string
+          last_name: string | null
           name: string
           penalty_amount: number | null
           penalty_reason: string | null
+          phone: string | null
           plan: Database["public"]["Enums"]["plan_tier"]
+          postal_code: string | null
           status: Database["public"]["Enums"]["subscriber_status"]
+          street: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           updated_at: string
         }
         Insert: {
           avatar_bg?: string
           avatar_id?: number
+          cancel_at?: string | null
+          city?: string | null
           email: string
+          flat?: string | null
+          home_delivery?: boolean
+          house_no?: string | null
           id: string
           joined_at?: string
+          last_name?: string | null
           name: string
           penalty_amount?: number | null
           penalty_reason?: string | null
+          phone?: string | null
           plan?: Database["public"]["Enums"]["plan_tier"]
+          postal_code?: string | null
           status?: Database["public"]["Enums"]["subscriber_status"]
+          street?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
         }
         Update: {
           avatar_bg?: string
           avatar_id?: number
+          cancel_at?: string | null
+          city?: string | null
           email?: string
+          flat?: string | null
+          home_delivery?: boolean
+          house_no?: string | null
           id?: string
           joined_at?: string
+          last_name?: string | null
           name?: string
           penalty_amount?: number | null
           penalty_reason?: string | null
+          phone?: string | null
           plan?: Database["public"]["Enums"]["plan_tier"]
+          postal_code?: string | null
           status?: Database["public"]["Enums"]["subscriber_status"]
+          street?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -1145,6 +1428,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       achievement_category: ["activity", "social", "collector", "loyalty"],

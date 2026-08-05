@@ -428,7 +428,7 @@ export function ProductEditDialog({
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="value">Rental value (€)</Label>
+                  <Label htmlFor="value">Briksių vertė (€)</Label>
                   <Input
                     id="value"
                     type="number"

@@ -8,7 +8,7 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 )
 
 const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET")!
@@ -43,11 +43,15 @@ function json(status: number, body: Record<string, unknown>) {
   })
 }
 
-function toSubscriberStatus(stripeStatus: string | null | undefined): SubscriberStatus {
+function toSubscriberStatus(
+  stripeStatus: string | null | undefined
+): SubscriberStatus {
   return statusMap[stripeStatus ?? ""] ?? "active"
 }
 
-function parseHomeDelivery(value: string | null | undefined): boolean | undefined {
+function parseHomeDelivery(
+  value: string | null | undefined
+): boolean | undefined {
   if (value == null) return undefined
   return value === "true"
 }
@@ -103,7 +107,7 @@ async function findSubscriber(args: {
 
 async function updateSubscriberByStripeIds(
   subscription: Stripe.Subscription,
-  fallbackEmail?: string | null,
+  fallbackEmail?: string | null
 ) {
   const metadata = subscription.metadata ?? {}
   const customerId =
@@ -125,6 +129,9 @@ async function updateSubscriberByStripeIds(
     stripe_customer_id: customerId ?? null,
     stripe_subscription_id: subscription.id,
     status: toSubscriberStatus(subscription.status),
+    cancel_at: subscription.cancel_at
+      ? new Date(subscription.cancel_at * 1000).toISOString()
+      : null,
   }
 
   if (planKey) update.plan = planKey
@@ -150,10 +157,12 @@ Deno.serve(async (req) => {
     event = await stripe.webhooks.constructEventAsync(
       payload,
       signature,
-      webhookSecret,
+      webhookSecret
     )
   } catch (error) {
-    return json(400, { error: `Webhook signature verification failed: ${(error as Error).message}` })
+    return json(400, {
+      error: `Webhook signature verification failed: ${(error as Error).message}`,
+    })
   }
 
   try {
@@ -185,12 +194,16 @@ Deno.serve(async (req) => {
             status: "active",
             stripe_customer_id: customerId ?? null,
             stripe_subscription_id: subscriptionId ?? null,
+            cancel_at: null,
           }
 
           if (planKey) update.plan = planKey
           if (homeDelivery !== undefined) update.home_delivery = homeDelivery
 
-          await supabase.from("subscribers").update(update).eq("id", subscriber.id)
+          await supabase
+            .from("subscribers")
+            .update(update)
+            .eq("id", subscriber.id)
         }
         break
       }
@@ -202,7 +215,9 @@ Deno.serve(async (req) => {
         let fallbackEmail: string | null = null
 
         if (typeof subscription.customer === "string") {
-          const customer = await stripe.customers.retrieve(subscription.customer)
+          const customer = await stripe.customers.retrieve(
+            subscription.customer
+          )
           if (!customer.deleted) {
             fallbackEmail = customer.email
           }

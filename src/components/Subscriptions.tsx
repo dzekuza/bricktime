@@ -116,7 +116,7 @@ export default function Subscriptions({
                   onClick={() => setBilling("yearly")}
                   className={`rounded-full px-4 py-2 font-mono text-[11px] tracking-[0.08em] uppercase transition-colors ${billing === "yearly" ? "bg-ink text-paper" : "text-ink/60 hover:text-ink"}`}
                 >
-                  Metinis −17%
+                  Metinis −15%
                 </button>
               </div>
             </div>
@@ -212,7 +212,7 @@ export default function Subscriptions({
                       <AnimatedPrice
                         value={
                           billing === "yearly"
-                            ? plan.price * 0.83
+                            ? (plan.annual_price ?? plan.price * 0.85)
                             : Number(plan.price)
                         }
                         color={plan.text_color}

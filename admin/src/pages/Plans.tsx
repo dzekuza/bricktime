@@ -15,6 +15,8 @@ import {
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { supabase } from "@/lib/supabase"
+import type { Json } from "@/lib/database.types"
+import { ComparisonTableEditor } from "@/components/plans/ComparisonTableEditor"
 
 type PlanId =
   | "nano"
@@ -32,12 +34,14 @@ interface DbPlan {
   cta_label: string | null
   price: number
   annual_price: number | null
+  credits: number
   featured: boolean
   active: boolean
   sort_order: number
   bg_color: string
   text_color: string
   perks: Array<{ label: string; included: boolean }>
+  comparison_data: Json
   subscribers: number
 }
 
@@ -81,6 +85,13 @@ export function Plans() {
   async function handleSave() {
     if (!editPlan) return
     setSaving(true)
+    const comparisonData: Record<string, Json> =
+      editPlan.comparison_data &&
+      typeof editPlan.comparison_data === "object" &&
+      !Array.isArray(editPlan.comparison_data)
+        ? { ...(editPlan.comparison_data as Record<string, Json>) }
+        : {}
+    comparisonData["Briksių kreditai"] = String(editPlan.credits)
     const { error } = await supabase
       .from("plans")
       .update({
@@ -89,11 +100,13 @@ export function Plans() {
         cta_label: editPlan.cta_label,
         price: editPlan.price,
         annual_price: editPlan.annual_price,
+        credits: editPlan.credits,
         featured: editPlan.featured,
         active: editPlan.active,
         bg_color: editPlan.bg_color,
         text_color: editPlan.text_color,
         perks: editPlan.perks,
+        comparison_data: comparisonData,
       })
       .eq("id", editPlan.id)
     setSaving(false)
@@ -265,6 +278,20 @@ export function Plans() {
                 </Card>
               ))}
         </div>
+
+        {!loading && (
+          <ComparisonTableEditor
+            plans={plans}
+            onSaved={(comparisonData) =>
+              setPlans((prev) =>
+                prev.map((p) => ({
+                  ...p,
+                  comparison_data: comparisonData[p.id] ?? p.comparison_data,
+                }))
+              )
+            }
+          />
+        )}
       </div>
 
       {/* Full plan edit sheet */}
@@ -359,6 +386,20 @@ export function Plans() {
                         )
                       }
                       placeholder="Optional"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label>Briksių kreditai</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      step={1}
+                      value={editPlan.credits}
+                      onChange={(e) =>
+                        setEditPlan(
+                          (p) => p && { ...p, credits: Number(e.target.value) }
+                        )
+                      }
                     />
                   </div>
                 </div>

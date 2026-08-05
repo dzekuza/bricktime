@@ -7,11 +7,13 @@ import type { PlanTier } from "@/lib/database.types"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
+import { useCredits } from "@/hooks/useCredits"
 import { MissingPartDialog } from "@/components/MissingPartDialog"
 import { OrderTracking } from "@/components/OrderTracking"
 import { ReturnDialog } from "@/components/ReturnDialog"
 import { ProfileEditDialog } from "@/components/ProfileEditDialog"
 import { fetchLabelPdf, downloadPdf } from "@/lib/lpexpress"
+import { Seo } from "@/components/Seo"
 
 const HOME_DELIVERY_PLANS = ["pro", "mega", "mystery_s", "mystery_m"]
 const HOME_DELIVERY_FEE = 3
@@ -191,6 +193,7 @@ function AchievementsSection({
 export default function Account() {
   const { user, profile, signOut, refreshProfile } = useAuth()
   const { subscriptions: dbPlans } = useSubscriptions()
+  const { totalCredits, remainingCredits } = useCredits()
   const tierOptions = useMemo(
     () =>
       dbPlans.map((p, i) => ({
@@ -596,6 +599,7 @@ export default function Account() {
 
   return (
     <div className="min-h-screen bg-paper">
+      <Seo title="Paskyra" path="/account" noindex />
       <Nav />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
@@ -689,6 +693,10 @@ export default function Account() {
                   },
                   { val: memberSince, label: "Narys nuo" },
                   { val: totalPoints, label: "Taškai" },
+                  {
+                    val: `${remainingCredits}/${totalCredits}`,
+                    label: "Kreditai",
+                  },
                 ].map((s) => (
                   <div
                     key={s.label}

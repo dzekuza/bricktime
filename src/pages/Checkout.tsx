@@ -14,15 +14,18 @@ import { useState, useEffect, useMemo } from "react"
 import { supabase } from "@/lib/supabase"
 import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
+import { useCredits } from "@/hooks/useCredits"
 import { TerminalPicker } from "@/components/TerminalPicker"
 import {
   ProfileEditDialog,
   type ProfileValues,
 } from "@/components/ProfileEditDialog"
 import type { LpTerminal } from "@/lib/lpexpress"
+import { Seo } from "@/components/Seo"
 
 const HOME_DELIVERY_PLANS = ["pro", "mega", "mystery_s", "mystery_m"]
 const HOME_DELIVERY_FEE = 3
+const CANCELLATION_GRACE_DAYS = 14
 
 // ── tier config ──────────────────────────────────────────────────────────────
 const tiers = [
@@ -105,6 +108,9 @@ export default function Checkout() {
   const [product, setProduct] = useState<DbProduct | null>(null)
   const [loading, setLoading] = useState(true)
   const [userSub, setUserSub] = useState<(typeof tiers)[0] | null>(null)
+  const [cancelAt, setCancelAt] = useState<string | null>(null)
+  const [portalLoading, setPortalLoading] = useState(false)
+  const [portalError, setPortalError] = useState("")
   const [confirmed, setConfirmed] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [showModal, setShowModal] = useState(false)
@@ -156,23 +162,26 @@ export default function Checkout() {
   useEffect(() => {
     if (!user) {
       setUserSub(null)
+      setCancelAt(null)
       return
     }
     supabase
       .from("subscribers")
       .select(
-        "plan, status, home_delivery, name, last_name, phone, street, house_no, flat, city, postal_code"
+        "plan, status, cancel_at, home_delivery, name, last_name, phone, street, house_no, flat, city, postal_code"
       )
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
         if (data?.status === "active") {
           setUserSub(tierByName[data.plan] ?? null)
+          setCancelAt(data.cancel_at ?? null)
           if (HOME_DELIVERY_PLANS.includes(data.plan)) {
             setHomeDelivery(data.home_delivery ?? false)
           }
         } else {
           setUserSub(null)
+          setCancelAt(null)
         }
         if (data) {
           setProfileData({
@@ -193,11 +202,49 @@ export default function Checkout() {
     () => tierByName[product?.tier ?? tierParam] ?? tiers[2],
     [product?.tier, tierParam]
   )
-  const isEligible = useMemo(
+  const { remainingCredits } = useCredits()
+  const hasTier = useMemo(
     () =>
       !!productId && userSub !== null && userSub.level >= requiredTier.level,
     [productId, userSub, requiredTier]
   )
+  const hasCredits = remainingCredits >= (product?.value ?? 0)
+  const [daysUntilCancel, setDaysUntilCancel] = useState<number | null>(null)
+  useEffect(() => {
+    if (!cancelAt) {
+      setDaysUntilCancel(null)
+      return
+    }
+    const diffMs = new Date(cancelAt).getTime() - Date.now()
+    setDaysUntilCancel(Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
+  }, [cancelAt])
+  const withinCancellationGrace =
+    daysUntilCancel === null || daysUntilCancel >= CANCELLATION_GRACE_DAYS
+  const isEligible = hasTier && hasCredits && withinCancellationGrace
+
+  async function openBillingPortal() {
+    if (!user?.email) return
+    setPortalLoading(true)
+    setPortalError("")
+    const { data, error } = await supabase.functions.invoke(
+      "create-billing-portal",
+      {
+        body: {
+          userId: user.id,
+          userEmail: user.email,
+          returnUrl: window.location.href,
+        },
+      }
+    )
+    setPortalLoading(false)
+    if (error || !data?.url) {
+      setPortalError(
+        data?.error ?? error?.message ?? "Nepavyko atidaryti. Bandyk dar kartą."
+      )
+      return
+    }
+    window.location.href = data.url
+  }
 
   // ── contact / delivery readiness ─────────────────────────────────────────
   const hasPhone = !!profileData?.phone?.trim()
@@ -319,6 +366,12 @@ export default function Checkout() {
       setPurchaseError("Prisijunk prie paskyros prieš perkant.")
       return
     }
+    if (!requiredPlan) {
+      setPurchaseError(
+        "Šis produktas šiuo metu nepriskirtas jokiam planui. Susisiek su mumis."
+      )
+      return
+    }
     setPurchasing(true)
     setPurchaseError("")
     const origin = window.location.origin
@@ -326,6 +379,7 @@ export default function Checkout() {
     const { data, error } = await supabase.functions.invoke("create-checkout", {
       body: {
         planKey: requiredTier.key,
+        billing,
         userId: user.id,
         userEmail: user.email ?? "",
         successUrl: productId
@@ -608,8 +662,8 @@ export default function Checkout() {
                       ["Metai", product?.year ?? "—"],
                       ["Amžius", product?.rating ?? "—"],
                       [
-                        "Kaina",
-                        product?.value != null ? `€${product?.value}` : "—",
+                        "Briksių vertė",
+                        product?.value != null ? `${product?.value} Kr.` : "—",
                       ],
                       ["Kategorija", product?.category ?? "—"],
                       ["Prenumerata", requiredTier.name + "+"],
@@ -678,6 +732,7 @@ export default function Checkout() {
 
   return (
     <div className="min-h-screen bg-paper">
+      <Seo title="Užsakymas" path="/checkout" noindex />
       <Nav />
 
       <section className="pt-6 pb-4">
@@ -1029,6 +1084,69 @@ export default function Checkout() {
                     </div>
                   </div>
                 </>
+              ) : hasTier && !withinCancellationGrace ? (
+                <>
+                  {/* Subscription is scheduled to end in under 14 days */}
+                  <div className="border-b-2 border-ink/10 pb-5">
+                    <h2 className="heading-display text-d-md text-ink">
+                      Prenumerata netrukus baigiasi
+                    </h2>
+                    <p className="mt-1 text-[13px] text-ink/50">
+                      Liko {daysUntilCancel} d. iki prenumeratos pabaigos —
+                      likus mažiau nei {CANCELLATION_GRACE_DAYS} d., naujų
+                      produktų įsigyti nebegalima. Tęsk planą arba paaukštink
+                      jį, kad galėtum tęsti.
+                    </p>
+                  </div>
+
+                  {portalError && (
+                    <p className="mt-3 font-mono text-[12px] text-red-500">
+                      {portalError}
+                    </p>
+                  )}
+
+                  <div className="mt-auto flex flex-col gap-2 pt-6">
+                    <button
+                      onClick={openBillingPortal}
+                      disabled={portalLoading}
+                      className="brick-hover-sm h-12 w-full rounded-full border-2 border-ink bg-brand-orange text-[15px] font-bold text-paper disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {portalLoading ? "Kraunama…" : "Tęsti planą →"}
+                    </button>
+                    <Button
+                      asChild
+                      size="lg"
+                      variant="outline"
+                      className="brick-hover-sm h-12 w-full rounded-full border-2 border-ink text-[15px] font-bold text-ink"
+                    >
+                      <Link to="/subscribe">Paaukštinti planą →</Link>
+                    </Button>
+                  </div>
+                </>
+              ) : hasTier ? (
+                <>
+                  {/* Not enough remaining credits */}
+                  <div className="border-b-2 border-ink/10 pb-5">
+                    <h2 className="heading-display text-d-md text-ink">
+                      Nepakanka kreditų
+                    </h2>
+                    <p className="mt-1 text-[13px] text-ink/50">
+                      Šiam produktui reikia {product?.value ?? 0} Kr., o tau
+                      liko {remainingCredits} Kr. Grąžink turimą produktą, kad
+                      atlaisvintum kreditų.
+                    </p>
+                  </div>
+
+                  <div className="mt-auto pt-6">
+                    <Button
+                      asChild
+                      size="lg"
+                      className="brick-hover-sm h-12 w-full rounded-full border-2 border-ink bg-ink text-[15px] font-bold text-paper"
+                    >
+                      <Link to="/account">Žiūrėti mano produktus →</Link>
+                    </Button>
+                  </div>
+                </>
               ) : (
                 <>
                   {/* Plan header */}
@@ -1057,7 +1175,7 @@ export default function Checkout() {
                             : "text-ink/50 hover:text-ink",
                         ].join(" ")}
                       >
-                        {v === "monthly" ? "Mėnesinis" : "Metinis −20%"}
+                        {v === "monthly" ? "Mėnesinis" : "Metinis −15%"}
                       </button>
                     ))}
                   </div>
@@ -1235,17 +1353,19 @@ export default function Checkout() {
                       onClick={
                         !user ? () => setShowAuthModal(true) : handleSubscribe
                       }
-                      disabled={purchasing}
-                      className="brick-hover-sm flex w-full items-center justify-between rounded-[28px] border-2 border-ink bg-brand-orange px-6 py-4 text-paper transition-all disabled:opacity-60"
+                      disabled={purchasing || (!!user && !requiredPlan)}
+                      className="brick-hover-sm flex w-full items-center justify-between rounded-[28px] border-2 border-ink bg-brand-orange px-6 py-4 text-paper transition-all disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <span className="font-display text-[22px] leading-none">
                         {purchasing
                           ? "Kraunama…"
                           : !user
                             ? "Prisijungti"
-                            : userSub
-                              ? "Paaukštinti prenumeratą"
-                              : "Prenumeruoti dabar"}
+                            : !requiredPlan
+                              ? "Nepasiekiama"
+                              : userSub
+                                ? "Paaukštinti prenumeratą"
+                                : "Prenumeruoti dabar"}
                       </span>
                       <span className="font-display text-[32px] leading-none">
                         →
@@ -1275,20 +1395,43 @@ export default function Checkout() {
                 </span>
                 <span className="font-display text-[24px] leading-none">→</span>
               </button>
+            ) : hasTier && !withinCancellationGrace ? (
+              <button
+                onClick={openBillingPortal}
+                disabled={portalLoading}
+                className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-brand-orange px-5 py-3.5 text-paper disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <span className="font-display text-[18px] leading-none">
+                  {portalLoading ? "Kraunama…" : "Tęsti planą"}
+                </span>
+                <span className="font-display text-[24px] leading-none">→</span>
+              </button>
+            ) : hasTier ? (
+              <Link
+                to="/account"
+                className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-ink px-5 py-3.5 text-paper"
+              >
+                <span className="font-display text-[18px] leading-none">
+                  Nepakanka kreditų — žiūrėti produktus
+                </span>
+                <span className="font-display text-[24px] leading-none">→</span>
+              </Link>
             ) : (
               <button
                 onClick={!user ? () => setShowAuthModal(true) : handleSubscribe}
-                disabled={purchasing}
-                className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-brand-orange px-5 py-3.5 text-paper disabled:opacity-60"
+                disabled={purchasing || (!!user && !requiredPlan)}
+                className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-brand-orange px-5 py-3.5 text-paper disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <span className="font-display text-[18px] leading-none">
                   {purchasing
                     ? "Kraunama…"
                     : !user
                       ? "Prisijungti"
-                      : userSub
-                        ? "Paaukštinti prenumeratą"
-                        : "Prenumeruoti dabar"}
+                      : !requiredPlan
+                        ? "Nepasiekiama"
+                        : userSub
+                          ? "Paaukštinti prenumeratą"
+                          : "Prenumeruoti dabar"}
                 </span>
                 <span className="font-display text-[24px] leading-none">→</span>
               </button>

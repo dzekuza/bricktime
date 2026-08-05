@@ -1,5 +1,6 @@
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
+import { Seo } from "@/components/Seo"
 
 type Section = {
   id: string
@@ -136,6 +137,11 @@ const contactRows = [
 export default function StoreRules() {
   return (
     <>
+      <Seo
+        title="Parduotuvės taisyklės"
+        description="Brick Time elektroninės parduotuvės naudojimosi ir prenumeratos užsakymo taisyklės."
+        path="/parduotuves-taisykles"
+      />
       <Nav />
       <main className="bg-paper text-ink">
         <section className="pb-8">

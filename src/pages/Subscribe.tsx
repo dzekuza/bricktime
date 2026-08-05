@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { useReveal } from "@/hooks/useReveal"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
 import { HERO_VIDEO_URL } from "@/lib/media"
+import { Seo } from "@/components/Seo"
 
 // ── static data ────────────────────────────────────────────────────────────
 
@@ -61,6 +62,19 @@ export default function Subscribe() {
       name: profile?.name || user?.email?.split("@")[0] || f.name,
     }))
   }, [user, profile])
+
+  const [heroVideoUrl, setHeroVideoUrl] = useState(HERO_VIDEO_URL)
+
+  useEffect(() => {
+    supabase
+      .from("home_content")
+      .select("hero_video_url")
+      .eq("id", 1)
+      .single()
+      .then(({ data }) => {
+        if (data?.hero_video_url) setHeroVideoUrl(data.hero_video_url)
+      })
+  }, [])
 
   const [homeDelivery, setHomeDelivery] = useState(false)
 
@@ -148,6 +162,7 @@ export default function Subscribe() {
     const { data, error } = await supabase.functions.invoke("create-checkout", {
       body: {
         planKey,
+        billing,
         userId: user.id,
         userEmail: user.email ?? form.email,
         successUrl: `${origin}/subscribe?success=true&plan=${planKey}${homeDelivery ? "&home_delivery=1" : ""}`,
@@ -278,6 +293,7 @@ export default function Subscribe() {
   if (submitted && plan) {
     return (
       <div className="min-h-screen bg-paper">
+        <Seo title="Prenumeratos planai" path="/subscribe" noindex />
         <Nav />
         <section className="py-20">
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
@@ -329,6 +345,11 @@ export default function Subscribe() {
 
   return (
     <div className="min-h-screen bg-paper">
+      <Seo
+        title="Prenumeratos planai"
+        description="Pasirink Brick Time prenumeratos planą pagal savo biudžetą – nuo Nano iki Mega – ir pradėk rinktis LEGO® rinkinius."
+        path="/subscribe"
+      />
       <Nav />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
@@ -368,13 +389,14 @@ export default function Subscribe() {
             <div className="hidden lg:block">
               <div className="relative aspect-[2/1] overflow-hidden rounded-2xl border-2 border-ink">
                 <video
+                  key={heroVideoUrl}
                   className="h-full w-full object-cover"
                   autoPlay
                   muted
                   loop
                   playsInline
                 >
-                  <source src={HERO_VIDEO_URL} type="video/mp4" />
+                  <source src={heroVideoUrl} type="video/mp4" />
                 </video>
               </div>
             </div>
@@ -762,8 +784,7 @@ export default function Subscribe() {
 
       <FAQ
         ctaEyebrow="Pasiruošęs pradėti?"
-        ctaLine="Atrask savo"
-        ctaHighlight="LEGO® rinkinius."
+        ctaHeading={"Atrask savo\n==LEGO® rinkinius.=="}
         ctaBody="Peržiūrėk visus mūsų turimus LEGO® rinkinius ir išsirink, kurį konstruosi pirmiausia."
         ctaLabel="Peržiūrėti rinkinius"
         ctaHref="/archive"

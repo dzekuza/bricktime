@@ -14,6 +14,7 @@ import {
   type Product,
 } from "@/components/ProductCard"
 import { NextDrop } from "@/components/NextDrop"
+import { Seo } from "@/components/Seo"
 
 // ── filter constants ────────────────────────────────────────────────────────
 const SORT_OPTIONS = [
@@ -82,6 +83,11 @@ export default function Archive() {
 
   return (
     <>
+      <Seo
+        title="Katalogas"
+        description="Naršyk visą Brick Time LEGO® rinkinių katalogą – filtruok pagal prenumeratos planą ir amžiaus grupę, rink rinkinius pagal savo biudžetą."
+        path="/archive"
+      />
       <Nav />
 
       {/* ── Hero ── */}

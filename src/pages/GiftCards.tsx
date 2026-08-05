@@ -2,6 +2,7 @@ import { useState } from "react"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import { useSearchParams, useNavigate } from "react-router-dom"
+import { Seo } from "@/components/Seo"
 
 const DENOMINATIONS = [
   { amount: 20, cents: 2000, tagline: "Puiki pradžia" },
@@ -101,6 +102,11 @@ export default function GiftCards() {
 
   return (
     <>
+      <Seo
+        title="Dovanų kortelės"
+        description="Padovanok Brick Time LEGO® rinkinių prenumeratą – pasirink dovanų kortelės sumą ir nustebink artimą žmogų."
+        path="/gift-cards"
+      />
       <Nav />
 
       {/* Hero */}

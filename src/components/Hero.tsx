@@ -1,10 +1,12 @@
-import { useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import gsap from "gsap"
 import { useGSAP } from "@gsap/react"
 import { ArrowRightIcon, StarIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { HeadingMarkup } from "@/components/HeadingMarkup"
 import { HERO_VIDEO_URL } from "@/lib/media"
+import { supabase } from "@/lib/supabase"
 
 gsap.registerPlugin(useGSAP)
 
@@ -86,12 +88,46 @@ const bricks: BrickEntry[] = [
 const FLOAT_AMP = 12
 // Seconds before the drop
 
-const HERO_VIDEO_SRC = HERO_VIDEO_URL
-const HERO_VIDEO_POSTER = "/hero-video-poster.jpeg"
+const DEFAULT_HERO_VIDEO = HERO_VIDEO_URL
+const DEFAULT_HERO_POSTER = "/hero-video-poster.jpeg"
+
+const DEFAULT_COPY = {
+  headline: "Lego® Rinkinių\n==Prenumerata==\nVisiems",
+  subtext:
+    "Konstruok įspūdingiausius originalius LEGO® rinkinius be didelių išlaidų. Pasirink prenumeratą, išsirink norimą rinkinį, mėgaukis konstravimo procesu ir, baigęs, rinkis kitą projektą.",
+  ctaPrimaryLabel: "Prenumeruoti",
+  ctaSecondaryLabel: "Peržiūrėti rinkinius",
+}
 
 export default function Hero() {
   const bricksRef = useRef<HTMLDivElement>(null)
   const spanRef = useRef<HTMLSpanElement>(null)
+  const [copy, setCopy] = useState(DEFAULT_COPY)
+  const [posterUrl, setPosterUrl] = useState(DEFAULT_HERO_POSTER)
+  const [videoUrl, setVideoUrl] = useState(DEFAULT_HERO_VIDEO)
+
+  useEffect(() => {
+    supabase
+      .from("home_content")
+      .select(
+        "hero_headline, hero_subtext, hero_cta_primary_label, hero_cta_secondary_label, hero_poster_url, hero_video_url"
+      )
+      .eq("id", 1)
+      .single()
+      .then(({ data }) => {
+        if (!data) return
+        setCopy({
+          headline: data.hero_headline || DEFAULT_COPY.headline,
+          subtext: data.hero_subtext || DEFAULT_COPY.subtext,
+          ctaPrimaryLabel:
+            data.hero_cta_primary_label || DEFAULT_COPY.ctaPrimaryLabel,
+          ctaSecondaryLabel:
+            data.hero_cta_secondary_label || DEFAULT_COPY.ctaSecondaryLabel,
+        })
+        if (data.hero_poster_url) setPosterUrl(data.hero_poster_url)
+        if (data.hero_video_url) setVideoUrl(data.hero_video_url)
+      })
+  }, [])
 
   function onSpanEnter() {
     gsap.killTweensOf(spanRef.current)
@@ -195,29 +231,22 @@ export default function Hero() {
 
           {/* Headline */}
           <h1 className="heading-display text-d-hero tracking-[-0.02em] text-ink">
-            Lego<span className="text-[0.65em]">®</span> Rinkinių
-            <br />
-            <span
-              ref={spanRef}
-              className="inline-block border-[3px] border-ink/30 bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
-              style={{
+            <HeadingMarkup
+              text={copy.headline}
+              highlightRef={spanRef}
+              highlightClassName="inline-block border-[3px] border-ink/30 bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
+              highlightStyle={{
                 transform: "rotate(-1.5deg)",
                 transformOrigin: "center",
               }}
-              onMouseEnter={onSpanEnter}
-              onMouseLeave={onSpanLeave}
-            >
-              Prenumerata
-            </span>
-            <br />
-            <span className="inline-block skew-x-[-8deg] italic">Visiems</span>
+              onHighlightMouseEnter={onSpanEnter}
+              onHighlightMouseLeave={onSpanLeave}
+            />
           </h1>
 
           {/* Subtext */}
           <p className="mx-auto mt-7 max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">
-            Konstruok įspūdingiausius originalius LEGO® rinkinius be didelių
-            išlaidų. Pasirink prenumeratą, išsirink norimą rinkinį, mėgaukis
-            konstravimo procesu ir, baigęs, rinkis kitą projektą.
+            {copy.subtext}
           </p>
 
           {/* CTAs */}
@@ -228,7 +257,7 @@ export default function Hero() {
               className="brick-hover-sm flex-1 rounded-full border-2 border-ink bg-brand-yellow text-[16px] font-bold text-ink hover:bg-brand-yellow hover:text-ink md:flex-none [a]:hover:bg-brand-yellow"
             >
               <a href="#subscriptions">
-                Prenumeruoti <ArrowRightIcon data-icon="inline-end" />
+                {copy.ctaPrimaryLabel} <ArrowRightIcon data-icon="inline-end" />
               </a>
             </Button>
             <Button
@@ -237,7 +266,7 @@ export default function Hero() {
               size="lg"
               className="brick-hover-sm flex-1 rounded-full border-2 border-ink bg-paper text-[16px] font-bold text-ink hover:bg-paper hover:text-ink md:flex-none"
             >
-              <a href="/archive">Peržiūrėti rinkinius</a>
+              <a href="/archive">{copy.ctaSecondaryLabel}</a>
             </Button>
           </div>
         </div>
@@ -260,19 +289,20 @@ export default function Hero() {
       <div className="mx-auto max-w-[1320px] px-4 pb-16 md:px-7">
         <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[28px] border-2 border-ink shadow-[6px_6px_0_#001B21] md:aspect-[16/7] md:rounded-3xl">
           <img
-            src={HERO_VIDEO_POSTER}
+            src={posterUrl}
             alt="BRICKTIME hero"
             className="absolute inset-0 h-full w-full object-cover"
           />
           <video
+            key={videoUrl}
             className="relative z-[1] h-full w-full object-cover"
             autoPlay
             muted
             loop
             playsInline
-            poster={HERO_VIDEO_POSTER}
+            poster={posterUrl}
           >
-            <source src={HERO_VIDEO_SRC} type="video/mp4" />
+            <source src={videoUrl} type="video/mp4" />
           </video>
         </div>
       </div>

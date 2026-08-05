@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { avatarSrc } from "@/lib/avatars"
 import { AuthForm } from "@/components/AuthForm"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
+import { useCredits } from "@/hooks/useCredits"
 
 const PLAN_COLORS: Record<string, { bg: string; text: string }> = {
   nano: { bg: "#F5F1EB", text: "#001B21" },
@@ -105,6 +106,20 @@ function PlanChip({ plan }: { plan: string }) {
   )
 }
 
+// ── Credits pill (shown when subscribed) ─────────────────────────────────────
+
+function CreditsPill() {
+  const { remainingCredits, loading } = useCredits()
+
+  return (
+    <div className="mr-2 hidden items-center rounded-full border-2 border-ink bg-paper px-3.5 py-[7px] md:flex">
+      <span className="font-mono text-[11px] font-bold tracking-[.12em] text-ink uppercase">
+        {loading ? "…" : `${remainingCredits} Kr.`}
+      </span>
+    </div>
+  )
+}
+
 // ── Nav ───────────────────────────────────────────────────────────────────────
 
 export default function Nav() {
@@ -178,7 +193,10 @@ export default function Nav() {
               </Link>
               <div className="flex items-center">
                 {user && profile?.plan ? (
-                  <PlanChip plan={profile.plan} />
+                  <>
+                    <CreditsPill />
+                    <PlanChip plan={profile.plan} />
+                  </>
                 ) : (
                   <Button
                     asChild

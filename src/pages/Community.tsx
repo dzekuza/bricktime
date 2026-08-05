@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { AuthForm } from "@/components/AuthForm"
+import { Seo } from "@/components/Seo"
 import {
   achievementDefs,
   drops,
@@ -936,6 +937,11 @@ export default function Community() {
 
   return (
     <>
+      <Seo
+        title="Bendruomenė"
+        description="Prisijunk prie Brick Time bendruomenės – dalinkis savo LEGO® statiniais, sek naujausius numerius ir rink pasiekimus."
+        path="/community"
+      />
       <Nav />
 
       <section className="bg-paper">

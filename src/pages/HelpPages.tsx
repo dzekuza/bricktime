@@ -1,35 +1,36 @@
-import type { ReactNode } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { ArrowRightIcon } from "lucide-react"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
-import { faqs } from "@/data/faq"
+import { faqs as defaultFaqs } from "@/data/faq"
+import { supabase } from "@/lib/supabase"
+import { Seo } from "@/components/Seo"
 
 type HelpPageProps = {
   eyebrow: string
   title: string
   intro: string
-  accent: string
+  path: string
   heroImage?: string
   summary: { label: string; value: string }[]
   sections: { title: string; body: string }[]
   checklist: string[]
-  note: string
   helpNote?: { title: string; body: ReactNode }
 }
 
 function HelpPage({
   title,
   intro,
-  accent,
+  path,
   heroImage,
   sections,
   checklist,
-  note,
   helpNote,
 }: HelpPageProps) {
   return (
     <>
+      <Seo title={title} description={intro} path={path} />
       <Nav />
       <main className="bg-paper text-ink">
         <section className="bg-paper">
@@ -110,23 +111,6 @@ function HelpPage({
                 </ul>
               </div>
 
-              <div
-                className="brick-card p-6 md:p-8"
-                style={{ background: accent }}
-              >
-                <p className="label-mono text-ink/55">Pastaba</p>
-                <p className="mt-4 text-[15px] leading-7 text-ink/78 md:text-[16px]">
-                  {note}
-                </p>
-                <a
-                  href="mailto:hello@bricktime.lt"
-                  className="brick-hover-sm mt-6 inline-flex items-center gap-2 rounded-full border-2 border-ink bg-paper px-5 py-3 text-[14px] font-bold text-ink"
-                >
-                  Susisiekti su mumis
-                  <ArrowRightIcon className="size-4" />
-                </a>
-              </div>
-
               {helpNote && (
                 <div className="brick-card bg-paper p-6 md:p-8">
                   <h2 className="heading-display text-d-xs text-ink">
@@ -147,12 +131,25 @@ function HelpPage({
 }
 
 export function FAQPage() {
+  const [faqs, setFaqs] = useState(defaultFaqs)
+
+  useEffect(() => {
+    supabase
+      .from("faq_items")
+      .select("question, answer")
+      .order("sort_order")
+      .then(({ data }) => {
+        if (!data || data.length === 0) return
+        setFaqs(data.map((f) => ({ q: f.question, a: f.answer })))
+      })
+  }, [])
+
   return (
     <HelpPage
       eyebrow="Pagalba / D.U.K."
       title="D.U.K."
+      path="/duk"
       intro="Čia rasi atsakymus į dažniausiai užduodamus klausimus apie Brick Time – nuo prenumeratų ir LEGO® rinkinių iki pristatymo, grąžinimo bei paslaugos veikimo."
-      accent="rgba(255, 215, 49, 0.72)"
       summary={[
         {
           label: "Atsakymai",
@@ -173,7 +170,6 @@ export function FAQPage() {
         "LEGO® rinkinį gali laikyti neribotą laiką, kol tavo prenumerata yra aktyvi.",
         "Prieš grąžindamas rinkinį nepamiršk paskyroje pranešti apie trūkstamas detales.",
       ]}
-      note="Kiekvienas grąžintas LEGO® rinkinys kruopščiai patikrinamas ir surūšiuojamas pagal oficialią LEGO® instrukciją. Taip užtikriname, kad kiekvienas Brick Time narys gautų pilną, tvarkingą ir naujam konstravimo projektui paruoštą rinkinį."
     />
   )
 }
@@ -183,8 +179,8 @@ export function PausePage() {
     <HelpPage
       eyebrow="Pagalba / Praleisti / pristabdyti"
       title="Praleisti / pristabdyti"
+      path="/praleisti-pristabdyti"
       intro="Kartais statybos ritmas sulėtėja. Šiame puslapyje aiškiai aprašyta, kada gali praleisti mėnesį, kaip veikia pristabdymas ir kas nutinka tavo prenumeratai tuo metu."
-      accent="rgba(255, 174, 231, 0.72)"
       summary={[
         {
           label: "Lankstumas",
@@ -215,7 +211,6 @@ export function PausePage() {
         "Aktyvūs produktai turi būti grąžinimo procese, jei nori pilno pauzės režimo.",
         "Atnaujinus prenumeratą, tavo prieigos ir katalogo matomumas grįžta pagal pasirinktą tier.",
       ]}
-      note="Jei nori pristabdyti prenumeratą tą pačią dieną, geriausia tai padaryti dar prieš naujo mėnesio apmokėjimą. Tokiu atveju išvengsi papildomo ciklo aktyvavimo."
     />
   )
 }
@@ -225,8 +220,8 @@ export function ShippingPage() {
     <HelpPage
       eyebrow="Pagalba / Pristatymas"
       title="Pristatymas"
+      path="/pristatymas"
       intro="Brick Time rūpinasi, kad LEGO® rinkinių pristatymas būtų kuo sklandesnis. Čia rasi svarbiausią informaciją apie pristatymo būdus, terminus ir tai, ko tikėtis po užsakymo."
-      accent="rgba(77, 162, 255, 0.72)"
       heroImage="/images/build-sailboat.jpg"
       summary={[
         { label: "Geografija", value: "Pristatome į 42 šalis." },
@@ -266,7 +261,6 @@ export function ShippingPage() {
         "LEGO® rinkinio pristatymas įskaičiuotas į visas Brick Time prenumeratas.",
         "Pristatymo būdas priklauso nuo pasirinktos prenumeratos.",
       ]}
-      note="Pradedame ruošti tavo LEGO® rinkinį vos patvirtinus užsakymą. Siunta įprastai iškeliauja per 1–2 darbo dienas, o pristatymas Lietuvoje dažniausiai trunka 3–5 darbo dienas."
     />
   )
 }
@@ -276,8 +270,8 @@ export function ReturnsPage() {
     <HelpPage
       eyebrow="Pagalba / Grąžinimai"
       title="Grąžinimai"
+      path="/grazinimai"
       intro="Baigei konstruoti? Laikas kitam rinkiniui. Grąžinimo procesas paprastas ir greitas. Čia sužinosi, kaip inicijuoti grąžinimą, kaip tinkamai paruošti rinkinį siuntimui ir kada galėsi išsirinkti kitą LEGO® rinkinį."
-      accent="rgba(93, 219, 156, 0.72)"
       heroImage="/images/build-cactus.jpg"
       summary={[
         {
@@ -318,7 +312,6 @@ export function ReturnsPage() {
         "Rinkinį grąžink tuo pačiu būdu, kuriuo jis buvo pristatytas.",
         "Patikrą atliekame per 3 darbo dienas.",
       ]}
-      note="Jei nori keisti produktą kuo greičiau, grąžinimą inicijuok dar prieš išsirenkant kitą rinkinį. Taip tavo limitas bus atnaujintas vos tik siunta bus patvirtinta."
       helpNote={{
         title: "Reikia pagalbos?",
         body: (
