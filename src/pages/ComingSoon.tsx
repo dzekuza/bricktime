@@ -116,11 +116,24 @@ export default function ComingSoon({
           BRICKTIME <span className="text-brand-indigo">startuoja</span> greitai
         </h1>
 
-        <p className="max-w-sm text-[16px] leading-relaxed text-ink/70">
-          Ruošiame LEGO® rinkinių nuomos platformą — pasirink mėnesinį biudžetą,
-          sukeisk rinkinius, kai tik panorėsi. Palik el. paštą ir būsi pirmas,
-          kai atidarysime duris.
-        </p>
+        <div className="max-w-sm text-[16px] leading-relaxed text-ink/70">
+          <p>Ruošiame pirmąją Lietuvoje LEGO® rinkinių prenumeratą.</p>
+          <ul className="mt-3 flex flex-col items-start gap-1.5 text-left">
+            {[
+              "Pasirink prenumeratą",
+              "konstruok įspūdingus rinkinius",
+              "baigęs — keisk juos į kitus",
+            ].map((item) => (
+              <li key={item} className="flex items-center gap-2">
+                <span className="size-1.5 shrink-0 rounded-full bg-brand-mint" />
+                {item}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3">
+            Palik savo el. paštą ir pirmasis sužinok apie BRICKTIME startą.
+          </p>
+        </div>
 
         {status === "done" ? (
           <div className="w-full rounded-2xl border-2 border-ink bg-[#5DDB9C] p-5">
