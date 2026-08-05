@@ -75,6 +75,15 @@ export default function ComingSoon({
       setStatus("error")
       return
     }
+
+    const { error: omnisendError } = await supabase.functions.invoke(
+      "omnisend-subscribe",
+      { body: { email: trimmed } }
+    )
+    if (omnisendError) {
+      console.error("Failed to subscribe to Omnisend:", omnisendError)
+    }
+
     setStatus("done")
   }
 
