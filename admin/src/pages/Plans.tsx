@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { supabase } from "@/lib/supabase"
 import type { Json } from "@/lib/database.types"
+import { ComparisonTableEditor } from "@/components/plans/ComparisonTableEditor"
 
 type PlanId =
   | "nano"
@@ -277,6 +278,20 @@ export function Plans() {
                 </Card>
               ))}
         </div>
+
+        {!loading && (
+          <ComparisonTableEditor
+            plans={plans}
+            onSaved={(comparisonData) =>
+              setPlans((prev) =>
+                prev.map((p) => ({
+                  ...p,
+                  comparison_data: comparisonData[p.id] ?? p.comparison_data,
+                }))
+              )
+            }
+          />
+        )}
       </div>
 
       {/* Full plan edit sheet */}
