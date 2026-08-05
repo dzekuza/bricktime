@@ -88,7 +88,7 @@ export default function ComingSoon({
           loop
           muted
           playsInline
-          className="h-16 w-auto object-contain invert"
+          className="h-16 w-auto rounded-xl object-contain"
         />
       </div>
 
