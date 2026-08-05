@@ -1,7 +1,13 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-import type { User } from '@supabase/supabase-js'
-import { supabase } from '@/lib/supabase'
-import type { AuthProfile } from '@/hooks/useAuth'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react"
+import type { User } from "@supabase/supabase-js"
+import { supabase } from "@/lib/supabase"
+import type { AuthProfile } from "@/hooks/useAuth"
 
 interface AuthContextValue {
   user: User | null
@@ -25,7 +31,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(data.session?.user ?? null)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
 
@@ -34,14 +42,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function loadProfile(userId: string) {
     const { data, error: err } = await supabase
-      .from('subscribers')
-      .select('id, name, avatar_id, avatar_bg, plan')
-      .eq('id', userId)
+      .from("subscribers")
+      .select("id, name, avatar_id, avatar_bg, plan, status, cancel_at")
+      .eq("id", userId)
       .single()
     if (err) {
       setError(err.message)
     } else if (data) {
-      setProfile({ id: data.id, name: data.name, avatarId: data.avatar_id, avatarBg: data.avatar_bg, plan: data.plan ?? null })
+      setProfile({
+        id: data.id,
+        name: data.name,
+        avatarId: data.avatar_id,
+        avatarBg: data.avatar_bg,
+        plan: data.plan ?? null,
+        status: data.status ?? null,
+        cancelAt: data.cancel_at ?? null,
+      })
     }
     setLoading(false)
   }
@@ -64,7 +80,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, error, signOut, refreshProfile }}>
+    <AuthContext.Provider
+      value={{ user, profile, loading, error, signOut, refreshProfile }}
+    >
       {children}
     </AuthContext.Provider>
   )
@@ -72,6 +90,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuthContext(): AuthContextValue {
   const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuthContext must be used inside AuthProvider')
+  if (!ctx) throw new Error("useAuthContext must be used inside AuthProvider")
   return ctx
 }

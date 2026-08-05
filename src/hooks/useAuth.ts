@@ -1,4 +1,4 @@
-import { useAuthContext } from '@/contexts/AuthContext'
+import { useAuthContext } from "@/contexts/AuthContext"
 
 export interface AuthProfile {
   id: string
@@ -6,6 +6,8 @@ export interface AuthProfile {
   avatarId: number
   avatarBg: string
   plan: string | null
+  status: string | null
+  cancelAt: string | null
 }
 
 export function useAuth() {

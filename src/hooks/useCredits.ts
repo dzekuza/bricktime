@@ -17,7 +17,9 @@ export function useCredits(): CreditsState {
   const [loading, setLoading] = useState(true)
 
   const totalCredits =
-    subscriptions.find((s) => s.id === profile?.plan)?.credits ?? 0
+    profile?.status === "active"
+      ? (subscriptions.find((s) => s.id === profile?.plan)?.credits ?? 0)
+      : 0
 
   useEffect(() => {
     if (!user) {
