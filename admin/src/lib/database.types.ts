@@ -72,6 +72,24 @@ export type Database = {
         }
         Relationships: []
       }
+      coming_soon_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
       coupons: {
         Row: {
           active: boolean
@@ -450,6 +468,30 @@ export type Database = {
           sort_order?: number
           step_number?: string
           title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      home_marquee_items: {
+        Row: {
+          avatar_url: string | null
+          id: string
+          sort_order: number
+          text: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          id?: string
+          sort_order?: number
+          text: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          id?: string
+          sort_order?: number
+          text?: string
           updated_at?: string
         }
         Relationships: []
@@ -945,6 +987,7 @@ export type Database = {
         Row: {
           avatar_bg: string
           avatar_id: number
+          cancel_at: string | null
           city: string | null
           email: string
           flat: string | null
@@ -968,6 +1011,7 @@ export type Database = {
         Insert: {
           avatar_bg?: string
           avatar_id?: number
+          cancel_at?: string | null
           city?: string | null
           email: string
           flat?: string | null
@@ -991,6 +1035,7 @@ export type Database = {
         Update: {
           avatar_bg?: string
           avatar_id?: number
+          cancel_at?: string | null
           city?: string | null
           email?: string
           flat?: string | null
