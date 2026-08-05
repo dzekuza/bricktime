@@ -22,6 +22,7 @@ import PrivacyPolicy from "@/pages/PrivacyPolicy"
 import StoreRules from "@/pages/StoreRules"
 import LoadingScreen from "@/components/LoadingScreen"
 import CookieConsentBanner from "@/components/CookieConsentBanner"
+import ComingSoonGate from "@/components/ComingSoonGate"
 import { useConsentContext } from "@/contexts/ConsentContext"
 import { trackPageview } from "@/lib/analytics"
 
@@ -45,7 +46,7 @@ export default function App() {
   }, [location.pathname])
 
   return (
-    <>
+    <ComingSoonGate>
       {!loaded && <LoadingScreen onDone={handleDone} />}
       <Routes>
         <Route path="/" element={<Home />} />
@@ -68,6 +69,6 @@ export default function App() {
         <Route path="/parduotuves-taisykles" element={<StoreRules />} />
       </Routes>
       <CookieConsentBanner />
-    </>
+    </ComingSoonGate>
   )
 }
