@@ -22,15 +22,24 @@ export interface LpTrackingEvent {
   location?: string
 }
 
-async function call<T>(body: Record<string, unknown>): Promise<T> {
+/** Edge function cold starts can abort the request before headers come back,
+ *  which the browser reports as a CORS failure rather than a timeout. One
+ *  retry covers this — the isolate is warm by the second call. */
+async function call<T>(body: Record<string, unknown>, retries = 1): Promise<T> {
   const { data, error } = await supabase.functions.invoke("lpexpress", { body })
-  if (error) throw new Error(error.message)
+  if (error) {
+    if (retries > 0) return call<T>(body, retries - 1)
+    throw new Error(error.message)
+  }
   if (data?.error) throw new Error(data.error)
   return data as T
 }
 
 /** Search LP EXPRESS parcel terminals. `find` narrows by text (city / address). */
-export async function fetchTerminals(find?: string, countryCode = "LT"): Promise<LpTerminal[]> {
+export async function fetchTerminals(
+  find?: string,
+  countryCode = "LT"
+): Promise<LpTerminal[]> {
   const { terminals } = await call<{ terminals: LpTerminal[] }>({
     action: "terminals",
     find: find || undefined,
@@ -41,15 +50,31 @@ export async function fetchTerminals(find?: string, countryCode = "LT"): Promise
 }
 
 /** Public tracking events for a barcode. */
-export async function fetchTracking(barcode: string, lang = "lt"): Promise<LpTrackingEvent[]> {
-  const { events } = await call<{ events: LpTrackingEvent[] }>({ action: "tracking", barcode, lang })
+export async function fetchTracking(
+  barcode: string,
+  lang = "lt"
+): Promise<LpTrackingEvent[]> {
+  const { events } = await call<{ events: LpTrackingEvent[] }>({
+    action: "tracking",
+    barcode,
+    lang,
+  })
   return events
 }
 
 /** Create the outbound shipment/label for an order (owner only). */
 export async function createLabel(input: {
   orderId: string
-  receiver: { name: string; phone: string; email?: string; locality?: string; postalCode?: string; street?: string; building?: string; flat?: string }
+  receiver: {
+    name: string
+    phone: string
+    email?: string
+    locality?: string
+    postalCode?: string
+    street?: string
+    building?: string
+    flat?: string
+  }
   size?: string
   weight?: number
 }): Promise<{ parcelId: string; barcode: string | null }> {
@@ -69,15 +94,24 @@ export async function createReturnLabel(input: {
 
 /** Fetch a label PDF for an order as base64 (owner only). `parcel` picks the
  *  outbound or return shipment. */
-export async function fetchLabelPdf(orderId: string, parcel: "outbound" | "return" = "outbound"): Promise<string> {
-  const { pdfBase64 } = await call<{ pdfBase64: string }>({ action: "label-pdf", orderId, parcel })
+export async function fetchLabelPdf(
+  orderId: string,
+  parcel: "outbound" | "return" = "outbound"
+): Promise<string> {
+  const { pdfBase64 } = await call<{ pdfBase64: string }>({
+    action: "label-pdf",
+    orderId,
+    parcel,
+  })
   return pdfBase64
 }
 
 /** Trigger a browser download of a base64 PDF. */
 export function downloadPdf(base64: string, filename: string) {
   const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0))
-  const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }))
+  const url = URL.createObjectURL(
+    new Blob([bytes], { type: "application/pdf" })
+  )
   const a = document.createElement("a")
   a.href = url
   a.download = filename
