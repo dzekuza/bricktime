@@ -18,7 +18,7 @@ export const faqs: FaqItem[] = [
   },
   {
     q: "Kas yra Briksiai?",
-    a: "Briksiai – tai Brick Time taškų valiuta. Juos gaunate su savo prenumerata, o jų kiekis priklauso nuo pasirinkto plano. Kiekvienas LEGO rinkinys turi savo Briksių vertę, todėl pagal sukauptus Briksius lengvai matysite, kuriuos rinkinius galite pasirinkti. Kuo aukštesnė prenumerata, tuo daugiau Briksių gaunate ir tuo didesnį rinkinių pasirinkimą turite.",
+    a: "Briksiai – tai Brick Time taškų valiuta. Juos gaunate su savo prenumerata, o jų kiekis priklauso nuo pasirinkto plano. Kiekvienas LEGO® rinkinys turi savo Briksių vertę, todėl pagal sukauptus Briksius lengvai matysite, kuriuos rinkinius galite pasirinkti. Kuo aukštesnė prenumerata, tuo daugiau Briksių gaunate ir tuo didesnį rinkinių pasirinkimą turite.",
   },
   {
     q: "Ar galiu pasirinkti konkretų LEGO® rinkinį?",

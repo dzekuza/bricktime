@@ -228,7 +228,7 @@ export default function MerchPage() {
             <div className="hidden lg:block">
               <img
                 src="/images/build-sailboat.jpg"
-                alt="LEGO statyba"
+                alt="LEGO® statyba"
                 className="aspect-[2/1] w-full rounded-2xl border-2 border-ink object-cover shadow-[6px_6px_0_#001B21]"
               />
             </div>

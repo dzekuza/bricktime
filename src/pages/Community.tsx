@@ -833,7 +833,7 @@ function LeaderboardPanel() {
             {
               rank: "#1",
               emoji: "🧱",
-              prize: "LEGO rinkinys",
+              prize: "LEGO® rinkinys",
               sub: "Tavo pasirinkimas",
             },
             {

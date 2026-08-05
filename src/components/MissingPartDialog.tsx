@@ -26,7 +26,12 @@ interface FormState {
   quantity: string
 }
 
-const empty: FormState = { legoSetCode: "", partCode: "", bagNumber: "", quantity: "" }
+const empty: FormState = {
+  legoSetCode: "",
+  partCode: "",
+  bagNumber: "",
+  quantity: "",
+}
 
 export function MissingPartDialog({
   open,
@@ -110,7 +115,9 @@ export function MissingPartDialog({
           <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
-                <Label className="label-mono text-ink/50">LEGO set kodas</Label>
+                <Label className="label-mono text-ink/50">
+                  LEGO® set kodas
+                </Label>
                 <Input
                   placeholder="pvz. 75192"
                   value={form.legoSetCode}
@@ -151,9 +158,7 @@ export function MissingPartDialog({
               </div>
             </div>
 
-            {error && (
-              <p className="text-[12px] text-rose-600">{error}</p>
-            )}
+            {error && <p className="text-[12px] text-rose-600">{error}</p>}
 
             <div className="mt-1 flex flex-col gap-2">
               <Button

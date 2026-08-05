@@ -129,7 +129,7 @@ export default function GiftCards() {
             <div className="hidden lg:block">
               <img
                 src="/images/build-spaceship.jpg"
-                alt="LEGO dovanų kuponas"
+                alt="LEGO® dovanų kuponas"
                 className="aspect-[2/1] w-full rounded-2xl border-2 border-ink object-cover shadow-[6px_6px_0_#001B21]"
               />
             </div>
@@ -219,7 +219,7 @@ export default function GiftCards() {
                           Asmeninis sveikinimas (neprivaloma)
                         </label>
                         <textarea
-                          placeholder="Linkiu nuostabios kelionės su LEGO!"
+                          placeholder="Linkiu nuostabios kelionės su LEGO®!"
                           value={message}
                           onChange={(e) =>
                             setMessage(e.target.value.slice(0, 140))
