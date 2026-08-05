@@ -108,9 +108,9 @@ export function ComparisonTableEditor({
   async function handleSave() {
     setSaving(true)
     const usableRows = rows.filter((r) => r.label.trim().length > 0)
-    const perPlan: Record<PlanId, Record<string, string>> = Object.fromEntries(
+    const perPlan = Object.fromEntries(
       plans.map((p) => [p.id, {} as Record<string, string>])
-    )
+    ) as Record<PlanId, Record<string, string>>
     for (const row of usableRows) {
       for (const p of plans) {
         perPlan[p.id][row.label] = row.values[p.id] ?? ""
