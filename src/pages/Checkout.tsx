@@ -330,6 +330,7 @@ export default function Checkout() {
     const { data, error } = await supabase.functions.invoke("create-checkout", {
       body: {
         planKey: requiredTier.key,
+        billing,
         userId: user.id,
         userEmail: user.email ?? "",
         successUrl: productId
@@ -1085,7 +1086,7 @@ export default function Checkout() {
                             : "text-ink/50 hover:text-ink",
                         ].join(" ")}
                       >
-                        {v === "monthly" ? "Mėnesinis" : "Metinis −20%"}
+                        {v === "monthly" ? "Mėnesinis" : "Metinis −15%"}
                       </button>
                     ))}
                   </div>

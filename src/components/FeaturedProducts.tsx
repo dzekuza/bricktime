@@ -1,46 +1,22 @@
-import { useState, useMemo } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { ArrowRight, XIcon } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useReveal } from "@/hooks/useReveal"
+import { supabase } from "@/lib/supabase"
 import { SUBSCRIPTION_CHIPS, AGE_CHIPS } from "@/lib/product-filters"
 import { FilterPopover } from "@/components/FilterPopover"
 import { SortPopover } from "@/components/SortPopover"
 import {
-  getSubscriptionBrickSvg,
-  getSubscriptionTheme,
-} from "@/lib/subscription-branding"
-
-type Product = {
-  id: number
-  name: string
-  series: string
-  image: string
-  brickImage: string
-  isNew: boolean
-  stats: {
-    pieces: string
-    year: string
-    age: string
-    price: string
-    category: string
-    plan: string
-  }
-  // numeric fields for sorting/filtering
-  piecesNum: number
-  priceNum: number
-  yearNum: number
-  ageNum: number | null
-  planTier: number // higher = more exclusive
-  planKey: string // matches SUBSCRIPTION_CHIPS key
-  popularity: number // higher = more popular
-  ctaBg: string
-  ctaLabel: string
-}
+  ProductCard,
+  dbToProduct,
+  tierConfig,
+  type Product,
+} from "@/components/ProductCard"
 
 const SORT_OPTIONS = [
   { value: "newest", label: "Naujausi" },
   { value: "popular", label: "Populiariausi" },
-  { value: "pieces", label: "Daugiausiai detalių" },
+  { value: "bricks", label: "Daugiausiai detalių" },
   { value: "plan", label: "Aukščiausia prenumerata" },
   { value: "price_asc", label: "Pigiausi" },
   { value: "price_desc", label: "Brangiausi" },
@@ -52,104 +28,24 @@ function sortProducts(products: Product[], by: SortValue): Product[] {
   const sorted = [...products]
   switch (by) {
     case "newest":
-      return sorted.sort((a, b) => b.yearNum - a.yearNum)
+      return sorted.sort((a, b) => (b.id as number) - (a.id as number))
     case "popular":
-      return sorted.sort((a, b) => b.popularity - a.popularity)
-    case "pieces":
-      return sorted.sort((a, b) => b.piecesNum - a.piecesNum)
+      return sorted.sort((a, b) => Number(b.featured) - Number(a.featured))
+    case "bricks":
+      return sorted.sort((a, b) => b.bricks - a.bricks)
     case "plan":
-      return sorted.sort((a, b) => b.planTier - a.planTier)
+      return sorted.sort(
+        (a, b) =>
+          tierConfig[b.requiredTier].level - tierConfig[a.requiredTier].level
+      )
     case "price_asc":
-      return sorted.sort((a, b) => a.priceNum - b.priceNum)
+      return sorted.sort((a, b) => (a.price ?? 0) - (b.price ?? 0))
     case "price_desc":
-      return sorted.sort((a, b) => b.priceNum - a.priceNum)
+      return sorted.sort((a, b) => (b.price ?? 0) - (a.price ?? 0))
     default:
       return sorted
   }
 }
-
-const PRODUCTS: Product[] = [
-  {
-    id: 34,
-    name: "Džabos barža",
-    series: "Star Wars™",
-    image:
-      "https://www.lego.com/cdn/cs/set/assets/bltad48b7c771f86707/75397_Prod.png",
-    brickImage: "/plans/how-mega.svg",
-    isNew: true,
-    stats: {
-      pieces: "3943",
-      year: "2025",
-      age: "—",
-      price: "€519.99",
-      category: "Star Wars",
-      plan: "Legenda",
-    },
-    piecesNum: 3943,
-    priceNum: 519.99,
-    yearNum: 2025,
-    ageNum: null,
-    planTier: 5,
-    planKey: "mega",
-    popularity: 2,
-    ctaBg: "#FFD731",
-    ctaLabel: "Prenumeruok su Legenda",
-  },
-  {
-    id: 33,
-    name: "TIE naikintuvas",
-    series: "Star Wars™",
-    image:
-      "https://www.lego.com/cdn/cs/set/assets/blt42c7adf188ed2eb8/75382.png",
-    brickImage: "/plans/how-nano.svg",
-    isNew: false,
-    stats: {
-      pieces: "1931",
-      year: "2023",
-      age: "—",
-      price: "€239.99",
-      category: "Star Wars",
-      plan: "Pro",
-    },
-    piecesNum: 1931,
-    priceNum: 239.99,
-    yearNum: 2023,
-    ageNum: null,
-    planTier: 3,
-    planKey: "pro",
-    popularity: 3,
-    ctaBg: "#55DB9C",
-    ctaLabel: "Prenumeruok su Pro",
-  },
-  {
-    id: 32,
-    name: "Grogu (Mandaloriečių mokinys)",
-    series: "Star Wars™",
-    image:
-      "https://www.lego.com/cdn/cs/set/assets/blt7b211beb2f802707/blta8d62a90e62e020c-75446_Prod.png",
-    brickImage: "/plans/master.svg",
-    isNew: true,
-    stats: {
-      pieces: "1200",
-      year: "2025",
-      age: "—",
-      price: "€139.99",
-      category: "Star Wars",
-      plan: "Meistras",
-    },
-    piecesNum: 1200,
-    priceNum: 139.99,
-    yearNum: 2025,
-    ageNum: null,
-    planTier: 2,
-    planKey: "standard",
-    popularity: 1,
-    ctaBg: "#FFAEE7",
-    ctaLabel: "Prenumeruok su Meistras",
-  },
-]
-
-const SERIES_OPTIONS = ["Star Wars™", "Creator Expert", "Technic", "City"]
 
 type Filters = {
   series: string[]
@@ -160,103 +56,45 @@ type Filters = {
 function applyFilters(products: Product[], filters: Filters): Product[] {
   return products.filter((p) => {
     const seriesOk =
-      filters.series.length === 0 ||
-      filters.series.some(
-        (s) => p.series === s || p.stats.category === s.replace("™", "")
-      )
-    const planOk = filters.plan.length === 0 || filters.plan.includes(p.planKey)
+      filters.series.length === 0 || filters.series.includes(p.category)
+    const planOk =
+      filters.plan.length === 0 || filters.plan.includes(p.requiredTier)
     const ageOk =
       filters.age.length === 0 ||
-      p.ageNum == null ||
-      filters.age.includes(String(p.ageNum))
+      p.minAge == null ||
+      filters.age.includes(String(p.minAge))
     return seriesOk && planOk && ageOk
   })
 }
 
-function ProductCard({ product, delay }: { product: Product; delay: number }) {
-  const planTheme = getSubscriptionTheme(product.stats.plan)
-  const statEntries = [
-    ["Detalės", product.stats.pieces],
-    ["Metai", product.stats.year],
-    ["Amžius", product.stats.age],
-    ["Kaina", product.stats.price],
-    ["Kategorija", product.stats.category],
-    ["Prenumerata", product.stats.plan],
-  ] as const
-
-  return (
-    <Link
-      to={`/drop/${product.id}`}
-      className="reveal brick-card brick-card-hover flex flex-col overflow-hidden bg-white"
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {/* Image area */}
-      <div className="relative h-[280px] overflow-hidden border-b-2 border-ink bg-[#f8f6f2]">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="h-full w-full object-contain p-6"
-        />
-        <img
-          src={getSubscriptionBrickSvg(product.stats.plan)}
-          alt=""
-          className="pointer-events-none absolute top-4 left-4 h-10 w-auto select-none"
-        />
-        {product.isNew && (
-          <div className="absolute top-3 right-3 -rotate-12">
-            <div
-              className="flex h-[53px] w-[53px] items-center justify-center rounded-full border-2 border-ink shadow-[2px_2px_0_#001B21]"
-              style={{ backgroundColor: "#FFD731" }}
-            >
-              <span className="text-center font-display text-[11px] leading-tight text-ink">
-                Nauja
-              </span>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="flex flex-1 flex-col gap-3 p-5">
-        <div>
-          <h3 className="heading-display text-d-xs text-ink">{product.name}</h3>
-          <p className="label-mono mt-1 text-ink/50">{product.series}</p>
-        </div>
-
-        <div className="grid grid-cols-3 gap-y-3 border-t border-ink/10 pt-3">
-          {statEntries.map(([label, value]) => (
-            <div key={label} className="flex flex-col gap-0.5">
-              <span className="font-mono text-[9px] tracking-[.22em] text-ink/40 uppercase">
-                {label}
-              </span>
-              <span className="font-mono text-[12px] font-bold text-ink">
-                {value}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        <div
-          className="mt-auto flex w-full items-center justify-between rounded-[22px] border-2 border-ink px-[18px] py-3"
-          style={{
-            backgroundColor: planTheme?.bg ?? "#FFD731",
-            color: planTheme?.textColor ?? "#001B21",
-          }}
-        >
-          <span className="text-[13px] font-bold">{product.ctaLabel}</span>
-          <ArrowRight size={16} />
-        </div>
-      </div>
-    </Link>
-  )
-}
-
 export default function FeaturedProducts() {
   const ref = useReveal<HTMLDivElement>()
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState<SortValue>("newest")
   const [seriesFilter, setSeriesFilter] = useState<string[]>([])
   const [tierFilter, setTierFilter] = useState<string[]>([])
   const [ageFilter, setAgeFilter] = useState<string[]>([])
+
+  useEffect(() => {
+    supabase
+      .from("products")
+      .select("*")
+      .eq("featured", true)
+      .order("id", { ascending: false })
+      .then(({ data }) => {
+        if (data) setProducts(data.map(dbToProduct))
+        setLoading(false)
+      })
+  }, [])
+
+  const seriesOptions = useMemo(
+    () =>
+      Array.from(new Set(products.map((p) => p.category).filter(Boolean))).sort(
+        (a, b) => a.localeCompare(b)
+      ),
+    [products]
+  )
 
   const visible = useMemo(() => {
     const filters: Filters = {
@@ -264,8 +102,8 @@ export default function FeaturedProducts() {
       plan: tierFilter,
       age: ageFilter,
     }
-    return sortProducts(applyFilters(PRODUCTS, filters), sortBy)
-  }, [seriesFilter, tierFilter, ageFilter, sortBy])
+    return sortProducts(applyFilters(products, filters), sortBy)
+  }, [products, seriesFilter, tierFilter, ageFilter, sortBy])
 
   const sortLabel =
     SORT_OPTIONS.find((o) => o.value === sortBy)?.label ?? sortBy
@@ -286,7 +124,7 @@ export default function FeaturedProducts() {
           <div className="flex flex-wrap items-center gap-2">
             <FilterPopover
               label={seriesFilter.length === 0 ? "Visos temos" : "Tema"}
-              options={SERIES_OPTIONS.map((s) => ({ value: s, label: s }))}
+              options={seriesOptions.map((s) => ({ value: s, label: s }))}
               selected={seriesFilter}
               onChange={setSeriesFilter}
             />
@@ -312,7 +150,7 @@ export default function FeaturedProducts() {
               <>
                 <span className="mx-1 h-5 w-px bg-ink/20" />
                 <span className="font-mono text-[11px] tracking-[.06em] text-ink/50 uppercase">
-                  {visible.length} iš {PRODUCTS.length}
+                  {visible.length} iš {products.length}
                 </span>
                 <button
                   onClick={clearFilters}
@@ -336,14 +174,29 @@ export default function FeaturedProducts() {
           ref={ref}
           className="flex touch-pan-x snap-x snap-mandatory gap-5 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] md:grid md:grid-cols-3 md:gap-7 md:overflow-visible md:pb-0 [&::-webkit-scrollbar]:hidden"
         >
-          {visible.map((product, i) => (
-            <div
-              key={product.id}
-              className="w-[82vw] shrink-0 snap-start md:w-auto md:shrink"
-            >
-              <ProductCard product={product} delay={i * 80} />
-            </div>
-          ))}
+          {loading
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="brick-card w-[82vw] shrink-0 animate-pulse snap-start overflow-hidden md:w-auto md:shrink"
+                >
+                  <div className="h-[280px] bg-ink/10" />
+                  <div className="flex flex-col gap-3 p-4 md:p-5">
+                    <div className="h-5 w-2/3 rounded bg-ink/10" />
+                    <div className="h-3 w-1/2 rounded bg-ink/10" />
+                    <div className="h-3 w-full rounded bg-ink/10" />
+                    <div className="mt-auto h-9 rounded-xl bg-ink/10" />
+                  </div>
+                </div>
+              ))
+            : visible.map((product) => (
+                <div
+                  key={product.id}
+                  className="w-[82vw] shrink-0 snap-start md:w-auto md:shrink"
+                >
+                  <ProductCard product={product} />
+                </div>
+              ))}
         </div>
 
         {/* Footer */}
@@ -356,7 +209,8 @@ export default function FeaturedProducts() {
             <ArrowRight size={16} />
           </Link>
           <p className="label-mono text-center text-ink/55">
-            Rodoma {visible.length} iš 170 · {sortLabel} pirmiausia
+            Rodoma {visible.length} iš {products.length} · {sortLabel}{" "}
+            pirmiausia
           </p>
         </div>
       </div>

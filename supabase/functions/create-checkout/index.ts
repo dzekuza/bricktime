@@ -6,19 +6,10 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   httpClient: Stripe.createFetchHttpClient(),
 })
 
-const PLAN_CONFIG: Record<string, { name: string; amount: number }> = {
-  mystery_s: { name: "Mystery Box Mėgėjams",  amount: 1999 },
-  nano:      { name: "BRICKTIME Mėgėjas",     amount: 2499 },
-  mystery_m: { name: "Mystery Box Kūrėjams",  amount: 2999 },
-  mini:      { name: "BRICKTIME Kūrėjas",     amount: 3499 },
-  standard:  { name: "BRICKTIME Standard",    amount: 2400 },
-  pro:       { name: "BRICKTIME Pro",         amount: 3500 },
-  mega:      { name: "BRICKTIME Mega",        amount: 5500 },
-}
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 }
 
 Deno.serve(async (req) => {
@@ -27,16 +18,39 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { planKey, userId, userEmail, successUrl, cancelUrl, discountedAmount, giftCardCode, homeDelivery } =
-      await req.json()
+    const {
+      planKey,
+      billing,
+      userId,
+      userEmail,
+      successUrl,
+      cancelUrl,
+      discountedAmount,
+      giftCardCode,
+      homeDelivery,
+    } = await req.json()
 
-    const plan = PLAN_CONFIG[planKey]
-    if (!plan) throw new Error(`Unknown plan: ${planKey}`)
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    )
+
+    const { data: plan, error: planError } = await supabase
+      .from("plans")
+      .select("name, price, annual_price")
+      .eq("id", planKey)
+      .eq("active", true)
+      .single()
+
+    if (planError || !plan) throw new Error(`Unknown plan: ${planKey}`)
+
+    const planPrice =
+      billing === "annual" ? (plan.annual_price ?? plan.price) : plan.price
 
     const unitAmount =
       discountedAmount != null && discountedAmount > 0
         ? Math.round(discountedAmount * 100)
-        : plan.amount
+        : Math.round(planPrice * 100)
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
@@ -44,21 +58,25 @@ Deno.serve(async (req) => {
         {
           price_data: {
             currency: "eur",
-            product_data: { name: plan.name },
+            product_data: { name: plan.name ?? `BRICKTIME ${planKey}` },
             unit_amount: unitAmount,
             recurring: { interval: "month" },
           },
           quantity: 1,
         },
-        ...(homeDelivery ? [{
-          price_data: {
-            currency: "eur",
-            product_data: { name: "Pristatymas į duris" },
-            unit_amount: 300,
-            recurring: { interval: "month" },
-          },
-          quantity: 1,
-        }] : []),
+        ...(homeDelivery
+          ? [
+              {
+                price_data: {
+                  currency: "eur",
+                  product_data: { name: "Pristatymas į duris" },
+                  unit_amount: 300,
+                  recurring: { interval: "month" },
+                },
+                quantity: 1,
+              },
+            ]
+          : []),
       ],
       customer_email: userEmail ?? undefined,
       client_reference_id: userId,
@@ -67,22 +85,20 @@ Deno.serve(async (req) => {
       metadata: {
         userId,
         planKey,
+        billing: billing ?? "monthly",
         homeDelivery: homeDelivery ? "true" : "false",
       },
       subscription_data: {
         metadata: {
           userId,
           planKey,
+          billing: billing ?? "monthly",
           homeDelivery: homeDelivery ? "true" : "false",
         },
       },
     })
 
     if (giftCardCode) {
-      const supabase = createClient(
-        Deno.env.get("SUPABASE_URL")!,
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-      )
       await supabase
         .from("gift_cards")
         .update({ status: "used", redeemed_at: new Date().toISOString() })

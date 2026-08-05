@@ -161,6 +161,7 @@ export default function Subscribe() {
     const { data, error } = await supabase.functions.invoke("create-checkout", {
       body: {
         planKey,
+        billing,
         userId: user.id,
         userEmail: user.email ?? form.email,
         successUrl: `${origin}/subscribe?success=true&plan=${planKey}${homeDelivery ? "&home_delivery=1" : ""}`,
