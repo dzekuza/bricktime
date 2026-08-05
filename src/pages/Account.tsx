@@ -14,6 +14,7 @@ import { ReturnDialog } from "@/components/ReturnDialog"
 import { ProfileEditDialog } from "@/components/ProfileEditDialog"
 import { fetchLabelPdf, downloadPdf } from "@/lib/lpexpress"
 import { Seo } from "@/components/Seo"
+import { TermsAgreement } from "@/components/TermsAgreement"
 
 const HOME_DELIVERY_PLANS = ["pro", "mega", "mystery_s", "mystery_m"]
 const HOME_DELIVERY_FEE = 3
@@ -212,6 +213,7 @@ export default function Account() {
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [planChanging, setPlanChanging] = useState(false)
   const [planChangeError, setPlanChangeError] = useState("")
+  const [agreedToPlanChangeTerms, setAgreedToPlanChangeTerms] = useState(false)
   const [rentedOrders, setRentedOrders] = useState<RentedOrder[]>([])
   const [ordersLoading, setOrdersLoading] = useState(true)
   const [returnDialogOrder, setReturnDialogOrder] =
@@ -877,10 +879,15 @@ export default function Account() {
                       {planChangeError}
                     </p>
                   )}
+                  <TermsAgreement
+                    id="terms-plan-change"
+                    checked={agreedToPlanChangeTerms}
+                    onCheckedChange={setAgreedToPlanChangeTerms}
+                  />
                   <div className="flex gap-3">
                     <button
                       onClick={handlePlanChange}
-                      disabled={planChanging}
+                      disabled={planChanging || !agreedToPlanChangeTerms}
                       className="flex-1 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[14px] font-bold text-paper transition-[transform,box-shadow] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] disabled:pointer-events-none disabled:opacity-50"
                     >
                       {planChanging
