@@ -5,6 +5,7 @@ import { RequireAuth } from "@/components/RequireAuth"
 import { AppLayout } from "@/components/AppLayout"
 import { Login } from "@/pages/Login"
 import { Dashboard } from "@/pages/Dashboard"
+import { Analytics } from "@/pages/Analytics"
 import { Products } from "@/pages/Products"
 import { Content } from "@/pages/Content"
 import { Subscribers } from "@/pages/Subscribers"
@@ -31,6 +32,7 @@ export default function App() {
               }
             >
               <Route path="/" element={<Dashboard />} />
+              <Route path="/analytics" element={<Analytics />} />
               <Route path="/products" element={<Products />} />
               <Route path="/content" element={<Content />} />
               <Route path="/subscribers" element={<Subscribers />} />
