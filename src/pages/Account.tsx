@@ -16,7 +16,12 @@ import { fetchLabelPdf, downloadPdf } from "@/lib/lpexpress"
 import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
 
-const HOME_DELIVERY_PLANS = ["pro", "mega", "mystery_s", "mystery_m"]
+const HOME_DELIVERY_PLANS = ["mega"]
+const SUBSCRIBER_STATUS_LABELS: Record<string, string> = {
+  active: "Aktyvi",
+  paused: "Pristabdyta",
+  cancelled: "Atšaukta",
+}
 const HOME_DELIVERY_FEE = 3
 
 // ── predefined avatars ──────────────────────────────────────────────────────
@@ -686,7 +691,7 @@ export default function Account() {
                 </div>
               )}
 
-              <div className="mt-auto grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+              <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
                 {[
                   { val: postCount, label: "Įrašai" },
                   {
@@ -753,7 +758,10 @@ export default function Account() {
                 >
                   Statusas:{" "}
                   <b style={{ color: activeTier.textColor }}>
-                    {subscriber?.status ?? "–"}
+                    {subscriber?.status
+                      ? (SUBSCRIBER_STATUS_LABELS[subscriber.status] ??
+                        subscriber.status)
+                      : "–"}
                   </b>
                 </p>
               </div>
@@ -794,7 +802,7 @@ export default function Account() {
             {showUpgrade && (
               <div className="brick-card bg-paper p-3 md:p-8 lg:col-span-12">
                 <h3 className="label-mono mb-5 text-ink">Keisti prenumeratą</h3>
-                <div className="grid grid-cols-3 gap-3 lg:grid-cols-6">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
                   {tierOptions.map((t, i) => (
                     <button
                       key={t.name}
@@ -815,7 +823,7 @@ export default function Account() {
                         </span>
                       )}
                       <div
-                        className="font-display text-[22px] leading-none"
+                        className="font-display text-[16px] leading-tight sm:text-[18px] lg:text-[22px] lg:leading-none"
                         style={{
                           color: selectedTier === i ? t.textColor : "#001B21",
                         }}
@@ -823,7 +831,7 @@ export default function Account() {
                         {t.name}
                       </div>
                       <div
-                        className="mt-1.5 font-mono text-[11px] tracking-[.06em] uppercase"
+                        className="mt-1.5 font-mono text-[10px] tracking-[.06em] uppercase sm:text-[11px]"
                         style={{
                           color:
                             selectedTier === i
@@ -839,38 +847,63 @@ export default function Account() {
                 <div className="mt-5 flex flex-col gap-3">
                   {HOME_DELIVERY_PLANS.includes(
                     tierOptions[selectedTier]?.key ?? ""
-                  ) && (
-                    <div className="rounded-2xl border-2 border-ink/15 bg-ink/[.03] p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex flex-col gap-0.5">
-                          <span className="font-semibold text-ink">
-                            Kurjeris į duris
-                          </span>
-                          <span className="font-mono text-[11px] text-ink/55">
-                            +€{HOME_DELIVERY_FEE}/mėn.
-                          </span>
-                        </div>
+                  ) ? (
+                    <div className="flex flex-col gap-2">
+                      {[
+                        {
+                          value: false,
+                          label: "Paštomatas",
+                          note: "Nemokamas",
+                        },
+                        {
+                          value: true,
+                          label: "Kurjeris į duris",
+                          note: `+€${HOME_DELIVERY_FEE}/mėn.`,
+                        },
+                      ].map(({ value, label, note }) => (
                         <button
+                          key={String(value)}
                           type="button"
-                          role="switch"
-                          aria-checked={upgradeHomeDelivery}
-                          onClick={() => setUpgradeHomeDelivery((v) => !v)}
-                          className="relative h-6 w-11 shrink-0 rounded-full border-2 border-ink transition-colors"
-                          style={{
-                            background: upgradeHomeDelivery
-                              ? "#001B21"
-                              : "rgba(0,27,33,0.15)",
-                          }}
+                          onClick={() => setUpgradeHomeDelivery(value)}
+                          className={[
+                            "flex items-center justify-between rounded-2xl border-2 px-4 py-3 text-left transition-all",
+                            upgradeHomeDelivery === value
+                              ? "border-ink bg-ink/[.03] shadow-[3px_3px_0_#001B21]"
+                              : "border-ink/15 hover:border-ink/40",
+                          ].join(" ")}
                         >
-                          <span
-                            className="absolute top-0.5 h-4 w-4 rounded-full border-2 border-ink bg-paper transition-transform"
-                            style={{
-                              transform: upgradeHomeDelivery
-                                ? "translateX(20px)"
-                                : "translateX(2px)",
-                            }}
-                          />
+                          <div className="flex items-center gap-3">
+                            <span
+                              className={[
+                                "flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+                                upgradeHomeDelivery === value
+                                  ? "border-ink bg-ink"
+                                  : "border-ink/30",
+                              ].join(" ")}
+                            >
+                              {upgradeHomeDelivery === value && (
+                                <span className="size-2 rounded-full bg-paper" />
+                              )}
+                            </span>
+                            <span className="font-semibold text-ink">
+                              {label}
+                            </span>
+                          </div>
+                          <span className="font-mono text-[11px] text-ink/55">
+                            {note}
+                          </span>
                         </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="rounded-2xl border-2 border-ink/15 bg-ink/[.03] p-4">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-semibold text-ink">
+                          Paštomatas
+                        </span>
+                        <span className="font-mono text-[11px] text-ink/55">
+                          Nemokamas pristatymas
+                        </span>
                       </div>
                     </div>
                   )}

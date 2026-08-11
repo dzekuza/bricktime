@@ -18,7 +18,7 @@ import { TermsAgreement } from "@/components/TermsAgreement"
 
 // ── static data ────────────────────────────────────────────────────────────
 
-const HOME_DELIVERY_PLANS = ["pro", "mega", "mystery_s", "mystery_m"]
+const HOME_DELIVERY_PLANS = ["mega"]
 const HOME_DELIVERY_FEE = 3
 
 // ── page ───────────────────────────────────────────────────────────────────

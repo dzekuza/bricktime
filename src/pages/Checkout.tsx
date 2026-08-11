@@ -23,8 +23,9 @@ import {
 import type { LpTerminal } from "@/lib/lpexpress"
 import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
+import { PlanFitConfigurator } from "@/components/PlanFitConfigurator"
 
-const HOME_DELIVERY_PLANS = ["pro", "mega", "mystery_s", "mystery_m"]
+const HOME_DELIVERY_PLANS = ["mega"]
 const HOME_DELIVERY_FEE = 3
 const CANCELLATION_GRACE_DAYS = 14
 
@@ -1396,6 +1397,15 @@ export default function Checkout() {
               )}
             </div>
           </div>
+
+          {requiredPlan && (
+            <PlanFitConfigurator
+              tierLevel={requiredTier.level}
+              planName={requiredTier.name}
+              budgetCredits={requiredPlan.credits}
+              currentProductId={product?.id}
+            />
+          )}
         </div>
       </section>
 
