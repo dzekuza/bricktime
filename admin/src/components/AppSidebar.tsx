@@ -13,6 +13,7 @@ import {
   ShirtIcon,
   GiftIcon,
   FileTextIcon,
+  LineChartIcon,
 } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 import {
@@ -33,6 +34,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 const navMain = [
   { label: "Dashboard", to: "/", icon: LayoutDashboardIcon },
+  { label: "Analytics", to: "/analytics", icon: LineChartIcon },
   { label: "Products", to: "/products", icon: PackageIcon },
   { label: "Content", to: "/content", icon: FileTextIcon },
   { label: "Subscribers", to: "/subscribers", icon: UsersIcon },
