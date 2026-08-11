@@ -33,7 +33,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <img src="/bricktime.svg" alt="BRICKTIME" className="h-12 w-auto" />
-            <p className="mt-4 max-w-[32ch] text-[14px] leading-relaxed text-ink/60">
+            <p className="mt-4 max-w-none text-[14px] leading-relaxed text-ink/60 md:max-w-[32ch]">
               Pirmoji originalių LEGO® rinkinių prenumerata Lietuvoje. Konstruok
               daugiau, atrask naujus projektus ir mėgaukis LEGO® be didelių
               išlaidų.
