@@ -221,7 +221,11 @@ export function Analytics() {
                     axisLine={false}
                     minTickGap={24}
                   />
-                  <ChartTooltip content={<ChartTooltipContent labelFormatter={formatDate} />} />
+                  <ChartTooltip
+                    content={
+                      <ChartTooltipContent labelFormatter={(label) => formatDate(String(label))} />
+                    }
+                  />
                   <Line dataKey="sessions" stroke="var(--color-sessions)" strokeWidth={2} dot={false} />
                   <Line dataKey="users" stroke="var(--color-users)" strokeWidth={2} dot={false} />
                 </LineChart>
@@ -251,7 +255,11 @@ export function Analytics() {
                     axisLine={false}
                     minTickGap={24}
                   />
-                  <ChartTooltip content={<ChartTooltipContent labelFormatter={formatDate} />} />
+                  <ChartTooltip
+                    content={
+                      <ChartTooltipContent labelFormatter={(label) => formatDate(String(label))} />
+                    }
+                  />
                   <Line dataKey="clicks" stroke="var(--color-clicks)" strokeWidth={2} dot={false} />
                   <Line dataKey="impressions" stroke="var(--color-impressions)" strokeWidth={2} dot={false} />
                 </LineChart>
