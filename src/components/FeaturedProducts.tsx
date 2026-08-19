@@ -4,6 +4,7 @@ import { Link } from "react-router-dom"
 import { useReveal } from "@/hooks/useReveal"
 import { supabase } from "@/lib/supabase"
 import { SUBSCRIPTION_CHIPS, AGE_CHIPS } from "@/lib/product-filters"
+import { SERIES } from "@/lib/series"
 import { FilterPopover } from "@/components/FilterPopover"
 import { SortPopover } from "@/components/SortPopover"
 import {
@@ -88,14 +89,6 @@ export default function FeaturedProducts() {
       })
   }, [])
 
-  const seriesOptions = useMemo(
-    () =>
-      Array.from(new Set(products.map((p) => p.category).filter(Boolean))).sort(
-        (a, b) => a.localeCompare(b)
-      ),
-    [products]
-  )
-
   const visible = useMemo(() => {
     const filters: Filters = {
       series: seriesFilter,
@@ -124,7 +117,7 @@ export default function FeaturedProducts() {
           <div className="flex flex-wrap items-center gap-2">
             <FilterPopover
               label={seriesFilter.length === 0 ? "Visos temos" : "Tema"}
-              options={seriesOptions.map((s) => ({ value: s, label: s }))}
+              options={SERIES.map((s) => ({ value: s, label: s }))}
               selected={seriesFilter}
               onChange={setSeriesFilter}
             />
