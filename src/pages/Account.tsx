@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
-import { achievementDefs, calculatePoints } from "@/data/community"
+import { calculatePoints, type AchievementDef } from "@/data/community"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import type { PlanTier } from "@/lib/database.types"
@@ -7,6 +7,7 @@ import type { PlanTier } from "@/lib/database.types"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
+import { useAchievements } from "@/hooks/useAchievements"
 import { useCredits } from "@/hooks/useCredits"
 import { MissingPartDialog } from "@/components/MissingPartDialog"
 import { OrderTracking } from "@/components/OrderTracking"
@@ -90,9 +91,11 @@ interface RentedOrder {
 function AchievementsSection({
   unlockedIds,
   totalPoints,
+  achievements,
 }: {
   unlockedIds: Set<string>
   totalPoints: number
+  achievements: AchievementDef[]
 }) {
   const [hoveredId, setHoveredId] = useState<string | null>(null)
 
@@ -127,7 +130,7 @@ function AchievementsSection({
           {/* Badge grid */}
           <div className="lg:col-span-9">
             <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
-              {achievementDefs.map((def) => {
+              {achievements.map((def) => {
                 const unlocked = unlockedIds.has(def.id)
                 const hovered = hoveredId === def.id
                 return (
@@ -200,6 +203,7 @@ export default function Account() {
   const { user, profile, signOut, refreshProfile } = useAuth()
   const { subscriptions: dbPlans } = useSubscriptions()
   const { totalCredits, remainingCredits } = useCredits()
+  const { achievements } = useAchievements()
   const tierOptions = useMemo(
     () =>
       dbPlans.map((p, i) => ({
@@ -492,7 +496,8 @@ export default function Account() {
     : (tierOptions[0] ?? FALLBACK_TIER)
   const activeAvatar = avatarOptions[selectedAvatarId] ?? avatarOptions[0]
   const totalPoints = calculatePoints(
-    [...unlockedIds].map((id) => ({ achievementId: id, unlockedAt: "" }))
+    [...unlockedIds].map((id) => ({ achievementId: id, unlockedAt: "" })),
+    achievements
   )
   const memberSince = subscriber?.joined_at
     ? new Date(subscriber.joined_at).toLocaleDateString("lt-LT", {
@@ -948,6 +953,7 @@ export default function Account() {
       <AchievementsSection
         unlockedIds={unlockedIds}
         totalPoints={totalPoints}
+        achievements={achievements}
       />
 
       {/* ── Penalty banner ───────────────────────────────────────────── */}

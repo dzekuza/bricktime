@@ -16,11 +16,12 @@ import {
 import { AuthForm } from "@/components/AuthForm"
 import { Seo } from "@/components/Seo"
 import {
-  achievementDefs,
   drops,
   getRelativeTime,
+  type AchievementDef,
   type FeedEventType,
 } from "@/data/community"
+import { useAchievements } from "@/hooks/useAchievements"
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -113,12 +114,14 @@ function FeedCard({
   onComment,
   isOwn,
   onDelete,
+  achievements,
 }: {
   item: LiveFeedItem
   onLike: () => void
   onComment: (text: string) => Promise<void>
   isOwn: boolean
   onDelete: () => void
+  achievements: AchievementDef[]
 }) {
   const [showComment, setShowComment] = useState(false)
   const [commentText, setCommentText] = useState("")
@@ -136,7 +139,7 @@ function FeedCard({
     }
   }
   const def = item.achievement_id
-    ? achievementDefs.find((a) => a.id === item.achievement_id)
+    ? achievements.find((a) => a.id === item.achievement_id)
     : null
 
   const accentColor =
@@ -555,6 +558,7 @@ function ComposeBox({ avatarId, avatarBg, onPost }: ComposeBoxProps) {
 
 function FeedPanel({ onOpenAuth }: { onOpenAuth: () => void }) {
   const { user, profile } = useAuth()
+  const { achievements } = useAchievements()
   const [items, setItems] = useState<LiveFeedItem[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -722,6 +726,7 @@ function FeedPanel({ onOpenAuth }: { onOpenAuth: () => void }) {
           onComment={(text) => addComment(text, item.id)}
           isOwn={!!user && item.subscriber_id === user.id}
           onDelete={() => deletePost(item)}
+          achievements={achievements}
         />
       ))}
       {items.length === 0 && (

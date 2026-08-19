@@ -4,7 +4,8 @@ import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import { supabase } from "@/lib/supabase"
 import { avatarSrc } from "@/lib/avatars"
-import { achievementDefs, getRelativeTime, drops } from "@/data/community"
+import { getRelativeTime, drops } from "@/data/community"
+import { useAchievements } from "@/hooks/useAchievements"
 import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
 import { Seo } from "@/components/Seo"
 
@@ -50,6 +51,7 @@ export default function UserProfile() {
   const [posts, setPosts] = useState<FeedPost[]>([])
   const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
+  const { achievements } = useAchievements()
 
   useEffect(() => {
     if (!userId) return
@@ -200,7 +202,7 @@ export default function UserProfile() {
                     Pažymėjimai
                   </h2>
                   <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
-                    {achievementDefs
+                    {achievements
                       .filter((def) => unlockedIds.has(def.id))
                       .map((def) => (
                         <div
