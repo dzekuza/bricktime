@@ -18,7 +18,6 @@ import { TermsAgreement } from "@/components/TermsAgreement"
 
 // ── static data ────────────────────────────────────────────────────────────
 
-const HOME_DELIVERY_PLANS = ["mega"]
 const HOME_DELIVERY_FEE = 3
 
 // ── page ───────────────────────────────────────────────────────────────────
@@ -79,10 +78,10 @@ export default function Subscribe() {
 
   const [homeDelivery, setHomeDelivery] = useState(false)
 
-  // reset home delivery toggle when switching to an ineligible plan
+  // reset home delivery toggle when switching to annual billing
   useEffect(() => {
-    if (!HOME_DELIVERY_PLANS.includes(plan?.id ?? "")) setHomeDelivery(false)
-  }, [plan?.id])
+    if (billing !== "monthly") setHomeDelivery(false)
+  }, [billing])
 
   const [purchasing, setPurchasing] = useState(false)
   const [purchaseError, setPurchaseError] = useState("")
@@ -276,8 +275,7 @@ export default function Subscribe() {
   const annualPrice = plan?.annual_price ?? monthlyPrice
   const price = billing === "monthly" ? monthlyPrice : annualPrice
   const total = billing === "monthly" ? price : price * 10
-  const isHomeDeliveryEligible =
-    HOME_DELIVERY_PLANS.includes(plan?.id ?? "") && billing === "monthly"
+  const isHomeDeliveryEligible = billing === "monthly"
   const deliveryFee =
     isHomeDeliveryEligible && homeDelivery ? HOME_DELIVERY_FEE : 0
 
@@ -581,7 +579,7 @@ export default function Subscribe() {
                               className="text-[13px] font-semibold"
                               style={{ color: plan.text_color }}
                             >
-                              Pristatymas į duris
+                              Pristatymas kurjeriu
                             </span>
                             <span
                               className="font-mono text-[11px]"

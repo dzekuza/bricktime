@@ -25,7 +25,6 @@ import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
 import { PlanFitConfigurator } from "@/components/PlanFitConfigurator"
 
-const HOME_DELIVERY_PLANS = ["mega"]
 const HOME_DELIVERY_FEE = 3
 const CANCELLATION_GRACE_DAYS = 14
 
@@ -179,9 +178,7 @@ export default function Checkout() {
         if (data?.status === "active") {
           setUserSub(tierByName[data.plan] ?? null)
           setCancelAt(data.cancel_at ?? null)
-          if (HOME_DELIVERY_PLANS.includes(data.plan)) {
-            setHomeDelivery(data.home_delivery ?? false)
-          }
+          setHomeDelivery(data.home_delivery ?? false)
         } else {
           setUserSub(null)
           setCancelAt(null)
@@ -690,7 +687,7 @@ export default function Checkout() {
                     <div>
                       <p className="label-mono text-ink/40">Pristatymas</p>
                       <p className="mt-0.5 font-display text-[15px] text-ink">
-                        {homeDelivery ? "Kurjeris į duris" : "Paštomatas"}
+                        {homeDelivery ? "Pristatymas kurjeriu" : "Paštomatas"}
                       </p>
                     </div>
                     <span
@@ -904,8 +901,8 @@ export default function Checkout() {
                     </p>
                   </div>
 
-                  {/* Delivery selector — only for plans that support home delivery */}
-                  {userSub && HOME_DELIVERY_PLANS.includes(userSub.key) && (
+                  {/* Delivery selector */}
+                  {userSub && (
                     <div className="mt-6">
                       <p className="label-mono mb-3 text-ink/40">
                         Pristatymo būdas
@@ -920,7 +917,7 @@ export default function Checkout() {
                           },
                           {
                             value: true,
-                            label: "Kurjeris į duris",
+                            label: "Pristatymas kurjeriu",
                             note: `+€${HOME_DELIVERY_FEE}`,
                             accent: "bg-brand-yellow",
                           },
@@ -1028,9 +1025,7 @@ export default function Checkout() {
                         Šio užsakymo suma
                       </p>
                       <p className="mt-0.5 font-display text-[26px] leading-none text-ink">
-                        {homeDelivery &&
-                        userSub &&
-                        HOME_DELIVERY_PLANS.includes(userSub.key)
+                        {homeDelivery && userSub
                           ? `€${HOME_DELIVERY_FEE}`
                           : "€0"}
                       </p>

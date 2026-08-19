@@ -17,7 +17,6 @@ import { fetchLabelPdf, downloadPdf } from "@/lib/lpexpress"
 import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
 
-const HOME_DELIVERY_PLANS = ["mega"]
 const SUBSCRIBER_STATUS_LABELS: Record<string, string> = {
   active: "Aktyvi",
   paused: "Pristabdyta",
@@ -385,12 +384,6 @@ export default function Account() {
 
   useEffect(() => {
     const selected = tierOptions[selectedTier]
-    const eligible = HOME_DELIVERY_PLANS.includes(selected?.key ?? "")
-
-    if (!eligible) {
-      setUpgradeHomeDelivery(false)
-      return
-    }
 
     if (selected?.key === subscriber?.plan) {
       setUpgradeHomeDelivery(subscriber?.home_delivery ?? false)
@@ -519,8 +512,7 @@ export default function Account() {
   async function handlePlanChange() {
     if (!user) return
     const newTier = tierOptions[selectedTier] ?? FALLBACK_TIER
-    const isHomeDeliveryEligible = HOME_DELIVERY_PLANS.includes(newTier.key)
-    const nextHomeDelivery = isHomeDeliveryEligible && upgradeHomeDelivery
+    const nextHomeDelivery = upgradeHomeDelivery
     if (newTier.key === subscriber?.plan) {
       setPlanChangeError("Jau esi šiame plane.")
       return
@@ -850,68 +842,53 @@ export default function Account() {
                   ))}
                 </div>
                 <div className="mt-5 flex flex-col gap-3">
-                  {HOME_DELIVERY_PLANS.includes(
-                    tierOptions[selectedTier]?.key ?? ""
-                  ) ? (
-                    <div className="flex flex-col gap-2">
-                      {[
-                        {
-                          value: false,
-                          label: "Paštomatas",
-                          note: "Nemokamas",
-                        },
-                        {
-                          value: true,
-                          label: "Kurjeris į duris",
-                          note: `+€${HOME_DELIVERY_FEE}/mėn.`,
-                        },
-                      ].map(({ value, label, note }) => (
-                        <button
-                          key={String(value)}
-                          type="button"
-                          onClick={() => setUpgradeHomeDelivery(value)}
-                          className={[
-                            "flex items-center justify-between rounded-2xl border-2 px-4 py-3 text-left transition-all",
-                            upgradeHomeDelivery === value
-                              ? "border-ink bg-ink/[.03] shadow-[3px_3px_0_#001B21]"
-                              : "border-ink/15 hover:border-ink/40",
-                          ].join(" ")}
-                        >
-                          <div className="flex items-center gap-3">
-                            <span
-                              className={[
-                                "flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
-                                upgradeHomeDelivery === value
-                                  ? "border-ink bg-ink"
-                                  : "border-ink/30",
-                              ].join(" ")}
-                            >
-                              {upgradeHomeDelivery === value && (
-                                <span className="size-2 rounded-full bg-paper" />
-                              )}
-                            </span>
-                            <span className="font-semibold text-ink">
-                              {label}
-                            </span>
-                          </div>
-                          <span className="font-mono text-[11px] text-ink/55">
-                            {note}
+                  <div className="flex flex-col gap-2">
+                    {[
+                      {
+                        value: false,
+                        label: "Paštomatas",
+                        note: "Nemokamas",
+                      },
+                      {
+                        value: true,
+                        label: "Pristatymas kurjeriu",
+                        note: `+€${HOME_DELIVERY_FEE}/mėn.`,
+                      },
+                    ].map(({ value, label, note }) => (
+                      <button
+                        key={String(value)}
+                        type="button"
+                        onClick={() => setUpgradeHomeDelivery(value)}
+                        className={[
+                          "flex items-center justify-between rounded-2xl border-2 px-4 py-3 text-left transition-all",
+                          upgradeHomeDelivery === value
+                            ? "border-ink bg-ink/[.03] shadow-[3px_3px_0_#001B21]"
+                            : "border-ink/15 hover:border-ink/40",
+                        ].join(" ")}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span
+                            className={[
+                              "flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+                              upgradeHomeDelivery === value
+                                ? "border-ink bg-ink"
+                                : "border-ink/30",
+                            ].join(" ")}
+                          >
+                            {upgradeHomeDelivery === value && (
+                              <span className="size-2 rounded-full bg-paper" />
+                            )}
                           </span>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="rounded-2xl border-2 border-ink/15 bg-ink/[.03] p-4">
-                      <div className="flex flex-col gap-0.5">
-                        <span className="font-semibold text-ink">
-                          Paštomatas
-                        </span>
+                          <span className="font-semibold text-ink">
+                            {label}
+                          </span>
+                        </div>
                         <span className="font-mono text-[11px] text-ink/55">
-                          Nemokamas pristatymas
+                          {note}
                         </span>
-                      </div>
-                    </div>
-                  )}
+                      </button>
+                    ))}
+                  </div>
                   {planChangeError && (
                     <p className="font-mono text-[11px] text-red-500">
                       {planChangeError}
