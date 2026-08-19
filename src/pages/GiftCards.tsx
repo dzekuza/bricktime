@@ -3,6 +3,7 @@ import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import { useSearchParams, useNavigate } from "react-router-dom"
 import { Seo } from "@/components/Seo"
+import { downloadGiftCardPdf } from "@/lib/gift-card-pdf"
 
 const DENOMINATIONS = [
   { amount: 20, cents: 2000, tagline: "Puiki pradžia" },
@@ -33,10 +34,17 @@ function CopyButton({ text }: { text: string }) {
 function SuccessBanner({
   code,
   recipientEmail,
+  buyerEmail,
+  amountCents,
 }: {
   code: string
   recipientEmail: string
+  buyerEmail: string
+  amountCents: number
 }) {
+  const expiresAt = new Date()
+  expiresAt.setFullYear(expiresAt.getFullYear() + 1)
+
   return (
     <div className="brick-card flex flex-col gap-5 bg-[#5DDB9C] p-6 md:p-9">
       <div>
@@ -59,10 +67,26 @@ function SuccessBanner({
           <CopyButton text={code} />
         </div>
       </div>
-      <p className="font-mono text-[12px] text-ink/50">
-        Galioja 1 metus nuo šiandienos. Kuponas taip pat išsiųstas gavėjui el.
-        paštu.
-      </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="font-mono text-[12px] text-ink/50">
+          Galioja 1 metus nuo šiandienos. Kuponas taip pat išsiųstas gavėjui el.
+          paštu.
+        </p>
+        <button
+          onClick={() =>
+            downloadGiftCardPdf({
+              code,
+              amountCents,
+              recipientEmail,
+              buyerEmail: buyerEmail || undefined,
+              expiresAt,
+            })
+          }
+          className="shrink-0 rounded-[22px] border-2 border-ink bg-ink px-5 py-3 font-mono text-[12px] font-bold tracking-[.08em] text-paper uppercase transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_#001B21]"
+        >
+          Atsisiųsti PDF ↓
+        </button>
+      </div>
     </div>
   )
 }
@@ -72,6 +96,8 @@ export default function GiftCards() {
   const paymentSuccess = searchParams.get("payment") === "success"
   const successCode = searchParams.get("code") ?? ""
   const recipientEmailFromUrl = searchParams.get("recipient") ?? ""
+  const buyerEmailFromUrl = searchParams.get("buyer") ?? ""
+  const successAmountCents = Number(searchParams.get("amount") ?? 0)
 
   const navigate = useNavigate()
   const [selected, setSelected] = useState<number | null>(null)
@@ -144,6 +170,8 @@ export default function GiftCards() {
             <SuccessBanner
               code={successCode}
               recipientEmail={recipientEmailFromUrl}
+              buyerEmail={buyerEmailFromUrl}
+              amountCents={successAmountCents}
             />
           ) : (
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-[auto_1fr] lg:items-start">
