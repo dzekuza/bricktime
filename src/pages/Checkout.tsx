@@ -275,7 +275,7 @@ export default function Checkout() {
           recipientEmail: gcRecipient,
           buyerEmail: gcBuyer,
           message: gcMessage || null,
-          successUrl: `${origin}/gift-cards?payment=success&code={CODE}&session={SESSION_ID}&recipient=${encodeURIComponent(gcRecipient)}`,
+          successUrl: `${origin}/gift-cards?payment=success&code={CODE}&session={SESSION_ID}&recipient=${encodeURIComponent(gcRecipient)}&buyer=${encodeURIComponent(gcBuyer)}&amount=${gcAmount}`,
           cancelUrl: `${origin}/gift-cards`,
         },
       }

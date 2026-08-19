@@ -12,6 +12,7 @@ const supabase = createClient(
 )
 
 const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET")!
+const omnisendApiKey = Deno.env.get("OMNISEND_API_KEY")
 
 const planKeys = new Set([
   "mystery_s",
@@ -58,6 +59,60 @@ function parseHomeDelivery(
 
 function parsePlanKey(value: string | null | undefined) {
   return value && planKeys.has(value) ? value : undefined
+}
+
+async function pushOmnisendEvent(
+  eventName: string,
+  email: string,
+  properties: Record<string, unknown>
+) {
+  if (!omnisendApiKey) {
+    console.error("OMNISEND_API_KEY is not configured; skipping event push")
+    return
+  }
+
+  const res = await fetch("https://api.omnisend.com/v5/events", {
+    method: "POST",
+    headers: {
+      "X-API-KEY": omnisendApiKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      eventName,
+      origin: "api",
+      contact: { email },
+      properties,
+    }),
+  })
+
+  if (!res.ok) {
+    console.error(
+      `Omnisend event push failed for "${eventName}": ${res.status} ${await res.text()}`
+    )
+  }
+}
+
+async function handleGiftCardCheckout(session: Stripe.Checkout.Session) {
+  const { data: giftCard } = await supabase
+    .from("gift_cards")
+    .select(
+      "code, amount_cents, recipient_email, buyer_email, message, expires_at, created_at"
+    )
+    .eq("stripe_session_id", session.id)
+    .maybeSingle()
+
+  if (!giftCard) return
+
+  await pushOmnisendEvent("gift card purchased", giftCard.recipient_email, {
+    code: giftCard.code,
+    amount: giftCard.amount_cents / 100,
+    buyerEmail: giftCard.buyer_email,
+    recipientEmail: giftCard.recipient_email,
+    message: giftCard.message ?? "",
+    expiresAt: giftCard.expires_at,
+    purchasedAt: giftCard.created_at,
+    redeemUrl: `https://www.bricktime.lt/gift-cards?code=${encodeURIComponent(giftCard.code)}`,
+  })
 }
 
 async function findSubscriber(args: {
@@ -169,6 +224,12 @@ Deno.serve(async (req) => {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session
+
+        if (session.mode === "payment" && session.metadata?.code) {
+          await handleGiftCardCheckout(session)
+          break
+        }
+
         if (session.mode !== "subscription") break
 
         const planKey = parsePlanKey(session.metadata?.planKey)
