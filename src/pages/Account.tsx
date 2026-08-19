@@ -986,16 +986,16 @@ export default function Account() {
           ) : rentedOrders.length === 0 ? (
             <div className="brick-card mt-6 flex flex-col items-center gap-3 bg-paper p-8 text-center md:p-12">
               <p className="font-display text-[18px] text-ink/40 uppercase">
-                Nėra aktyvių nuomų
+                Neturi aktyvaus rinkinio
               </p>
               <p className="font-mono text-[12px] text-ink/30">
-                Pasirink produktą iš katalogo ir pradėk nuomą.
+                Pasirink LEGO® rinkinį iš katalogo ir pradėk konstruoti.
               </p>
               <a
                 href="/archive"
                 className="mt-2 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[13px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
               >
-                Naršyti produktus →
+                Naršyti rinkinius →
               </a>
             </div>
           ) : (

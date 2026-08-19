@@ -93,7 +93,7 @@ export function dbToProduct(row: Record<string, unknown>): Product {
     badgeLabel = "Nauja"
   } else if (status === "sold_out") {
     badge = "sold-out"
-    badgeLabel = "Išnuomota"
+    badgeLabel = "Užimtas"
   } else if (status === "limited") {
     badge = "limited"
     badgeLabel = "Ribotas"
