@@ -31,6 +31,22 @@ const CANCELLATION_GRACE_DAYS = 14
 // ── tier config ──────────────────────────────────────────────────────────────
 const tiers = [
   {
+    key: "mystery_s",
+    name: getSubscriptionDisplayName("mystery_s"),
+    price: 19.99,
+    bg: "#FFD731",
+    textColor: "#001B21",
+    level: 0,
+  },
+  {
+    key: "mystery_m",
+    name: getSubscriptionDisplayName("mystery_m"),
+    price: 29.99,
+    bg: "#FFAEE7",
+    textColor: "#001B21",
+    level: 0,
+  },
+  {
     key: "nano",
     name: getSubscriptionDisplayName("nano"),
     price: 9,
@@ -199,7 +215,7 @@ export default function Checkout() {
   }, [user])
 
   const requiredTier = useMemo(
-    () => tierByName[product?.tier ?? tierParam] ?? tiers[2],
+    () => tierByName[product?.tier ?? tierParam] ?? tierByName.standard,
     [product?.tier, tierParam]
   )
   const { remainingCredits } = useCredits()
