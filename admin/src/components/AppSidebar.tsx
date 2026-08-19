@@ -14,6 +14,7 @@ import {
   GiftIcon,
   FileTextIcon,
   LineChartIcon,
+  TrophyIcon,
 } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 import {
@@ -41,6 +42,7 @@ const navMain = [
   { label: "Plans", to: "/plans", icon: CreditCardIcon },
   { label: "Orders", to: "/orders", icon: ShoppingCartIcon },
   { label: "Coupons", to: "/coupons", icon: TicketIcon },
+  { label: "Rewards", to: "/achievements", icon: TrophyIcon },
   { label: "Missing Parts", to: "/missing-parts", icon: WrenchIcon },
   { label: "Merch", to: "/merch", icon: ShirtIcon },
   { label: "Gift Cards", to: "/gift-cards", icon: GiftIcon },
