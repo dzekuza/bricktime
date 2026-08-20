@@ -571,8 +571,8 @@ export default function Drop() {
                   },
                   { label: "Amžius", val: product?.rating ?? "—" },
                   {
-                    label: "Briksių vertė",
-                    val: product?.value != null ? `${product.value} Kr.` : "—",
+                    label: "Kaina",
+                    val: product?.value != null ? `€${product.value}` : "—",
                   },
                   { label: "Kategorija", val: product?.category ?? "—" },
                   {

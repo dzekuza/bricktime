@@ -91,10 +91,12 @@ function AchievementsSection({
   unlockedIds,
   totalPoints,
   achievements,
+  userId,
 }: {
   unlockedIds: Set<string>
   totalPoints: number
   achievements: AchievementDef[]
+  userId: string
 }) {
   const [hoveredId, setHoveredId] = useState<string | null>(null)
 
@@ -122,6 +124,12 @@ function AchievementsSection({
                 className="mt-3 block text-center font-mono text-[11px] tracking-widest text-paper/40 uppercase transition-colors hover:text-paper/70"
               >
                 Žiūrėti lyderių lentelę →
+              </a>
+              <a
+                href={`/profile/${userId}`}
+                className="mt-2 block text-center font-mono text-[11px] tracking-widest text-paper/40 uppercase transition-colors hover:text-paper/70"
+              >
+                Peržiūrėti savo profilį →
               </a>
             </div>
           </div>
@@ -852,7 +860,10 @@ export default function Account() {
                       {
                         value: true,
                         label: "Pristatymas kurjeriu",
-                        note: `+€${HOME_DELIVERY_FEE}/mėn.`,
+                        note:
+                          tierOptions[selectedTier]?.key === "mega"
+                            ? "Nemokamas"
+                            : `+€${HOME_DELIVERY_FEE}/mėn.`,
                       },
                     ].map(({ value, label, note }) => (
                       <button
@@ -931,6 +942,7 @@ export default function Account() {
         unlockedIds={unlockedIds}
         totalPoints={totalPoints}
         achievements={achievements}
+        userId={user?.id ?? ""}
       />
 
       {/* ── Penalty banner ───────────────────────────────────────────── */}

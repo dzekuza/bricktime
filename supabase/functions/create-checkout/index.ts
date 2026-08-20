@@ -44,6 +44,9 @@ Deno.serve(async (req) => {
 
     if (planError || !plan) throw new Error(`Unknown plan: ${planKey}`)
 
+    // Legenda (mega) includes free courier delivery — never charge the add-on fee for it.
+    const chargeHomeDeliveryFee = homeDelivery && planKey !== "mega"
+
     const planPrice =
       billing === "annual" ? (plan.annual_price ?? plan.price) : plan.price
 
@@ -64,7 +67,7 @@ Deno.serve(async (req) => {
           },
           quantity: 1,
         },
-        ...(homeDelivery
+        ...(chargeHomeDeliveryFee
           ? [
               {
                 price_data: {

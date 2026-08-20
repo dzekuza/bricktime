@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       achievements: {
@@ -48,7 +23,9 @@ export type Database = {
           icon: string
           id: string
           label: string
+          metric: string | null
           points: number
+          threshold: number | null
         }
         Insert: {
           category: Database["public"]["Enums"]["achievement_category"]
@@ -58,7 +35,9 @@ export type Database = {
           icon: string
           id: string
           label: string
+          metric?: string | null
           points: number
+          threshold?: number | null
         }
         Update: {
           category?: Database["public"]["Enums"]["achievement_category"]
@@ -68,7 +47,9 @@ export type Database = {
           icon?: string
           id?: string
           label?: string
+          metric?: string | null
           points?: number
+          threshold?: number | null
         }
         Relationships: []
       }
@@ -161,8 +142,10 @@ export type Database = {
           drop_num: number | null
           id: string
           image_url: string | null
+          is_hidden: boolean
           like_count: number
           parent_id: string | null
+          status: string
           subscriber_id: string
           type: Database["public"]["Enums"]["feed_event_type"]
         }
@@ -173,8 +156,10 @@ export type Database = {
           drop_num?: number | null
           id?: string
           image_url?: string | null
+          is_hidden?: boolean
           like_count?: number
           parent_id?: string | null
+          status?: string
           subscriber_id: string
           type: Database["public"]["Enums"]["feed_event_type"]
         }
@@ -185,8 +170,10 @@ export type Database = {
           drop_num?: number | null
           id?: string
           image_url?: string | null
+          is_hidden?: boolean
           like_count?: number
           parent_id?: string | null
+          status?: string
           subscriber_id?: string
           type?: Database["public"]["Enums"]["feed_event_type"]
         }
@@ -953,6 +940,79 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          created_at: string
+          feed_item_id: string
+          id: string
+          reason: string | null
+          reporter_id: string
+          resolved_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          feed_item_id: string
+          id?: string
+          reason?: string | null
+          reporter_id: string
+          resolved_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          feed_item_id?: string
+          id?: string
+          reason?: string | null
+          reporter_id?: string
+          resolved_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_feed_item_id_fkey"
+            columns: ["feed_item_id"]
+            isOneToOne: false
+            referencedRelation: "community_feed"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_feed_item_id_fkey"
+            columns: ["feed_item_id"]
+            isOneToOne: false
+            referencedRelation: "feed_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "leaderboard"
+            referencedColumns: ["subscriber_id"]
+          },
+          {
+            foreignKeyName: "reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "subscribers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "user_profile_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriber_penalties: {
         Row: {
           amount: number
@@ -1124,10 +1184,12 @@ export type Database = {
           drop_num: number | null
           id: string | null
           image_url: string | null
+          is_hidden: boolean | null
           like_count: number | null
           likedByCurrentUser: boolean | null
           parent_id: string | null
           plan: Database["public"]["Enums"]["plan_tier"] | null
+          status: string | null
           subscriber_id: string | null
           type: Database["public"]["Enums"]["feed_event_type"] | null
           user_name: string | null
@@ -1270,6 +1332,10 @@ export type Database = {
       }
     }
     Functions: {
+      evaluate_achievements: {
+        Args: { p_subscriber_id: string }
+        Returns: undefined
+      }
       redeem_coupon: { Args: { p_code: string }; Returns: undefined }
       toggle_like: {
         Args: { p_feed_item_id: string; p_subscriber_id: string }
@@ -1428,9 +1494,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       achievement_category: ["activity", "social", "collector", "loyalty"],

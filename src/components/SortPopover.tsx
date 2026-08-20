@@ -10,10 +10,12 @@ export function SortPopover<T extends string>({
   value,
   options,
   onChange,
+  side = "bottom",
 }: {
   value: T
   options: readonly { value: T; label: string }[]
   onChange: (v: T) => void
+  side?: "top" | "bottom"
 }) {
   const [open, setOpen] = useState(false)
   const label = options.find((o) => o.value === value)?.label ?? value
@@ -30,6 +32,7 @@ export function SortPopover<T extends string>({
       </PopoverTrigger>
       <PopoverContent
         align="end"
+        side={side}
         className="w-56 rounded-2xl border-2 border-ink p-1 shadow-[4px_4px_0_#001B21]"
       >
         {options.map((opt) => (

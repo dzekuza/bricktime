@@ -38,6 +38,15 @@ import { DataTable, SortableHeader } from "@/components/DataTable"
 type Achievement = Tables<"achievements">
 type AchievementCategory = Enums<"achievement_category">
 
+type AchievementMetric =
+  | "none"
+  | "checkins"
+  | "checkin_streak"
+  | "comments_written"
+  | "photos_shared"
+  | "likes_received"
+  | "membership_days"
+
 type AchievementForm = {
   id: string
   label: string
@@ -46,6 +55,8 @@ type AchievementForm = {
   category: AchievementCategory
   icon: string
   color: string
+  metric: AchievementMetric
+  threshold: string
 }
 
 const CATEGORIES: AchievementCategory[] = [
@@ -53,6 +64,16 @@ const CATEGORIES: AchievementCategory[] = [
   "social",
   "collector",
   "loyalty",
+]
+
+const METRICS: { value: AchievementMetric; label: string }[] = [
+  { value: "none", label: "None (manual award only)" },
+  { value: "checkins", label: "Check-ins (total)" },
+  { value: "checkin_streak", label: "Check-in streak (consecutive days)" },
+  { value: "comments_written", label: "Comments written" },
+  { value: "photos_shared", label: "Photos shared (approved)" },
+  { value: "likes_received", label: "Likes received (across all photos)" },
+  { value: "membership_days", label: "Membership age (days)" },
 ]
 
 const emptyForm = (): AchievementForm => ({
@@ -63,6 +84,8 @@ const emptyForm = (): AchievementForm => ({
   category: "activity",
   icon: "",
   color: "#5C4ADE",
+  metric: "none",
+  threshold: "",
 })
 
 function achievementToForm(a: Achievement): AchievementForm {
@@ -74,6 +97,8 @@ function achievementToForm(a: Achievement): AchievementForm {
     category: a.category,
     icon: a.icon,
     color: a.color,
+    metric: (a.metric as AchievementMetric | null) ?? "none",
+    threshold: a.threshold ? String(a.threshold) : "",
   }
 }
 
@@ -131,6 +156,11 @@ export function Achievements() {
         category: form.category,
         icon: form.icon.trim(),
         color: form.color,
+        metric: form.metric === "none" ? null : form.metric,
+        threshold:
+          form.metric === "none" || !form.threshold
+            ? null
+            : parseInt(form.threshold),
       }
       if (editTarget) {
         await supabase
@@ -196,6 +226,18 @@ export function Achievements() {
           <SortableHeader column={column}>Points</SortableHeader>
         ),
         cell: ({ row }) => `+${row.original.points}`,
+      },
+      {
+        accessorKey: "metric",
+        header: "Unlock",
+        cell: ({ row }) =>
+          row.original.metric ? (
+            <span className="text-xs text-muted-foreground">
+              {row.original.metric} ≥ {row.original.threshold}
+            </span>
+          ) : (
+            <Badge variant="secondary">Manual</Badge>
+          ),
       },
       {
         accessorKey: "color",
@@ -352,6 +394,46 @@ export function Achievements() {
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
                 <Label>
+                  Auto-unlock metric{" "}
+                  <span className="text-xs text-muted-foreground">
+                    (evaluated from real activity)
+                  </span>
+                </Label>
+                <Select
+                  value={form.metric}
+                  onValueChange={(v) =>
+                    setForm((f) => ({ ...f, metric: v as AchievementMetric }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {METRICS.map((m) => (
+                      <SelectItem key={m.value} value={m.value}>
+                        {m.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label>Threshold</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={form.threshold}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, threshold: e.target.value }))
+                  }
+                  placeholder="10"
+                  disabled={form.metric === "none"}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1.5">
+                <Label>
                   Icon{" "}
                   <span className="text-xs text-muted-foreground">(emoji)</span>
                 </Label>
@@ -392,7 +474,11 @@ export function Achievements() {
             <Button
               onClick={handleSave}
               disabled={
-                saving || !form.id.trim() || !form.label.trim() || !form.points
+                saving ||
+                !form.id.trim() ||
+                !form.label.trim() ||
+                !form.points ||
+                (form.metric !== "none" && !form.threshold)
               }
             >
               {saving ? "Saving…" : "Save"}
