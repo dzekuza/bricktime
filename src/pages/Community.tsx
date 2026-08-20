@@ -6,7 +6,7 @@ import { useReveal } from "@/hooks/useReveal"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase"
 import { avatarSrc } from "@/lib/avatars"
-import { ImageIcon, Heart, MessageCircle, Trash2 } from "lucide-react"
+import { ImageIcon, Heart, MessageCircle, Trash2, Flag } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -40,6 +40,7 @@ interface LiveFeedItem {
   avatar_bg: string
   plan: string | null
   parent_id: string | null
+  status: "pending" | "approved" | "rejected"
   likedByCurrentUser?: boolean
   replies?: LiveFeedItem[]
 }
@@ -114,6 +115,10 @@ function FeedCard({
   onComment,
   isOwn,
   onDelete,
+  isLoggedIn,
+  onOpenAuth,
+  onReport,
+  reported,
   achievements,
 }: {
   item: LiveFeedItem
@@ -121,11 +126,16 @@ function FeedCard({
   onComment: (text: string) => Promise<void>
   isOwn: boolean
   onDelete: () => void
+  isLoggedIn: boolean
+  onOpenAuth: () => void
+  onReport: () => Promise<void>
+  reported: boolean
   achievements: AchievementDef[]
 }) {
   const [showComment, setShowComment] = useState(false)
   const [commentText, setCommentText] = useState("")
   const [submitting, setSubmitting] = useState(false)
+  const [reporting, setReporting] = useState(false)
 
   async function submitComment() {
     if (!commentText.trim()) return
@@ -136,6 +146,27 @@ function FeedCard({
       setShowComment(false)
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  function handleCommentClick() {
+    if (!isLoggedIn) {
+      onOpenAuth()
+      return
+    }
+    setShowComment((v) => !v)
+  }
+
+  async function handleReport() {
+    if (!isLoggedIn) {
+      onOpenAuth()
+      return
+    }
+    setReporting(true)
+    try {
+      await onReport()
+    } finally {
+      setReporting(false)
     }
   }
   const def = item.achievement_id
@@ -198,6 +229,11 @@ function FeedCard({
                   }}
                 >
                   {item.plan}
+                </span>
+              )}
+              {isOwn && item.status === "pending" && (
+                <span className="shrink-0 rounded-full border border-brand-orange/40 bg-brand-orange/10 px-2 py-0.5 font-mono text-[9px] font-bold tracking-[.1em] text-brand-orange uppercase">
+                  Laukia patvirtinimo
                 </span>
               )}
             </div>
@@ -273,17 +309,30 @@ function FeedCard({
               onToggle={onLike}
             />
             <button
-              onClick={() => setShowComment((v) => !v)}
+              onClick={handleCommentClick}
               className={`flex items-center gap-1.5 font-mono text-[13px] transition-all hover:scale-105 active:scale-95 ${showComment ? "text-ink" : "text-ink/40"}`}
             >
               <MessageCircle size={15} strokeWidth={2} />
             </button>
-            {isOwn && (
+            {isOwn ? (
               <button
                 onClick={onDelete}
                 className="flex items-center text-ink/25 transition-all hover:scale-105 hover:text-[#FB4903] active:scale-95"
               >
                 <Trash2 size={14} strokeWidth={2} />
+              </button>
+            ) : (
+              <button
+                onClick={handleReport}
+                disabled={reporting || reported}
+                title={reported ? "Pranešta" : "Pranešti"}
+                className={`flex items-center transition-all hover:scale-105 active:scale-95 disabled:hover:scale-100 ${reported ? "text-brand-orange" : "text-ink/25 hover:text-[#FB4903]"}`}
+              >
+                <Flag
+                  size={14}
+                  strokeWidth={2}
+                  fill={reported ? "#FB4903" : "none"}
+                />
               </button>
             )}
           </div>
@@ -448,6 +497,9 @@ function ComposeBox({ avatarId, avatarBg, onPost }: ComposeBoxProps) {
           >
             ×
           </button>
+          <p className="absolute bottom-2 left-2 rounded-full border border-ink/20 bg-paper/90 px-2 py-0.5 font-mono text-[9px] text-ink/50">
+            Nuotrauka bus peržiūrėta prieš paskelbimą
+          </p>
         </div>
       )}
 
@@ -561,6 +613,7 @@ function FeedPanel({ onOpenAuth }: { onOpenAuth: () => void }) {
   const { achievements } = useAchievements()
   const [items, setItems] = useState<LiveFeedItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [reportedIds, setReportedIds] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     fetchFeed()
@@ -682,6 +735,17 @@ function FeedPanel({ onOpenAuth }: { onOpenAuth: () => void }) {
     await fetchFeed()
   }
 
+  async function reportItem(item: LiveFeedItem) {
+    if (!user) return
+    const { error } = await supabase
+      .from("reports")
+      .insert({ feed_item_id: item.id, reporter_id: user.id })
+    // Unique (feed_item_id, reporter_id) violation just means "already reported" — treat as success.
+    if (!error || error.code === "23505") {
+      setReportedIds((prev) => new Set(prev).add(item.id))
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex flex-col gap-4">
@@ -726,6 +790,10 @@ function FeedPanel({ onOpenAuth }: { onOpenAuth: () => void }) {
           onComment={(text) => addComment(text, item.id)}
           isOwn={!!user && item.subscriber_id === user.id}
           onDelete={() => deletePost(item)}
+          isLoggedIn={!!user}
+          onOpenAuth={onOpenAuth}
+          onReport={() => reportItem(item)}
+          reported={reportedIds.has(item.id)}
           achievements={achievements}
         />
       ))}

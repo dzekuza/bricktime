@@ -15,6 +15,7 @@ import {
   FileTextIcon,
   LineChartIcon,
   TrophyIcon,
+  MessageSquareIcon,
 } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 import {
@@ -43,6 +44,7 @@ const navMain = [
   { label: "Orders", to: "/orders", icon: ShoppingCartIcon },
   { label: "Coupons", to: "/coupons", icon: TicketIcon },
   { label: "Rewards", to: "/achievements", icon: TrophyIcon },
+  { label: "Community", to: "/community", icon: MessageSquareIcon },
   { label: "Missing Parts", to: "/missing-parts", icon: WrenchIcon },
   { label: "Merch", to: "/merch", icon: ShirtIcon },
   { label: "Gift Cards", to: "/gift-cards", icon: GiftIcon },
