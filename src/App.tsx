@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from "react-router-dom"
 import Home from "@/pages/Home"
 import Archive from "@/pages/Archive"
 import Account from "@/pages/Account"
+import ResetPassword from "@/pages/ResetPassword"
 import Subscribe from "@/pages/Subscribe"
 import Checkout from "@/pages/Checkout"
 import Community from "@/pages/Community"
@@ -53,6 +54,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/archive" element={<Archive />} />
         <Route path="/account" element={<Account />} />
+        <Route path="/nustatyti-slaptazodi" element={<ResetPassword />} />
         <Route path="/community" element={<Community />} />
         <Route path="/subscribe" element={<Subscribe />} />
         <Route path="/checkout" element={<Checkout />} />
