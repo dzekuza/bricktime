@@ -679,8 +679,8 @@ export default function Checkout() {
                       ["Metai", product?.year ?? "—"],
                       ["Amžius", product?.rating ?? "—"],
                       [
-                        "Briksių vertė",
-                        product?.value != null ? `${product?.value} Kr.` : "—",
+                        "Kaina",
+                        product?.value != null ? `€${product?.value}` : "—",
                       ],
                       ["Kategorija", product?.category ?? "—"],
                       ["Prenumerata", requiredTier.name + "+"],

@@ -1,13 +1,25 @@
 import { useState, useEffect } from "react"
 import { Link, useLocation } from "react-router-dom"
 import Breadcrumb from "@/components/Breadcrumb"
-import { MenuIcon, XIcon, ArrowRightIcon, UserIcon } from "lucide-react"
+import {
+  MenuIcon,
+  XIcon,
+  ArrowRightIcon,
+  UserIcon,
+  InfoIcon,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { useAuth } from "@/hooks/useAuth"
 import { avatarSrc } from "@/lib/avatars"
 import { AuthForm } from "@/components/AuthForm"
@@ -110,13 +122,40 @@ function PlanChip({ plan }: { plan: string }) {
 
 function CreditsPill() {
   const { remainingCredits, loading } = useCredits()
+  const [showInfo, setShowInfo] = useState(false)
 
   return (
-    <div className="mr-2 hidden items-center rounded-full border-2 border-ink bg-paper px-3.5 py-[7px] md:flex">
-      <span className="font-mono text-[11px] font-bold tracking-[.12em] text-ink uppercase">
-        {loading ? "…" : `${remainingCredits} Kr.`}
-      </span>
-    </div>
+    <>
+      <div className="mr-2 hidden items-center gap-1.5 rounded-full border-2 border-ink bg-paper px-3.5 py-[7px] md:flex">
+        <span className="font-mono text-[11px] font-bold tracking-[.12em] text-ink uppercase">
+          {loading ? "…" : `${remainingCredits} Kr.`}
+        </span>
+        <button
+          type="button"
+          onClick={() => setShowInfo(true)}
+          aria-label="Kas yra Briksiai?"
+          className="flex items-center text-ink/40 transition-colors hover:text-ink"
+        >
+          <InfoIcon size={13} strokeWidth={2.5} />
+        </button>
+      </div>
+
+      <Dialog open={showInfo} onOpenChange={setShowInfo}>
+        <DialogContent className="max-w-sm rounded-2xl border-2 border-ink bg-paper shadow-[6px_6px_0_#001B21]">
+          <DialogHeader>
+            <DialogTitle className="heading-display text-d-xs text-ink">
+              Kas yra Briksiai?
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-[14px] leading-relaxed text-ink/70">
+            Briksiai – tai Brick Time taškų valiuta. Juos gaunate su savo
+            prenumerata, o jų kiekis priklauso nuo pasirinkto plano. Kiekvienas
+            LEGO® rinkinys turi savo Briksių vertę, todėl pagal sukauptus
+            Briksius lengvai matysite, kuriuos rinkinius galite pasirinkti.
+          </p>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 

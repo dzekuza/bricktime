@@ -267,9 +267,9 @@ export function ProductCard({ product }: { product: Product }) {
             </p>
           </div>
           <div>
-            <p className="label-mono text-[9px] text-ink/40">Briksių vertė</p>
+            <p className="label-mono text-[9px] text-ink/40">Kaina</p>
             <p className="font-mono text-[12px] font-bold text-ink">
-              {product.price != null ? `${product.price} Kr.` : "—"}
+              {product.price != null ? `€${product.price}` : "—"}
             </p>
           </div>
           <div>
