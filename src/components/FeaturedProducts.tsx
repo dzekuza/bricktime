@@ -159,6 +159,7 @@ export default function FeaturedProducts() {
             value={sortBy}
             options={SORT_OPTIONS}
             onChange={setSortBy}
+            side="top"
           />
         </div>
 
