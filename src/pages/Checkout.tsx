@@ -42,7 +42,7 @@ const tiers = [
     key: "mystery_m",
     name: getSubscriptionDisplayName("mystery_m"),
     price: 29.99,
-    bg: "#FFAEE7",
+    bg: "#FF8B6B",
     textColor: "#001B21",
     level: 0,
   },
