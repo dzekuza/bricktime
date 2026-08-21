@@ -78,6 +78,105 @@ export type Database = {
         }
         Relationships: []
       }
+      challenge_completions: {
+        Row: {
+          challenge_id: string
+          completed_at: string
+          id: string
+          reward_granted: boolean
+          subscriber_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed_at?: string
+          id?: string
+          reward_granted?: boolean
+          subscriber_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed_at?: string
+          id?: string
+          reward_granted?: boolean
+          subscriber_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_completions_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenge_completions_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "leaderboard"
+            referencedColumns: ["subscriber_id"]
+          },
+          {
+            foreignKeyName: "challenge_completions_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenge_completions_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "subscribers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenge_completions_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "user_profile_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenges: {
+        Row: {
+          created_at: string
+          description: string | null
+          ends_at: string
+          id: string
+          is_active: boolean
+          metric: string
+          reward_label: string | null
+          starts_at: string
+          target_value: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          ends_at: string
+          id?: string
+          is_active?: boolean
+          metric: string
+          reward_label?: string | null
+          starts_at: string
+          target_value: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          ends_at?: string
+          id?: string
+          is_active?: boolean
+          metric?: string
+          reward_label?: string | null
+          starts_at?: string
+          target_value?: number
+          title?: string
+        }
+        Relationships: []
+      }
       coming_soon_subscribers: {
         Row: {
           created_at: string
@@ -158,6 +257,39 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      feed_item_anon_likes: {
+        Row: {
+          created_at: string
+          feed_item_id: string
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          feed_item_id: string
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          feed_item_id?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feed_item_anon_likes_feed_item_id_fkey"
+            columns: ["feed_item_id"]
+            isOneToOne: false
+            referencedRelation: "community_feed"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_item_anon_likes_feed_item_id_fkey"
+            columns: ["feed_item_id"]
+            isOneToOne: false
+            referencedRelation: "feed_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       feed_items: {
         Row: {
@@ -1367,6 +1499,10 @@ export type Database = {
       redeem_coupon: { Args: { p_code: string }; Returns: undefined }
       toggle_like: {
         Args: { p_feed_item_id: string; p_subscriber_id: string }
+        Returns: undefined
+      }
+      toggle_like_anon: {
+        Args: { p_feed_item_id: string; p_session_id: string }
         Returns: undefined
       }
     }
