@@ -287,7 +287,7 @@ export default function Hero() {
 
       {/* Video below bricks scope */}
       <div className="mx-auto max-w-[1320px] px-4 pb-16 md:px-7">
-        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[28px] border-2 border-ink shadow-[6px_6px_0_#001B21] md:aspect-[16/7] md:rounded-3xl">
+        <div className="relative aspect-video w-full overflow-hidden rounded-[28px] border-2 border-ink shadow-[6px_6px_0_#001B21] md:rounded-3xl">
           <img
             src={posterUrl}
             alt="BRICKTIME hero"

@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       achievements: {
@@ -366,6 +391,7 @@ export type Database = {
           how_it_works_heading_line2: string
           how_it_works_subtitle: string
           id: number
+          promo_video_url: string | null
           testimonials_heading: string
           testimonials_heading_highlight: string
           testimonials_heading_line2: string
@@ -394,6 +420,7 @@ export type Database = {
           how_it_works_heading_line2?: string
           how_it_works_subtitle?: string
           id?: number
+          promo_video_url?: string | null
           testimonials_heading?: string
           testimonials_heading_highlight?: string
           testimonials_heading_line2?: string
@@ -422,6 +449,7 @@ export type Database = {
           how_it_works_heading_line2?: string
           how_it_works_subtitle?: string
           id?: number
+          promo_video_url?: string | null
           testimonials_heading?: string
           testimonials_heading_highlight?: string
           testimonials_heading_line2?: string
@@ -1494,6 +1522,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       achievement_category: ["activity", "social", "collector", "loyalty"],
@@ -1528,5 +1559,3 @@ export const Constants = {
     },
   },
 } as const
-
-export type PlanTier = Database["public"]["Enums"]["plan_tier"]

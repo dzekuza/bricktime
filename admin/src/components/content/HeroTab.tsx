@@ -39,6 +39,7 @@ interface MediaDropzoneProps {
   accept: string
   acceptPrefix: string
   placeholder: string
+  aspectClassName?: string
   onUpload: (file: File) => Promise<void>
   onRemove: () => void
   renderPreview: (url: string) => ReactNode
@@ -49,6 +50,7 @@ function MediaDropzone({
   accept,
   acceptPrefix,
   placeholder,
+  aspectClassName = "aspect-[16/7]",
   onUpload,
   onRemove,
   renderPreview,
@@ -69,7 +71,12 @@ function MediaDropzone({
   return (
     <div className="flex flex-col gap-2">
       {value ? (
-        <div className="group relative aspect-[16/7] overflow-hidden rounded-xl border bg-muted">
+        <div
+          className={cn(
+            "group relative overflow-hidden rounded-xl border bg-muted",
+            aspectClassName
+          )}
+        >
           {renderPreview(value)}
           <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
             <Button
@@ -89,7 +96,8 @@ function MediaDropzone({
       ) : (
         <div
           className={cn(
-            "flex aspect-[16/7] cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed transition-colors",
+            "flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed transition-colors",
+            aspectClassName,
             dragging
               ? "border-primary bg-primary/5"
               : "border-muted-foreground/25 hover:border-muted-foreground/50 hover:bg-muted/50"
@@ -163,7 +171,9 @@ export function HeroTab({ content, onChange }: HeroTabProps) {
         <CardTitle>Hero</CardTitle>
         <CardDescription>
           The headline, subtext, video and poster image shown at the top of the
-          landing page. The video is also reused on the Subscribe page hero.
+          landing page. The hero video is also reused on the Subscribe page
+          hero. The promo video plays in the floating widget shown in the
+          bottom-right corner of the site.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
@@ -214,6 +224,31 @@ export function HeroTab({ content, onChange }: HeroTabProps) {
               set("hero_video_url", await uploadToStorage(file))
             }
             onRemove={() => set("hero_video_url", null)}
+            renderPreview={(url) => (
+              <video
+                src={url}
+                className="h-full w-full object-cover"
+                muted
+                loop
+                autoPlay
+                playsInline
+              />
+            )}
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label>Floating promo video</Label>
+          <MediaDropzone
+            value={content.promo_video_url}
+            accept="video/*"
+            acceptPrefix="video/"
+            placeholder="Drop a video here or click to upload"
+            aspectClassName="aspect-[9/16] max-w-[220px]"
+            onUpload={async (file) =>
+              set("promo_video_url", await uploadToStorage(file))
+            }
+            onRemove={() => set("promo_video_url", null)}
             renderPreview={(url) => (
               <video
                 src={url}
