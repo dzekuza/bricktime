@@ -400,6 +400,14 @@ export function Community() {
                         Post by {r.authorName} ·{" "}
                         {new Date(r.created_at).toLocaleString("lt-LT")}
                       </p>
+                      {r.reason && (
+                        <p className="text-sm">
+                          <span className="text-muted-foreground">
+                            Reason:{" "}
+                          </span>
+                          {r.reason}
+                        </p>
+                      )}
                       {r.feedItem?.body && (
                         <blockquote className="border-l-2 pl-3 text-sm text-muted-foreground italic">
                           {r.feedItem.body}

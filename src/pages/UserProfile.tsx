@@ -8,6 +8,7 @@ import { getRelativeTime, drops } from "@/data/community"
 import { useAchievements } from "@/hooks/useAchievements"
 import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
 import { Seo } from "@/components/Seo"
+import { StatusBadge } from "@/components/community/StatusBadge"
 
 const tierColors: Record<string, string> = {
   mega: "#FB4903",
@@ -43,6 +44,7 @@ interface FeedPost {
   drop_num: number | null
   like_count: number
   created_at: string
+  status: "pending" | "approved" | "rejected"
 }
 
 export default function UserProfile() {
@@ -59,7 +61,9 @@ export default function UserProfile() {
       supabase.from("user_profile_view").select("*").eq("id", userId).single(),
       supabase
         .from("feed_items")
-        .select("id, type, body, image_url, drop_num, like_count, created_at")
+        .select(
+          "id, type, body, image_url, drop_num, like_count, created_at, status"
+        )
         .eq("subscriber_id", userId)
         .is("parent_id", null)
         .order("created_at", { ascending: false })
@@ -253,6 +257,11 @@ export default function UserProfile() {
                             </div>
                           )}
                           <div className="p-4">
+                            {post.status !== "approved" && (
+                              <div className="mb-2">
+                                <StatusBadge status={post.status} />
+                              </div>
+                            )}
                             {post.body && (
                               <p className="mb-2 text-[14px] text-ink/80">
                                 {post.body}

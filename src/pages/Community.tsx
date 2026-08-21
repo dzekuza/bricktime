@@ -6,6 +6,11 @@ import { useReveal } from "@/hooks/useReveal"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase"
 import { avatarSrc } from "@/lib/avatars"
+import {
+  getAnonSessionId,
+  getAnonLikedIds,
+  toggleAnonLikedId,
+} from "@/lib/anonSession"
 import { ImageIcon, Heart, MessageCircle, Trash2, Flag } from "lucide-react"
 import {
   Dialog,
@@ -15,6 +20,7 @@ import {
 } from "@/components/ui/dialog"
 import { AuthForm } from "@/components/AuthForm"
 import { Seo } from "@/components/Seo"
+import { StatusBadge } from "@/components/community/StatusBadge"
 import {
   drops,
   getRelativeTime,
@@ -60,6 +66,13 @@ const tierColors: Record<string, string> = {
   Mini: "#FFAEE7",
   Nano: "#F5F1EB",
 }
+
+const REPORT_REASONS = [
+  "Netinkamas turinys",
+  "Šlamštas",
+  "Įžeidžiantis elgesys",
+  "Kita",
+]
 
 function eventLabel(
   type: FeedEventType,
@@ -111,6 +124,7 @@ function LikeButton({
 
 function FeedCard({
   item,
+  liked,
   onLike,
   onComment,
   isOwn,
@@ -122,13 +136,14 @@ function FeedCard({
   achievements,
 }: {
   item: LiveFeedItem
+  liked: boolean
   onLike: () => void
   onComment: (text: string) => Promise<void>
   isOwn: boolean
   onDelete: () => void
   isLoggedIn: boolean
   onOpenAuth: () => void
-  onReport: () => Promise<void>
+  onReport: (reason: string) => Promise<void>
   reported: boolean
   achievements: AchievementDef[]
 }) {
@@ -136,6 +151,8 @@ function FeedCard({
   const [commentText, setCommentText] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [reporting, setReporting] = useState(false)
+  const [showReportDialog, setShowReportDialog] = useState(false)
+  const [reportReason, setReportReason] = useState(REPORT_REASONS[0])
 
   async function submitComment() {
     if (!commentText.trim()) return
@@ -157,14 +174,19 @@ function FeedCard({
     setShowComment((v) => !v)
   }
 
-  async function handleReport() {
+  function handleReportClick() {
     if (!isLoggedIn) {
       onOpenAuth()
       return
     }
+    setShowReportDialog(true)
+  }
+
+  async function submitReport() {
     setReporting(true)
     try {
-      await onReport()
+      await onReport(reportReason)
+      setShowReportDialog(false)
     } finally {
       setReporting(false)
     }
@@ -231,11 +253,7 @@ function FeedCard({
                   {item.plan}
                 </span>
               )}
-              {isOwn && item.status === "pending" && (
-                <span className="shrink-0 rounded-full border border-brand-orange/40 bg-brand-orange/10 px-2 py-0.5 font-mono text-[9px] font-bold tracking-[.1em] text-brand-orange uppercase">
-                  Laukia patvirtinimo
-                </span>
-              )}
+              {isOwn && <StatusBadge status={item.status} />}
             </div>
             <p className="mt-0.5 font-mono text-[11px] text-ink/40">
               {getRelativeTime(item.created_at)}
@@ -304,7 +322,7 @@ function FeedCard({
         <div className="mt-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <LikeButton
-              liked={!!item.likedByCurrentUser}
+              liked={liked}
               count={item.like_count}
               onToggle={onLike}
             />
@@ -323,8 +341,8 @@ function FeedCard({
               </button>
             ) : (
               <button
-                onClick={handleReport}
-                disabled={reporting || reported}
+                onClick={handleReportClick}
+                disabled={reported}
                 title={reported ? "Pranešta" : "Pranešti"}
                 className={`flex items-center transition-all hover:scale-105 active:scale-95 disabled:hover:scale-100 ${reported ? "text-brand-orange" : "text-ink/25 hover:text-[#FB4903]"}`}
               >
@@ -396,6 +414,35 @@ function FeedCard({
           </div>
         )}
       </div>
+
+      <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
+        <DialogContent className="max-w-sm rounded-2xl border-2 border-ink bg-paper shadow-[6px_6px_0_#001B21]">
+          <DialogHeader>
+            <DialogTitle className="heading-display text-d-xs text-ink">
+              Pranešti apie įrašą
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-2">
+            {REPORT_REASONS.map((reason) => (
+              <button
+                key={reason}
+                type="button"
+                onClick={() => setReportReason(reason)}
+                className={`rounded-xl border px-3 py-2 text-left font-mono text-[13px] transition-colors ${reportReason === reason ? "border-ink bg-ink text-paper" : "border-ink/20 text-ink/70 hover:border-ink/40"}`}
+              >
+                {reason}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={submitReport}
+            disabled={reporting}
+            className="brick-hover-sm mt-2 rounded-xl border-2 border-ink bg-ink px-4 py-2 font-mono text-[12px] font-bold text-paper transition-all disabled:opacity-30"
+          >
+            {reporting ? "…" : "Pranešti"}
+          </button>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
@@ -614,6 +661,42 @@ function FeedPanel({ onOpenAuth }: { onOpenAuth: () => void }) {
   const [items, setItems] = useState<LiveFeedItem[]>([])
   const [loading, setLoading] = useState(true)
   const [reportedIds, setReportedIds] = useState<Set<string>>(new Set())
+  const [anonLikedIds, setAnonLikedIds] = useState<Set<string>>(new Set())
+  const [checkedInToday, setCheckedInToday] = useState(false)
+  const [checkingIn, setCheckingIn] = useState(false)
+
+  useEffect(() => {
+    if (!user) setAnonLikedIds(getAnonLikedIds())
+  }, [user])
+
+  useEffect(() => {
+    if (!user) return
+    const todayStart = new Date()
+    todayStart.setUTCHours(0, 0, 0, 0)
+    supabase
+      .from("feed_items")
+      .select("id", { count: "exact", head: true })
+      .eq("subscriber_id", user.id)
+      .eq("type", "checkin")
+      .gte("created_at", todayStart.toISOString())
+      .then(({ count }) => setCheckedInToday((count ?? 0) > 0))
+  }, [user])
+
+  async function checkin() {
+    if (!user || checkingIn || checkedInToday) return
+    setCheckingIn(true)
+    try {
+      const { error } = await supabase
+        .from("feed_items")
+        .insert({ subscriber_id: user.id, type: "checkin" })
+      if (!error) {
+        setCheckedInToday(true)
+        await fetchFeed()
+      }
+    } finally {
+      setCheckingIn(false)
+    }
+  }
 
   useEffect(() => {
     fetchFeed()
@@ -666,7 +749,9 @@ function FeedPanel({ onOpenAuth }: { onOpenAuth: () => void }) {
   }
 
   async function toggleLike(item: LiveFeedItem) {
-    if (!user) return
+    const wasLiked = user
+      ? !!item.likedByCurrentUser
+      : anonLikedIds.has(item.id)
 
     // Optimistic update first, then atomic RPC (no race condition on like_count)
     setItems((prev) =>
@@ -674,17 +759,25 @@ function FeedPanel({ onOpenAuth }: { onOpenAuth: () => void }) {
         i.id === item.id
           ? {
               ...i,
-              likedByCurrentUser: !i.likedByCurrentUser,
-              like_count: i.like_count + (i.likedByCurrentUser ? -1 : 1),
+              likedByCurrentUser: user ? !wasLiked : i.likedByCurrentUser,
+              like_count: i.like_count + (wasLiked ? -1 : 1),
             }
           : i
       )
     )
 
-    await supabase.rpc("toggle_like", {
-      p_feed_item_id: item.id,
-      p_subscriber_id: user.id,
-    })
+    if (user) {
+      await supabase.rpc("toggle_like", {
+        p_feed_item_id: item.id,
+        p_subscriber_id: user.id,
+      })
+    } else {
+      setAnonLikedIds(toggleAnonLikedId(item.id))
+      await supabase.rpc("toggle_like_anon", {
+        p_feed_item_id: item.id,
+        p_session_id: getAnonSessionId(),
+      })
+    }
   }
 
   async function addPost(text: string, imageFile?: File, dropNum?: number) {
@@ -735,11 +828,11 @@ function FeedPanel({ onOpenAuth }: { onOpenAuth: () => void }) {
     await fetchFeed()
   }
 
-  async function reportItem(item: LiveFeedItem) {
+  async function reportItem(item: LiveFeedItem, reason: string) {
     if (!user) return
     const { error } = await supabase
       .from("reports")
-      .insert({ feed_item_id: item.id, reporter_id: user.id })
+      .insert({ feed_item_id: item.id, reporter_id: user.id, reason })
     // Unique (feed_item_id, reporter_id) violation just means "already reported" — treat as success.
     if (!error || error.code === "23505") {
       setReportedIds((prev) => new Set(prev).add(item.id))
@@ -766,6 +859,19 @@ function FeedPanel({ onOpenAuth }: { onOpenAuth: () => void }) {
 
   return (
     <div className="flex flex-col gap-4">
+      {user && (
+        <button
+          onClick={checkin}
+          disabled={checkingIn || checkedInToday}
+          className={`brick-card p-3 text-center font-mono text-[13px] font-bold transition-all disabled:cursor-not-allowed ${checkedInToday ? "bg-brand-mint/10 text-brand-mint" : "brick-hover-sm text-ink"}`}
+        >
+          {checkedInToday
+            ? "☀️ Apsilankymas šiandien pažymėtas"
+            : checkingIn
+              ? "…"
+              : "☀️ Pažymėti šiandienos apsilankymą"}
+        </button>
+      )}
       {user && profile ? (
         <ComposeBox
           avatarId={profile.avatarId}
@@ -786,13 +892,14 @@ function FeedPanel({ onOpenAuth }: { onOpenAuth: () => void }) {
         <FeedCard
           key={item.id}
           item={item}
+          liked={user ? !!item.likedByCurrentUser : anonLikedIds.has(item.id)}
           onLike={() => toggleLike(item)}
           onComment={(text) => addComment(text, item.id)}
           isOwn={!!user && item.subscriber_id === user.id}
           onDelete={() => deletePost(item)}
           isLoggedIn={!!user}
           onOpenAuth={onOpenAuth}
-          onReport={() => reportItem(item)}
+          onReport={(reason) => reportItem(item, reason)}
           reported={reportedIds.has(item.id)}
           achievements={achievements}
         />
@@ -802,6 +909,153 @@ function FeedPanel({ onOpenAuth }: { onOpenAuth: () => void }) {
           Kol kas tuščia. Būk pirmas!
         </p>
       )}
+    </div>
+  )
+}
+
+// ── ChallengesPanel ───────────────────────────────────────────────────────────
+
+interface LiveChallenge {
+  id: string
+  title: string
+  description: string | null
+  metric: string
+  target_value: number
+  reward_label: string | null
+  starts_at: string
+  ends_at: string
+}
+
+async function computeOwnProgress(
+  challenge: LiveChallenge,
+  userId: string
+): Promise<number> {
+  if (challenge.metric === "likes_received") {
+    const { data: ownItems } = await supabase
+      .from("feed_items")
+      .select("id")
+      .eq("subscriber_id", userId)
+    const ids = (ownItems ?? []).map((i) => i.id)
+    if (ids.length === 0) return 0
+    const { count } = await supabase
+      .from("feed_likes")
+      .select("*", { count: "exact", head: true })
+      .in("feed_item_id", ids)
+      .gte("created_at", challenge.starts_at)
+      .lte("created_at", challenge.ends_at)
+    return count ?? 0
+  }
+
+  const typeForMetric: Record<string, string> = {
+    checkins: "checkin",
+    checkin_streak: "checkin",
+    comments_written: "comment",
+    photos_shared: "build_photo",
+  }
+  const type = typeForMetric[challenge.metric]
+  if (!type) return 0
+
+  let query = supabase
+    .from("feed_items")
+    .select("*", { count: "exact", head: true })
+    .eq("subscriber_id", userId)
+    .eq("type", type)
+    .gte("created_at", challenge.starts_at)
+    .lte("created_at", challenge.ends_at)
+  if (challenge.metric === "photos_shared") {
+    query = query.eq("status", "approved")
+  }
+  const { count } = await query
+  return count ?? 0
+}
+
+function ChallengesPanel() {
+  const { user } = useAuth()
+  const [challenges, setChallenges] = useState<LiveChallenge[]>([])
+  const [progress, setProgress] = useState<Record<string, number>>({})
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set())
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function load() {
+      const { data } = await supabase
+        .from("challenges")
+        .select(
+          "id, title, description, metric, target_value, reward_label, starts_at, ends_at"
+        )
+        .eq("is_active", true)
+        .gte("ends_at", new Date().toISOString())
+        .order("ends_at", { ascending: true })
+
+      const list = (data ?? []) as LiveChallenge[]
+      setChallenges(list)
+
+      if (user) {
+        const [{ data: completions }, progressEntries] = await Promise.all([
+          supabase
+            .from("challenge_completions")
+            .select("challenge_id")
+            .eq("subscriber_id", user.id),
+          Promise.all(
+            list.map(
+              async (c) => [c.id, await computeOwnProgress(c, user.id)] as const
+            )
+          ),
+        ])
+        setCompletedIds(new Set((completions ?? []).map((c) => c.challenge_id)))
+        setProgress(Object.fromEntries(progressEntries))
+      }
+      setLoading(false)
+    }
+    load()
+  }, [user])
+
+  if (loading || challenges.length === 0) return null
+
+  return (
+    <div className="mb-8">
+      <h3 className="label-mono mb-6 text-ink/50">Iššūkiai</h3>
+      <div className="flex flex-col gap-3">
+        {challenges.map((c) => {
+          const own = progress[c.id] ?? 0
+          const done = completedIds.has(c.id)
+          return (
+            <div key={c.id} className="brick-card p-4">
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-[14px] font-bold text-ink">{c.title}</p>
+                {done && (
+                  <span className="shrink-0 rounded-full border border-brand-mint/40 bg-brand-mint/10 px-2 py-0.5 font-mono text-[9px] font-bold tracking-[.1em] text-brand-mint uppercase">
+                    Įskaityta! 🎉
+                  </span>
+                )}
+              </div>
+              {c.description && (
+                <p className="mt-1 text-[12px] text-ink/60">{c.description}</p>
+              )}
+              {user ? (
+                <div className="mt-3">
+                  <div className="h-2 overflow-hidden rounded-full border border-ink/20 bg-ink/5">
+                    <div
+                      className="h-full bg-brand-indigo"
+                      style={{
+                        width: `${Math.min(100, (own / c.target_value) * 100)}%`,
+                      }}
+                    />
+                  </div>
+                  <p className="mt-1 font-mono text-[10px] text-ink/40">
+                    {own} / {c.target_value}
+                    {c.reward_label ? ` · ${c.reward_label}` : ""}
+                  </p>
+                </div>
+              ) : (
+                <p className="mt-2 font-mono text-[10px] text-ink/40">
+                  Prisijunk, kad matytum savo progresą
+                </p>
+              )}
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -822,6 +1076,10 @@ function LeaderboardPanel() {
     }>
   >([])
   const [loading, setLoading] = useState(true)
+  const [myStats, setMyStats] = useState<{
+    rank: number | null
+    total_points: number
+  } | null>(null)
 
   useEffect(() => {
     supabase
@@ -834,6 +1092,24 @@ function LeaderboardPanel() {
         setLoading(false)
       })
   }, [])
+
+  useEffect(() => {
+    if (!user) {
+      setMyStats(null)
+      return
+    }
+    // The top-20 `rows` fetch above may not include the current member if
+    // they're ranked lower — look their own row up directly so "your points"
+    // is accurate regardless of rank.
+    supabase
+      .from("leaderboard")
+      .select("rank, total_points")
+      .eq("subscriber_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setMyStats(data ?? { rank: null, total_points: 0 })
+      })
+  }, [user])
 
   if (loading) {
     return (
@@ -848,6 +1124,37 @@ function LeaderboardPanel() {
 
   return (
     <div className="pr-2 pb-2">
+      {user && myStats && (
+        <div className="brick-card mb-4 bg-ink p-4 text-paper">
+          <p className="font-display text-[40px] leading-none text-paper">
+            {myStats.total_points}
+          </p>
+          <p className="mt-1 font-mono text-[10px] tracking-widest text-paper/40 uppercase">
+            Tavo taškai
+          </p>
+          <div className="mt-3 flex items-center justify-between rounded-xl border border-paper/15 px-3 py-2">
+            <span className="font-mono text-[10px] tracking-widest text-paper/40 uppercase">
+              Vieta
+            </span>
+            <span className="text-[16px] font-bold text-paper">
+              {myStats.rank ? `#${myStats.rank}` : "–"}
+            </span>
+          </div>
+          <Link
+            to="/account"
+            className="mt-3 block text-center font-mono text-[10px] tracking-widest text-paper/40 uppercase transition-colors hover:text-paper/70"
+          >
+            Kaip gauti taškų? →
+          </Link>
+          <Link
+            to={`/profile/${user.id}`}
+            className="mt-2 block text-center font-mono text-[10px] tracking-widest text-paper/40 uppercase transition-colors hover:text-paper/70"
+          >
+            Peržiūrėti savo profilį →
+          </Link>
+        </div>
+      )}
+
       <div className="mb-4 grid grid-cols-3 gap-3">
         {[top3[1], top3[0], top3[2]].filter(Boolean).map((entry, podiumIdx) => {
           const isCenter = podiumIdx === 1
@@ -1044,6 +1351,7 @@ export default function Community() {
         <div ref={contentRef} className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[2fr_3fr]">
             <div className="top-[120px] md:sticky md:max-h-[calc(100dvh-120px)] md:self-start md:overflow-y-auto">
+              <ChallengesPanel />
               <h3 className="label-mono mb-6 text-ink/50">Lyderiai</h3>
               <LeaderboardPanel />
             </div>
