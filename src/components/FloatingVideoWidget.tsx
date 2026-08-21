@@ -1,16 +1,29 @@
 import { useState, useEffect, useRef } from "react"
 import { XIcon } from "lucide-react"
 import { PROMO_VIDEO_URL } from "@/lib/media"
+import { supabase } from "@/lib/supabase"
 
 export default function FloatingVideoWidget() {
   const [visible, setVisible] = useState(false)
   const [dismissed, setDismissed] = useState(false)
   const [expanded, setExpanded] = useState(false)
+  const [videoUrl, setVideoUrl] = useState(PROMO_VIDEO_URL)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 2200)
     return () => clearTimeout(t)
+  }, [])
+
+  useEffect(() => {
+    supabase
+      .from("home_content")
+      .select("promo_video_url")
+      .eq("id", 1)
+      .single()
+      .then(({ data }) => {
+        if (data?.promo_video_url) setVideoUrl(data.promo_video_url)
+      })
   }, [])
 
   function toggleExpand() {
@@ -61,13 +74,14 @@ export default function FloatingVideoWidget() {
       >
         <video
           ref={videoRef}
-          src={PROMO_VIDEO_URL}
+          key={videoUrl}
+          src={videoUrl}
           autoPlay
           loop
           muted
           playsInline
           className="block w-full"
-          style={{ aspectRatio: "9/14", objectFit: "cover" }}
+          style={{ aspectRatio: "9/16", objectFit: "cover" }}
         />
 
         {/* Close button */}
