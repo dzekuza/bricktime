@@ -92,9 +92,9 @@ export default function Footer() {
           </span>
         </div>
         <p className="mt-3 max-w-[68ch] text-[11px] leading-relaxed text-ink/35">
-          LEGO® yra LEGO įmonių grupės prekių ženklas. „Brick Time“ yra
+          LEGO® yra LEGO® įmonių grupės prekių ženklas. „Brick Time“ yra
           nepriklausomas originalių LEGO® rinkinių nuomos paslaugos teikėjas,
-          kurio LEGO įmonių grupė neremia, neįgaliojo ir kitaip nepatvirtino.
+          kurio LEGO® įmonių grupė neremia, neįgaliojo ir kitaip nepatvirtino.
           Kiti nurodomi ženklai priklauso atitinkamiems jų savininkams ir
           naudojami tik rinkiniams identifikuoti.
         </p>

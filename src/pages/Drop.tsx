@@ -551,9 +551,9 @@ export default function Drop() {
                     pagal gamintojo nurodytą amžiaus rekomendaciją.
                   </p>
                   <p className="mt-2 text-[11px] leading-[1.5] text-ink/40">
-                    LEGO® yra LEGO įmonių grupės prekių ženklas. „Brick Time“
+                    LEGO® yra LEGO® įmonių grupės prekių ženklas. „Brick Time“
                     yra nepriklausomas originalių LEGO® rinkinių nuomos
-                    paslaugos teikėjas, kurio LEGO įmonių grupė neremia,
+                    paslaugos teikėjas, kurio LEGO® įmonių grupė neremia,
                     neįgaliojo ir kitaip nepatvirtino. Kiti nurodomi ženklai
                     priklauso atitinkamiems jų savininkams ir naudojami tik
                     rinkiniams identifikuoti.
