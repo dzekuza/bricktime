@@ -42,7 +42,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { supabase } from "@/lib/supabase"
-import type { Tables } from "@/lib/supabase"
+import type { Tables, Enums } from "@/lib/supabase"
 import { DataTable, SortableHeader } from "@/components/DataTable"
 
 type Challenge = Tables<"challenges">
@@ -296,7 +296,7 @@ export function Challenges() {
       return counts
     }
 
-    const typeForMetric: Record<string, string> = {
+    const typeForMetric: Record<string, Enums<"feed_event_type">> = {
       checkins: "checkin",
       checkin_streak: "checkin",
       comments_written: "comment",

@@ -523,8 +523,8 @@ function ComposeBox({ avatarId, avatarBg, onPost }: ComposeBoxProps) {
             if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submit()
           }}
           placeholder="Parodyk, ką sukonstravai, pasidalink mintimis ar užduok klausimą"
-          rows={expanded ? 3 : 1}
-          className="flex-1 resize-none bg-transparent font-mono text-[14px] leading-relaxed text-ink outline-none placeholder:text-ink/30"
+          rows={3}
+          className="w-full flex-1 resize-none bg-transparent font-mono text-[14px] leading-relaxed text-ink outline-none placeholder:text-ink/30"
         />
       </div>
 
@@ -946,7 +946,7 @@ async function computeOwnProgress(
     return count ?? 0
   }
 
-  const typeForMetric: Record<string, string> = {
+  const typeForMetric: Record<string, FeedEventType> = {
     checkins: "checkin",
     checkin_streak: "checkin",
     comments_written: "comment",
@@ -1107,7 +1107,11 @@ function LeaderboardPanel() {
       .eq("subscriber_id", user.id)
       .maybeSingle()
       .then(({ data }) => {
-        setMyStats(data ?? { rank: null, total_points: 0 })
+        setMyStats(
+          data
+            ? { rank: data.rank, total_points: data.total_points ?? 0 }
+            : { rank: null, total_points: 0 }
+        )
       })
   }, [user])
 
@@ -1350,7 +1354,7 @@ export default function Community() {
       <section className="bg-paper pt-4 pb-20">
         <div ref={contentRef} className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[2fr_3fr]">
-            <div className="top-[120px] md:sticky md:max-h-[calc(100dvh-120px)] md:self-start md:overflow-y-auto">
+            <div className="top-[120px] lg:sticky lg:max-h-[calc(100dvh-120px)] lg:self-start lg:overflow-y-auto">
               <ChallengesPanel />
               <h3 className="label-mono mb-6 text-ink/50">Lyderiai</h3>
               <LeaderboardPanel />
