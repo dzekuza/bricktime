@@ -10,17 +10,15 @@ import { SortPopover } from "@/components/SortPopover"
 import {
   ProductCard,
   dbToProduct,
-  tierConfig,
   type Product,
 } from "@/components/ProductCard"
 
 const SORT_OPTIONS = [
-  { value: "newest", label: "Naujausi" },
   { value: "popular", label: "Populiariausi" },
-  { value: "bricks", label: "Daugiausiai detalių" },
-  { value: "plan", label: "Aukščiausia prenumerata" },
-  { value: "price_asc", label: "Pigiausi" },
-  { value: "price_desc", label: "Brangiausi" },
+  { value: "newest", label: "Naujausi" },
+  { value: "bricks-desc", label: "Daugiausia detalių" },
+  { value: "bricks-asc", label: "Mažiausia detalių" },
+  { value: "available", label: "Laisvi dabar" },
 ] as const
 
 type SortValue = (typeof SORT_OPTIONS)[number]["value"]
@@ -28,23 +26,19 @@ type SortValue = (typeof SORT_OPTIONS)[number]["value"]
 function sortProducts(products: Product[], by: SortValue): Product[] {
   const sorted = [...products]
   switch (by) {
-    case "newest":
-      return sorted.sort((a, b) => (b.id as number) - (a.id as number))
-    case "popular":
-      return sorted.sort((a, b) => Number(b.featured) - Number(a.featured))
-    case "bricks":
+    case "bricks-desc":
       return sorted.sort((a, b) => b.bricks - a.bricks)
-    case "plan":
+    case "bricks-asc":
+      return sorted.sort((a, b) => a.bricks - b.bricks)
+    case "popular":
       return sorted.sort(
         (a, b) =>
-          tierConfig[b.requiredTier].level - tierConfig[a.requiredTier].level
+          Number(b.featured) - Number(a.featured) ||
+          (b.id as number) - (a.id as number)
       )
-    case "price_asc":
-      return sorted.sort((a, b) => (a.price ?? 0) - (b.price ?? 0))
-    case "price_desc":
-      return sorted.sort((a, b) => (b.price ?? 0) - (a.price ?? 0))
+    // "newest" and "available" both fall back to newest-first ordering
     default:
-      return sorted
+      return sorted.sort((a, b) => (b.id as number) - (a.id as number))
   }
 }
 
@@ -52,6 +46,7 @@ type Filters = {
   series: string[]
   plan: string[]
   age: string[]
+  sortBy: SortValue
 }
 
 function applyFilters(products: Product[], filters: Filters): Product[] {
@@ -64,7 +59,9 @@ function applyFilters(products: Product[], filters: Filters): Product[] {
       filters.age.length === 0 ||
       p.minAge == null ||
       filters.age.includes(String(p.minAge))
-    return seriesOk && planOk && ageOk
+    const availableOk =
+      filters.sortBy !== "available" || p.status === "available"
+    return seriesOk && planOk && ageOk && availableOk
   })
 }
 
@@ -94,6 +91,7 @@ export default function FeaturedProducts() {
       series: seriesFilter,
       plan: tierFilter,
       age: ageFilter,
+      sortBy,
     }
     return sortProducts(applyFilters(products, filters), sortBy)
   }, [products, seriesFilter, tierFilter, ageFilter, sortBy])

@@ -146,6 +146,7 @@ export type Database = {
           id: string
           is_active: boolean
           metric: string
+          reward_image_url: string | null
           reward_label: string | null
           starts_at: string
           target_value: number
@@ -158,6 +159,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           metric: string
+          reward_image_url?: string | null
           reward_label?: string | null
           starts_at: string
           target_value: number
@@ -170,6 +172,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           metric?: string
+          reward_image_url?: string | null
           reward_label?: string | null
           starts_at?: string
           target_value?: number
@@ -1695,3 +1698,5 @@ export const Constants = {
     },
   },
 } as const
+
+export type PlanTier = Database["public"]["Enums"]["plan_tier"]
