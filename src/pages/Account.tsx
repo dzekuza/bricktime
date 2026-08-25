@@ -707,7 +707,7 @@ export default function Account() {
                   { val: totalPoints, label: "Taškai" },
                   {
                     val: `${remainingCredits}/${totalCredits}`,
-                    label: "Kreditai",
+                    label: "Briksiai",
                   },
                 ].map((s) => (
                   <div
@@ -1181,7 +1181,7 @@ export default function Account() {
                   disabled={portalLoading}
                   className="brick-hover-sm w-full rounded-xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[11px] tracking-[.14em] text-paper uppercase transition-all disabled:pointer-events-none disabled:opacity-50"
                 >
-                  {portalLoading ? "Kraunama…" : "Tvarkyti prenumeratą →"}
+                  {portalLoading ? "Kraunama…" : "Mano prenumerata →"}
                 </button>
                 <p className="text-center font-mono text-[10px] text-ink/30">
                   Kortelė · istorija · atšaukimas

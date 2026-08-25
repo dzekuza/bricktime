@@ -1,10 +1,13 @@
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import {
   PlusIcon,
   PencilIcon,
   Trash2Icon,
   FlagIcon,
   UsersIcon,
+  UploadIcon,
+  XIcon,
+  Loader2Icon,
 } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
@@ -53,9 +56,21 @@ type ChallengeForm = {
   metric: ChallengeMetric
   target_value: string
   reward_label: string
+  reward_image_url: string | null
   starts_at: string
   ends_at: string
   is_active: boolean
+}
+
+async function uploadRewardImage(file: File): Promise<string> {
+  const ext = file.name.split(".").pop()
+  const path = `challenge-rewards/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+  const { error } = await supabase.storage
+    .from("site-content")
+    .upload(path, file)
+  if (error) throw error
+  const { data } = supabase.storage.from("site-content").getPublicUrl(path)
+  return data.publicUrl
 }
 
 interface ProgressRow {
@@ -87,6 +102,7 @@ const emptyForm = (): ChallengeForm => {
     metric: "likes_received",
     target_value: "20",
     reward_label: "",
+    reward_image_url: null,
     starts_at: toDatetimeLocal(now.toISOString()),
     ends_at: toDatetimeLocal(inMonth.toISOString()),
     is_active: true,
@@ -100,6 +116,7 @@ function challengeToForm(c: Challenge): ChallengeForm {
     metric: c.metric,
     target_value: String(c.target_value),
     reward_label: c.reward_label ?? "",
+    reward_image_url: c.reward_image_url,
     starts_at: toDatetimeLocal(c.starts_at),
     ends_at: toDatetimeLocal(c.ends_at),
     is_active: c.is_active,
@@ -119,6 +136,8 @@ export function Challenges() {
   const [progressRows, setProgressRows] = useState<ProgressRow[]>([])
   const [progressLoading, setProgressLoading] = useState(false)
   const [granting, setGranting] = useState<Set<string>>(new Set())
+  const [rewardImageUploading, setRewardImageUploading] = useState(false)
+  const rewardImageInputRef = useRef<HTMLInputElement>(null)
 
   async function load() {
     setLoading(true)
@@ -155,6 +174,7 @@ export function Challenges() {
         metric: form.metric,
         target_value: parseInt(form.target_value),
         reward_label: form.reward_label.trim() || null,
+        reward_image_url: form.reward_image_url,
         starts_at: new Date(form.starts_at).toISOString(),
         ends_at: new Date(form.ends_at).toISOString(),
         is_active: form.is_active,
@@ -173,6 +193,16 @@ export function Challenges() {
       console.error("Failed to save challenge:", err)
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function handleRewardImageFile(file: File) {
+    setRewardImageUploading(true)
+    try {
+      const url = await uploadRewardImage(file)
+      setForm((f) => ({ ...f, reward_image_url: url }))
+    } finally {
+      setRewardImageUploading(false)
     }
   }
 
@@ -530,6 +560,60 @@ export function Challenges() {
                   setForm((f) => ({ ...f, reward_label: e.target.value }))
                 }
                 placeholder="+50 taškų"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label>
+                Reward image{" "}
+                <span className="text-xs text-muted-foreground">
+                  (optional — shown to members alongside the reward)
+                </span>
+              </Label>
+              {form.reward_image_url ? (
+                <div className="flex items-center gap-3">
+                  <img
+                    src={form.reward_image_url}
+                    alt="Reward"
+                    className="size-16 rounded-lg border object-cover"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      setForm((f) => ({ ...f, reward_image_url: null }))
+                    }
+                  >
+                    <XIcon className="mr-1.5 size-3.5" />
+                    Remove
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={rewardImageUploading}
+                  onClick={() => rewardImageInputRef.current?.click()}
+                >
+                  {rewardImageUploading ? (
+                    <Loader2Icon className="mr-1.5 size-3.5 animate-spin" />
+                  ) : (
+                    <UploadIcon className="mr-1.5 size-3.5" />
+                  )}
+                  {rewardImageUploading ? "Uploading…" : "Upload image"}
+                </Button>
+              )}
+              <input
+                ref={rewardImageInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  e.target.value = ""
+                  if (file) handleRewardImageFile(file)
+                }}
               />
             </div>
             <div className="grid grid-cols-2 gap-3">

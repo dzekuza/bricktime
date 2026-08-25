@@ -128,7 +128,7 @@ function CreditsPill() {
     <>
       <div className="mr-2 hidden items-center gap-1.5 rounded-full border-2 border-ink bg-paper px-3.5 py-[7px] md:flex">
         <span className="font-mono text-[11px] font-bold tracking-[.12em] text-ink uppercase">
-          {loading ? "…" : `${remainingCredits} Kr.`}
+          {loading ? "…" : `${remainingCredits} Briksiai`}
         </span>
         <button
           type="button"

@@ -522,7 +522,7 @@ function ComposeBox({ avatarId, avatarBg, onPost }: ComposeBoxProps) {
           onKeyDown={(e) => {
             if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submit()
           }}
-          placeholder="Pasidalink mintimis, statyba ar klausimu…"
+          placeholder="Parodyk, ką sukonstravai, pasidalink mintimis ar užduok klausimą"
           rows={expanded ? 3 : 1}
           className="flex-1 resize-none bg-transparent font-mono text-[14px] leading-relaxed text-ink outline-none placeholder:text-ink/30"
         />
@@ -1217,7 +1217,7 @@ function LeaderboardPanel() {
             {
               rank: "#3",
               emoji: "🎟",
-              prize: "€20 čekis",
+              prize: "BRICKTIME 20€ vertės dovanų kuponas",
             },
           ] as const
         ).map(({ rank, emoji, prize }) => (
