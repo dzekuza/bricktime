@@ -32,22 +32,13 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
       if (error) setError(error.message)
       else setSuccess("Nuoroda slaptažodžiui atstatyti išsiųsta į el. paštą.")
     } else {
-      const { data, error } = await supabase.auth.signUp({
+      // The matching `subscribers` row is created by the on_auth_user_created
+      // trigger — the client cannot insert one (no insert policy on the table).
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: { data: { name } },
       })
-      if (!error && data.user) {
-        await supabase.from("subscribers").upsert({
-          id: data.user.id,
-          name: name || email.split("@")[0],
-          email,
-          avatar_id: Math.floor(Math.random() * 5),
-          avatar_bg: ["#FFD731", "#FB4903", "#4DA2FF", "#5DDB9C", "#FFAEE7"][
-            Math.floor(Math.random() * 5)
-          ],
-        })
-      }
       setLoading(false)
       if (error) setError(error.message)
       else {

@@ -21,6 +21,7 @@ import {
 import { AuthForm } from "@/components/AuthForm"
 import { Seo } from "@/components/Seo"
 import { StatusBadge } from "@/components/community/StatusBadge"
+import { DailyCheckinBanner } from "@/components/community/DailyCheckinBanner"
 import {
   drops,
   getRelativeTime,
@@ -28,6 +29,7 @@ import {
   type FeedEventType,
 } from "@/data/community"
 import { useAchievements } from "@/hooks/useAchievements"
+import { useDailyCheckin, type DailyCheckin } from "@/hooks/useDailyCheckin"
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -655,48 +657,23 @@ function ComposeBox({ avatarId, avatarBg, onPost }: ComposeBoxProps) {
 
 // ── FeedPanel ─────────────────────────────────────────────────────────────────
 
-function FeedPanel({ onOpenAuth }: { onOpenAuth: () => void }) {
+function FeedPanel({
+  onOpenAuth,
+  checkin,
+}: {
+  onOpenAuth: () => void
+  checkin: DailyCheckin
+}) {
   const { user, profile } = useAuth()
   const { achievements } = useAchievements()
   const [items, setItems] = useState<LiveFeedItem[]>([])
   const [loading, setLoading] = useState(true)
   const [reportedIds, setReportedIds] = useState<Set<string>>(new Set())
   const [anonLikedIds, setAnonLikedIds] = useState<Set<string>>(new Set())
-  const [checkedInToday, setCheckedInToday] = useState(false)
-  const [checkingIn, setCheckingIn] = useState(false)
 
   useEffect(() => {
     if (!user) setAnonLikedIds(getAnonLikedIds())
   }, [user])
-
-  useEffect(() => {
-    if (!user) return
-    const todayStart = new Date()
-    todayStart.setUTCHours(0, 0, 0, 0)
-    supabase
-      .from("feed_items")
-      .select("id", { count: "exact", head: true })
-      .eq("subscriber_id", user.id)
-      .eq("type", "checkin")
-      .gte("created_at", todayStart.toISOString())
-      .then(({ count }) => setCheckedInToday((count ?? 0) > 0))
-  }, [user])
-
-  async function checkin() {
-    if (!user || checkingIn || checkedInToday) return
-    setCheckingIn(true)
-    try {
-      const { error } = await supabase
-        .from("feed_items")
-        .insert({ subscriber_id: user.id, type: "checkin" })
-      if (!error) {
-        setCheckedInToday(true)
-        await fetchFeed()
-      }
-    } finally {
-      setCheckingIn(false)
-    }
-  }
 
   useEffect(() => {
     fetchFeed()
@@ -859,19 +836,7 @@ function FeedPanel({ onOpenAuth }: { onOpenAuth: () => void }) {
 
   return (
     <div className="flex flex-col gap-4">
-      {user && (
-        <button
-          onClick={checkin}
-          disabled={checkingIn || checkedInToday}
-          className={`brick-card p-3 text-center font-mono text-[13px] font-bold transition-all disabled:cursor-not-allowed ${checkedInToday ? "bg-brand-mint/10 text-brand-mint" : "brick-hover-sm text-ink"}`}
-        >
-          {checkedInToday
-            ? "☀️ Apsilankymas šiandien pažymėtas"
-            : checkingIn
-              ? "…"
-              : "☀️ Pažymėti šiandienos apsilankymą"}
-        </button>
-      )}
+      <DailyCheckinBanner {...checkin} />
       {user && profile ? (
         <ComposeBox
           avatarId={profile.avatarId}
@@ -969,7 +934,7 @@ async function computeOwnProgress(
   return count ?? 0
 }
 
-function ChallengesPanel() {
+function ChallengesPanel({ refreshKey }: { refreshKey: number }) {
   const { user } = useAuth()
   const [challenges, setChallenges] = useState<LiveChallenge[]>([])
   const [progress, setProgress] = useState<Record<string, number>>({})
@@ -1008,7 +973,7 @@ function ChallengesPanel() {
       setLoading(false)
     }
     load()
-  }, [user])
+  }, [user, refreshKey])
 
   if (loading || challenges.length === 0) return null
 
@@ -1062,7 +1027,7 @@ function ChallengesPanel() {
 
 // ── LeaderboardPanel ──────────────────────────────────────────────────────────
 
-function LeaderboardPanel() {
+function LeaderboardPanel({ refreshKey }: { refreshKey: number }) {
   const { user } = useAuth()
   const [rows, setRows] = useState<
     Array<{
@@ -1091,7 +1056,7 @@ function LeaderboardPanel() {
         if (data) setRows(data as typeof rows)
         setLoading(false)
       })
-  }, [])
+  }, [refreshKey])
 
   useEffect(() => {
     if (!user) {
@@ -1113,7 +1078,7 @@ function LeaderboardPanel() {
             : { rank: null, total_points: 0 }
         )
       })
-  }, [user])
+  }, [user, refreshKey])
 
   if (loading) {
     return (
@@ -1312,6 +1277,7 @@ export default function Community() {
   const heroRef = useReveal<HTMLDivElement>()
   const contentRef = useReveal<HTMLDivElement>()
   const [showAuthDialog, setShowAuthDialog] = useState(false)
+  const checkin = useDailyCheckin()
 
   return (
     <>
@@ -1355,14 +1321,17 @@ export default function Community() {
         <div ref={contentRef} className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[2fr_3fr]">
             <div className="top-[120px] lg:sticky lg:max-h-[calc(100dvh-120px)] lg:self-start lg:overflow-y-auto">
-              <ChallengesPanel />
+              <ChallengesPanel refreshKey={checkin.version} />
               <h3 className="label-mono mb-6 text-ink/50">Lyderiai</h3>
-              <LeaderboardPanel />
+              <LeaderboardPanel refreshKey={checkin.version} />
             </div>
 
             <div>
               <h3 className="label-mono mb-6 text-ink/50">⬢ Komentarai</h3>
-              <FeedPanel onOpenAuth={() => setShowAuthDialog(true)} />
+              <FeedPanel
+                onOpenAuth={() => setShowAuthDialog(true)}
+                checkin={checkin}
+              />
             </div>
           </div>
         </div>

@@ -689,6 +689,7 @@ export type Database = {
           description: string
           id: string
           image_url: string | null
+          image_urls: string[]
           name: string
           price: number
           sizes: string[]
@@ -705,6 +706,7 @@ export type Database = {
           description?: string
           id?: string
           image_url?: string | null
+          image_urls?: string[]
           name: string
           price: number
           sizes?: string[]
@@ -721,6 +723,7 @@ export type Database = {
           description?: string
           id?: string
           image_url?: string | null
+          image_urls?: string[]
           name?: string
           price?: number
           sizes?: string[]
@@ -1500,6 +1503,10 @@ export type Database = {
         Returns: undefined
       }
       redeem_coupon: { Args: { p_code: string }; Returns: undefined }
+      refresh_my_achievements: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       toggle_like: {
         Args: { p_feed_item_id: string; p_subscriber_id: string }
         Returns: undefined
