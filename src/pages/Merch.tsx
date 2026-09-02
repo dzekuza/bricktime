@@ -16,6 +16,7 @@ export interface MerchItem {
   stock: number
   bg: string
   image_url: string | null
+  image_urls: string[]
   status: "draft" | "coming-soon" | "active"
   sort_order: number
 }

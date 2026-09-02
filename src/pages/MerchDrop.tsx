@@ -75,6 +75,14 @@ export default function MerchDrop() {
   const [loading, setLoading] = useState(true)
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const [buying, setBuying] = useState(false)
+  const [activeImage, setActiveImage] = useState<string | null>(null)
+
+  // image_url is the hero; image_urls are the extra shots behind it.
+  const gallery = item
+    ? [item.image_url, ...(item.image_urls ?? [])].filter(
+        (url): url is string => Boolean(url)
+      )
+    : []
 
   const paymentSuccess = searchParams.get("payment") === "success"
 
@@ -92,6 +100,11 @@ export default function MerchDrop() {
           return
         }
         setItem(data as MerchItem)
+        setActiveImage(
+          (data as MerchItem).image_url ??
+            (data as MerchItem).image_urls?.[0] ??
+            null
+        )
         setLabel((data as MerchItem).name)
         setLoading(false)
       })
@@ -159,24 +172,50 @@ export default function MerchDrop() {
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
             {/* Visual */}
-            <div
-              className="brick-card flex min-h-[480px] items-center justify-center p-14"
-              style={{ background: item.bg }}
-            >
-              {item.image_url ? (
-                <img
-                  src={item.image_url}
-                  alt={item.name}
-                  className="max-h-[400px] w-full object-contain"
-                />
-              ) : (
-                <div
-                  className={`flex flex-col items-center gap-4 opacity-25 ${contentColor}`}
-                >
-                  <ClothingIcon type={item.type} />
-                  <span className="font-mono text-[11px] tracking-[.22em] uppercase">
-                    Iliustracija netrukus
-                  </span>
+            <div className="flex flex-col gap-3">
+              <div
+                className="brick-card flex min-h-[480px] items-center justify-center p-14"
+                style={{ background: item.bg }}
+              >
+                {activeImage ? (
+                  <img
+                    src={activeImage}
+                    alt={item.name}
+                    className="max-h-[400px] w-full object-contain"
+                  />
+                ) : (
+                  <div
+                    className={`flex flex-col items-center gap-4 opacity-25 ${contentColor}`}
+                  >
+                    <ClothingIcon type={item.type} />
+                    <span className="font-mono text-[11px] tracking-[.22em] uppercase">
+                      Iliustracija netrukus
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {gallery.length > 1 && (
+                <div className="flex flex-wrap gap-3">
+                  {gallery.map((url) => (
+                    <button
+                      key={url}
+                      type="button"
+                      onClick={() => setActiveImage(url)}
+                      aria-label={`${item.name} nuotrauka`}
+                      aria-current={url === activeImage}
+                      className={`brick-hover-sm h-20 w-20 overflow-hidden rounded-xl border-2 p-2 ${
+                        url === activeImage ? "border-ink" : "border-ink/20"
+                      }`}
+                      style={{ background: item.bg }}
+                    >
+                      <img
+                        src={url}
+                        alt=""
+                        className="h-full w-full object-contain"
+                      />
+                    </button>
+                  ))}
                 </div>
               )}
             </div>

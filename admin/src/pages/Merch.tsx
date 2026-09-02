@@ -1,6 +1,16 @@
-import { useState, useMemo } from 'react'
-import { PlusIcon, SearchIcon, PencilIcon, Trash2Icon } from 'lucide-react'
+import { useState, useEffect, useMemo, useRef } from 'react'
+import {
+  PlusIcon,
+  SearchIcon,
+  PencilIcon,
+  Trash2Icon,
+  UploadIcon,
+  XIcon,
+  Loader2Icon,
+  ImageIcon,
+} from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
+import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -21,34 +31,97 @@ import {
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { DataTable, SortableHeader } from '@/components/DataTable'
-import { mockMerch, type MerchItem, type MerchType, type MerchStatus } from '@/data/merch'
+import { DeleteDialog } from '@/components/DeleteDialog'
+import type { MerchItem, MerchType, MerchStatus } from '@/data/merch'
 
 const ALL_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 
+const STATUS_LABEL: Record<MerchStatus, string> = {
+  draft: 'Draft',
+  'coming-soon': 'Coming soon',
+  active: 'Active',
+}
+
 interface FormState {
   name: string
+  slug: string
   type: MerchType
   price: string
   sizes: string[]
   stock: string
   status: MerchStatus
+  bg: string
+  imageUrl: string | null
+  imageUrls: string[]
 }
 
 const emptyForm = (): FormState => ({
   name: '',
+  slug: '',
   type: 't-shirt',
   price: '',
   sizes: ['S', 'M', 'L', 'XL'],
   stock: '0',
   status: 'draft',
+  bg: '#001B21',
+  imageUrl: null,
+  imageUrls: [],
 })
 
+/** merch_items.slug is `not null unique`, so a new row needs one derived up front. */
+function slugify(name: string): string {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+async function uploadMerchImage(file: File): Promise<string> {
+  const ext = file.name.split('.').pop()
+  const path = `merch/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+  const { error } = await supabase.storage.from('site-content').upload(path, file)
+  if (error) throw error
+  const { data } = supabase.storage.from('site-content').getPublicUrl(path)
+  return data.publicUrl
+}
+
 export function Merch() {
-  const [items, setItems] = useState<MerchItem[]>(mockMerch)
+  const [items, setItems] = useState<MerchItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState<FormState>(emptyForm())
+  const [saving, setSaving] = useState(false)
+  const [heroUploading, setHeroUploading] = useState(false)
+  const [galleryUploading, setGalleryUploading] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<MerchItem | null>(null)
+
+  const heroInputRef = useRef<HTMLInputElement>(null)
+  const galleryInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    load()
+  }, [])
+
+  async function load() {
+    setLoading(true)
+    const { data, error: loadError } = await supabase
+      .from('merch_items')
+      .select('*')
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: false })
+    if (loadError) {
+      setError(loadError.message)
+    } else {
+      setError(null)
+      setItems((data ?? []) as MerchItem[])
+    }
+    setLoading(false)
+  }
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase()
@@ -66,11 +139,15 @@ export function Merch() {
     setEditingId(item.id)
     setForm({
       name: item.name,
+      slug: item.slug,
       type: item.type,
       price: String(item.price),
       sizes: item.sizes,
       stock: String(item.stock),
       status: item.status,
+      bg: item.bg,
+      imageUrl: item.image_url,
+      imageUrls: item.image_urls ?? [],
     })
     setDialogOpen(true)
   }
@@ -78,37 +155,98 @@ export function Merch() {
   function toggleSize(size: string) {
     setForm((prev) => ({
       ...prev,
-      sizes: prev.sizes.includes(size) ? prev.sizes.filter((s) => s !== size) : [...prev.sizes, size],
+      sizes: prev.sizes.includes(size)
+        ? prev.sizes.filter((s) => s !== size)
+        : [...prev.sizes, size],
     }))
   }
 
-  function saveItem() {
-    const base: Omit<MerchItem, 'id' | 'created_at'> = {
+  async function handleHeroFile(file: File) {
+    setHeroUploading(true)
+    try {
+      const url = await uploadMerchImage(file)
+      setForm((f) => ({ ...f, imageUrl: url }))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Image upload failed')
+    } finally {
+      setHeroUploading(false)
+    }
+  }
+
+  async function handleGalleryFiles(files: File[]) {
+    setGalleryUploading(true)
+    try {
+      const urls = await Promise.all(files.map(uploadMerchImage))
+      setForm((f) => ({ ...f, imageUrls: [...f.imageUrls, ...urls] }))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Image upload failed')
+    } finally {
+      setGalleryUploading(false)
+    }
+  }
+
+  function removeGalleryImage(url: string) {
+    setForm((f) => ({ ...f, imageUrls: f.imageUrls.filter((u) => u !== url) }))
+  }
+
+  async function saveItem() {
+    setSaving(true)
+    const payload = {
       name: form.name.trim(),
+      slug: form.slug || slugify(form.name),
       type: form.type,
       price: Number(form.price) || 0,
       sizes: form.sizes,
       stock: Number(form.stock) || 0,
       status: form.status,
+      bg: form.bg,
+      image_url: form.imageUrl,
+      image_urls: form.imageUrls,
     }
-    if (editingId) {
-      setItems((prev) => prev.map((i) => (i.id === editingId ? { ...i, ...base } : i)))
-    } else {
-      const newItem: MerchItem = {
-        ...base,
-        id: String(Date.now()),
-        created_at: new Date().toISOString(),
-      }
-      setItems((prev) => [newItem, ...prev])
+    const { error: saveError } = editingId
+      ? await supabase.from('merch_items').update(payload).eq('id', editingId)
+      : await supabase.from('merch_items').insert(payload)
+    setSaving(false)
+    if (saveError) {
+      setError(saveError.message)
+      return
     }
+    setError(null)
     setDialogOpen(false)
+    load()
   }
 
-  function deleteItem(id: string) {
-    setItems((prev) => prev.filter((i) => i.id !== id))
+  async function confirmDelete() {
+    if (!deleteTarget) return
+    const { error: deleteError } = await supabase
+      .from('merch_items')
+      .delete()
+      .eq('id', deleteTarget.id)
+    setDeleteTarget(null)
+    if (deleteError) {
+      setError(deleteError.message)
+      return
+    }
+    load()
   }
 
   const columns: ColumnDef<MerchItem>[] = [
+    {
+      id: 'image',
+      header: '',
+      cell: ({ row }) =>
+        row.original.image_url ? (
+          <img
+            src={row.original.image_url}
+            alt={row.original.name}
+            className="size-9 rounded border object-cover"
+          />
+        ) : (
+          <div className="flex size-9 items-center justify-center rounded border text-muted-foreground">
+            <ImageIcon className="size-4" />
+          </div>
+        ),
+    },
     {
       accessorKey: 'name',
       header: ({ column }) => <SortableHeader column={column}>Name</SortableHeader>,
@@ -139,7 +277,9 @@ export function Merch() {
       accessorKey: 'stock',
       header: ({ column }) => <SortableHeader column={column}>Stock</SortableHeader>,
       cell: ({ row }) => (
-        <span className={`text-sm font-medium ${row.original.stock === 0 ? 'text-muted-foreground' : ''}`}>
+        <span
+          className={`text-sm font-medium ${row.original.stock === 0 ? 'text-muted-foreground' : ''}`}
+        >
           {row.original.stock}
         </span>
       ),
@@ -148,8 +288,11 @@ export function Merch() {
       accessorKey: 'status',
       header: 'Status',
       cell: ({ row }) => (
-        <Badge variant={row.original.status === 'active' ? 'default' : 'secondary'} className="capitalize">
-          {row.original.status}
+        <Badge
+          variant={row.original.status === 'active' ? 'default' : 'secondary'}
+          className="capitalize"
+        >
+          {STATUS_LABEL[row.original.status]}
         </Badge>
       ),
     },
@@ -164,7 +307,7 @@ export function Merch() {
             size="sm"
             variant="ghost"
             className="text-destructive hover:text-destructive"
-            onClick={() => deleteItem(row.original.id)}
+            onClick={() => setDeleteTarget(row.original)}
           >
             <Trash2Icon className="size-3.5" />
           </Button>
@@ -181,7 +324,9 @@ export function Merch() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Merch</h1>
-          <p className="text-sm text-muted-foreground">{items.length} product{items.length !== 1 ? 's' : ''}</p>
+          <p className="text-sm text-muted-foreground">
+            {items.length} product{items.length !== 1 ? 's' : ''}
+          </p>
         </div>
         <Button onClick={openAdd}>
           <PlusIcon className="mr-2 size-4" />
@@ -189,10 +334,18 @@ export function Merch() {
         </Button>
       </div>
 
+      {error && (
+        <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {error}
+        </div>
+      )}
+
       <div className="grid grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-1 pt-4">
-            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total</CardTitle>
+            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Total
+            </CardTitle>
           </CardHeader>
           <CardContent className="pb-4">
             <span className="text-2xl font-bold">{items.length}</span>
@@ -200,7 +353,9 @@ export function Merch() {
         </Card>
         <Card>
           <CardHeader className="pb-1 pt-4">
-            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Active</CardTitle>
+            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Active
+            </CardTitle>
           </CardHeader>
           <CardContent className="pb-4">
             <span className="text-2xl font-bold text-green-600">{activeCount}</span>
@@ -208,7 +363,9 @@ export function Merch() {
         </Card>
         <Card>
           <CardHeader className="pb-1 pt-4">
-            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Draft</CardTitle>
+            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Draft
+            </CardTitle>
           </CardHeader>
           <CardContent className="pb-4">
             <span className="text-2xl font-bold text-muted-foreground">{draftCount}</span>
@@ -226,7 +383,11 @@ export function Merch() {
         />
       </div>
 
-      <DataTable columns={columns} data={filtered} />
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Loading…</p>
+      ) : (
+        <DataTable columns={columns} data={filtered} />
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md">
@@ -234,7 +395,7 @@ export function Merch() {
             <DialogTitle>{editingId ? 'Edit product' : 'Add product'}</DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-4 py-2">
+          <div className="flex max-h-[70vh] flex-col gap-4 overflow-y-auto py-2">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="merch-name">Name</Label>
               <Input
@@ -245,10 +406,122 @@ export function Merch() {
               />
             </div>
 
+            <div className="flex flex-col gap-1.5">
+              <Label>
+                Main image{' '}
+                <span className="text-xs text-muted-foreground">
+                  (shown in the shop listing and as the default product photo)
+                </span>
+              </Label>
+              {form.imageUrl ? (
+                <div className="flex items-center gap-3">
+                  <img
+                    src={form.imageUrl}
+                    alt="Product"
+                    className="size-16 rounded-lg border object-cover"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setForm((f) => ({ ...f, imageUrl: null }))}
+                  >
+                    <XIcon className="mr-1.5 size-3.5" />
+                    Remove
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={heroUploading}
+                  onClick={() => heroInputRef.current?.click()}
+                >
+                  {heroUploading ? (
+                    <Loader2Icon className="mr-1.5 size-3.5 animate-spin" />
+                  ) : (
+                    <UploadIcon className="mr-1.5 size-3.5" />
+                  )}
+                  {heroUploading ? 'Uploading…' : 'Upload image'}
+                </Button>
+              )}
+              <input
+                ref={heroInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  e.target.value = ''
+                  if (file) handleHeroFile(file)
+                }}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label>
+                Gallery{' '}
+                <span className="text-xs text-muted-foreground">
+                  (extra photos on the product page)
+                </span>
+              </Label>
+              {form.imageUrls.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {form.imageUrls.map((url) => (
+                    <div key={url} className="relative">
+                      <img
+                        src={url}
+                        alt="Gallery"
+                        className="size-16 rounded-lg border object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeGalleryImage(url)}
+                        className="absolute -right-1.5 -top-1.5 rounded-full border bg-background p-0.5 text-muted-foreground hover:text-destructive"
+                        aria-label="Remove image"
+                      >
+                        <XIcon className="size-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={galleryUploading}
+                onClick={() => galleryInputRef.current?.click()}
+              >
+                {galleryUploading ? (
+                  <Loader2Icon className="mr-1.5 size-3.5 animate-spin" />
+                ) : (
+                  <UploadIcon className="mr-1.5 size-3.5" />
+                )}
+                {galleryUploading ? 'Uploading…' : 'Add photos'}
+              </Button>
+              <input
+                ref={galleryInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  const files = Array.from(e.target.files ?? [])
+                  e.target.value = ''
+                  if (files.length) handleGalleryFiles(files)
+                }}
+              />
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
                 <Label>Type</Label>
-                <Select value={form.type} onValueChange={(v) => setForm((p) => ({ ...p, type: v as MerchType }))}>
+                <Select
+                  value={form.type}
+                  onValueChange={(v) => setForm((p) => ({ ...p, type: v as MerchType }))}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -260,12 +533,16 @@ export function Merch() {
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label>Status</Label>
-                <Select value={form.status} onValueChange={(v) => setForm((p) => ({ ...p, status: v as MerchStatus }))}>
+                <Select
+                  value={form.status}
+                  onValueChange={(v) => setForm((p) => ({ ...p, status: v as MerchStatus }))}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="coming-soon">Coming soon</SelectItem>
                     <SelectItem value="active">Active</SelectItem>
                   </SelectContent>
                 </Select>
@@ -322,12 +599,19 @@ export function Merch() {
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={saveItem} disabled={!form.name.trim()}>
-              {editingId ? 'Save changes' : 'Add product'}
+            <Button onClick={saveItem} disabled={!form.name.trim() || saving}>
+              {saving ? 'Saving…' : editingId ? 'Save changes' : 'Add product'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <DeleteDialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        itemName={deleteTarget?.name ?? ''}
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }
