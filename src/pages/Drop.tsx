@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { StarIcon, ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
 import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
 import { Seo } from "@/components/Seo"
+import { ManufacturerInfo } from "@/components/ManufacturerInfo"
 import {
   ProductCard,
   dbToProduct,
@@ -560,6 +561,8 @@ export default function Drop() {
                   </p>
                 </div>
               </div>
+
+              <ManufacturerInfo className="mt-4 max-w-[48ch]" />
 
               {/* Spec grid */}
               <div className="mt-8 grid grid-cols-3 gap-x-3 gap-y-4 border-t border-ink/10 pt-5">
