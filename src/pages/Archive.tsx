@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import { XIcon } from "lucide-react"
@@ -8,11 +8,7 @@ import { SERIES } from "@/lib/series"
 import { SUBSCRIPTION_CHIPS, AGE_CHIPS } from "@/lib/product-filters"
 import { FilterPopover } from "@/components/FilterPopover"
 import { SortPopover } from "@/components/SortPopover"
-import {
-  ProductCard,
-  dbToProduct,
-  type Product,
-} from "@/components/ProductCard"
+import { ProductCard, dbToProduct } from "@/components/ProductCard"
 import { NextDrop } from "@/components/NextDrop"
 import { Seo } from "@/components/Seo"
 
@@ -33,8 +29,10 @@ export default function Archive() {
   const [seriesFilter, setSeriesFilter] = useState<string[]>([])
   const [ageFilter, setAgeFilter] = useState<string[]>([])
   const [sortBy, setSortBy] = useState<SortValue>("newest")
-  const [products, setProducts] = useState<Product[]>([])
+  const [rows, setRows] = useState<Record<string, unknown>[]>([])
+  const [userTier, setUserTier] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [now] = useState(() => Date.now())
 
   useEffect(() => {
     supabase
@@ -42,10 +40,48 @@ export default function Archive() {
       .select("*")
       .order("id", { ascending: false })
       .then(({ data }) => {
-        if (data) setProducts(data.map(dbToProduct))
+        if (data) setRows(data)
         setLoading(false)
       })
   }, [])
+
+  useEffect(() => {
+    async function fetchUserTier() {
+      const { data: authData } = await supabase.auth.getUser()
+      if (!authData.user) return
+      const { data: sub } = await supabase
+        .from("subscribers")
+        .select("plan")
+        .eq("id", authData.user.id)
+        .single()
+      if (sub) setUserTier(sub.plan)
+    }
+    fetchUserTier()
+  }, [])
+
+  // A future release_date means the drop is still scheduled — keep it out of
+  // the archive until it lands, and let early-access tiers in once their
+  // window opens.
+  const products = useMemo(
+    () =>
+      rows
+        .filter((row) => {
+          const releaseDate = row.release_date as string | null
+          if (!releaseDate) return true
+          const releaseAt = new Date(releaseDate).getTime()
+          if (now >= releaseAt) return true
+
+          const earlyHours = (row.early_access_hours as number) ?? 0
+          const earlyTiers = (row.early_access_tiers as string[]) ?? []
+          return (
+            userTier !== null &&
+            earlyTiers.includes(userTier) &&
+            now >= releaseAt - earlyHours * 3600 * 1000
+          )
+        })
+        .map(dbToProduct),
+    [rows, userTier, now]
+  )
 
   const filteredProducts = products
     .filter((p) => {
