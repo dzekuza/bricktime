@@ -807,7 +807,7 @@ export default function Account() {
             ) : (
               <div className="brick-card flex flex-col justify-between gap-6 bg-cream p-6 md:min-h-[340px] md:p-9 lg:col-span-5">
                 <div>
-                  <h2 className="text-d-xl mt-3 font-display leading-[.88] text-ink uppercase">
+                  <h2 className="text-d-sm mt-3 font-display leading-[.88] text-ink uppercase">
                     Nėra prenumeratos
                   </h2>
                   <p className="mt-3 text-[14px] text-ink/70">

@@ -31,6 +31,7 @@ interface UserProfile {
   avatar_id: number
   avatar_bg: string
   plan: string | null
+  status: string | null
   joined_at: string | null
   post_count: number
   likes_received: number
@@ -118,6 +119,7 @@ export default function UserProfile() {
     )
   }
 
+  const hasSubscription = profile.status === "active"
   const planBg = tierColors[profile.plan ?? ""] ?? "#F5F1EB"
   const planName = tierLabel[profile.plan ?? ""] ?? profile.plan ?? "–"
   const builds = posts.filter((p) => p.type === "build_photo")
@@ -187,14 +189,16 @@ export default function UserProfile() {
                   </div>
                 ))}
               </div>
-              <div className="mt-auto pt-6">
-                <span
-                  className="inline-block rounded-full border border-paper/20 px-3 py-1 font-mono text-[11px] font-bold tracking-widest text-ink uppercase"
-                  style={{ background: planBg }}
-                >
-                  {planName}
-                </span>
-              </div>
+              {hasSubscription && (
+                <div className="mt-auto pt-6">
+                  <span
+                    className="inline-block rounded-full border border-paper/20 px-3 py-1 font-mono text-[11px] font-bold tracking-widest text-ink uppercase"
+                    style={{ background: planBg }}
+                  >
+                    {planName}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Posts column */}

@@ -1,6 +1,10 @@
-import { Outlet, useLocation } from 'react-router-dom'
-import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
-import { Separator } from '@/components/ui/separator'
+import { Outlet, useLocation } from "react-router-dom"
+import {
+  SidebarProvider,
+  SidebarInset,
+  SidebarTrigger,
+} from "@/components/ui/sidebar"
+import { Separator } from "@/components/ui/separator"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,21 +12,21 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
-import { AppSidebar } from '@/components/AppSidebar'
+} from "@/components/ui/breadcrumb"
+import { AppSidebar } from "@/components/AppSidebar"
 
 const crumbMap: Record<string, string> = {
-  '/': 'Dashboard',
-  '/products': 'Products',
-  '/subscribers': 'Subscribers',
-  '/plans': 'Plans',
-  '/orders': 'Orders',
-  '/settings': 'Settings',
+  "/": "Dashboard",
+  "/products": "Products",
+  "/subscribers": "Customers & Subscribers",
+  "/plans": "Plans",
+  "/orders": "Orders",
+  "/settings": "Settings",
 }
 
 export function AppLayout() {
   const { pathname } = useLocation()
-  const pageTitle = crumbMap[pathname] ?? 'Page'
+  const pageTitle = crumbMap[pathname] ?? "Page"
 
   return (
     <SidebarProvider>
@@ -36,7 +40,7 @@ export function AppLayout() {
               <BreadcrumbItem>
                 <BreadcrumbLink href="/">BRICKTIME</BreadcrumbLink>
               </BreadcrumbItem>
-              {pathname !== '/' && (
+              {pathname !== "/" && (
                 <>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
