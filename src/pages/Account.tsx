@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
+import { useNavigate } from "react-router-dom"
 import { calculatePoints, type AchievementDef } from "@/data/community"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
@@ -13,6 +14,7 @@ import { MissingPartDialog } from "@/components/MissingPartDialog"
 import { OrderTracking } from "@/components/OrderTracking"
 import { ReturnDialog } from "@/components/ReturnDialog"
 import { ProfileEditDialog } from "@/components/ProfileEditDialog"
+import { DeleteAccountDialog } from "@/components/DeleteAccountDialog"
 import { fetchLabelPdf, downloadPdf } from "@/lib/lpexpress"
 import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
@@ -207,7 +209,9 @@ function AchievementsSection({
 
 // ── page ───────────────────────────────────────────────────────────────────
 export default function Account() {
+  const navigate = useNavigate()
   const { user, profile, signOut, refreshProfile } = useAuth()
+  const [deleteAccountOpen, setDeleteAccountOpen] = useState(false)
   const { subscriptions: dbPlans } = useSubscriptions()
   const { totalCredits, remainingCredits } = useCredits()
   const { achievements } = useAchievements()
@@ -724,12 +728,20 @@ export default function Account() {
                   </div>
                 ))}
               </div>
-              <button
-                onClick={signOut}
-                className="mt-4 self-start rounded-full border-2 border-ink bg-red-600 px-3 py-2 text-[14px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
-              >
-                Atsijungti →
-              </button>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <button
+                  onClick={signOut}
+                  className="self-start rounded-full border-2 border-ink bg-red-600 px-3 py-2 text-[14px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
+                >
+                  Atsijungti →
+                </button>
+                <button
+                  onClick={() => setDeleteAccountOpen(true)}
+                  className="self-start rounded-full border-2 border-ink/20 px-3 py-2 text-[14px] font-bold text-ink/50 transition-colors hover:border-red-600 hover:text-red-600"
+                >
+                  Ištrinti paskyrą
+                </button>
+              </div>
             </div>
 
             {/* Subscription tile */}
@@ -1491,6 +1503,12 @@ export default function Account() {
           }}
         />
       )}
+
+      <DeleteAccountDialog
+        open={deleteAccountOpen}
+        onOpenChange={setDeleteAccountOpen}
+        onDeleted={() => navigate("/", { replace: true })}
+      />
     </div>
   )
 }
