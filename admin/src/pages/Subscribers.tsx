@@ -164,9 +164,18 @@ export function Subscribers() {
   }
 
   async function handleDelete(ids: string[]) {
-    const { error } = await supabase.from("subscribers").delete().in("id", ids)
-    if (error) {
-      console.error("Delete failed:", error.message)
+    const { data, error } = await supabase.functions.invoke<{
+      success?: boolean
+      errors?: { id: string; message: string }[]
+      error?: string
+    }>("delete-subscriber", { body: { ids } })
+    if (error || data?.error || data?.errors) {
+      console.error(
+        "Delete failed:",
+        error?.message ??
+          data?.error ??
+          data?.errors?.map((e) => e.message).join(", ")
+      )
       return
     }
     setItems((prev) => prev.filter((s) => !ids.includes(s.id)))

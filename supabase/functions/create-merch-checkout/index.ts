@@ -8,7 +8,8 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 }
 
 Deno.serve(async (req) => {
@@ -24,7 +25,7 @@ Deno.serve(async (req) => {
     // Fetch item from DB to get canonical price + name
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     )
     const { data: item, error } = await supabase
       .from("merch_items")
@@ -34,7 +35,9 @@ Deno.serve(async (req) => {
 
     if (error || !item) throw new Error("Merch item not found")
     if (item.status === "draft") throw new Error("Item not available")
-    if (item.status === "active" && item.stock <= 0) throw new Error("Out of stock")
+    const stock = (item.stock as Record<string, number> | null) ?? {}
+    if (item.status === "active" && (stock[size] ?? 0) <= 0)
+      throw new Error("Out of stock")
 
     const unitAmount = Math.round(Number(item.price) * 100) // cents
 
@@ -58,7 +61,18 @@ Deno.serve(async (req) => {
       cancel_url: cancelUrl,
       metadata: { itemId, size },
       shipping_address_collection: {
-        allowed_countries: ["LT", "LV", "EE", "PL", "DE", "FR", "GB", "NL", "SE", "FI"],
+        allowed_countries: [
+          "LT",
+          "LV",
+          "EE",
+          "PL",
+          "DE",
+          "FR",
+          "GB",
+          "NL",
+          "SE",
+          "FI",
+        ],
       },
     })
 

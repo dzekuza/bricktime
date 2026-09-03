@@ -13,7 +13,7 @@ export interface MerchItem {
   description: string
   price: number
   sizes: string[]
-  stock: number
+  stock: Record<string, number>
   bg: string
   image_url: string | null
   image_urls: string[]
@@ -79,7 +79,9 @@ function ClothingIcon({ type }: { type: string }) {
 }
 
 function MerchCard({ item }: { item: MerchItem }) {
-  const isComingSoon = item.status === "coming-soon" || item.stock === 0
+  const isComingSoon =
+    item.status === "coming-soon" ||
+    Object.values(item.stock).every((qty) => qty <= 0)
 
   const isDark = item.bg === "#001B21" || item.bg.toLowerCase() === "#001b21"
   const contentColor = isDark ? "text-paper/40" : "text-ink/40"

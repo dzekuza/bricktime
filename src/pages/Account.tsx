@@ -490,6 +490,7 @@ export default function Account() {
     textColor: "#001B21",
     level: 0,
   }
+  const hasSubscription = subscriber?.status === "active"
   const activeTier = subscriber
     ? (tierOptions.find((t) => t.key === subscriber.plan) ??
       tierOptions[0] ??
@@ -732,76 +733,95 @@ export default function Account() {
             </div>
 
             {/* Subscription tile */}
-            <div
-              className="brick-card flex flex-col p-6 md:min-h-[340px] md:p-9 lg:col-span-5"
-              style={{ background: activeTier.bg }}
-            >
-              <div>
-                <h2
-                  className="text-d-xl mt-3 font-display leading-[.88] uppercase"
-                  style={{ color: activeTier.textColor }}
-                >
-                  {activeTier.name}
-                </h2>
-                <div className="mt-2 flex items-baseline gap-1.5">
-                  <span
-                    className="text-d-sm font-display leading-none"
+            {hasSubscription ? (
+              <div
+                className="brick-card flex flex-col p-6 md:min-h-[340px] md:p-9 lg:col-span-5"
+                style={{ background: activeTier.bg }}
+              >
+                <div>
+                  <h2
+                    className="text-d-xl mt-3 font-display leading-[.88] uppercase"
                     style={{ color: activeTier.textColor }}
                   >
-                    €{activeTier.price}
-                  </span>
-                  <span
-                    className="font-mono text-[12px] tracking-[.06em] uppercase"
-                    style={{ color: `${activeTier.textColor}70` }}
+                    {activeTier.name}
+                  </h2>
+                  <div className="mt-2 flex items-baseline gap-1.5">
+                    <span
+                      className="text-d-sm font-display leading-none"
+                      style={{ color: activeTier.textColor }}
+                    >
+                      €{activeTier.price}
+                    </span>
+                    <span
+                      className="font-mono text-[12px] tracking-[.06em] uppercase"
+                      style={{ color: `${activeTier.textColor}70` }}
+                    >
+                      /mėn.
+                    </span>
+                  </div>
+                  <p
+                    className="mt-3 text-[14px]"
+                    style={{ color: `${activeTier.textColor}80` }}
                   >
-                    /mėn.
-                  </span>
+                    Statusas:{" "}
+                    <b style={{ color: activeTier.textColor }}>
+                      {subscriber?.status
+                        ? (SUBSCRIBER_STATUS_LABELS[subscriber.status] ??
+                          subscriber.status)
+                        : "–"}
+                    </b>
+                  </p>
                 </div>
-                <p
-                  className="mt-3 text-[14px]"
-                  style={{ color: `${activeTier.textColor}80` }}
-                >
-                  Statusas:{" "}
-                  <b style={{ color: activeTier.textColor }}>
-                    {subscriber?.status
-                      ? (SUBSCRIBER_STATUS_LABELS[subscriber.status] ??
-                        subscriber.status)
-                      : "–"}
-                  </b>
-                </p>
-              </div>
 
-              <div className="mt-auto flex gap-3 pt-6 md:hidden">
+                <div className="mt-auto flex gap-3 pt-6 md:hidden">
+                  <button
+                    className="flex-1 rounded-full border-2 border-ink bg-ink px-3 py-2 text-[14px] font-bold text-paper transition-all hover:opacity-80"
+                    onClick={openBillingPortal}
+                    disabled={portalLoading}
+                  >
+                    Atšaukti
+                  </button>
+                  <button
+                    className="flex-1 rounded-full border-2 border-ink bg-paper px-3 py-2 text-[14px] font-bold text-ink transition-all hover:bg-ink/5"
+                    onClick={() => setShowUpgrade(!showUpgrade)}
+                  >
+                    Keisti
+                  </button>
+                </div>
+                <div className="mt-auto hidden gap-2.5 md:flex">
+                  <button
+                    className="flex-1 rounded-full border-2 border-ink bg-ink px-3 py-2 text-[14px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
+                    onClick={() => setShowUpgrade(!showUpgrade)}
+                  >
+                    Keisti prenumeratą
+                  </button>
+                  <button
+                    className="flex-1 rounded-full border-2 border-ink bg-paper px-3 py-2 text-[14px] font-bold text-ink transition-all hover:bg-ink/5"
+                    onClick={openBillingPortal}
+                    disabled={portalLoading}
+                  >
+                    Atšaukti
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="brick-card flex flex-col justify-between gap-6 bg-cream p-6 md:min-h-[340px] md:p-9 lg:col-span-5">
+                <div>
+                  <h2 className="text-d-xl mt-3 font-display leading-[.88] text-ink uppercase">
+                    Nėra prenumeratos
+                  </h2>
+                  <p className="mt-3 text-[14px] text-ink/70">
+                    Pasirink planą ir pradėk nuomotis LEGO® rinkinius.
+                  </p>
+                </div>
                 <button
-                  className="flex-1 rounded-full border-2 border-ink bg-ink px-3 py-2 text-[14px] font-bold text-paper transition-all hover:opacity-80"
-                  onClick={openBillingPortal}
-                  disabled={portalLoading}
-                >
-                  Atšaukti
-                </button>
-                <button
-                  className="flex-1 rounded-full border-2 border-ink bg-paper px-3 py-2 text-[14px] font-bold text-ink transition-all hover:bg-ink/5"
+                  className="w-full rounded-full border-2 border-ink bg-ink px-3 py-3 text-[14px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
                   onClick={() => setShowUpgrade(!showUpgrade)}
                 >
-                  Keisti
+                  Pasirinkti planą
                 </button>
               </div>
-              <div className="mt-auto hidden gap-2.5 md:flex">
-                <button
-                  className="flex-1 rounded-full border-2 border-ink bg-ink px-3 py-2 text-[14px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
-                  onClick={() => setShowUpgrade(!showUpgrade)}
-                >
-                  Keisti prenumeratą
-                </button>
-                <button
-                  className="flex-1 rounded-full border-2 border-ink bg-paper px-3 py-2 text-[14px] font-bold text-ink transition-all hover:bg-ink/5"
-                  onClick={openBillingPortal}
-                  disabled={portalLoading}
-                >
-                  Atšaukti
-                </button>
-              </div>
-            </div>
+            )}
 
             {/* Upgrade plan picker */}
             {showUpgrade && (
@@ -1156,36 +1176,55 @@ export default function Account() {
           <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-12">
             {/* Current subscription card */}
             <div className="brick-card p-6 md:p-8 lg:col-span-5">
-              <p className="label-mono text-ink/40">Aktyvi prenumerata</p>
-              <div className="mt-3 flex items-end justify-between">
-                <div>
-                  <p className="text-d-md font-display leading-none text-ink uppercase">
-                    {activeTier.name}
-                  </p>
-                  <p className="mt-1 font-mono text-[13px] text-ink/60">
-                    €{activeTier.price}/mėn. · kasmet atnaujinama
-                  </p>
+              <p className="label-mono text-ink/40">
+                {hasSubscription ? "Aktyvi prenumerata" : "Prenumerata"}
+              </p>
+              {hasSubscription ? (
+                <div className="mt-3 flex items-end justify-between">
+                  <div>
+                    <p className="text-d-md font-display leading-none text-ink uppercase">
+                      {activeTier.name}
+                    </p>
+                    <p className="mt-1 font-mono text-[13px] text-ink/60">
+                      €{activeTier.price}/mėn. · kasmet atnaujinama
+                    </p>
+                  </div>
+                  <span className="rounded-full border-2 border-ink bg-green-400 px-3 py-1 font-mono text-[10px] tracking-[.14em] text-ink uppercase">
+                    {subscriber?.status ?? "–"}
+                  </span>
                 </div>
-                <span className="rounded-full border-2 border-ink bg-green-400 px-3 py-1 font-mono text-[10px] tracking-[.14em] text-ink uppercase">
-                  {subscriber?.status ?? "–"}
-                </span>
-              </div>
+              ) : (
+                <p className="mt-3 font-mono text-[13px] text-ink/60">
+                  Šiuo metu neturi aktyvios prenumeratos.
+                </p>
+              )}
               <div className="mt-6 flex flex-col gap-2 border-t border-ink/10 pt-5">
                 {portalError && (
                   <p className="font-mono text-[11px] text-red-500">
                     {portalError}
                   </p>
                 )}
-                <button
-                  onClick={openBillingPortal}
-                  disabled={portalLoading}
-                  className="brick-hover-sm w-full rounded-xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[11px] tracking-[.14em] text-paper uppercase transition-all disabled:pointer-events-none disabled:opacity-50"
-                >
-                  {portalLoading ? "Kraunama…" : "Mano prenumerata →"}
-                </button>
-                <p className="text-center font-mono text-[10px] text-ink/30">
-                  Kortelė · istorija · atšaukimas
-                </p>
+                {hasSubscription ? (
+                  <>
+                    <button
+                      onClick={openBillingPortal}
+                      disabled={portalLoading}
+                      className="brick-hover-sm w-full rounded-xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[11px] tracking-[.14em] text-paper uppercase transition-all disabled:pointer-events-none disabled:opacity-50"
+                    >
+                      {portalLoading ? "Kraunama…" : "Mano prenumerata →"}
+                    </button>
+                    <p className="text-center font-mono text-[10px] text-ink/30">
+                      Kortelė · istorija · atšaukimas
+                    </p>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => setShowUpgrade(true)}
+                    className="brick-hover-sm w-full rounded-xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[11px] tracking-[.14em] text-paper uppercase transition-all"
+                  >
+                    Pasirinkti planą →
+                  </button>
+                )}
               </div>
             </div>
 

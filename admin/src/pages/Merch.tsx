@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef } from "react"
 import {
   PlusIcon,
   SearchIcon,
@@ -8,38 +8,38 @@ import {
   XIcon,
   Loader2Icon,
   ImageIcon,
-} from 'lucide-react'
-import type { ColumnDef } from '@tanstack/react-table'
-import { supabase } from '@/lib/supabase'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+} from "lucide-react"
+import type { ColumnDef } from "@tanstack/react-table"
+import { supabase } from "@/lib/supabase"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Label } from '@/components/ui/label'
-import { DataTable, SortableHeader } from '@/components/DataTable'
-import { DeleteDialog } from '@/components/DeleteDialog'
-import type { MerchItem, MerchType, MerchStatus } from '@/data/merch'
+} from "@/components/ui/select"
+import { Label } from "@/components/ui/label"
+import { DataTable, SortableHeader } from "@/components/DataTable"
+import { DeleteDialog } from "@/components/DeleteDialog"
+import type { MerchItem, MerchType, MerchStatus } from "@/data/merch"
 
-const ALL_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+const ALL_SIZES = ["XS", "S", "M", "L", "XL", "XXL"]
 
 const STATUS_LABEL: Record<MerchStatus, string> = {
-  draft: 'Draft',
-  'coming-soon': 'Coming soon',
-  active: 'Active',
+  draft: "Draft",
+  "coming-soon": "Coming soon",
+  active: "Active",
 }
 
 interface FormState {
@@ -48,7 +48,7 @@ interface FormState {
   type: MerchType
   price: string
   sizes: string[]
-  stock: string
+  stock: Record<string, string>
   status: MerchStatus
   bg: string
   imageUrl: string | null
@@ -56,14 +56,14 @@ interface FormState {
 }
 
 const emptyForm = (): FormState => ({
-  name: '',
-  slug: '',
-  type: 't-shirt',
-  price: '',
-  sizes: ['S', 'M', 'L', 'XL'],
-  stock: '0',
-  status: 'draft',
-  bg: '#001B21',
+  name: "",
+  slug: "",
+  type: "t-shirt",
+  price: "",
+  sizes: ["S", "M", "L", "XL"],
+  stock: { S: "0", M: "0", L: "0", XL: "0" },
+  status: "draft",
+  bg: "#001B21",
   imageUrl: null,
   imageUrls: [],
 })
@@ -71,19 +71,21 @@ const emptyForm = (): FormState => ({
 /** merch_items.slug is `not null unique`, so a new row needs one derived up front. */
 function slugify(name: string): string {
   return name
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
 }
 
 async function uploadMerchImage(file: File): Promise<string> {
-  const ext = file.name.split('.').pop()
+  const ext = file.name.split(".").pop()
   const path = `merch/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-  const { error } = await supabase.storage.from('site-content').upload(path, file)
+  const { error } = await supabase.storage
+    .from("site-content")
+    .upload(path, file)
   if (error) throw error
-  const { data } = supabase.storage.from('site-content').getPublicUrl(path)
+  const { data } = supabase.storage.from("site-content").getPublicUrl(path)
   return data.publicUrl
 }
 
@@ -91,7 +93,7 @@ export function Merch() {
   const [items, setItems] = useState<MerchItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState("")
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState<FormState>(emptyForm())
@@ -110,10 +112,10 @@ export function Merch() {
   async function load() {
     setLoading(true)
     const { data, error: loadError } = await supabase
-      .from('merch_items')
-      .select('*')
-      .order('sort_order', { ascending: true })
-      .order('created_at', { ascending: false })
+      .from("merch_items")
+      .select("*")
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: false })
     if (loadError) {
       setError(loadError.message)
     } else {
@@ -126,7 +128,9 @@ export function Merch() {
   const filtered = useMemo(() => {
     const q = query.toLowerCase()
     if (!q) return items
-    return items.filter((item) => item.name.toLowerCase().includes(q) || item.type.includes(q))
+    return items.filter(
+      (item) => item.name.toLowerCase().includes(q) || item.type.includes(q)
+    )
   }, [items, query])
 
   function openAdd() {
@@ -143,7 +147,9 @@ export function Merch() {
       type: item.type,
       price: String(item.price),
       sizes: item.sizes,
-      stock: String(item.stock),
+      stock: Object.fromEntries(
+        item.sizes.map((size) => [size, String(item.stock[size] ?? 0)])
+      ),
       status: item.status,
       bg: item.bg,
       imageUrl: item.image_url,
@@ -153,12 +159,22 @@ export function Merch() {
   }
 
   function toggleSize(size: string) {
-    setForm((prev) => ({
-      ...prev,
-      sizes: prev.sizes.includes(size)
-        ? prev.sizes.filter((s) => s !== size)
-        : [...prev.sizes, size],
-    }))
+    setForm((prev) => {
+      if (prev.sizes.includes(size)) {
+        const stock = { ...prev.stock }
+        delete stock[size]
+        return { ...prev, sizes: prev.sizes.filter((s) => s !== size), stock }
+      }
+      return {
+        ...prev,
+        sizes: [...prev.sizes, size],
+        stock: { ...prev.stock, [size]: prev.stock[size] ?? "0" },
+      }
+    })
+  }
+
+  function setSizeStock(size: string, value: string) {
+    setForm((prev) => ({ ...prev, stock: { ...prev.stock, [size]: value } }))
   }
 
   async function handleHeroFile(file: File) {
@@ -167,7 +183,7 @@ export function Merch() {
       const url = await uploadMerchImage(file)
       setForm((f) => ({ ...f, imageUrl: url }))
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Image upload failed')
+      setError(err instanceof Error ? err.message : "Image upload failed")
     } finally {
       setHeroUploading(false)
     }
@@ -179,7 +195,7 @@ export function Merch() {
       const urls = await Promise.all(files.map(uploadMerchImage))
       setForm((f) => ({ ...f, imageUrls: [...f.imageUrls, ...urls] }))
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Image upload failed')
+      setError(err instanceof Error ? err.message : "Image upload failed")
     } finally {
       setGalleryUploading(false)
     }
@@ -197,15 +213,17 @@ export function Merch() {
       type: form.type,
       price: Number(form.price) || 0,
       sizes: form.sizes,
-      stock: Number(form.stock) || 0,
+      stock: Object.fromEntries(
+        form.sizes.map((size) => [size, Number(form.stock[size]) || 0])
+      ),
       status: form.status,
       bg: form.bg,
       image_url: form.imageUrl,
       image_urls: form.imageUrls,
     }
     const { error: saveError } = editingId
-      ? await supabase.from('merch_items').update(payload).eq('id', editingId)
-      : await supabase.from('merch_items').insert(payload)
+      ? await supabase.from("merch_items").update(payload).eq("id", editingId)
+      : await supabase.from("merch_items").insert(payload)
     setSaving(false)
     if (saveError) {
       setError(saveError.message)
@@ -219,9 +237,9 @@ export function Merch() {
   async function confirmDelete() {
     if (!deleteTarget) return
     const { error: deleteError } = await supabase
-      .from('merch_items')
+      .from("merch_items")
       .delete()
-      .eq('id', deleteTarget.id)
+      .eq("id", deleteTarget.id)
     setDeleteTarget(null)
     if (deleteError) {
       setError(deleteError.message)
@@ -232,8 +250,8 @@ export function Merch() {
 
   const columns: ColumnDef<MerchItem>[] = [
     {
-      id: 'image',
-      header: '',
+      id: "image",
+      header: "",
       cell: ({ row }) =>
         row.original.image_url ? (
           <img
@@ -248,13 +266,17 @@ export function Merch() {
         ),
     },
     {
-      accessorKey: 'name',
-      header: ({ column }) => <SortableHeader column={column}>Name</SortableHeader>,
-      cell: ({ row }) => <span className="font-medium text-sm">{row.original.name}</span>,
+      accessorKey: "name",
+      header: ({ column }) => (
+        <SortableHeader column={column}>Name</SortableHeader>
+      ),
+      cell: ({ row }) => (
+        <span className="text-sm font-medium">{row.original.name}</span>
+      ),
     },
     {
-      accessorKey: 'type',
-      header: 'Type',
+      accessorKey: "type",
+      header: "Type",
       cell: ({ row }) => (
         <Badge variant="outline" className="capitalize">
           {row.original.type}
@@ -262,34 +284,52 @@ export function Merch() {
       ),
     },
     {
-      accessorKey: 'price',
-      header: ({ column }) => <SortableHeader column={column}>Price</SortableHeader>,
+      accessorKey: "price",
+      header: ({ column }) => (
+        <SortableHeader column={column}>Price</SortableHeader>
+      ),
       cell: ({ row }) => <span className="text-sm">€{row.original.price}</span>,
     },
     {
-      accessorKey: 'sizes',
-      header: 'Sizes',
+      accessorKey: "sizes",
+      header: "Sizes",
       cell: ({ row }) => (
-        <span className="text-sm text-muted-foreground">{row.original.sizes.join(', ')}</span>
-      ),
-    },
-    {
-      accessorKey: 'stock',
-      header: ({ column }) => <SortableHeader column={column}>Stock</SortableHeader>,
-      cell: ({ row }) => (
-        <span
-          className={`text-sm font-medium ${row.original.stock === 0 ? 'text-muted-foreground' : ''}`}
-        >
-          {row.original.stock}
+        <span className="text-sm text-muted-foreground">
+          {row.original.sizes.join(", ")}
         </span>
       ),
     },
     {
-      accessorKey: 'status',
-      header: 'Status',
+      id: "stock",
+      accessorFn: (item) =>
+        Object.values(item.stock).reduce((sum, n) => sum + n, 0),
+      header: ({ column }) => (
+        <SortableHeader column={column}>Stock</SortableHeader>
+      ),
+      cell: ({ row }) => {
+        const total = Object.values(row.original.stock).reduce(
+          (sum, n) => sum + n,
+          0
+        )
+        const breakdown = row.original.sizes
+          .map((size) => `${size}: ${row.original.stock[size] ?? 0}`)
+          .join(", ")
+        return (
+          <span
+            title={breakdown}
+            className={`text-sm font-medium ${total === 0 ? "text-muted-foreground" : ""}`}
+          >
+            {total}
+          </span>
+        )
+      },
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
       cell: ({ row }) => (
         <Badge
-          variant={row.original.status === 'active' ? 'default' : 'secondary'}
+          variant={row.original.status === "active" ? "default" : "secondary"}
           className="capitalize"
         >
           {STATUS_LABEL[row.original.status]}
@@ -297,10 +337,14 @@ export function Merch() {
       ),
     },
     {
-      id: 'actions',
+      id: "actions",
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
-          <Button size="sm" variant="ghost" onClick={() => openEdit(row.original)}>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => openEdit(row.original)}
+          >
             <PencilIcon className="size-3.5" />
           </Button>
           <Button
@@ -316,8 +360,8 @@ export function Merch() {
     },
   ]
 
-  const activeCount = items.filter((i) => i.status === 'active').length
-  const draftCount = items.filter((i) => i.status === 'draft').length
+  const activeCount = items.filter((i) => i.status === "active").length
+  const draftCount = items.filter((i) => i.status === "draft").length
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -325,7 +369,7 @@ export function Merch() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Merch</h1>
           <p className="text-sm text-muted-foreground">
-            {items.length} product{items.length !== 1 ? 's' : ''}
+            {items.length} product{items.length !== 1 ? "s" : ""}
           </p>
         </div>
         <Button onClick={openAdd}>
@@ -342,8 +386,8 @@ export function Merch() {
 
       <div className="grid grid-cols-3 gap-4">
         <Card>
-          <CardHeader className="pb-1 pt-4">
-            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          <CardHeader className="pt-4 pb-1">
+            <CardTitle className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
               Total
             </CardTitle>
           </CardHeader>
@@ -352,29 +396,33 @@ export function Merch() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-1 pt-4">
-            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          <CardHeader className="pt-4 pb-1">
+            <CardTitle className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
               Active
             </CardTitle>
           </CardHeader>
           <CardContent className="pb-4">
-            <span className="text-2xl font-bold text-green-600">{activeCount}</span>
+            <span className="text-2xl font-bold text-green-600">
+              {activeCount}
+            </span>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-1 pt-4">
-            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          <CardHeader className="pt-4 pb-1">
+            <CardTitle className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
               Draft
             </CardTitle>
           </CardHeader>
           <CardContent className="pb-4">
-            <span className="text-2xl font-bold text-muted-foreground">{draftCount}</span>
+            <span className="text-2xl font-bold text-muted-foreground">
+              {draftCount}
+            </span>
           </CardContent>
         </Card>
       </div>
 
       <div className="relative max-w-sm">
-        <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           className="pl-9"
           placeholder="Search merch…"
@@ -392,7 +440,9 @@ export function Merch() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingId ? 'Edit product' : 'Add product'}</DialogTitle>
+            <DialogTitle>
+              {editingId ? "Edit product" : "Add product"}
+            </DialogTitle>
           </DialogHeader>
 
           <div className="flex max-h-[70vh] flex-col gap-4 overflow-y-auto py-2">
@@ -401,14 +451,16 @@ export function Merch() {
               <Input
                 id="merch-name"
                 value={form.name}
-                onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, name: e.target.value }))
+                }
                 placeholder="e.g. BRICKTIME Classic Hoodie"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
               <Label>
-                Main image{' '}
+                Main image{" "}
                 <span className="text-xs text-muted-foreground">
                   (shown in the shop listing and as the default product photo)
                 </span>
@@ -443,7 +495,7 @@ export function Merch() {
                   ) : (
                     <UploadIcon className="mr-1.5 size-3.5" />
                   )}
-                  {heroUploading ? 'Uploading…' : 'Upload image'}
+                  {heroUploading ? "Uploading…" : "Upload image"}
                 </Button>
               )}
               <input
@@ -453,7 +505,7 @@ export function Merch() {
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0]
-                  e.target.value = ''
+                  e.target.value = ""
                   if (file) handleHeroFile(file)
                 }}
               />
@@ -461,7 +513,7 @@ export function Merch() {
 
             <div className="flex flex-col gap-1.5">
               <Label>
-                Gallery{' '}
+                Gallery{" "}
                 <span className="text-xs text-muted-foreground">
                   (extra photos on the product page)
                 </span>
@@ -478,7 +530,7 @@ export function Merch() {
                       <button
                         type="button"
                         onClick={() => removeGalleryImage(url)}
-                        className="absolute -right-1.5 -top-1.5 rounded-full border bg-background p-0.5 text-muted-foreground hover:text-destructive"
+                        className="absolute -top-1.5 -right-1.5 rounded-full border bg-background p-0.5 text-muted-foreground hover:text-destructive"
                         aria-label="Remove image"
                       >
                         <XIcon className="size-3" />
@@ -499,7 +551,7 @@ export function Merch() {
                 ) : (
                   <UploadIcon className="mr-1.5 size-3.5" />
                 )}
-                {galleryUploading ? 'Uploading…' : 'Add photos'}
+                {galleryUploading ? "Uploading…" : "Add photos"}
               </Button>
               <input
                 ref={galleryInputRef}
@@ -509,7 +561,7 @@ export function Merch() {
                 className="hidden"
                 onChange={(e) => {
                   const files = Array.from(e.target.files ?? [])
-                  e.target.value = ''
+                  e.target.value = ""
                   if (files.length) handleGalleryFiles(files)
                 }}
               />
@@ -520,7 +572,9 @@ export function Merch() {
                 <Label>Type</Label>
                 <Select
                   value={form.type}
-                  onValueChange={(v) => setForm((p) => ({ ...p, type: v as MerchType }))}
+                  onValueChange={(v) =>
+                    setForm((p) => ({ ...p, type: v as MerchType }))
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -535,7 +589,9 @@ export function Merch() {
                 <Label>Status</Label>
                 <Select
                   value={form.status}
-                  onValueChange={(v) => setForm((p) => ({ ...p, status: v as MerchStatus }))}
+                  onValueChange={(v) =>
+                    setForm((p) => ({ ...p, status: v as MerchStatus }))
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -549,29 +605,18 @@ export function Merch() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="merch-price">Price (€)</Label>
-                <Input
-                  id="merch-price"
-                  type="number"
-                  min={0}
-                  value={form.price}
-                  onChange={(e) => setForm((p) => ({ ...p, price: e.target.value }))}
-                  placeholder="29"
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="merch-stock">Stock</Label>
-                <Input
-                  id="merch-stock"
-                  type="number"
-                  min={0}
-                  value={form.stock}
-                  onChange={(e) => setForm((p) => ({ ...p, stock: e.target.value }))}
-                  placeholder="0"
-                />
-              </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="merch-price">Price (€)</Label>
+              <Input
+                id="merch-price"
+                type="number"
+                min={0}
+                value={form.price}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, price: e.target.value }))
+                }
+                placeholder="29"
+              />
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -584,8 +629,8 @@ export function Merch() {
                     onClick={() => toggleSize(size)}
                     className={`rounded border px-3 py-1 text-sm font-medium transition-colors ${
                       form.sizes.includes(size)
-                        ? 'border-primary bg-primary text-primary-foreground'
-                        : 'border-border bg-background text-muted-foreground hover:border-foreground'
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background text-muted-foreground hover:border-foreground"
                     }`}
                   >
                     {size}
@@ -593,6 +638,32 @@ export function Merch() {
                 ))}
               </div>
             </div>
+
+            {form.sizes.length > 0 && (
+              <div className="flex flex-col gap-1.5">
+                <Label>Stock per size</Label>
+                <div className="grid grid-cols-3 gap-3">
+                  {form.sizes.map((size) => (
+                    <div key={size} className="flex flex-col gap-1.5">
+                      <Label
+                        htmlFor={`merch-stock-${size}`}
+                        className="text-xs text-muted-foreground"
+                      >
+                        {size}
+                      </Label>
+                      <Input
+                        id={`merch-stock-${size}`}
+                        type="number"
+                        min={0}
+                        value={form.stock[size] ?? "0"}
+                        onChange={(e) => setSizeStock(size, e.target.value)}
+                        placeholder="0"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <DialogFooter>
@@ -600,7 +671,7 @@ export function Merch() {
               Cancel
             </Button>
             <Button onClick={saveItem} disabled={!form.name.trim() || saving}>
-              {saving ? 'Saving…' : editingId ? 'Save changes' : 'Add product'}
+              {saving ? "Saving…" : editingId ? "Save changes" : "Add product"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -609,7 +680,7 @@ export function Merch() {
       <DeleteDialog
         open={deleteTarget !== null}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        itemName={deleteTarget?.name ?? ''}
+        itemName={deleteTarget?.name ?? ""}
         onConfirm={confirmDelete}
       />
     </div>
