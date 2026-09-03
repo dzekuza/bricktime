@@ -40,7 +40,7 @@ const navMain = [
   { label: "Analytics", to: "/analytics", icon: LineChartIcon },
   { label: "Products", to: "/products", icon: PackageIcon },
   { label: "Content", to: "/content", icon: FileTextIcon },
-  { label: "Subscribers", to: "/subscribers", icon: UsersIcon },
+  { label: "Customers & Subscribers", to: "/subscribers", icon: UsersIcon },
   { label: "Plans", to: "/plans", icon: CreditCardIcon },
   { label: "Orders", to: "/orders", icon: ShoppingCartIcon },
   { label: "Coupons", to: "/coupons", icon: TicketIcon },

@@ -231,7 +231,7 @@ export default function Nav() {
                 Prenumeratos
               </Link>
               <div className="flex items-center">
-                {user && profile?.plan ? (
+                {user && profile?.plan && profile.status === "active" ? (
                   <>
                     <CreditsPill />
                     <PlanChip plan={profile.plan} />
@@ -310,7 +310,7 @@ export default function Nav() {
           </nav>
 
           {/* CTA */}
-          {!(user && profile?.plan) && (
+          {!(user && profile?.plan && profile.status === "active") && (
             <Link
               to="/subscribe"
               onClick={() => setOpen(false)}

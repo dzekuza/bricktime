@@ -252,7 +252,8 @@ export default function Subscriptions({
                       ))}
                     </ul>
 
-                    {profile?.plan === plan.id ? (
+                    {profile?.plan === plan.id &&
+                    profile.status === "active" ? (
                       <Button
                         disabled
                         className="mt-6 w-full cursor-default rounded-full border-2 border-ink text-[14px] font-bold tracking-[.02em] opacity-60"
