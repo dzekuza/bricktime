@@ -132,7 +132,9 @@ export default function MerchDrop() {
 
   if (!item) return null
 
-  const isComingSoon = item.status === "coming-soon" || item.stock === 0
+  const isComingSoon =
+    item.status === "coming-soon" ||
+    Object.values(item.stock).every((qty) => qty <= 0)
 
   async function handleBuy() {
     if (!selectedSize || !item) return
@@ -244,23 +246,28 @@ export default function MerchDrop() {
                   Dydis{selectedSize ? ` — ${selectedSize}` : ""}
                 </span>
                 <div className="flex flex-wrap gap-2">
-                  {item.sizes.map((size) => (
-                    <button
-                      key={size}
-                      disabled={isComingSoon}
-                      onClick={() => setSelectedSize(size)}
-                      className={[
-                        "rounded-xl border-2 px-4 py-2 font-mono text-[13px] font-bold uppercase transition-all",
-                        isComingSoon
-                          ? "cursor-not-allowed border-ink/15 text-ink/25"
-                          : selectedSize === size
-                            ? "border-ink bg-ink text-paper shadow-[3px_3px_0_#001B21]"
-                            : "border-ink/30 text-ink hover:border-ink",
-                      ].join(" ")}
-                    >
-                      {size}
-                    </button>
-                  ))}
+                  {item.sizes.map((size) => {
+                    const sizeOutOfStock = (item.stock[size] ?? 0) <= 0
+                    const disabled = isComingSoon || sizeOutOfStock
+                    return (
+                      <button
+                        key={size}
+                        disabled={disabled}
+                        onClick={() => setSelectedSize(size)}
+                        title={sizeOutOfStock ? "Išparduota" : undefined}
+                        className={[
+                          "rounded-xl border-2 px-4 py-2 font-mono text-[13px] font-bold uppercase transition-all",
+                          disabled
+                            ? "cursor-not-allowed border-ink/15 text-ink/25 line-through"
+                            : selectedSize === size
+                              ? "border-ink bg-ink text-paper shadow-[3px_3px_0_#001B21]"
+                              : "border-ink/30 text-ink hover:border-ink",
+                        ].join(" ")}
+                      >
+                        {size}
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
 

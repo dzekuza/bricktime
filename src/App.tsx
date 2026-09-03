@@ -27,12 +27,16 @@ import CookieConsentBanner from "@/components/CookieConsentBanner"
 import ComingSoonGate from "@/components/ComingSoonGate"
 import { useConsentContext } from "@/contexts/ConsentContext"
 import { trackPageview } from "@/lib/analytics"
+import { useDailyCheckin } from "@/hooks/useDailyCheckin"
 
 export default function App() {
   const [loaded, setLoaded] = useState(() => window.location.pathname !== "/")
   const handleDone = useCallback(() => setLoaded(true), [])
   const location = useLocation()
   const { analyticsGranted } = useConsentContext()
+  // Marks the member present for today on any page, not just Community —
+  // the daily_checkin achievement is "visit Brick Time", not "visit Community".
+  useDailyCheckin()
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" })

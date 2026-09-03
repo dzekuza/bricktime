@@ -1,5 +1,5 @@
-export type MerchType = 'hoodie' | 't-shirt'
-export type MerchStatus = 'active' | 'coming-soon' | 'draft'
+export type MerchType = "hoodie" | "t-shirt"
+export type MerchStatus = "active" | "coming-soon" | "draft"
 
 /** Mirrors a `merch_items` row. */
 export interface MerchItem {
@@ -10,7 +10,8 @@ export interface MerchItem {
   description: string
   price: number
   sizes: string[]
-  stock: number
+  /** Per-size stock, e.g. `{ S: 4, M: 0, L: 2 }`. Keys should match `sizes`. */
+  stock: Record<string, number>
   bg: string
   image_url: string | null
   image_urls: string[]
