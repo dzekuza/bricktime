@@ -30,6 +30,7 @@ import {
   type CompatItem,
   type KitItem,
 } from "@/data/products"
+import { SERIES } from "@/lib/series"
 
 interface ProductEditDialogProps {
   product: Product | null
@@ -39,14 +40,7 @@ interface ProductEditDialogProps {
   nextId?: number
 }
 
-const CATEGORIES = [
-  "Cityscape",
-  "Nature",
-  "Vehicles",
-  "Sci-fi",
-  "Architecture",
-  "Fantasy",
-]
+const CATEGORIES = SERIES
 const TIERS: Tier[] = ["nano", "mini", "standard", "pro", "mega"]
 // Client-approved tier rename (Nano/Mini/Standard/Pro -> LT names). "Mega" was
 // not covered by the approved list, so it's kept as a neutral placeholder to
@@ -66,12 +60,15 @@ const BLANK: Omit<Product, "id"> = {
   title: "",
   subtitle: "",
   description: "",
-  category: "Cityscape",
+  category: "Kita",
   year: new Date().getFullYear(),
   bricks: 0,
   minifigs: "1 minifig",
   build_time: "",
   value: 0,
+  price: null,
+  min_age: null,
+  stock: 0,
   tier: "standard",
   status: "available",
   gallery: [],
@@ -428,7 +425,29 @@ export function ProductEditDialog({
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="value">Briksių vertė (€)</Label>
+                  <Label htmlFor="price">Kaina (€)</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={form.price ?? ""}
+                    onChange={(e) =>
+                      set(
+                        "price",
+                        e.target.value === "" ? null : Number(e.target.value)
+                      )
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Retail price shown on the storefront.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="value">Briksių vertė</Label>
                   <Input
                     id="value"
                     type="number"
@@ -437,12 +456,46 @@ export function ProductEditDialog({
                     onChange={(e) => set("value", Number(e.target.value))}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Used to calculate how many products a subscriber can hold.
+                    Briksiai cost — decides how many products a subscriber can
+                    hold at once.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="stock">Stock</Label>
+                  <Input
+                    id="stock"
+                    type="number"
+                    min={0}
+                    placeholder="0"
+                    value={form.stock ?? 0}
+                    onChange={(e) => set("stock", Number(e.target.value))}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Units physically available to rent out.
                   </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="min_age">Amžius (min age)</Label>
+                  <Input
+                    id="min_age"
+                    type="number"
+                    min={0}
+                    placeholder="e.g. 12"
+                    value={form.min_age ?? ""}
+                    onChange={(e) =>
+                      set(
+                        "min_age",
+                        e.target.value === "" ? null : Number(e.target.value)
+                      )
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Drives the storefront age filter.
+                  </p>
+                </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="minifigs">Minifigs</Label>
                   <Input

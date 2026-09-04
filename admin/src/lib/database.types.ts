@@ -1000,11 +1000,14 @@ export type Database = {
           image_url: string | null
           is_new: boolean
           isDangerous: boolean
+          min_age: number | null
           minifig: Json | null
           minifigs: string
+          price: number | null
           rating: string | null
           release_date: string | null
           status: Database["public"]["Enums"]["product_status"]
+          stock: number
           story: Json | null
           subtitle: string
           tier: Database["public"]["Enums"]["plan_tier"]
@@ -1033,11 +1036,14 @@ export type Database = {
           image_url?: string | null
           is_new?: boolean
           isDangerous?: boolean
+          min_age?: number | null
           minifig?: Json | null
           minifigs?: string
+          price?: number | null
           rating?: string | null
           release_date?: string | null
           status?: Database["public"]["Enums"]["product_status"]
+          stock?: number
           story?: Json | null
           subtitle?: string
           tier: Database["public"]["Enums"]["plan_tier"]
@@ -1066,11 +1072,14 @@ export type Database = {
           image_url?: string | null
           is_new?: boolean
           isDangerous?: boolean
+          min_age?: number | null
           minifig?: Json | null
           minifigs?: string
+          price?: number | null
           rating?: string | null
           release_date?: string | null
           status?: Database["public"]["Enums"]["product_status"]
+          stock?: number
           story?: Json | null
           subtitle?: string
           tier?: Database["public"]["Enums"]["plan_tier"]

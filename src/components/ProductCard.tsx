@@ -34,6 +34,7 @@ export interface Product {
   requiredTier: Tier
   minAge?: number | null
   price?: number | null
+  value?: number | null
   image?: string
   status: "available" | "limited" | "sold_out"
 }
@@ -116,7 +117,8 @@ export function dbToProduct(row: Record<string, unknown>): Product {
     brickHeights: (row.brick_heights as number[]) ?? [],
     requiredTier: row.tier as Tier,
     minAge: row.min_age as number | null | undefined,
-    price: row.value as number | null | undefined,
+    price: row.price as number | null | undefined,
+    value: row.value as number | null | undefined,
     image: row.image_url as string | undefined,
     status: (status as Product["status"]) ?? "available",
   }
@@ -287,7 +289,7 @@ export function ProductCard({ product }: { product: Product }) {
           <div>
             <p className="label-mono text-[9px] text-ink/40">Briksių vertė</p>
             <p className="font-mono text-[12px] font-bold text-ink">
-              {product.price != null ? product.price : "—"}
+              {product.value != null ? product.value : "—"}
             </p>
           </div>
         </div>

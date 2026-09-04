@@ -60,7 +60,7 @@ export function Products() {
     supabase
       .from("products")
       .select(
-        "id, title, subtitle, description, category, year, bricks, minifigs, build_time, value, rating, tier, status, image_url, gallery, faq, bags, story, minifig, compatibility, release_date, early_access_tiers, early_access_hours, isDangerous"
+        "id, title, subtitle, description, category, year, bricks, minifigs, build_time, value, price, min_age, stock, rating, tier, status, image_url, gallery, faq, bags, story, minifig, compatibility, release_date, early_access_tiers, early_access_hours, isDangerous"
       )
       .order("id")
       .then(({ data, error }) => {
@@ -224,6 +224,45 @@ export function Products() {
             {getValue<number>()}
           </span>
         ),
+        size: 80,
+      },
+      {
+        accessorKey: "price",
+        header: ({ column }) => (
+          <SortableHeader column={column} className="w-full justify-end">
+            Price
+          </SortableHeader>
+        ),
+        cell: ({ getValue }) => {
+          const v = getValue<number | null | undefined>()
+          return (
+            <span className="block text-right text-sm tabular-nums">
+              {v != null ? `€${v}` : "—"}
+            </span>
+          )
+        },
+        size: 90,
+      },
+      {
+        accessorKey: "stock",
+        header: ({ column }) => (
+          <SortableHeader column={column} className="w-full justify-end">
+            Stock
+          </SortableHeader>
+        ),
+        cell: ({ getValue }) => {
+          const v = getValue<number | undefined>() ?? 0
+          return (
+            <span
+              className={cn(
+                "block text-right text-sm tabular-nums",
+                v === 0 && "text-destructive"
+              )}
+            >
+              {v}
+            </span>
+          )
+        },
         size: 80,
       },
       {
