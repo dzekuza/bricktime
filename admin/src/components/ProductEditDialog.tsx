@@ -68,7 +68,8 @@ const BLANK: Omit<Product, "id"> = {
   value: 0,
   price: null,
   min_age: null,
-  stock: 0,
+  // A new set is rentable by default; 0 would publish it already "Užimtas".
+  stock: 1,
   tier: "standard",
   status: "available",
   gallery: [],

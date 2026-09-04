@@ -11,6 +11,7 @@ import { SortPopover } from "@/components/SortPopover"
 import { ProductCard, dbToProduct } from "@/components/ProductCard"
 import { NextDrop } from "@/components/NextDrop"
 import { Seo } from "@/components/Seo"
+import { useProductAvailability } from "@/hooks/useProductAvailability"
 
 // ── filter constants ────────────────────────────────────────────────────────
 const SORT_OPTIONS = [
@@ -33,6 +34,7 @@ export default function Archive() {
   const [userTier, setUserTier] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [now] = useState(() => Date.now())
+  const { available } = useProductAvailability()
 
   useEffect(() => {
     supabase
@@ -79,8 +81,8 @@ export default function Archive() {
             now >= releaseAt - earlyHours * 3600 * 1000
           )
         })
-        .map(dbToProduct),
-    [rows, userTier, now]
+        .map((row) => dbToProduct(row, available.get(row.id as number))),
+    [rows, userTier, now, available]
   )
 
   const filteredProducts = products
