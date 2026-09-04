@@ -183,6 +183,8 @@ type DbProduct = {
   tier: string
   year: number | null
   value: number | null
+  price: number | null
+  min_age: number | null
   rating: string | null
   faq: FaqItem[] | null
   bags: BagItem[]
@@ -326,7 +328,7 @@ export default function Drop() {
     supabase
       .from("products")
       .select(
-        "id, title, subtitle, description, category, bricks, minifigs, build_time, image_url, gallery, tier, year, value, rating, faq, bags, story, minifig, compatibility, release_date, isDangerous"
+        "id, title, subtitle, description, category, bricks, minifigs, build_time, image_url, gallery, tier, year, value, price, min_age, rating, faq, bags, story, minifig, compatibility, release_date, isDangerous"
       )
       .eq("id", Number(id))
       .single()
@@ -572,10 +574,13 @@ export default function Drop() {
                     label: "Metai",
                     val: product?.year ? String(product.year) : "—",
                   },
-                  { label: "Amžius", val: product?.rating ?? "—" },
+                  {
+                    label: "Amžius",
+                    val: product?.min_age != null ? `${product.min_age}+` : "—",
+                  },
                   {
                     label: "Kaina",
-                    val: product?.value != null ? `€${product.value}` : "—",
+                    val: product?.price != null ? `€${product.price}` : "—",
                   },
                   { label: "Kategorija", val: product?.category ?? "—" },
                   {
@@ -583,6 +588,10 @@ export default function Drop() {
                     val:
                       getSubscriptionDisplayName(product?.tier ?? "standard") +
                       "+",
+                  },
+                  {
+                    label: "Briksių vertė",
+                    val: product?.value != null ? String(product.value) : "—",
                   },
                 ].map(({ label, val }) => (
                   <div key={label} className="flex flex-col gap-1">

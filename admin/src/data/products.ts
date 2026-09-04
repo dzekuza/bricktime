@@ -48,6 +48,9 @@ export interface Product {
   minifigs: string
   build_time?: string
   value?: number
+  price?: number | null
+  min_age?: number | null
+  stock?: number
   rating?: string
   tier: Tier
   status: ProductStatus

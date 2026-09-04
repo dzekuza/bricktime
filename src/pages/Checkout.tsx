@@ -103,6 +103,8 @@ type DbProduct = {
   gallery: string[]
   tier: string
   value: number | null
+  price: number | null
+  min_age: number | null
   year: number | null
   category: string | null
   rating: string | null
@@ -167,7 +169,7 @@ export default function Checkout() {
     supabase
       .from("products")
       .select(
-        "id, title, subtitle, description, bricks, minifigs, build_time, image_url, gallery, tier, value, year, category, rating"
+        "id, title, subtitle, description, bricks, minifigs, build_time, image_url, gallery, tier, value, price, min_age, year, category, rating"
       )
       .eq("id", Number(productId))
       .single()
@@ -677,10 +679,13 @@ export default function Checkout() {
                     {[
                       ["Detalės", product?.bricks],
                       ["Metai", product?.year ?? "—"],
-                      ["Amžius", product?.rating ?? "—"],
+                      [
+                        "Amžius",
+                        product?.min_age != null ? `${product.min_age}+` : "—",
+                      ],
                       [
                         "Kaina",
-                        product?.value != null ? `€${product?.value}` : "—",
+                        product?.price != null ? `€${product?.price}` : "—",
                       ],
                       ["Kategorija", product?.category ?? "—"],
                       ["Prenumerata", requiredTier.name + "+"],
@@ -809,10 +814,15 @@ export default function Checkout() {
                       {[
                         ["Detalės", product?.bricks],
                         ["Metai", product?.year ?? "—"],
-                        ["Amžius", product?.rating ?? "—"],
+                        [
+                          "Amžius",
+                          product?.min_age != null
+                            ? `${product.min_age}+`
+                            : "—",
+                        ],
                         [
                           "Kaina",
-                          product?.value != null ? `€${product?.value}` : "—",
+                          product?.price != null ? `€${product?.price}` : "—",
                         ],
                         ["Kategorija", product?.category ?? "—"],
                         ["Prenumerata", requiredTier.name + "+"],
