@@ -12,6 +12,7 @@ import {
   dbToProduct,
   type Product,
 } from "@/components/ProductCard"
+import { useProductAvailability } from "@/hooks/useProductAvailability"
 
 const SORT_OPTIONS = [
   { value: "popular", label: "Populiariausi" },
@@ -67,8 +68,9 @@ function applyFilters(products: Product[], filters: Filters): Product[] {
 
 export default function FeaturedProducts() {
   const ref = useReveal<HTMLDivElement>()
-  const [products, setProducts] = useState<Product[]>([])
+  const [rows, setRows] = useState<Record<string, unknown>[]>([])
   const [loading, setLoading] = useState(true)
+  const { available } = useProductAvailability()
   const [sortBy, setSortBy] = useState<SortValue>("newest")
   const [seriesFilter, setSeriesFilter] = useState<string[]>([])
   const [tierFilter, setTierFilter] = useState<string[]>([])
@@ -81,10 +83,15 @@ export default function FeaturedProducts() {
       .eq("featured", true)
       .order("id", { ascending: false })
       .then(({ data }) => {
-        if (data) setProducts(data.map(dbToProduct))
+        if (data) setRows(data)
         setLoading(false)
       })
   }, [])
+
+  const products = useMemo(
+    () => rows.map((row) => dbToProduct(row, available.get(row.id as number))),
+    [rows, available]
+  )
 
   const visible = useMemo(() => {
     const filters: Filters = {

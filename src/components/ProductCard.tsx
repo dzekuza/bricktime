@@ -85,11 +85,17 @@ function formatReleaseDate(iso: string | null): string {
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export function dbToProduct(row: Record<string, unknown>): Product {
-  const status = row.status as string
+export function dbToProduct(
+  row: Record<string, unknown>,
+  available?: number
+): Product {
+  // Every copy already out counts as occupied regardless of the hand-set
+  // status, so a fully rented set reads "Užimtas" without an admin edit.
+  const isRentedOut = available != null && available <= 0
+  const status = isRentedOut ? "sold_out" : (row.status as string)
   let badge: Product["badge"]
   let badgeLabel: string | undefined
-  if (row.is_new) {
+  if (row.is_new && !isRentedOut) {
     badge = "new"
     badgeLabel = "Nauja"
   } else if (status === "sold_out") {

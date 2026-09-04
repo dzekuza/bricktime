@@ -15,6 +15,7 @@ import { supabase } from "@/lib/supabase"
 import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
 import { useCredits } from "@/hooks/useCredits"
+import { useProductAvailability } from "@/hooks/useProductAvailability"
 import { TerminalPicker } from "@/components/TerminalPicker"
 import {
   ProfileEditDialog,
@@ -221,6 +222,7 @@ export default function Checkout() {
     [product?.tier, tierParam]
   )
   const { remainingCredits } = useCredits()
+  const { available: productAvailability } = useProductAvailability()
   const hasTier = useMemo(
     () =>
       !!productId && userSub !== null && userSub.level >= requiredTier.level,
@@ -238,7 +240,12 @@ export default function Checkout() {
   }, [cancelAt])
   const withinCancellationGrace =
     daysUntilCancel === null || daysUntilCancel >= CANCELLATION_GRACE_DAYS
-  const isEligible = hasTier && hasCredits && withinCancellationGrace
+  // Mirrors the `orders_assert_product_available` trigger so a member is told
+  // up front instead of hitting a failed insert at the end of checkout.
+  const isRentedOut =
+    product != null && productAvailability.get(product.id) === 0
+  const isEligible =
+    hasTier && hasCredits && withinCancellationGrace && !isRentedOut
 
   async function openBillingPortal() {
     if (!user?.email) return
@@ -275,7 +282,10 @@ export default function Checkout() {
   // Phone is always needed (LP terminal SMS / courier); an address is needed
   // only for to-door delivery; a terminal only for paštomatas.
   const canConfirm =
-    hasPhone && (homeDelivery ? hasAddress : !!terminal) && agreedToTerms
+    hasPhone &&
+    (homeDelivery ? hasAddress : !!terminal) &&
+    agreedToTerms &&
+    !isRentedOut
 
   // ── gift card purchase handler ───────────────────────────────────────────
   const [gcLoading, setGcLoading] = useState(false)

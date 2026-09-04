@@ -1417,6 +1417,15 @@ export type Database = {
         }
         Relationships: []
       }
+      product_availability: {
+        Row: {
+          available: number | null
+          product_id: number | null
+          rented: number | null
+          stock: number | null
+        }
+        Relationships: []
+      }
       public_profiles: {
         Row: {
           avatar_bg: string | null
