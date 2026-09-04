@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { Link, useParams } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import Nav from "@/components/Nav"
@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { StarIcon, ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
 import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
 import { Seo } from "@/components/Seo"
+import { useProductAvailability } from "@/hooks/useProductAvailability"
 import { ManufacturerInfo } from "@/components/ManufacturerInfo"
 import {
   ProductCard,
@@ -321,7 +322,9 @@ export default function Drop() {
   const [product, setProduct] = useState<DbProduct | null>(null)
   const [activeThumb, setActiveThumb] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
-  const [related, setRelated] = useState<Product[]>([])
+  const [relatedRows, setRelatedRows] = useState<Record<string, unknown>[]>([])
+  const { available } = useProductAvailability()
+  const isRentedOut = product != null && available.get(product.id) === 0
 
   useEffect(() => {
     if (!id) return
@@ -350,9 +353,17 @@ export default function Drop() {
       .neq("id", Number(id))
       .limit(8)
       .then(({ data }) => {
-        if (data) setRelated(data.map(dbToProduct))
+        if (data) setRelatedRows(data)
       })
   }, [id])
+
+  const related = useMemo(
+    () =>
+      relatedRows.map((row) =>
+        dbToProduct(row, available.get(row.id as number))
+      ),
+    [relatedRows, available]
+  )
 
   const dropRequiredTierIdx = tiers.findIndex(
     (t) => t.key === (product?.tier ?? "standard")
@@ -623,19 +634,30 @@ export default function Drop() {
                 </div>
 
                 <p className="mt-4 text-[14px] leading-[1.6] text-ink/70">
-                  Šis rinkinys įskaičiuotas į tavo prenumeratą – jokio papildomo
-                  mokesčio. Tiesiog užsisakyk, konstruok ir grąžink.
+                  {isRentedOut
+                    ? "Šiuo metu visi šio rinkinio egzemplioriai išnuomoti. Grįžk vėliau – kai tik kas nors jį grąžins, galėsi užsisakyti."
+                    : "Šis rinkinys įskaičiuotas į tavo prenumeratą – jokio papildomo mokesčio. Tiesiog užsisakyk, konstruok ir grąžink."}
                 </p>
 
-                <Button
-                  asChild
-                  size="lg"
-                  className="mt-5 w-full justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)]"
-                >
-                  <Link to={`/checkout?product=${product?.id}`}>
-                    Rinkis šį rinkinį →
-                  </Link>
-                </Button>
+                {isRentedOut ? (
+                  <Button
+                    size="lg"
+                    disabled
+                    className="mt-5 w-full justify-center rounded-full border-2 border-ink/30 bg-ink/10 text-[16px] font-bold text-ink/40"
+                  >
+                    Užimtas
+                  </Button>
+                ) : (
+                  <Button
+                    asChild
+                    size="lg"
+                    className="mt-5 w-full justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)]"
+                  >
+                    <Link to={`/checkout?product=${product?.id}`}>
+                      Rinkis šį rinkinį →
+                    </Link>
+                  </Button>
+                )}
 
                 <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] tracking-[.16em] text-ink/40 uppercase">
                   {["Nemokamas pristatymas", "Atšauk bet kada"].map((s) => (
