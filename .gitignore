@@ -60,3 +60,6 @@ CLAUDE.local.md
 .shipstudio/
 .vercel
 .env*
+
+# Nested standalone Remotion project (own git repo, not a submodule)
+explainer-video/
