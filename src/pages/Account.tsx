@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { calculatePoints, type AchievementDef } from "@/data/community"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
-import type { PlanTier } from "@/lib/database.types"
+import type { PlanTier } from "@/lib/db-enums"
 
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase"

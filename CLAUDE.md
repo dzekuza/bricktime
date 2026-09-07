@@ -30,6 +30,8 @@ to free up budget. Products are tier-gated. Copy is **Lithuanian** — match ton
 - Supabase for auth/DB/payments — client in `src/lib/supabase.ts`, generated types in `src/lib/database.types.ts`.
 - New files in `supabase/migrations/` sync to the linked remote project automatically — don't assume `supabase db push` is needed; verify with `supabase db push --dry-run` (expect "up to date").
 - `database.types.ts` is duplicated in `admin/src/lib/` (separate app, not shared) — regenerate both after any schema change.
+- Never add a hand-written export to `database.types.ts` — `supabase gen types` overwrites the file wholesale. Enum aliases go in `src/lib/db-enums.ts` (this cost six separate `PlanTier` hotfixes; see `git log --grep PlanTier`).
+- Verify types with `pnpm typecheck` or `tsc -b`, never bare `tsc --noEmit` — the root tsconfig is `"files": []` plus project references, so `--noEmit` alone checks nothing and always exits 0.
 - Before naming a new migration file, check `ls supabase/migrations/` for an existing timestamp collision — `db push` applies alphabetically and a collision fails with a `schema_migrations` PK violation, not a clear "file exists" error.
 - Payments/shipping run through the edge functions above (Stripe + LP Express/Unisend). Secrets via `Deno.env` — never hardcode.
 - Some landing content is still static (`src/data/`, inline arrays).
