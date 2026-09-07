@@ -67,3 +67,6 @@ explainer-video/
 # Migration working files — contain live credentials and user data
 migration/.env.migration
 migration/dump/
+
+# Supabase CLI local state (records the linked project, incl. the owner email)
+supabase/.temp/
