@@ -63,3 +63,7 @@ CLAUDE.local.md
 
 # Nested standalone Remotion project (own git repo, not a submodule)
 explainer-video/
+
+# Migration working files — contain live credentials and user data
+migration/.env.migration
+migration/dump/
