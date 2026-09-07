@@ -8,35 +8,37 @@ Scale: 19 MB database · 17 auth users · 63 MB storage across 6 buckets ·
 
 ---
 
-## ⛔ Two blockers, both need action on the Supabase dashboard
+## Status: database + storage MIGRATED and verified
 
-### 1. The source project's API is suspended (HTTP 402)
+`./04-verify.sh` reports **PARITY OK** — 664 checks identical across row counts
+(real `count(*)`, all 23 tables), auth users, password-hash fingerprint, schema,
+columns, RLS, policies, functions, triggers, views, indexes, constraints,
+extensions, storage buckets/objects/policies, cron, and integrity.
 
-```
-Service for this project is restricted due to the following violations:
-exceed_cached_egress_quota. The project owner must upgrade their plan or
-remove spend caps to restore service.
-```
+Storage: 15 objects / 65,644,984 bytes — byte-identical, files verified serving
+over HTTP with correct content-types; private `feed` bucket correctly rejects anon.
 
-This affects **Storage, REST and Auth** on the source — verified by direct
-request. The live site's data layer is down because of it, and the 63 MB of
-storage files cannot be read until it is lifted, because every download path
-goes through that API.
+Remaining work is the manual cutover in `05-cutover-checklist.md`: edge function
+secrets, Stripe webhook, and app/Vercel env vars.
 
-**Action:** in the source project's dashboard, remove the spend cap or upgrade
-the plan. Only then can `03-storage-migrate.ts` run.
+### Gotchas this migration actually hit
 
-The direct Postgres port is *not* restricted, which is why the database half of
-the migration can proceed independently.
-
-### 2. `SOURCE_DB_URL` password is missing
-
-`.env.migration` has every credential except the source database password.
-Get it from the source dashboard (Settings → Database → Connection string, or
-reset the password there) and fill in `SOURCE_DB_URL` using the **Session
-Pooler** string, not the direct host.
-
----
+1. **`--schema=public` omits objects that live elsewhere.** The `auth.users`
+   `on_auth_user_created` trigger and **all 14 `storage.objects` RLS policies**
+   were missing after the first restore. `dump/auth-storage-objects.sql`
+   regenerates them; the verify script now covers both.
+2. **`pg_stat_user_tables.n_live_tup` is an estimate.** It read stale on the
+   long-running source and exact on the fresh target, inventing diffs on 9
+   tables. Verify now uses real `count(*)`.
+3. **`--use-copy` and `--disable-triggers` are wrong here.** The first is a
+   `supabase db dump` flag, not `pg_dump`. The second emits superuser-only
+   statements and the Supabase `postgres` role is not a superuser — the restore
+   uses `session_replication_role = 'replica'` instead.
+4. **`products.gallery` is `text[]`, not jsonb** — the URL rewrite needs
+   element-wise array rebuild, not a jsonb cast.
+5. **The source kept taking writes mid-migration.** Products 18/19/20 were
+   deleted on source *after* the dump. Re-synced. **Freeze writes before final
+   cutover.**
 
 ## Why we dump instead of replaying migrations
 
@@ -84,18 +86,22 @@ Stripe webhook, cron, and the app/Vercel env vars. Those cannot be scripted.
 
 ---
 
-## Status
+## Completion state
 
 | Step | State |
 |---|---|
-| Target reachable, PG 17.6, empty | done |
-| Extensions matched on target (`pg_cron`, `pg_net`, + defaults) | done |
-| Bucket config captured (`dump/buckets.json`) | done |
-| Hardcoded storage host removed from `src/lib/media.ts` | done |
-| 6 DB rows with old-ref URLs identified, rewrite script ready | done |
-| Schema + data dump | **blocked — needs `SOURCE_DB_URL`** |
-| Storage file copy | **blocked — source API returns 402** |
-| Edge functions, secrets, Stripe, env | pending cutover |
+| Extensions matched on target | done |
+| Schema dumped from live source and restored | done |
+| Data restored (23 tables, 17 auth users, hashes intact) | done |
+| `auth.users` trigger + 14 storage RLS policies restored | done |
+| Storage: 6 buckets, 15 objects, 65,644,984 B | done, byte-identical |
+| Old-ref URLs rewritten (4 image_url, 3 gallery, 2 feed) | done, 0 remaining |
+| Vault secrets recreated with target's own url/key | done |
+| Cron `lpexpress-delivery-sync` recreated | done |
+| `./04-verify.sh` | **PARITY OK** |
+| Edge functions + secrets | **pending — manual** |
+| Stripe webhook endpoint + new signing secret | **pending — manual** |
+| App / Vercel env vars | **pending — manual** |
 
 `dump/` and `.env.migration` hold live credentials and user data. Both are
 gitignored. Delete them once cutover is verified.

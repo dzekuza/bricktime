@@ -6,7 +6,7 @@
 --
 -- Affected on source at migration time:
 --   products.image_url   4 rows
---   products.gallery     3 rows  (jsonb)
+--   products.gallery     3 rows  (text[])
 --   feed_items.image_url 2 rows
 --
 --   psql "$TARGET_DB_URL" -X -f 06-rewrite-storage-urls.sql
@@ -21,7 +21,7 @@ select 'BEFORE' as phase, 'products.image_url' as loc, count(*) as rows
 from products where image_url like '%' || :'old_ref' || '%'
 union all
 select 'BEFORE', 'products.gallery', count(*)
-from products where gallery::text like '%' || :'old_ref' || '%'
+from products where array_to_string(gallery, ',') like '%' || :'old_ref' || '%'
 union all
 select 'BEFORE', 'feed_items.image_url', count(*)
 from feed_items where image_url like '%' || :'old_ref' || '%';
@@ -30,9 +30,10 @@ update products
    set image_url = replace(image_url, :'old_ref', :'new_ref')
  where image_url like '%' || :'old_ref' || '%';
 
+-- gallery is text[], so rebuild the array element-wise rather than casting.
 update products
-   set gallery = replace(gallery::text, :'old_ref', :'new_ref')::jsonb
- where gallery::text like '%' || :'old_ref' || '%';
+   set gallery = array(select replace(elem, :'old_ref', :'new_ref') from unnest(gallery) as elem)
+ where array_to_string(gallery, ',') like '%' || :'old_ref' || '%';
 
 update feed_items
    set image_url = replace(image_url, :'old_ref', :'new_ref')
@@ -43,7 +44,7 @@ select 'AFTER' as phase, 'products.image_url' as loc, count(*) as remaining
 from products where image_url like '%' || :'old_ref' || '%'
 union all
 select 'AFTER', 'products.gallery', count(*)
-from products where gallery::text like '%' || :'old_ref' || '%'
+from products where array_to_string(gallery, ',') like '%' || :'old_ref' || '%'
 union all
 select 'AFTER', 'feed_items.image_url', count(*)
 from feed_items where image_url like '%' || :'old_ref' || '%';

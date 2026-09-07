@@ -25,14 +25,12 @@ confirm "About to WRITE the full schema and data into the TARGET project.
 Target: ${TARGET_REF:-<unset>}
 This overwrites whatever is there."
 
-# 1. Extensions first — the schema dump references them.
-hr "EXTENSIONS"
-while read -r ext; do
-  [ -z "$ext" ] && continue
-  case "$ext" in plpgsql) continue;; esac
-  psql "$TARGET_DB_URL" -X -q -c "create extension if not exists \"$ext\";" \
-    && ok "$ext" || warn "$ext could not be created (may need dashboard toggle)"
-done < "$DUMP_DIR/extensions.txt"
+# 1. Reset the public schema. The dump issues its own CREATE SCHEMA public, and
+#    dropping it here also clears pg_net (which lives in public) so the
+#    extension pass below can recreate it cleanly.
+hr "RESET PUBLIC SCHEMA"
+psql "$TARGET_DB_URL" -X -q -c "drop schema if exists public cascade;"
+ok "public schema dropped"
 
 # 2. Custom roles.
 hr "ROLES"
@@ -44,6 +42,16 @@ fi
 hr "SCHEMA"
 psql "$TARGET_DB_URL" -X -q -v ON_ERROR_STOP=1 -f "$DUMP_DIR/schema.sql"
 ok "schema restored"
+
+# Extensions go in after the schema, because pg_net installs into public and
+# public only exists again once the dump has recreated it.
+hr "EXTENSIONS"
+while read -r ext; do
+  [ -z "$ext" ] && continue
+  case "$ext" in plpgsql) continue;; esac
+  psql "$TARGET_DB_URL" -X -q -c "create extension if not exists \"$ext\";" >/dev/null 2>&1 \
+    && ok "$ext" || warn "$ext could not be created (may need dashboard toggle)"
+done < "$DUMP_DIR/extensions.txt"
 
 # 4. Data. session_replication_role=replica suppresses triggers AND FK checks
 #    for the load, so rows can arrive in any order and on_auth_user_created

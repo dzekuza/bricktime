@@ -46,9 +46,13 @@ pg_dump "$SOURCE_DB_URL" \
 ok "schema.sql ($(wc -l < "$DUMP_DIR/schema.sql" | tr -d ' ') lines)"
 
 # 3. Data. public rows + auth users.
-#    --disable-triggers is ESSENTIAL: without it, restoring auth.users fires
-#    on_auth_user_created, which inserts duplicate public.subscribers rows that
-#    then collide with the subscribers data in this same dump.
+#    pg_dump uses COPY by default. Triggers are NOT disabled here: --disable-triggers
+#    emits superuser-only ALTER TABLE statements and the Supabase postgres role is
+#    not a superuser. 02-restore-target.sh instead sets session_replication_role
+#    = 'replica' for the load, which suppresses triggers and FK checks and IS
+#    permitted. That matters: without it, restoring auth.users fires
+#    on_auth_user_created, which inserts public.subscribers rows that then collide
+#    with the subscribers data arriving in this same dump.
 #
 #    The storage schema is deliberately EXCLUDED. 03-storage-migrate.ts uploads
 #    the real files through the Storage API, and that API creates the matching
@@ -57,7 +61,7 @@ ok "schema.sql ($(wc -l < "$DUMP_DIR/schema.sql" | tr -d ' ') lines)"
 #    copied. Buckets are recreated by the same script from buckets.json.
 echo "→ data (public + auth)"
 pg_dump "$SOURCE_DB_URL" \
-  --data-only --use-copy --disable-triggers \
+  --data-only \
   --no-owner --no-privileges \
   --schema=public \
   --schema=auth \
@@ -88,10 +92,10 @@ select coalesce(jsonb_agg(jsonb_build_object(
 SQL
 
 psql "$SOURCE_DB_URL" -X -tA -o "$DUMP_DIR/extensions.txt" \
-  "select extname from pg_extension order by 1;"
+  -c "select extname from pg_extension order by 1;"
 
 psql "$SOURCE_DB_URL" -X -tA -o "$DUMP_DIR/migration-history.txt" \
-  "select version || '  ' || coalesce(name,'') from supabase_migrations.schema_migrations order by version;"
+  -c "select version || '  ' || coalesce(name,'') from supabase_migrations.schema_migrations order by version;"
 ok "reference files"
 
 hr "DUMP COMPLETE"

@@ -11,10 +11,15 @@
 \pset fieldsep ' | '
 
 select '== ROW COUNTS ==';
-select relname || ' = ' || n_live_tup
-from pg_stat_user_tables
-where schemaname = 'public'
-order by relname;
+-- Actual count(*), not pg_stat_user_tables.n_live_tup: that column is an
+-- autovacuum estimate and reads stale on a long-running source while being
+-- exact on a freshly loaded target, producing false diffs.
+select table_name || ' = ' ||
+  (xpath('/row/cnt/text()', query_to_xml(
+     format('select count(*) as cnt from public.%I', table_name), false, true, '')))[1]::text
+from information_schema.tables
+where table_schema = 'public' and table_type = 'BASE TABLE'
+order by table_name;
 
 select '== AUTH ==';
 select 'auth.users = ' || count(*) from auth.users;
@@ -82,7 +87,7 @@ select '== CONSTRAINTS ==';
 select conrelid::regclass || ' :: ' || conname || ' :: ' || pg_get_constraintdef(oid)
 from pg_constraint
 where connamespace = 'public'::regnamespace
-order by 1, 2;
+order by 1;
 
 select '== EXTENSIONS ==';
 select extname from pg_extension order by extname;
@@ -95,6 +100,12 @@ select '== STORAGE OBJECT COUNTS ==';
 select bucket_id || ' = ' || count(*) || ' objects, ' ||
        coalesce(sum((metadata->>'size')::bigint), 0) || ' bytes'
 from storage.objects group by bucket_id order by bucket_id;
+
+select '== STORAGE POLICIES ==';
+select tablename || ' :: ' || policyname || ' :: ' || cmd || ' :: ' ||
+       coalesce(qual, '-') || ' :: ' || coalesce(with_check, '-')
+from pg_policies where schemaname = 'storage'
+order by tablename, policyname;
 
 select '== CRON ==';
 select jobname || ' :: ' || schedule from cron.job order by jobname;
