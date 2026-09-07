@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
@@ -72,6 +73,7 @@ const BLANK: Omit<Product, "id"> = {
   stock: 1,
   tier: "standard",
   status: "available",
+  featured: false,
   gallery: [],
   faq: [],
   bags: [],
@@ -1315,6 +1317,19 @@ export function ProductEditDialog({
                   </Select>
                   <p className="text-xs text-muted-foreground">
                     Controls visibility and availability.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label>Featured</Label>
+                    <Switch
+                      checked={form.featured ?? false}
+                      onCheckedChange={(v) => set("featured", v)}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Show this set on the landing page. Sets that are not
+                    featured still appear in the full catalogue.
                   </p>
                 </div>
               </div>

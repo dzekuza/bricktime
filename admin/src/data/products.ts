@@ -54,6 +54,8 @@ export interface Product {
   rating?: string
   tier: Tier
   status: ProductStatus
+  // The storefront landing page lists only featured sets; /archive lists all.
+  featured?: boolean
   image_url?: string | null
   gallery?: string[]
   faq?: FaqItem[]
