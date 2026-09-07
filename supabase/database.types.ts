@@ -1025,6 +1025,27 @@ export type Database = {
         }
         Relationships: []
       }
+      product_categories: {
+        Row: {
+          active: boolean
+          created_at: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       product_reviews: {
         Row: {
           approved: boolean
@@ -1210,7 +1231,15 @@ export type Database = {
           value?: number | null
           year?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_category_fkey"
+            columns: ["category"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["name"]
+          },
+        ]
       }
       reports: {
         Row: {

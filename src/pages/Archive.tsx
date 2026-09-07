@@ -4,7 +4,7 @@ import Footer from "@/components/Footer"
 import { XIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/lib/supabase"
-import { SERIES } from "@/lib/series"
+import { useCategories } from "@/hooks/useCategories"
 import { SUBSCRIPTION_CHIPS, AGE_CHIPS } from "@/lib/product-filters"
 import { FilterPopover } from "@/components/FilterPopover"
 import { SortPopover } from "@/components/SortPopover"
@@ -28,6 +28,7 @@ type SortValue = (typeof SORT_OPTIONS)[number]["value"]
 export default function Archive() {
   const [tierFilter, setTierFilter] = useState<string[]>([])
   const [seriesFilter, setSeriesFilter] = useState<string[]>([])
+  const categories = useCategories()
   const [ageFilter, setAgeFilter] = useState<string[]>([])
   const [sortBy, setSortBy] = useState<SortValue>("newest")
   const [rows, setRows] = useState<Record<string, unknown>[]>([])
@@ -167,7 +168,7 @@ export default function Archive() {
             <div className="flex flex-wrap items-center gap-2">
               <FilterPopover
                 label={seriesFilter.length === 0 ? "Visos temos" : "Tema"}
-                options={SERIES.map((s) => ({ value: s, label: s }))}
+                options={categories.map((s) => ({ value: s, label: s }))}
                 selected={seriesFilter}
                 onChange={setSeriesFilter}
               />

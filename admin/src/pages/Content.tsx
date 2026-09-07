@@ -13,6 +13,7 @@ import { MarqueeTab } from "@/components/content/MarqueeTab"
 import { HowItWorksTab } from "@/components/content/HowItWorksTab"
 import { TestimonialsTab } from "@/components/content/TestimonialsTab"
 import { FaqCtaTab } from "@/components/content/FaqCtaTab"
+import { CategoriesTab } from "@/components/content/CategoriesTab"
 import { FaqQuestionsTab } from "@/components/content/FaqQuestionsTab"
 
 type HomeContent = Tables<"home_content">
@@ -98,6 +99,7 @@ export function Content() {
             <TabsTrigger value="how-it-works">How It Works</TabsTrigger>
             <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
             <TabsTrigger value="faq-cta">FAQ CTA</TabsTrigger>
+            <TabsTrigger value="categories">Categories</TabsTrigger>
           </TabsList>
 
           <TabsContent value="hero">
@@ -128,6 +130,10 @@ export function Content() {
 
           <TabsContent value="faq-cta">
             <FaqCtaTab content={content} onChangeContent={setContent} />
+          </TabsContent>
+
+          <TabsContent value="categories">
+            <CategoriesTab />
           </TabsContent>
         </Tabs>
       ) : (

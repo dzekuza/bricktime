@@ -41,7 +41,21 @@ interface ProductEditDialogProps {
   nextId?: number
 }
 
-const CATEGORIES = SERIES
+// Themes are admin-managed in Content → Temos. SERIES is the fallback until
+// the request resolves, so the dropdown is never empty.
+function useCategories(): readonly string[] {
+  const [names, setNames] = useState<readonly string[]>(SERIES)
+  useEffect(() => {
+    supabase
+      .from("product_categories")
+      .select("name")
+      .order("sort_order")
+      .then(({ data }) => {
+        if (data && data.length > 0) setNames(data.map((c) => c.name))
+      })
+  }, [])
+  return names
+}
 const TIERS: Tier[] = ["nano", "mini", "standard", "pro", "mega"]
 // Client-approved tier rename (Nano/Mini/Standard/Pro -> LT names). "Mega" was
 // not covered by the approved list, so it's kept as a neutral placeholder to
@@ -113,6 +127,7 @@ export function ProductEditDialog({
     bg: "#F5F1EB",
   })
   const [kitDraft, setKitDraft] = useState<KitItem>({ title: "", body: "" })
+  const CATEGORIES = useCategories()
   const [coverDragging, setCoverDragging] = useState(false)
   const [galleryDragging, setGalleryDragging] = useState(false)
   const [coverUploading, setCoverUploading] = useState(false)
