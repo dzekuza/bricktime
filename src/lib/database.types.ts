@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       achievements: {
@@ -319,6 +344,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "achievements"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_items_drop_num_fkey"
+            columns: ["drop_num"]
+            isOneToOne: false
+            referencedRelation: "product_availability"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "feed_items_drop_num_fkey"
@@ -763,6 +795,13 @@ export type Database = {
             foreignKeyName: "missing_part_requests_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
+            referencedRelation: "product_availability"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "missing_part_requests_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
@@ -877,6 +916,13 @@ export type Database = {
             foreignKeyName: "orders_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
+            referencedRelation: "product_availability"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
@@ -978,6 +1024,82 @@ export type Database = {
           text_color?: string
         }
         Relationships: []
+      }
+      product_reviews: {
+        Row: {
+          approved: boolean
+          body: string | null
+          created_at: string
+          id: string
+          product_id: number
+          rating: number
+          subscriber_id: string
+          updated_at: string
+        }
+        Insert: {
+          approved?: boolean
+          body?: string | null
+          created_at?: string
+          id?: string
+          product_id: number
+          rating: number
+          subscriber_id: string
+          updated_at?: string
+        }
+        Update: {
+          approved?: boolean
+          body?: string | null
+          created_at?: string
+          id?: string
+          product_id?: number
+          rating?: number
+          subscriber_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_availability"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_reviews_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "leaderboard"
+            referencedColumns: ["subscriber_id"]
+          },
+          {
+            foreignKeyName: "product_reviews_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_reviews_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "subscribers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_reviews_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "user_profile_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
@@ -1356,6 +1478,13 @@ export type Database = {
             foreignKeyName: "feed_items_drop_num_fkey"
             columns: ["drop_num"]
             isOneToOne: false
+            referencedRelation: "product_availability"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "feed_items_drop_num_fkey"
+            columns: ["drop_num"]
+            isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
@@ -1447,13 +1576,22 @@ export type Database = {
         }
         Relationships: []
       }
+      public_stats: {
+        Row: {
+          active_sets: number | null
+          active_subscribers: number | null
+          average_rating: number | null
+          review_count: number | null
+          sets_sent: number | null
+        }
+        Relationships: []
+      }
       user_profile_view: {
         Row: {
           achievement_count: number | null
           avatar_bg: string | null
           avatar_id: number | null
           drops_received: number | null
-          email: string | null
           id: string | null
           joined_at: string | null
           name: string | null
@@ -1466,7 +1604,6 @@ export type Database = {
           avatar_bg?: string | null
           avatar_id?: number | null
           drops_received?: never
-          email?: string | null
           id?: string | null
           joined_at?: string | null
           name?: string | null
@@ -1479,7 +1616,6 @@ export type Database = {
           avatar_bg?: string | null
           avatar_id?: number | null
           drops_received?: never
-          email?: string | null
           id?: string | null
           joined_at?: string | null
           name?: string | null
@@ -1658,6 +1794,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       achievement_category: ["activity", "social", "collector", "loyalty"],
@@ -1692,5 +1831,3 @@ export const Constants = {
     },
   },
 } as const
-
-export type PlanTier = Database["public"]["Enums"]["plan_tier"]
