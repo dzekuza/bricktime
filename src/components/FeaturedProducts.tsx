@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
-import { ArrowRight, XIcon } from "lucide-react"
+import { ArrowRight, PlusIcon, XIcon } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useReveal } from "@/hooks/useReveal"
 import { supabase } from "@/lib/supabase"
@@ -23,6 +23,8 @@ const SORT_OPTIONS = [
 ] as const
 
 type SortValue = (typeof SORT_OPTIONS)[number]["value"]
+
+const PAGE_SIZE = 6
 
 function sortProducts(products: Product[], by: SortValue): Product[] {
   const sorted = [...products]
@@ -76,6 +78,7 @@ export default function FeaturedProducts() {
   const categories = useCategories()
   const [tierFilter, setTierFilter] = useState<string[]>([])
   const [ageFilter, setAgeFilter] = useState<string[]>([])
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
 
   useEffect(() => {
     supabase
@@ -103,6 +106,15 @@ export default function FeaturedProducts() {
     }
     return sortProducts(applyFilters(products, filters), sortBy)
   }, [products, seriesFilter, tierFilter, ageFilter, sortBy])
+
+  // A narrowed result set starts from the first page again, otherwise an
+  // expanded list would keep showing everything after the filter changes.
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE)
+  }, [seriesFilter, tierFilter, ageFilter, sortBy])
+
+  const shown = visible.slice(0, visibleCount)
+  const hasMore = visible.length > shown.length
 
   const sortLabel =
     SORT_OPTIONS.find((o) => o.value === sortBy)?.label ?? sortBy
@@ -189,7 +201,7 @@ export default function FeaturedProducts() {
                   </div>
                 </div>
               ))
-            : visible.map((product) => (
+            : shown.map((product) => (
                 <div
                   key={product.id}
                   className="w-[82vw] shrink-0 snap-start md:w-auto md:shrink"
@@ -201,6 +213,15 @@ export default function FeaturedProducts() {
 
         {/* Footer */}
         <div className="mt-10 flex flex-col items-center gap-3">
+          {hasMore && (
+            <button
+              onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+              className="brick-hover-sm flex h-12 items-center gap-2 rounded-full border-2 border-ink bg-brand-yellow px-[26px] text-[16px] leading-[26px] font-bold text-ink"
+            >
+              Rodyti daugiau
+              <PlusIcon size={16} />
+            </button>
+          )}
           <Link
             to="/archive"
             className="brick-hover-sm flex h-12 items-center gap-2 rounded-full border-2 border-ink bg-white px-[26px] text-[16px] leading-[26px] font-bold text-ink"
@@ -209,8 +230,7 @@ export default function FeaturedProducts() {
             <ArrowRight size={16} />
           </Link>
           <p className="label-mono text-center text-ink/55">
-            Rodoma {visible.length} iš {products.length} · {sortLabel}{" "}
-            pirmiausia
+            Rodoma {shown.length} iš {visible.length} · {sortLabel} pirmiausia
           </p>
         </div>
       </div>
