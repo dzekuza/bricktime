@@ -10,21 +10,31 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+  formatZoned,
+  fromZonedParts,
+  toZonedParts,
+  type ZonedParts,
+} from "@/lib/vilnius-time"
 
 function pad(n: number) {
   return String(n).padStart(2, "0")
 }
 
-function toTimeValue(date: Date) {
-  return `${pad(date.getHours())}:${pad(date.getMinutes())}`
+// The calendar and time input work in the browser's own clock, so the Vilnius
+// wall clock is mirrored onto a local Date purely for display and picking.
+function toLocalMirror({ year, month, day, hour, minute }: ZonedParts): Date {
+  return new Date(year, month - 1, day, hour, minute)
 }
 
-function formatDisplay(date: Date) {
-  return `${date.toLocaleDateString(undefined, {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  })}, ${toTimeValue(date)}`
+function fromLocalMirror(date: Date): ZonedParts {
+  return {
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+    day: date.getDate(),
+    hour: date.getHours(),
+    minute: date.getMinutes(),
+  }
 }
 
 interface DateTimePickerProps {
@@ -40,7 +50,8 @@ export function DateTimePicker({
   placeholder = "Pick a date",
 }: DateTimePickerProps) {
   const [open, setOpen] = React.useState(false)
-  const selected = value ? new Date(value) : undefined
+  const parts = value ? toZonedParts(value) : null
+  const mirror = parts ? toLocalMirror(parts) : undefined
 
   // The clock defaults to midnight so picking a day alone still yields a
   // valid timestamp; the time input then edits that same date in place.
@@ -49,21 +60,21 @@ export function DateTimePicker({
       onChange(null)
       return
     }
-    const next = new Date(day)
-    if (selected) {
-      next.setHours(selected.getHours(), selected.getMinutes(), 0, 0)
-    } else {
-      next.setHours(0, 0, 0, 0)
-    }
-    onChange(next.toISOString())
+    const picked = fromLocalMirror(day)
+    onChange(
+      fromZonedParts({
+        ...picked,
+        hour: parts?.hour ?? 0,
+        minute: parts?.minute ?? 0,
+      })
+    )
   }
 
   function handleTimeChange(time: string) {
-    const [hours, minutes] = time.split(":").map(Number)
-    if (Number.isNaN(hours) || Number.isNaN(minutes)) return
-    const next = selected ? new Date(selected) : new Date()
-    next.setHours(hours, minutes, 0, 0)
-    onChange(next.toISOString())
+    const [hour, minute] = time.split(":").map(Number)
+    if (Number.isNaN(hour) || Number.isNaN(minute)) return
+    const base = parts ?? fromLocalMirror(new Date())
+    onChange(fromZonedParts({ ...base, hour, minute }))
   }
 
   return (
@@ -72,18 +83,18 @@ export function DateTimePicker({
         <Button
           variant="outline"
           className="w-full justify-start font-normal data-[empty=true]:text-muted-foreground"
-          data-empty={!selected}
+          data-empty={!value}
         >
           <CalendarIcon />
-          {selected ? formatDisplay(selected) : placeholder}
+          {value ? formatZoned(value) : placeholder}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar
           mode="single"
-          selected={selected}
+          selected={mirror}
           onSelect={handleDaySelect}
-          defaultMonth={selected}
+          defaultMonth={mirror}
           captionLayout="dropdown"
           autoFocus
         />
@@ -94,11 +105,11 @@ export function DateTimePicker({
           <Input
             id="datetime-picker-time"
             type="time"
-            value={selected ? toTimeValue(selected) : ""}
+            value={parts ? `${pad(parts.hour)}:${pad(parts.minute)}` : ""}
             onChange={(e) => handleTimeChange(e.target.value)}
             className="w-auto"
           />
-          {selected && (
+          {value && (
             <Button
               variant="ghost"
               size="sm"
@@ -112,6 +123,9 @@ export function DateTimePicker({
             </Button>
           )}
         </div>
+        <p className="border-t px-3 py-2 text-xs text-muted-foreground">
+          Times are Vilnius (Europe/Vilnius).
+        </p>
       </PopoverContent>
     </Popover>
   )

@@ -5,6 +5,7 @@ import {
   getSubscriptionTheme,
   getSubscriptionBrickSvg,
 } from "@/lib/subscription-branding"
+import { formatReleaseMonth } from "@/lib/vilnius-time"
 
 export type Tier =
   | "nano"
@@ -64,21 +65,6 @@ export const tierConfig: Record<
   mystery_m: planTier("mystery_m", 0),
 }
 
-const LT_MONTHS = [
-  "sausis",
-  "vasaris",
-  "kovas",
-  "balandis",
-  "gegužė",
-  "birželis",
-  "liepa",
-  "rugpjūtis",
-  "rugsėjis",
-  "spalis",
-  "lapkritis",
-  "gruodis",
-]
-
 const NEW_BADGE_DAYS = 7
 
 // A set counts as new for a week after it drops, so a scheduled coming-soon
@@ -86,15 +72,7 @@ const NEW_BADGE_DAYS = 7
 function isRecentlyReleased(iso: string | null, now: number): boolean {
   if (!iso) return false
   const releaseAt = new Date(iso).getTime()
-  return (
-    now >= releaseAt && now < releaseAt + NEW_BADGE_DAYS * 24 * 3600 * 1000
-  )
-}
-
-function formatReleaseDate(iso: string | null): string {
-  if (!iso) return ""
-  const d = new Date(iso)
-  return `${d.getFullYear()} ${LT_MONTHS[d.getMonth()]}`
+  return now >= releaseAt && now < releaseAt + NEW_BADGE_DAYS * 24 * 3600 * 1000
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -123,7 +101,7 @@ export function dbToProduct(
     id: row.id as number,
     title: row.title as string,
     subtitle: row.subtitle as string,
-    date: formatReleaseDate(releaseDate),
+    date: formatReleaseMonth(releaseDate),
     category: row.category as string,
     year: row.year as number,
     bricks: row.bricks as number,
