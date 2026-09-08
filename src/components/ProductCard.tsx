@@ -26,8 +26,9 @@ export interface Product {
   minifigs: string
   rating?: string
   bg: string
-  badge?: "new" | "sold-out" | "limited"
+  badge?: "sold-out" | "limited"
   badgeLabel?: string
+  isNew: boolean
   featured?: boolean
   brickColors: string[]
   brickHeights: number[]
@@ -78,6 +79,18 @@ const LT_MONTHS = [
   "gruodis",
 ]
 
+const NEW_BADGE_DAYS = 7
+
+// A set counts as new for a week after it drops, so a scheduled coming-soon
+// product flips to the "Nauja" badge on its own when the release date passes.
+function isRecentlyReleased(iso: string | null, now: number): boolean {
+  if (!iso) return false
+  const releaseAt = new Date(iso).getTime()
+  return (
+    now >= releaseAt && now < releaseAt + NEW_BADGE_DAYS * 24 * 3600 * 1000
+  )
+}
+
 function formatReleaseDate(iso: string | null): string {
   if (!iso) return ""
   const d = new Date(iso)
@@ -93,12 +106,13 @@ export function dbToProduct(
   // status, so a fully rented set reads "Užimtas" without an admin edit.
   const isRentedOut = available != null && available <= 0
   const status = isRentedOut ? "sold_out" : (row.status as string)
+  const releaseDate = row.release_date as string | null
+  const isNew =
+    !isRentedOut &&
+    (Boolean(row.is_new) || isRecentlyReleased(releaseDate, Date.now()))
   let badge: Product["badge"]
   let badgeLabel: string | undefined
-  if (row.is_new && !isRentedOut) {
-    badge = "new"
-    badgeLabel = "Nauja"
-  } else if (status === "sold_out") {
+  if (status === "sold_out") {
     badge = "sold-out"
     badgeLabel = "Užimtas"
   } else if (status === "limited") {
@@ -109,7 +123,7 @@ export function dbToProduct(
     id: row.id as number,
     title: row.title as string,
     subtitle: row.subtitle as string,
-    date: formatReleaseDate(row.release_date as string | null),
+    date: formatReleaseDate(releaseDate),
     category: row.category as string,
     year: row.year as number,
     bricks: row.bricks as number,
@@ -118,6 +132,7 @@ export function dbToProduct(
     bg: row.bg as string,
     badge,
     badgeLabel,
+    isNew,
     featured: row.featured as boolean,
     brickColors: (row.brick_colors as string[]) ?? [],
     brickHeights: (row.brick_heights as number[]) ?? [],
@@ -197,14 +212,16 @@ function StudBg({
   )
 }
 
+function NewBadge() {
+  return (
+    <span className="absolute top-[62px] left-[14px] z-10 -rotate-6 rounded-md border-2 border-ink bg-brand-yellow px-2 py-1 font-display text-[12px] leading-none text-ink uppercase shadow-[3px_3px_0_#001B21]">
+      Nauja
+    </span>
+  )
+}
+
 export function ProductCard({ product }: { product: Product }) {
-  const badgeBg =
-    product.badge === "new"
-      ? "#FFD731"
-      : product.badge === "sold-out"
-        ? "#001B21"
-        : "#FB4903"
-  const badgeColor = product.badge === "new" ? "#001B21" : "#F5F1EB"
+  const badgeBg = product.badge === "sold-out" ? "#001B21" : "#FB4903"
   const tier = tierConfig[product.requiredTier]
 
   return (
@@ -223,10 +240,12 @@ export function ProductCard({ product }: { product: Product }) {
           className="pointer-events-none absolute top-[14px] left-[14px] z-10 h-10 w-auto select-none"
         />
 
+        {product.isNew && <NewBadge />}
+
         {product.badge && (
           <div
             className="absolute top-[18px] right-[18px] z-10 grid size-[78px] -rotate-12 place-items-center rounded-full border-2 border-ink p-2 text-center font-display text-[13px] leading-none shadow-[3px_3px_0_#001B21]"
-            style={{ background: badgeBg, color: badgeColor }}
+            style={{ background: badgeBg, color: "#F5F1EB" }}
           >
             {product.badgeLabel?.split(" ").map((w, i) => (
               <span key={i} className="block">
