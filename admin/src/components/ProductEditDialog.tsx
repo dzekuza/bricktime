@@ -22,6 +22,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
+import { DateTimePicker } from "@/components/DateTimePicker"
 import { cn } from "@/lib/utils"
 import {
   type Product,
@@ -1204,19 +1205,10 @@ export function ProductEditDialog({
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
                   <Label>Release date &amp; time</Label>
-                  <Input
-                    type="datetime-local"
-                    value={
-                      form.release_date ? form.release_date.slice(0, 16) : ""
-                    }
-                    onChange={(e) =>
-                      set(
-                        "release_date",
-                        e.target.value
-                          ? new Date(e.target.value).toISOString()
-                          : null
-                      )
-                    }
+                  <DateTimePicker
+                    value={form.release_date ?? null}
+                    onChange={(v) => set("release_date", v)}
+                    placeholder="Publish immediately"
                   />
                   <p className="text-xs text-muted-foreground">
                     Leave blank to publish immediately. Set a future date to
