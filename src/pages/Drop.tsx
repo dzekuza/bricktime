@@ -377,35 +377,12 @@ export default function Drop() {
       ) as string[])
     : []
 
-  const thumbs =
-    galleryImages.length > 0
-      ? galleryImages.map((image, i) => ({
-          label: `[ View ${i + 1} ]`,
-          bg: THUMB_BG[i % THUMB_BG.length],
-          image,
-        }))
-      : [
-          {
-            label: "[ Front ]",
-            bg: "#f8f6f2",
-            image: "/images/build-castle.jpg",
-          },
-          {
-            label: "[ Detail ]",
-            bg: "#f8f6f2",
-            image: "/images/build-cactus.jpg",
-          },
-          {
-            label: "[ Build spread ]",
-            bg: "#f8f6f2",
-            image: "/images/build-sailboat.jpg",
-          },
-          {
-            label: "[ Scale view ]",
-            bg: "#f8f6f2",
-            image: "/images/build-spaceship.jpg",
-          },
-        ]
+  const thumbs = galleryImages.map((image, i) => ({
+    label: `[ View ${i + 1} ]`,
+    bg: THUMB_BG[i % THUMB_BG.length],
+    image,
+  }))
+  const activeImage = thumbs[activeThumb]
 
   const lightboxPrev = useCallback(
     () => setActiveThumb((i) => (i - 1 + thumbs.length) % thumbs.length),
@@ -449,17 +426,22 @@ export default function Drop() {
               <div className="flex flex-col gap-4">
                 {/* Main image */}
                 <div
-                  className="relative h-[520px] cursor-zoom-in overflow-hidden rounded-[24px] border-2 border-ink"
-                  style={{ background: thumbs[activeThumb].bg }}
-                  onClick={() => setLightboxOpen(true)}
+                  className={[
+                    "relative h-[520px] overflow-hidden rounded-[24px] border-2 border-ink",
+                    activeImage ? "cursor-zoom-in" : "",
+                  ].join(" ")}
+                  style={{ background: activeImage?.bg ?? "#f8f6f2" }}
+                  onClick={() => activeImage && setLightboxOpen(true)}
                 >
-                  <img
-                    key={activeThumb}
-                    src={thumbs[activeThumb].image}
-                    alt={thumbs[activeThumb].label}
-                    className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300"
-                    style={{ objectPosition: "center 20%" }}
-                  />
+                  {activeImage && (
+                    <img
+                      key={activeThumb}
+                      src={activeImage.image}
+                      alt={activeImage.label}
+                      className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300"
+                      style={{ objectPosition: "center 20%" }}
+                    />
+                  )}
                   {/* Overlay badges */}
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
                   {product?.release_date && (
@@ -471,9 +453,11 @@ export default function Drop() {
                     </div>
                   )}
 
-                  <div className="absolute bottom-5 left-6 font-mono text-[10px] tracking-[.18em] text-paper/70 uppercase">
-                    {thumbs[activeThumb].label}
-                  </div>
+                  {activeImage && (
+                    <div className="absolute bottom-5 left-6 font-mono text-[10px] tracking-[.18em] text-paper/70 uppercase">
+                      {activeImage.label}
+                    </div>
+                  )}
 
                   {product?.isDangerous && (
                     <img
@@ -485,32 +469,34 @@ export default function Drop() {
                 </div>
 
                 {/* Thumbnails */}
-                <div className="scrollbar-none flex gap-3 overflow-x-auto pb-1 md:grid md:grid-cols-4 md:overflow-visible md:pb-0">
-                  {thumbs.map((t, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setActiveThumb(i)}
-                      className={[
-                        "relative h-[90px] w-[90px] shrink-0 overflow-hidden rounded-lg border-2 border-ink transition-all md:w-auto",
-                        activeThumb === i
-                          ? "outline outline-[3px] outline-offset-2 outline-brand-yellow"
-                          : "hover:opacity-80",
-                      ].join(" ")}
-                      style={{ background: t.bg }}
-                    >
-                      <img
-                        src={t.image}
-                        alt={t.label}
-                        className="absolute inset-0 h-full w-full object-cover"
-                        style={{ objectPosition: "center 20%" }}
-                      />
-                      <div className="absolute inset-0 bg-ink/30" />
-                      <span className="absolute right-0 bottom-1.5 left-0 text-center font-mono text-[8px] tracking-[.12em] text-paper/80 uppercase">
-                        {t.label.replace(/\[|\]/g, "").trim()}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+                {thumbs.length > 1 && (
+                  <div className="scrollbar-none flex gap-3 overflow-x-auto pb-1 md:grid md:grid-cols-4 md:overflow-visible md:pb-0">
+                    {thumbs.map((t, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setActiveThumb(i)}
+                        className={[
+                          "relative h-[90px] w-[90px] shrink-0 overflow-hidden rounded-lg border-2 border-ink transition-all md:w-auto",
+                          activeThumb === i
+                            ? "outline outline-[3px] outline-offset-2 outline-brand-yellow"
+                            : "hover:opacity-80",
+                        ].join(" ")}
+                        style={{ background: t.bg }}
+                      >
+                        <img
+                          src={t.image}
+                          alt={t.label}
+                          className="absolute inset-0 h-full w-full object-cover"
+                          style={{ objectPosition: "center 20%" }}
+                        />
+                        <div className="absolute inset-0 bg-ink/30" />
+                        <span className="absolute right-0 bottom-1.5 left-0 text-center font-mono text-[8px] tracking-[.12em] text-paper/80 uppercase">
+                          {t.label.replace(/\[|\]/g, "").trim()}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -1029,7 +1015,7 @@ export default function Drop() {
       <Footer />
 
       {/* ── Lightbox ── */}
-      {lightboxOpen && (
+      {lightboxOpen && activeImage && (
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-ink/90 backdrop-blur-sm"
           onClick={() => setLightboxOpen(false)}
@@ -1063,8 +1049,8 @@ export default function Drop() {
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={thumbs[activeThumb].image}
-              alt={thumbs[activeThumb].label}
+              src={activeImage.image}
+              alt={activeImage.label}
               className="max-h-[90vh] max-w-[90vw] rounded-2xl border-2 border-paper/20 object-contain shadow-[0_32px_80px_rgba(0,0,0,.6)]"
             />
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-ink/60 px-3 py-1 font-mono text-[10px] tracking-[.18em] text-paper/70 uppercase backdrop-blur-sm">
