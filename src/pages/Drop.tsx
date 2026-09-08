@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { Link, useParams } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
+import { formatReleaseMonthFirst } from "@/lib/vilnius-time"
 import Nav from "@/components/Nav"
 import { useBreadcrumbLabel } from "@/contexts/BreadcrumbContext"
 import Footer from "@/components/Footer"
@@ -194,27 +195,6 @@ type DbProduct = {
   compatibility: CompatItem[]
   release_date: string | null
   isDangerous?: boolean
-}
-
-const LT_MONTHS = [
-  "Sausis",
-  "Vasaris",
-  "Kovas",
-  "Balandis",
-  "Gegužė",
-  "Birželis",
-  "Liepa",
-  "Rugpjūtis",
-  "Rugsėjis",
-  "Spalis",
-  "Lapkritis",
-  "Gruodis",
-]
-
-function formatReleaseDate(iso: string | null): string {
-  if (!iso) return ""
-  const d = new Date(iso)
-  return `${LT_MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`
 }
 
 const THUMB_BG = ["#f8f6f2", "#f8f6f2", "#f8f6f2", "#f8f6f2"]
@@ -446,10 +426,10 @@ export default function Drop() {
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
                   {product?.release_date && (
                     <div
-                      className="absolute top-6 left-6 rotate-[-3deg] rounded-[8px] border-2 border-ink bg-brand-yellow px-4 py-2.5 font-display text-2xl leading-none text-ink"
+                      className="absolute top-6 left-6 rotate-[-3deg] rounded-[8px] border-2 border-ink bg-brand-yellow px-4 py-2.5 font-display text-2xl leading-none text-ink capitalize"
                       style={{ boxShadow: "4px 4px 0 #001B21" }}
                     >
-                      {formatReleaseDate(product.release_date)}
+                      {formatReleaseMonthFirst(product.release_date)}
                     </div>
                   )}
 
@@ -507,9 +487,9 @@ export default function Drop() {
             >
               <div className="flex flex-wrap items-center gap-3">
                 {product?.release_date && (
-                  <Badge className="rounded-full border-2 border-ink bg-brand-mint px-3 py-1 font-semibold text-ink">
+                  <Badge className="rounded-full border-2 border-ink bg-brand-mint px-3 py-1 font-semibold text-ink capitalize">
                     <span className="mr-1.5 inline-block size-2 rounded-full bg-ink" />
-                    {formatReleaseDate(product.release_date)}
+                    {formatReleaseMonthFirst(product.release_date)}
                   </Badge>
                 )}
                 {product?.category && (
