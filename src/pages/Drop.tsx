@@ -14,6 +14,7 @@ import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
 import { Seo } from "@/components/Seo"
 import { useProductAvailability } from "@/hooks/useProductAvailability"
 import { ManufacturerInfo } from "@/components/ManufacturerInfo"
+import { ExpandableHtml } from "@/components/ExpandableHtml"
 import {
   ProductCard,
   dbToProduct,
@@ -494,7 +495,7 @@ export default function Drop() {
                 )}
               </div>
 
-              <h1 className="heading-display text-d-lg mt-7 tracking-[-0.01em] text-ink">
+              <h1 className="heading-display text-d-md mt-7 tracking-[-0.01em] text-ink">
                 {product?.title ?? "Mailbox Row"}
                 <br />+{" "}
                 <span className="inline-block skew-x-[-8deg] text-brand-indigo italic">
@@ -502,10 +503,13 @@ export default function Drop() {
                 </span>
               </h1>
 
-              <p className="mt-6 max-w-[48ch] text-[18px] leading-[1.62] text-ink/80">
-                {product?.description ??
-                  "A five-storey postwar apartment block in mint and cream, complete with a working mailbox door, three planted balconies, and the universe's first scheduled crossover — Otto's bus is the bus from product №14."}
-              </p>
+              <ExpandableHtml
+                className="mt-6 max-w-[48ch] text-[18px] leading-[1.62] text-ink/80"
+                html={
+                  product?.description ??
+                  "A five-storey postwar apartment block in mint and cream, complete with a working mailbox door, three planted balconies, and the universe's first scheduled crossover — Otto's bus is the bus from product №14."
+                }
+              />
 
               {/* Legal / safety notice — LEGO® age warning + trademark disclaimer */}
               <div className="mt-5 flex max-w-[48ch] gap-3 rounded-2xl border-2 border-ink/15 bg-ink/[.02] px-4 py-3.5">
