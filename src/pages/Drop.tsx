@@ -438,14 +438,6 @@ export default function Drop() {
                       {activeImage.label}
                     </div>
                   )}
-
-                  {product?.isDangerous && (
-                    <img
-                      src="/wanrr.svg"
-                      alt="Warning"
-                      className="pointer-events-none absolute right-4 bottom-4 w-[100px] select-none"
-                    />
-                  )}
                 </div>
 
                 {/* Thumbnails */}
