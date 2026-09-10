@@ -12,6 +12,7 @@ import { ProductCard, dbToProduct } from "@/components/ProductCard"
 import { NextDrop } from "@/components/NextDrop"
 import { Seo } from "@/components/Seo"
 import { useProductAvailability } from "@/hooks/useProductAvailability"
+import { usePageHeaderImage } from "@/hooks/usePageHeaderImage"
 
 // ── filter constants ────────────────────────────────────────────────────────
 const SORT_OPTIONS = [
@@ -36,6 +37,7 @@ export default function Archive() {
   const [loading, setLoading] = useState(true)
   const [now] = useState(() => Date.now())
   const { available } = useProductAvailability()
+  const headerImage = usePageHeaderImage("archive", "/images/build-castle.jpg")
 
   useEffect(() => {
     supabase
@@ -149,7 +151,7 @@ export default function Archive() {
             </div>
             <div className="hidden lg:block">
               <img
-                src="/images/build-castle.jpg"
+                src={headerImage}
                 alt="LEGO® rinkiniai"
                 className="aspect-[2/1] w-full rounded-2xl border-2 border-ink object-cover shadow-[6px_6px_0_#001B21]"
               />

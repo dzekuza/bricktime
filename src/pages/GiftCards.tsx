@@ -4,6 +4,7 @@ import Footer from "@/components/Footer"
 import { useSearchParams, useNavigate } from "react-router-dom"
 import { Seo } from "@/components/Seo"
 import { downloadGiftCardPdf } from "@/lib/gift-card-pdf"
+import { usePageHeaderImage } from "@/hooks/usePageHeaderImage"
 
 const DENOMINATIONS = [
   { amount: 20, cents: 2000, tagline: "Puiki pradžia" },
@@ -92,6 +93,10 @@ function SuccessBanner({
 }
 
 export default function GiftCards() {
+  const headerImage = usePageHeaderImage(
+    "gift_cards",
+    "/images/build-spaceship.jpg"
+  )
   const [searchParams] = useSearchParams()
   const paymentSuccess = searchParams.get("payment") === "success"
   const successCode = searchParams.get("code") ?? ""
@@ -154,7 +159,7 @@ export default function GiftCards() {
             </div>
             <div className="hidden lg:block">
               <img
-                src="/images/build-spaceship.jpg"
+                src={headerImage}
                 alt="LEGO® dovanų kuponas"
                 className="aspect-[2/1] w-full rounded-2xl border-2 border-ink object-cover shadow-[6px_6px_0_#001B21]"
               />

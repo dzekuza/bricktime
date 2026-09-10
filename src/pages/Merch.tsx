@@ -4,6 +4,7 @@ import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import { supabase } from "@/lib/supabase"
 import { Seo } from "@/components/Seo"
+import { usePageHeaderImage } from "@/hooks/usePageHeaderImage"
 
 export interface MerchItem {
   id: string
@@ -185,6 +186,7 @@ function MerchCardSkeleton() {
 }
 
 export default function MerchPage() {
+  const headerImage = usePageHeaderImage("merch", "/images/build-sailboat.jpg")
   const [items, setItems] = useState<MerchItem[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -230,7 +232,7 @@ export default function MerchPage() {
             </div>
             <div className="hidden lg:block">
               <img
-                src="/images/build-sailboat.jpg"
+                src={headerImage}
                 alt="LEGO® statyba"
                 className="aspect-[2/1] w-full rounded-2xl border-2 border-ink object-cover shadow-[6px_6px_0_#001B21]"
               />
