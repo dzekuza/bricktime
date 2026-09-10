@@ -15,12 +15,14 @@ import { TestimonialsTab } from "@/components/content/TestimonialsTab"
 import { FaqCtaTab } from "@/components/content/FaqCtaTab"
 import { CategoriesTab } from "@/components/content/CategoriesTab"
 import { FaqQuestionsTab } from "@/components/content/FaqQuestionsTab"
+import { PageHeadersTab } from "@/components/content/PageHeadersTab"
 
 type HomeContent = Tables<"home_content">
 type MarqueeItem = Tables<"home_marquee_items">
 type Step = Tables<"home_how_it_works_steps">
 type Testimonial = Tables<"home_testimonials">
 type FaqItem = Tables<"faq_items">
+type PageHeader = Tables<"page_headers">
 
 const SCOPES = [
   { value: "home", label: "Home page" },
@@ -34,21 +36,29 @@ export function Content() {
   const [steps, setSteps] = useState<Step[]>([])
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
   const [faqItems, setFaqItems] = useState<FaqItem[]>([])
+  const [pageHeaders, setPageHeaders] = useState<PageHeader[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function load() {
-      const [contentRes, marqueeRes, stepsRes, testimonialsRes, faqRes] =
-        await Promise.all([
-          supabase.from("home_content").select("*").eq("id", 1).single(),
-          supabase.from("home_marquee_items").select("*").order("sort_order"),
-          supabase
-            .from("home_how_it_works_steps")
-            .select("*")
-            .order("sort_order"),
-          supabase.from("home_testimonials").select("*").order("sort_order"),
-          supabase.from("faq_items").select("*").order("sort_order"),
-        ])
+      const [
+        contentRes,
+        marqueeRes,
+        stepsRes,
+        testimonialsRes,
+        faqRes,
+        pageHeadersRes,
+      ] = await Promise.all([
+        supabase.from("home_content").select("*").eq("id", 1).single(),
+        supabase.from("home_marquee_items").select("*").order("sort_order"),
+        supabase
+          .from("home_how_it_works_steps")
+          .select("*")
+          .order("sort_order"),
+        supabase.from("home_testimonials").select("*").order("sort_order"),
+        supabase.from("faq_items").select("*").order("sort_order"),
+        supabase.from("page_headers").select("*").order("slug"),
+      ])
       if (contentRes.error)
         console.error("Failed to load home content:", contentRes.error.message)
       if (contentRes.data) setContent(contentRes.data)
@@ -56,6 +66,7 @@ export function Content() {
       if (stepsRes.data) setSteps(stepsRes.data)
       if (testimonialsRes.data) setTestimonials(testimonialsRes.data)
       if (faqRes.data) setFaqItems(faqRes.data)
+      if (pageHeadersRes.data) setPageHeaders(pageHeadersRes.data)
       setLoading(false)
     }
     load()
@@ -140,10 +151,15 @@ export function Content() {
         <Tabs defaultValue="faq-questions" className="flex flex-col gap-4">
           <TabsList className="w-fit">
             <TabsTrigger value="faq-questions">FAQ Questions</TabsTrigger>
+            <TabsTrigger value="page-headers">Page Headers</TabsTrigger>
           </TabsList>
 
           <TabsContent value="faq-questions">
             <FaqQuestionsTab items={faqItems} onChange={setFaqItems} />
+          </TabsContent>
+
+          <TabsContent value="page-headers">
+            <PageHeadersTab items={pageHeaders} onChange={setPageHeaders} />
           </TabsContent>
         </Tabs>
       )}
