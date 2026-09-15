@@ -17,7 +17,7 @@ pnpm format       # prettier --write
 
 - `src/` — this app. `pages/`, `components/` (+ `components/ui/` shadcn), `lib/`, `hooks/`, `data/`, `contexts/`. Alias `@/` → `src/`.
 - `supabase/functions/` — **Deno edge functions** (Stripe checkout, gift cards, penalties, billing portal, LP Express shipping). `supabase/migrations/` — SQL.
-- `admin/` — **git submodule** (`bricktime-admin`), a separate app with its own `.claude/`. Don't edit it from here unless asked. Also ignore siblings `next-app/`, `explainer-video/`, `bricktime/`.
+- `admin/` — a separate app (own `.claude/`) tracked as a plain directory in this repo, **not** a git submodule — commits touching it land directly in this repo's history. Don't edit it from here unless asked. Also ignore siblings `next-app/`, `explainer-video/`, `bricktime/`.
 
 ## Service model
 
