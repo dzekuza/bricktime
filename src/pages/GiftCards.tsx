@@ -191,7 +191,7 @@ export default function GiftCards() {
                         key={d.cents}
                         onClick={() => setSelected(d.cents)}
                         className={[
-                          "flex w-[180px] flex-col gap-2 rounded-[35px] border-2 border-ink p-[22px] text-left transition-all md:w-[200px]",
+                          "flex w-full flex-col gap-2 rounded-[35px] border-2 border-ink p-[22px] text-left transition-all",
                           isSelected
                             ? "-translate-x-[3px] -translate-y-[3px] bg-ink shadow-[6px_6px_0_#001B21]"
                             : "bg-paper shadow-[6px_6px_0_#001B21] hover:-translate-x-[3px] hover:-translate-y-[3px]",

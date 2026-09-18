@@ -224,7 +224,7 @@ export default function FeaturedProducts() {
           {hasMore && (
             <button
               onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-              className="brick-hover-sm flex h-12 items-center gap-2 rounded-full border-2 border-ink bg-brand-yellow px-[26px] text-[16px] leading-[26px] font-bold text-ink"
+              className="brick-hover-sm hidden h-12 items-center gap-2 rounded-full border-2 border-ink bg-brand-yellow px-[26px] text-[16px] leading-[26px] font-bold text-ink sm:flex"
             >
               Rodyti daugiau
               <PlusIcon size={16} />

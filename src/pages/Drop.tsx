@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { Link, useParams } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
+import { cn } from "@/lib/utils"
 import { formatReleaseMonthFirst } from "@/lib/vilnius-time"
 import Nav from "@/components/Nav"
 import { useBreadcrumbLabel } from "@/contexts/BreadcrumbContext"
@@ -30,9 +31,20 @@ type Review = {
   initials: string
 }
 
-function ReviewCard({ review: r }: { review: Review }) {
+function ReviewCard({
+  review: r,
+  className,
+}: {
+  review: Review
+  className?: string
+}) {
   return (
-    <Card className="brick-card brick-card-hover flex w-[80vw] shrink-0 flex-col gap-3.5 bg-paper p-4 sm:w-[60vw] md:p-6 lg:w-auto">
+    <Card
+      className={cn(
+        "brick-card brick-card-hover flex w-[80vw] shrink-0 flex-col gap-3.5 bg-paper p-4 sm:w-[60vw] md:p-6 lg:w-auto",
+        className
+      )}
+    >
       <CardContent className="flex h-full flex-col gap-3.5 p-0">
         <div className="flex gap-0.5" style={{ color: "#FB4903" }}>
           {Array.from({ length: r.stars }).map((_, j) => (
@@ -203,7 +215,6 @@ const THUMB_BG = ["#f8f6f2", "#f8f6f2", "#f8f6f2", "#f8f6f2"]
 // ── page ───────────────────────────────────────────────────────────────────
 function RelatedCarousel({ products }: { products: Product[] }) {
   const ref = useRef<HTMLDivElement>(null)
-  const [active, setActive] = useState(0)
   const visibleCount = 3
 
   function scroll(dir: "prev" | "next") {
@@ -214,19 +225,6 @@ function RelatedCarousel({ products }: { products: Product[] }) {
       behavior: "smooth",
     })
   }
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    function onScroll() {
-      const cardW = el!.children[0]?.clientWidth ?? 1
-      setActive(Math.round(el!.scrollLeft / (cardW + 16)))
-    }
-    el.addEventListener("scroll", onScroll, { passive: true })
-    return () => el.removeEventListener("scroll", onScroll)
-  }, [])
-
-  const dotCount = Math.max(0, products.length - visibleCount + 1)
 
   return (
     <div className="mt-10">
@@ -243,55 +241,48 @@ function RelatedCarousel({ products }: { products: Product[] }) {
           </span>
         </h2>
         {products.length > visibleCount && (
-          <div className="flex shrink-0 items-center gap-3 pb-1">
+          <div className="flex shrink-0 items-center gap-2 pb-1 md:gap-3">
             <button
               onClick={() => scroll("prev")}
               aria-label="Ankstesnis"
-              className="brick-card brick-hover-sm flex size-12 items-center justify-center bg-paper text-ink transition-all"
+              className="brick-card brick-hover-sm flex size-9 items-center justify-center bg-paper text-ink transition-all md:size-12"
             >
-              <ArrowLeftIcon className="size-5" aria-hidden="true" />
+              <ArrowLeftIcon className="size-4 md:size-5" aria-hidden="true" />
             </button>
-            <div className="flex items-center gap-2">
-              {Array.from({ length: dotCount }).map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => {
-                    if (!ref.current) return
-                    const cardW = ref.current.children[0]?.clientWidth ?? 0
-                    ref.current.scrollTo({
-                      left: i * (cardW + 16),
-                      behavior: "smooth",
-                    })
-                  }}
-                  aria-label={`Produktas ${i + 1}`}
-                  className={`h-2 rounded-full border border-ink transition-all duration-300 ${i === active ? "w-6 bg-ink" : "w-2 bg-transparent"}`}
-                />
-              ))}
-            </div>
             <button
               onClick={() => scroll("next")}
               aria-label="Kitas"
-              className="brick-card brick-hover-sm flex size-12 items-center justify-center bg-ink text-paper transition-all"
+              className="brick-card brick-hover-sm flex size-9 items-center justify-center bg-ink text-paper transition-all md:size-12"
             >
-              <ArrowRightIcon className="size-5" aria-hidden="true" />
+              <ArrowRightIcon className="size-4 md:size-5" aria-hidden="true" />
             </button>
           </div>
         )}
       </div>
 
-      {/* Scroll track */}
-      <div
-        ref={ref}
-        className="scrollbar-none -mx-3 flex snap-x snap-mandatory gap-4 overflow-x-auto px-3 py-3"
-      >
-        {products.map((p) => (
-          <div
-            key={p.id}
-            className="w-[calc(33.333%-11px)] shrink-0 snap-start"
-          >
-            <ProductCard product={p} />
-          </div>
-        ))}
+      {/* Scroll track — bleeds to the viewport edge on mobile like the
+          recommended-products rail; per-card edge margins double as
+          clipping room for the hover lift. No scroll-snap: it pulls the
+          initial scroll position past the first card's margin, hiding
+          the left gap on load. */}
+      <div className="-mx-4 md:mx-0">
+        <div
+          ref={ref}
+          className="scrollbar-none flex gap-4 overflow-x-auto pt-1 pb-3"
+        >
+          {products.map((p, i) => (
+            <div
+              key={p.id}
+              className={[
+                "w-[80%] shrink-0 sm:w-[calc(50%-8px)] md:w-[calc(33.333%-11px)]",
+                i === 0 ? "ml-4 md:ml-0" : "",
+                i === products.length - 1 ? "mr-4 md:mr-0" : "",
+              ].join(" ")}
+            >
+              <ProductCard product={p} />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
@@ -408,7 +399,7 @@ export default function Drop() {
                 {/* Main image */}
                 <div
                   className={[
-                    "relative h-[520px] overflow-hidden rounded-[24px] border-2 border-ink",
+                    "relative aspect-square overflow-hidden rounded-[24px] border-2 border-ink md:aspect-auto md:h-[520px]",
                     activeImage ? "cursor-zoom-in" : "",
                   ].join(" ")}
                   style={{ background: activeImage?.bg ?? "#f8f6f2" }}
@@ -942,11 +933,18 @@ export default function Drop() {
             {/* Row 2+: review cards — carousel on mobile, 2-col grid on desktop */}
             {/* bleed wrapper — escapes the grid cell horizontally on mobile */}
             <div className="lg:col-span-12">
-              {/* Mobile: auto-scrolling marquee */}
-              <div className="overflow-hidden lg:hidden">
-                <div className="reviews-track flex gap-4 pb-2">
+              {/* Mobile: auto-scrolling marquee — bleeds to the viewport
+                  edge like the recommended-products rail, so the first
+                  card sits flush under the heading instead of leaving a
+                  dead gap. */}
+              <div className="-mx-4 overflow-hidden md:mx-0 lg:hidden">
+                <div className="reviews-track flex gap-4 pt-1 pb-3">
                   {[...reviews, ...reviews].map((r, i) => (
-                    <ReviewCard key={i} review={r} />
+                    <ReviewCard
+                      key={i}
+                      review={r}
+                      className={i === 0 ? "ml-4" : undefined}
+                    />
                   ))}
                 </div>
               </div>
@@ -987,6 +985,36 @@ export default function Drop() {
           {related.length > 0 && <RelatedCarousel products={related} />}
         </div>
       </section>
+
+      {/* ── Sticky mobile CTA ── */}
+      <div className="h-20 md:hidden" />
+      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t-2 border-ink bg-paper px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_0_rgba(0,27,33,.06)] md:hidden">
+        <div className="flex flex-col leading-tight">
+          <span className="label-mono text-[10px] text-ink/40">Kaina</span>
+          <span className="font-display text-[20px] font-bold text-ink">
+            {product?.price != null ? `€${product.price}` : "—"}
+          </span>
+        </div>
+        {isRentedOut ? (
+          <Button
+            size="lg"
+            disabled
+            className="flex-1 justify-center rounded-full border-2 border-ink/30 bg-ink/10 text-[15px] font-bold text-ink/40"
+          >
+            Užimtas
+          </Button>
+        ) : (
+          <Button
+            asChild
+            size="lg"
+            className="flex-1 justify-center rounded-full border-2 border-ink bg-ink text-[15px] font-bold text-paper"
+          >
+            <Link to={`/checkout?product=${product?.id}`}>
+              Rinkis šį rinkinį →
+            </Link>
+          </Button>
+        )}
+      </div>
 
       <Footer />
 
