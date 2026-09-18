@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Separator } from "@/components/ui/separator"
 
@@ -25,6 +26,8 @@ const footerLinks = {
 const socials = ["Facebook", "Instagram", "TikTok"]
 
 export default function Footer() {
+  const [logoFailed, setLogoFailed] = useState(false)
+
   return (
     <footer className="bg-paper pt-8 pb-16 text-ink">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
@@ -32,7 +35,20 @@ export default function Footer() {
         <div className="grid grid-cols-2 gap-12 md:grid-cols-[2fr_1fr_1fr_1fr]">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <img src="/bricktime.svg" alt="BRICKTIME" className="h-12 w-auto" />
+            {logoFailed ? (
+              <span className="font-display text-[28px] leading-none text-ink uppercase">
+                Bricktime
+              </span>
+            ) : (
+              <img
+                src="/bricktime.svg"
+                alt="BRICKTIME"
+                width={171}
+                height={49}
+                className="h-12 w-auto"
+                onError={() => setLogoFailed(true)}
+              />
+            )}
             <p className="mt-4 max-w-none text-[14px] leading-relaxed text-ink/60 md:max-w-[32ch]">
               Pirmoji originalių LEGO® rinkinių prenumerata Lietuvoje. Konstruok
               daugiau, atrask naujus projektus ir mėgaukis LEGO® be didelių

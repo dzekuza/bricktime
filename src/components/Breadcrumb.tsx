@@ -64,11 +64,17 @@ export default function Breadcrumb() {
 
   return (
     <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-      <nav aria-label="Breadcrumb" className="flex items-center gap-2.5 py-2.5">
+      <nav
+        aria-label="Breadcrumb"
+        className="flex flex-nowrap items-center gap-2.5 overflow-hidden py-2.5"
+      >
         {all.map((crumb, i) => {
           const isLast = i === all.length - 1
           return (
-            <span key={i} className="flex items-center gap-2.5">
+            <span
+              key={i}
+              className={`flex items-center gap-2.5 ${isLast ? "min-w-0" : "shrink-0"}`}
+            >
               {i > 0 && (
                 <span className="font-mono text-[11px] tracking-[.18em] text-ink/30 uppercase select-none">
                   /
@@ -76,7 +82,7 @@ export default function Breadcrumb() {
               )}
               {isLast || !crumb.to ? (
                 <span
-                  className={`font-mono text-[11px] tracking-[.18em] uppercase ${isLast ? "font-bold text-ink" : "text-ink/55"}`}
+                  className={`truncate font-mono text-[11px] tracking-[.18em] uppercase ${isLast ? "font-bold text-ink" : "text-ink/55"}`}
                 >
                   {crumb.label}
                 </span>
