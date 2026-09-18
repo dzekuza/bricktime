@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react"
+import BrandLogoVideo from "@/components/BrandLogoVideo"
 
 export default function LoadingScreen({ onDone }: { onDone: () => void }) {
   const [fading, setFading] = useState(false)
@@ -17,27 +18,20 @@ export default function LoadingScreen({ onDone }: { onDone: () => void }) {
     <div
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
       style={{
-        background: '#ffffff',
+        background: "#ffffff",
         opacity: fading ? 0 : 1,
-        transition: 'opacity 0.5s ease',
-        pointerEvents: fading ? 'none' : 'all',
+        transition: "opacity 0.5s ease",
+        pointerEvents: fading ? "none" : "all",
       }}
     >
-      <video
-        src="/nav-logo.mov"
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="h-32 w-auto object-contain"
-      />
+      <BrandLogoVideo className="h-32 w-auto object-contain" />
 
       {/* Loading bar */}
       <div className="mt-10 h-[2px] w-40 overflow-hidden rounded-full bg-ink/10">
         <div
           className="h-full rounded-full bg-ink"
           style={{
-            animation: 'loader-bar 2.5s ease-in-out forwards',
+            animation: "loader-bar 2.5s ease-in-out forwards",
           }}
         />
       </div>
