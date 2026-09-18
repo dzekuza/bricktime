@@ -13,6 +13,7 @@ type HelpPageProps = {
   intro: string
   path: string
   heroImage?: string
+  heroMascot?: string
   summary: { label: string; value: string }[]
   sections: { title: string; body: string }[]
   checklist: string[]
@@ -24,6 +25,7 @@ function HelpPage({
   intro,
   path,
   heroImage,
+  heroMascot,
   sections,
   checklist,
   helpNote,
@@ -65,6 +67,15 @@ function HelpPage({
                     src={heroImage}
                     alt={title}
                     className="aspect-[2/1] w-full rounded-2xl border-2 border-ink object-cover shadow-[6px_6px_0_#001B21]"
+                  />
+                </div>
+              )}
+              {heroMascot && (
+                <div className="hidden justify-center lg:flex">
+                  <img
+                    src={heroMascot}
+                    alt=""
+                    className="w-full max-w-[360px] object-contain"
                   />
                 </div>
               )}
@@ -150,6 +161,7 @@ export function FAQPage() {
       title="D.U.K."
       path="/duk"
       intro="Čia rasi atsakymus į dažniausiai užduodamus klausimus apie Brick Time – nuo prenumeratų ir LEGO® rinkinių iki pristatymo, grąžinimo bei paslaugos veikimo."
+      heroMascot="/duk-mascot.png"
       summary={[
         {
           label: "Atsakymai",
