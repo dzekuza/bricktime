@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Link, useLocation } from "react-router-dom"
 import Breadcrumb from "@/components/Breadcrumb"
 import {
@@ -167,6 +167,8 @@ export default function Nav() {
   const { user, profile } = useAuth()
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const navRef = useRef<HTMLElement>(null)
+  const [navHeight, setNavHeight] = useState(0)
 
   useEffect(() => {
     setOpen(false)
@@ -182,10 +184,22 @@ export default function Nav() {
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
+  useEffect(() => {
+    const nav = navRef.current
+    if (!nav) return
+    const observer = new ResizeObserver(() =>
+      setNavHeight(nav.getBoundingClientRect().height)
+    )
+    observer.observe(nav)
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-transparent py-4 md:py-6">
+      <nav
+        ref={navRef}
+        className="sticky top-0 z-50 bg-transparent py-4 md:py-6"
+      >
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div
             className={[
@@ -269,7 +283,7 @@ export default function Nav() {
       <div
         className="fixed right-0 bottom-0 left-0 z-40 flex flex-col border-t border-ink/10 bg-paper/95 backdrop-blur-lg md:hidden"
         style={{
-          top: "96px",
+          top: navHeight,
           opacity: open ? 1 : 0,
           transform: open ? "translateY(0)" : "translateY(-8px)",
           pointerEvents: open ? "all" : "none",
