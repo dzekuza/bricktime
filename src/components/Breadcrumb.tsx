@@ -15,6 +15,11 @@ const EXACT: Record<string, Crumb[]> = {
   "/duk": [{ label: "D.U.K." }],
   "/praleisti-pristabdyti": [{ label: "Pristabdyti" }],
   "/pristatymas": [{ label: "Pristatymas" }],
+  "/grazinimai": [{ label: "Grąžinimai" }],
+  "/apie": [{ label: "Apie mus" }],
+  "/privatumo-politika": [{ label: "Privatumo politika" }],
+  "/parduotuves-taisykles": [{ label: "Parduotuvės taisyklės" }],
+  "/nustatyti-slaptazodi": [{ label: "Slaptažodžio atstatymas" }],
 }
 
 const PREFIX: Array<{ match: string; parent: Crumb; fallback: string }> = [
