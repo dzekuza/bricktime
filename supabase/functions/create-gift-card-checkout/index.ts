@@ -8,7 +8,8 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 }
 
 function generateCode(): string {
@@ -25,11 +26,25 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { amountCents, recipientEmail, buyerEmail, message, successUrl, cancelUrl } =
-      await req.json()
+    const {
+      amountCents,
+      recipientEmail,
+      buyerEmail,
+      message,
+      successUrl,
+      cancelUrl,
+    } = await req.json()
 
-    if (!amountCents || !recipientEmail || !buyerEmail || !successUrl || !cancelUrl) {
-      throw new Error("amountCents, recipientEmail, buyerEmail, successUrl, cancelUrl are required")
+    if (
+      !amountCents ||
+      !recipientEmail ||
+      !buyerEmail ||
+      !successUrl ||
+      !cancelUrl
+    ) {
+      throw new Error(
+        "amountCents, recipientEmail, buyerEmail, successUrl, cancelUrl are required"
+      )
     }
 
     const validAmounts = [2000, 3000, 5000, 8000, 10000, 20000]
@@ -39,7 +54,7 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     )
 
     let code = generateCode()
@@ -54,7 +69,8 @@ Deno.serve(async (req) => {
       code = generateCode()
       attempts++
     }
-    if (attempts >= 5) throw new Error("Failed to generate a unique gift card code")
+    if (attempts >= 5)
+      throw new Error("Failed to generate a unique gift card code")
 
     const amountEur = amountCents / 100
 
@@ -81,15 +97,29 @@ Deno.serve(async (req) => {
       metadata: { code, recipientEmail, buyerEmail },
     })
 
-    await supabase.from("gift_cards").insert({
-      code,
-      amount_cents: amountCents,
-      recipient_email: recipientEmail,
-      buyer_email: buyerEmail,
-      message: message ?? null,
-      status: "active",
-      stripe_session_id: session.id,
-    })
+    // The client only needs the checkout URL to redirect — record the gift
+    // card row after responding instead of making the user wait on it too.
+    EdgeRuntime.waitUntil(
+      supabase
+        .from("gift_cards")
+        .insert({
+          code,
+          amount_cents: amountCents,
+          recipient_email: recipientEmail,
+          buyer_email: buyerEmail,
+          message: message ?? null,
+          status: "active",
+          stripe_session_id: session.id,
+        })
+        .then(({ error: insertError }) => {
+          if (insertError) {
+            console.error(
+              "create-gift-card-checkout: gift_cards insert failed",
+              { code, sessionId: session.id, error: insertError }
+            )
+          }
+        })
+    )
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

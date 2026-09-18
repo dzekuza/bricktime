@@ -114,6 +114,17 @@ export default function Footer() {
           Kiti nurodomi ženklai priklauso atitinkamiems jų savininkams ir
           naudojami tik rinkiniams identifikuoti.
         </p>
+        <p className="mt-3 text-[11px] text-ink/35">
+          Created by{" "}
+          <a
+            href="https://www.pidea.lt/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-ink/50 transition-colors hover:text-ink"
+          >
+            P.idea
+          </a>
+        </p>
       </div>
     </footer>
   )
