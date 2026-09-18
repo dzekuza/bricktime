@@ -181,34 +181,42 @@ export default function FeaturedProducts() {
           />
         </div>
 
-        {/* Cards — horizontal scroll on mobile, 3-col grid on md+ */}
-        <div
-          ref={ref}
-          className="flex touch-pan-x snap-x snap-mandatory gap-5 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] md:grid md:grid-cols-3 md:gap-7 md:overflow-visible md:pb-0 [&::-webkit-scrollbar]:hidden"
-        >
-          {loading
-            ? Array.from({ length: 3 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="brick-card w-[82vw] shrink-0 animate-pulse snap-start overflow-hidden md:w-auto md:shrink"
-                >
-                  <div className="h-[280px] bg-ink/10" />
-                  <div className="flex flex-col gap-3 p-4 md:p-5">
-                    <div className="h-5 w-2/3 rounded bg-ink/10" />
-                    <div className="h-3 w-1/2 rounded bg-ink/10" />
-                    <div className="h-3 w-full rounded bg-ink/10" />
-                    <div className="mt-auto h-9 rounded-xl bg-ink/10" />
+        {/* Cards — horizontal scroll on mobile, 3-col grid on md+.
+            The track itself bleeds to the true viewport edge (-mx-4) so
+            there's no dead white zone while scrolling/swiping. The resting
+            inset is restored per-card instead (first:ml-4/last:mr-4), which
+            also doubles as clipping room for the hover lift. No scroll-snap:
+            it was pulling the initial scroll position past the first card's
+            margin, hiding the left gap on load. */}
+        <div className="-mx-4 md:mx-0">
+          <div
+            ref={ref}
+            className="flex gap-5 overflow-x-auto pt-1 pb-3 [-ms-overflow-style:none] [scrollbar-width:none] md:grid md:grid-cols-3 md:gap-7 md:overflow-visible md:p-0 [&::-webkit-scrollbar]:hidden"
+          >
+            {loading
+              ? Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="brick-card w-[82vw] shrink-0 animate-pulse overflow-hidden first:ml-4 last:mr-4 md:w-auto md:shrink md:first:ml-0 md:last:mr-0"
+                  >
+                    <div className="h-[280px] bg-ink/10" />
+                    <div className="flex flex-col gap-3 p-4 md:p-5">
+                      <div className="h-5 w-2/3 rounded bg-ink/10" />
+                      <div className="h-3 w-1/2 rounded bg-ink/10" />
+                      <div className="h-3 w-full rounded bg-ink/10" />
+                      <div className="mt-auto h-9 rounded-xl bg-ink/10" />
+                    </div>
                   </div>
-                </div>
-              ))
-            : shown.map((product) => (
-                <div
-                  key={product.id}
-                  className="w-[82vw] shrink-0 snap-start md:w-auto md:shrink"
-                >
-                  <ProductCard product={product} />
-                </div>
-              ))}
+                ))
+              : shown.map((product) => (
+                  <div
+                    key={product.id}
+                    className="w-[82vw] shrink-0 first:ml-4 last:mr-4 md:w-auto md:shrink md:first:ml-0 md:last:mr-0"
+                  >
+                    <ProductCard product={product} />
+                  </div>
+                ))}
+          </div>
         </div>
 
         {/* Footer */}
