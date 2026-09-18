@@ -4,6 +4,7 @@ import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import { Seo } from "@/components/Seo"
 import { supabase } from "@/lib/supabase"
+import { translateAuthError } from "@/lib/auth-errors"
 
 export default function ResetPassword() {
   const navigate = useNavigate()
@@ -27,7 +28,7 @@ export default function ResetPassword() {
     setLoading(false)
 
     if (error) {
-      setError(error.message)
+      setError(translateAuthError(error.message))
     } else {
       setSuccess(true)
       setTimeout(() => navigate("/account"), 1500)

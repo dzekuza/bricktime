@@ -147,7 +147,7 @@ export default function UserProfile() {
           {/* Two-column layout */}
           <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
             {/* Avatar + name tile — sticky */}
-            <div className="flex flex-col rounded-2xl border-2 border-ink bg-ink p-6 shadow-[6px_6px_0_#FFD731] md:rounded-3xl md:p-8 lg:sticky lg:top-24 lg:col-span-4">
+            <div className="flex flex-col rounded-2xl border-2 border-ink bg-ink p-6 shadow-[6px_6px_0_#FFD731] md:rounded-3xl md:p-8 lg:sticky lg:top-[148px] lg:col-span-4">
               <div
                 className="mb-4 size-20 overflow-hidden rounded-full border-2 border-paper/20"
                 style={{ background: profile.avatar_bg }}

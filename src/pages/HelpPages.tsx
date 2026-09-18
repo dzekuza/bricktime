@@ -95,7 +95,7 @@ function HelpPage({
               ))}
             </div>
 
-            <aside className="grid gap-4 self-start lg:sticky lg:top-28">
+            <aside className="grid gap-4 self-start lg:sticky lg:top-[148px]">
               <div className="brick-card bg-ink p-6 text-paper md:p-8">
                 <p className="label-mono text-paper/50">Trumpai</p>
                 <ul className="mt-5 space-y-3">

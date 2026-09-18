@@ -705,6 +705,7 @@ function FeedPanel({
     const { data } = await supabase
       .from("community_feed")
       .select("*")
+      .neq("type", "checkin")
       .order("created_at", { ascending: true })
       .limit(200)
 
@@ -1318,7 +1319,7 @@ export default function Community() {
       <section className="bg-paper pt-4 pb-20">
         <div ref={contentRef} className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[2fr_3fr]">
-            <div className="top-[120px] lg:sticky lg:max-h-[calc(100dvh-120px)] lg:self-start lg:overflow-y-auto">
+            <div className="top-[148px] lg:sticky lg:max-h-[calc(100dvh-148px)] lg:self-start lg:overflow-y-auto">
               <ChallengesPanel refreshKey={checkin.version} />
               <h3 className="label-mono mb-6 text-ink/50">Lyderiai</h3>
               <LeaderboardPanel refreshKey={checkin.version} />
