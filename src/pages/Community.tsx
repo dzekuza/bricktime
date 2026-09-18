@@ -31,6 +31,10 @@ import {
 import { useAchievements } from "@/hooks/useAchievements"
 import { useDailyCheckin, type DailyCheckin } from "@/hooks/useDailyCheckin"
 import { usePageHeaderImage } from "@/hooks/usePageHeaderImage"
+import {
+  getSubscriptionDisplayName,
+  getSubscriptionTheme,
+} from "@/lib/subscription-branding"
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -60,14 +64,6 @@ const studPattern = {
   backgroundImage:
     "radial-gradient(circle at 12px 12px, rgba(255,255,255,.18) 3px, transparent 4px)",
   backgroundSize: "24px 24px",
-}
-
-const tierColors: Record<string, string> = {
-  Mega: "#FB4903",
-  Pro: "#4DA2FF",
-  Standard: "#FFD731",
-  Mini: "#FFAEE7",
-  Nano: "#F5F1EB",
 }
 
 const REPORT_REASONS = [
@@ -247,13 +243,12 @@ function FeedCard({
                   className="shrink-0 rounded-full border border-ink/20 px-2 py-0.5 font-mono text-[9px] font-bold tracking-[.1em] uppercase"
                   style={{
                     background:
-                      tierColors[
-                        item.plan.charAt(0).toUpperCase() + item.plan.slice(1)
-                      ] ?? "#F5F1EB",
-                    color: item.plan === "mega" ? "#F5F1EB" : "#001B21",
+                      getSubscriptionTheme(item.plan)?.bg ?? "#F5F1EB",
+                    color:
+                      getSubscriptionTheme(item.plan)?.textColor ?? "#001B21",
                   }}
                 >
-                  {item.plan}
+                  {getSubscriptionDisplayName(item.plan)}
                 </span>
               )}
               {isOwn && <StatusBadge status={item.status} />}
@@ -1128,9 +1123,8 @@ function LeaderboardPanel({ refreshKey }: { refreshKey: number }) {
       <div className="mb-4 grid grid-cols-3 gap-3">
         {[top3[1], top3[0], top3[2]].filter(Boolean).map((entry, podiumIdx) => {
           const isCenter = podiumIdx === 1
-          const tierName = entry.tier
-            ? entry.tier.charAt(0).toUpperCase() + entry.tier.slice(1)
-            : ""
+          const tierName = getSubscriptionDisplayName(entry.tier)
+          const tierTheme = getSubscriptionTheme(entry.tier)
           return (
             <div
               key={entry.subscriber_id}
@@ -1153,8 +1147,8 @@ function LeaderboardPanel({ refreshKey }: { refreshKey: number }) {
               <div
                 className="mt-1 rounded-full border border-paper/20 px-1.5 py-px text-[9px] font-bold"
                 style={{
-                  background: tierColors[tierName] ?? "#FFD731",
-                  color: "#001B21",
+                  background: tierTheme?.bg ?? "#FFD731",
+                  color: tierTheme?.textColor ?? "#001B21",
                 }}
               >
                 {tierName}
@@ -1218,9 +1212,8 @@ function LeaderboardPanel({ refreshKey }: { refreshKey: number }) {
           ))}
         </div>
         {rest.map((entry) => {
-          const tierName = entry.tier
-            ? entry.tier.charAt(0).toUpperCase() + entry.tier.slice(1)
-            : ""
+          const tierName = getSubscriptionDisplayName(entry.tier)
+          const tierTheme = getSubscriptionTheme(entry.tier)
           const isMe = user && entry.subscriber_id === user.id
           return (
             <div
@@ -1254,8 +1247,8 @@ function LeaderboardPanel({ refreshKey }: { refreshKey: number }) {
                 <span
                   className="rounded-full border border-ink/15 px-1.5 py-px text-[9px] font-bold"
                   style={{
-                    background: tierColors[tierName] ?? "#F5F1EB",
-                    color: "#001B21",
+                    background: tierTheme?.bg ?? "#F5F1EB",
+                    color: tierTheme?.textColor ?? "#001B21",
                   }}
                 >
                   {tierName}

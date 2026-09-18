@@ -65,6 +65,26 @@ Deno.serve(async (req) => {
       )
     }
 
+    const eventRes = await fetch("https://api.omnisend.com/v5/events", {
+      method: "POST",
+      headers: {
+        "X-API-KEY": apiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        eventName: "coming soon subscribed",
+        origin: "api",
+        contact: { email: email.trim().toLowerCase() },
+        properties: {},
+      }),
+    })
+
+    if (!eventRes.ok) {
+      console.error(
+        `Omnisend event push failed: ${eventRes.status} ${await eventRes.text()}`
+      )
+    }
+
     return new Response(JSON.stringify({ ok: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     })

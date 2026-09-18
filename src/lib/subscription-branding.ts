@@ -36,11 +36,9 @@ const SUBSCRIPTION_BRANDING = {
     },
   },
   pro: {
-    // NOTE: client's approved rename list says "Pro -> Legenda", but every
-    // other part of this codebase (admin early-access picker, featured
-    // products data) already pairs "Legenda" with the "mega" tier instead.
-    // Kept as "Pro" pending client clarification on which DB tier
-    // ("pro" or "mega") the approved "Legenda" name actually refers to.
+    // "pro" has no row in the `plans` table and no current subscribers
+    // (verified against the DB) — it's a leftover plan_tier enum value,
+    // not an active plan. "mega" is confirmed as the real "Legenda" plan.
     displayName: "Pro",
     brickImage: "/plans/master.svg",
     brickSvg: "/bricks/brick-pink.svg",

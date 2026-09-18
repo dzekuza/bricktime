@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react"
 import { supabase } from "@/lib/supabase"
 import { Seo } from "@/components/Seo"
+import BrandLogoVideo from "@/components/BrandLogoVideo"
 
 function AccessUnlock({ onUnlock }: { onUnlock: (code: string) => boolean }) {
   const [open, setOpen] = useState(false)
@@ -97,14 +98,7 @@ export default function ComingSoon({
       <div className="grid-overlay pointer-events-none absolute inset-0" />
 
       <div className="relative z-10 mb-10 flex items-center">
-        <video
-          src="/nav-logo.mov"
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="h-16 w-auto rounded-xl object-contain"
-        />
+        <BrandLogoVideo className="h-16 w-auto rounded-xl object-contain" />
       </div>
 
       <div className="brick-card relative z-10 flex w-full max-w-lg flex-col items-center gap-6 bg-paper p-8 text-center md:p-11">

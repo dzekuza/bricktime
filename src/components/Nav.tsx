@@ -25,6 +25,7 @@ import { avatarSrc } from "@/lib/avatars"
 import { AuthForm } from "@/components/AuthForm"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
 import { useCredits } from "@/hooks/useCredits"
+import BrandLogoVideo from "@/components/BrandLogoVideo"
 
 const PLAN_COLORS: Record<string, { bg: string; text: string }> = {
   nano: { bg: "#F5F1EB", text: "#001B21" },
@@ -212,14 +213,7 @@ export default function Nav() {
             </div>
 
             <Link to="/" className="flex items-center md:justify-self-center">
-              <video
-                src="/nav-logo.mov"
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="h-16 w-auto object-contain"
-              />
+              <BrandLogoVideo className="h-16 w-auto object-contain" />
             </Link>
 
             {/* Right — CTA + avatar + hamburger */}
@@ -248,20 +242,22 @@ export default function Nav() {
                     </Link>
                   </Button>
                 )}
-                <AvatarPopover />
               </div>
 
-              <button
-                onClick={() => setOpen((v) => !v)}
-                className="grid size-10 place-items-center rounded-full border-2 border-ink bg-paper md:hidden"
-                aria-label={open ? "Uždaryti meniu" : "Atidaryti meniu"}
-              >
-                {open ? (
-                  <XIcon className="size-5 text-ink" />
-                ) : (
-                  <MenuIcon className="size-5 text-ink" />
-                )}
-              </button>
+              <div className="flex items-center gap-2">
+                <AvatarPopover />
+                <button
+                  onClick={() => setOpen((v) => !v)}
+                  className="grid size-9 place-items-center rounded-full border-2 border-ink bg-paper md:hidden"
+                  aria-label={open ? "Uždaryti meniu" : "Atidaryti meniu"}
+                >
+                  {open ? (
+                    <XIcon className="size-5 text-ink" />
+                  ) : (
+                    <MenuIcon className="size-5 text-ink" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -94,11 +94,13 @@ function AchievementsSection({
   totalPoints,
   achievements,
   userId,
+  leaderboardRank,
 }: {
   unlockedIds: Set<string>
   totalPoints: number
   achievements: AchievementDef[]
   userId: string
+  leaderboardRank: number | null
 }) {
   const [hoveredId, setHoveredId] = useState<string | null>(null)
 
@@ -119,7 +121,9 @@ function AchievementsSection({
                 <p className="font-mono text-[11px] tracking-widest text-paper/40 uppercase">
                   Lyderių lentelė
                 </p>
-                <p className="mt-1 text-[22px] font-bold text-paper"># –</p>
+                <p className="mt-1 text-[22px] font-bold text-paper">
+                  {leaderboardRank ? `#${leaderboardRank}` : "# –"}
+                </p>
               </div>
               <a
                 href="/community"
@@ -229,6 +233,7 @@ export default function Account() {
   )
   const [subscriber, setSubscriber] = useState<SubscriberData | null>(null)
   const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set())
+  const [leaderboardRank, setLeaderboardRank] = useState<number | null>(null)
   const [postCount, setPostCount] = useState(0)
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [planChanging, setPlanChanging] = useState(false)
@@ -392,6 +397,18 @@ export default function Account() {
         )
       setPostCount(count ?? 0)
     })
+  }, [user])
+
+  useEffect(() => {
+    if (!user) return
+    supabase
+      .from("leaderboard")
+      .select("rank")
+      .eq("subscriber_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setLeaderboardRank(data?.rank ?? null)
+      })
   }, [user])
 
   useEffect(() => {
@@ -975,6 +992,7 @@ export default function Account() {
         totalPoints={totalPoints}
         achievements={achievements}
         userId={user?.id ?? ""}
+        leaderboardRank={leaderboardRank}
       />
 
       {/* ── Penalty banner ───────────────────────────────────────────── */}
