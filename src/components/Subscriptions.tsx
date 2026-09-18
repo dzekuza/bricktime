@@ -101,9 +101,9 @@ export default function Subscriptions({
       <div className="relative z-10 mx-auto max-w-[1320px] px-4 md:px-7">
         <div ref={ref} className="grid grid-cols-1 gap-4 lg:grid-cols-12">
           {/* Tagline tile — full width */}
-          <div className="reveal flex items-end justify-between py-6 md:py-9 lg:col-span-12">
+          <div className="reveal flex flex-col items-center gap-4 py-6 md:py-9 lg:col-span-12 lg:flex-row lg:items-end lg:justify-between">
             {/* Billing toggle */}
-            <div className="order-last ml-6 hidden shrink-0 flex-col items-center gap-2 self-start pt-1 lg:flex">
+            <div className="order-first flex shrink-0 flex-col items-center gap-2 pt-1 lg:order-last lg:ml-6 lg:self-start">
               <span className="label-mono text-ink/45">Atsiskaitymas</span>
               <div className="flex items-center gap-1 rounded-full border-2 border-ink bg-paper p-1.5 shadow-[4px_4px_0_#001B21]">
                 <button
@@ -120,7 +120,7 @@ export default function Subscriptions({
                 </button>
               </div>
             </div>
-            <div className="mt-8 flex items-center gap-3">
+            <div className="flex items-center gap-3 lg:mt-8">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 rounded-full border-2 border-ink bg-ink px-4 py-1.5 font-mono text-[11px] tracking-[.08em] text-paper uppercase transition-all">
                   <span>1</span>
