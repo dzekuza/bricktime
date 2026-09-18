@@ -173,16 +173,16 @@ export default function Testimonials() {
             />
           </h2>
 
-          <div className="flex items-center gap-3 pb-1">
+          <div className="flex items-center gap-2 pb-1 md:gap-3">
             <button
               onClick={() => step(-1)}
-              className="brick-card brick-hover-sm flex size-12 items-center justify-center bg-paper text-ink transition-all"
+              className="brick-card brick-hover-sm flex size-9 items-center justify-center bg-paper text-ink transition-all md:size-12"
               aria-label="Ankstesnis"
             >
-              <ArrowLeft className="size-5" />
+              <ArrowLeft className="size-4 md:size-5" />
             </button>
 
-            <div className="flex items-center gap-2">
+            <div className="hidden items-center gap-2 sm:flex">
               {testimonials.map((_, i) => (
                 <button
                   key={i}
@@ -210,10 +210,10 @@ export default function Testimonials() {
 
             <button
               onClick={() => step(1)}
-              className="brick-card brick-hover-sm flex size-12 items-center justify-center bg-ink text-paper transition-all"
+              className="brick-card brick-hover-sm flex size-9 items-center justify-center bg-ink text-paper transition-all md:size-12"
               aria-label="Kitas"
             >
-              <ArrowRight className="size-5" />
+              <ArrowRight className="size-4 md:size-5" />
             </button>
           </div>
         </div>
