@@ -105,7 +105,7 @@ function AchievementsSection({
   const [hoveredId, setHoveredId] = useState<string | null>(null)
 
   return (
-    <section className="bg-paper pb-10 md:pb-20">
+    <section className="bg-paper pt-10 pb-10 md:pt-20 md:pb-20">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* Points summary */}
@@ -641,7 +641,7 @@ export default function Account() {
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
             {/* User tile */}
-            <div className="flex min-h-[340px] flex-col rounded-2xl border-2 border-ink bg-paper p-6 shadow-[6px_6px_0_#001B21] md:rounded-3xl md:p-9 lg:col-span-7">
+            <div className="flex min-h-[340px] flex-col rounded-2xl border-2 border-ink bg-paper p-6 shadow-[6px_6px_0_#001B21] md:rounded-3xl md:p-9 lg:col-span-8">
               <div className="flex items-start gap-5">
                 <div className="shrink-0">
                   <button
@@ -721,10 +721,6 @@ export default function Account() {
               <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
                 {[
                   { val: postCount, label: "Įrašai" },
-                  {
-                    val: `${activeTier.level}/${tierOptions.length || 5}`,
-                    label: "Prenumeratos lygis",
-                  },
                   { val: memberSince, label: "Narys nuo" },
                   { val: totalPoints, label: "Taškai" },
                   {
@@ -764,7 +760,7 @@ export default function Account() {
             {/* Subscription tile */}
             {hasSubscription ? (
               <div
-                className="brick-card flex flex-col p-6 md:min-h-[340px] md:p-9 lg:col-span-5"
+                className="brick-card flex flex-col p-6 md:min-h-[340px] md:p-9 lg:col-span-4"
                 style={{ background: activeTier.bg }}
               >
                 <div>
@@ -834,7 +830,7 @@ export default function Account() {
                 </div>
               </div>
             ) : (
-              <div className="brick-card flex flex-col justify-between gap-6 bg-cream p-6 md:min-h-[340px] md:p-9 lg:col-span-5">
+              <div className="brick-card flex flex-col justify-between gap-6 bg-cream p-6 md:min-h-[340px] md:p-9 lg:col-span-4">
                 <div>
                   <h2 className="text-d-sm mt-3 font-display leading-[.88] text-ink uppercase">
                     Nėra prenumeratos

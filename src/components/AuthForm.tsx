@@ -1,11 +1,14 @@
 import { useState } from "react"
+import { EyeIcon, EyeOffIcon } from "lucide-react"
 import { supabase } from "@/lib/supabase"
+import { translateAuthError } from "@/lib/auth-errors"
 
 export function AuthForm({ onClose }: { onClose: () => void }) {
   const [mode, setMode] = useState<"signin" | "register" | "forgot">("signin")
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState("")
@@ -22,14 +25,14 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
         password,
       })
       setLoading(false)
-      if (error) setError(error.message)
+      if (error) setError(translateAuthError(error.message))
       else onClose()
     } else if (mode === "forgot") {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/nustatyti-slaptazodi`,
       })
       setLoading(false)
-      if (error) setError(error.message)
+      if (error) setError(translateAuthError(error.message))
       else setSuccess("Nuoroda slaptažodžiui atstatyti išsiųsta į el. paštą.")
     } else {
       // The matching `subscribers` row is created by the on_auth_user_created
@@ -40,9 +43,12 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
         options: { data: { name } },
       })
       setLoading(false)
-      if (error) setError(error.message)
+      if (error) setError(translateAuthError(error.message))
       else {
-        setSuccess("Paskyra sukurta! Patikrink el. paštą arba prisijunk.")
+        setSuccess(
+          "Paskyra sukurta! Atidaryk gautą laišką ir paspausk patvirtinimo nuorodą – tada galėsi prisijungti."
+        )
+        setPassword("")
         setMode("signin")
       }
     }
@@ -136,15 +142,29 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
         required
         className="rounded-xl border-2 border-ink/20 bg-paper px-3 py-2 font-mono text-[13px] text-ink transition-colors outline-none focus:border-ink"
       />
-      <input
-        type="password"
-        placeholder="Slaptažodis"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-        minLength={6}
-        className="rounded-xl border-2 border-ink/20 bg-paper px-3 py-2 font-mono text-[13px] text-ink transition-colors outline-none focus:border-ink"
-      />
+      <div className="relative">
+        <input
+          type={showPassword ? "text" : "password"}
+          placeholder="Slaptažodis"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          minLength={6}
+          className="w-full rounded-xl border-2 border-ink/20 bg-paper px-3 py-2 pr-9 font-mono text-[13px] text-ink transition-colors outline-none focus:border-ink"
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword((v) => !v)}
+          aria-label={showPassword ? "Slėpti slaptažodį" : "Rodyti slaptažodį"}
+          className="absolute top-1/2 right-2.5 -translate-y-1/2 text-ink/40 transition-colors hover:text-ink"
+        >
+          {showPassword ? (
+            <EyeOffIcon className="size-4" />
+          ) : (
+            <EyeIcon className="size-4" />
+          )}
+        </button>
+      </div>
       {mode === "signin" && (
         <button
           type="button"
