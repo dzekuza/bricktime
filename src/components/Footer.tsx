@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Separator } from "@/components/ui/separator"
+import { socials } from "@/data/socials"
 
 const footerLinks = {
   Atrask: [
@@ -22,8 +23,6 @@ const footerLinks = {
     { label: "Parduotuvės taisyklės", href: "/parduotuves-taisykles" },
   ],
 }
-
-const socials = ["Facebook", "Instagram", "TikTok"]
 
 export default function Footer() {
   const [logoFailed, setLogoFailed] = useState(false)
@@ -57,11 +56,13 @@ export default function Footer() {
             <div className="mt-6 flex gap-2.5">
               {socials.map((s) => (
                 <a
-                  key={s}
-                  href="#"
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noreferrer noopener"
                   className="rounded-full border-2 border-ink px-3.5 py-1.5 text-[13px] font-semibold text-ink transition-colors hover:bg-ink hover:text-paper"
                 >
-                  {s}
+                  {s.label}
                 </a>
               ))}
             </div>
