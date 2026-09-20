@@ -1,10 +1,21 @@
 import { Helmet } from "react-helmet-async"
 
+import { socials } from "@/data/socials"
+
 const SITE_NAME = "Brick Time"
 const SITE_URL = "https://www.bricktime.lt"
 const DEFAULT_DESCRIPTION =
   "LEGO® rinkinių prenumerata Lietuvoje. Rinkis rinkinius pagal savo mėnesinį biudžetą, laikyk kiek nori, grąžink ir keisk į naujus."
 const DEFAULT_IMAGE = "/og-image.png"
+
+const ORGANIZATION_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: SITE_NAME,
+  url: SITE_URL,
+  logo: `${SITE_URL}${DEFAULT_IMAGE}`,
+  sameAs: socials.map((s) => s.href),
+}
 
 type SeoProps = {
   title: string
@@ -45,6 +56,11 @@ export function Seo({
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={imageUrl} />
+      {path === "/" && (
+        <script type="application/ld+json">
+          {JSON.stringify(ORGANIZATION_SCHEMA)}
+        </script>
+      )}
     </Helmet>
   )
 }
