@@ -210,6 +210,12 @@ body,
 
 /* ── Display type scale ──────────────────────────────────────────────────── */
 @layer utilities {
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
   .text-d-hero {
     font-size: clamp(52px, 7vw, 104px);
   }

@@ -8,7 +8,6 @@ import {
   UserIcon,
   InfoIcon,
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import {
   Popover,
   PopoverContent,
@@ -232,12 +231,6 @@ export default function Nav() {
 
             {/* Right — CTA + avatar + hamburger */}
             <div className="flex items-center justify-end gap-7">
-              <Link
-                to="/subscribe"
-                className={`relative hidden text-[15px] font-semibold text-ink after:absolute after:right-0 after:-bottom-1.5 after:left-0 after:h-[2px] after:origin-left after:bg-ink after:transition-transform after:duration-200 after:content-[''] md:flex ${pathname.startsWith("/subscribe") ? "after:scale-x-100" : "after:scale-x-0 hover:after:scale-x-100"}`}
-              >
-                Prenumeratos
-              </Link>
               <div className="flex items-center">
                 {user && profile?.plan && profile.status === "active" ? (
                   <>
@@ -245,16 +238,12 @@ export default function Nav() {
                     <PlanChip plan={profile.plan} />
                   </>
                 ) : (
-                  <Button
-                    asChild
-                    size="sm"
-                    className="brick-hover-sm mr-3 hidden rounded-full border-2 border-ink bg-ink font-bold text-paper md:inline-flex"
+                  <Link
+                    to="/subscribe"
+                    className={`relative mr-3 hidden items-center gap-1 text-[15px] font-semibold text-ink after:absolute after:right-0 after:-bottom-1.5 after:left-0 after:h-[2px] after:origin-left after:bg-ink after:transition-transform after:duration-200 after:content-[''] md:flex ${pathname.startsWith("/subscribe") ? "after:scale-x-100" : "after:scale-x-0 hover:after:scale-x-100"}`}
                   >
-                    <Link to="/subscribe">
-                      Pradėk konstruoti{" "}
-                      <ArrowRightIcon data-icon="inline-end" />
-                    </Link>
-                  </Button>
+                    Pradėk konstruoti <ArrowRightIcon className="size-4" />
+                  </Link>
                 )}
               </div>
 
@@ -279,18 +268,22 @@ export default function Nav() {
 
       <Breadcrumb />
 
-      {/* Mobile drawer */}
+      {/* Mobile top drawer — slides down from under the header, height hugs content */}
       <div
-        className="fixed right-0 bottom-0 left-0 z-40 flex flex-col border-t border-ink/10 bg-paper/95 backdrop-blur-lg md:hidden"
+        className={`fixed inset-0 z-30 bg-ink/30 transition-opacity duration-300 md:hidden ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        onClick={() => setOpen(false)}
+        aria-hidden="true"
+      />
+      <div
+        className="fixed top-0 right-0 left-0 z-40 rounded-b-[28px] border-b-2 border-ink bg-paper transition-transform duration-300 ease-out md:hidden"
         style={{
-          top: navHeight,
-          opacity: open ? 1 : 0,
-          transform: open ? "translateY(0)" : "translateY(-8px)",
+          paddingTop: navHeight,
+          transform: open ? "translateY(0)" : "translateY(-100%)",
           pointerEvents: open ? "all" : "none",
-          transition: "opacity 0.2s ease, transform 0.2s ease",
         }}
+        aria-hidden={!open}
       >
-        <div className="flex h-full flex-col justify-between gap-4 p-5">
+        <div className="flex flex-col gap-4 p-5">
           {/* Nav links */}
           <nav className="flex flex-col gap-1">
             {links.map((l, i) => {
