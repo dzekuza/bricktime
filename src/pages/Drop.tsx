@@ -1,16 +1,14 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { Link, useParams } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
-import { cn } from "@/lib/utils"
 import { formatReleaseMonthFirst } from "@/lib/vilnius-time"
 import Nav from "@/components/Nav"
 import { useBreadcrumbLabel } from "@/contexts/BreadcrumbContext"
 import Footer from "@/components/Footer"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { StarIcon, ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
+import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
 import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
 import { Seo } from "@/components/Seo"
 import { useProductAvailability } from "@/hooks/useProductAvailability"
@@ -21,98 +19,6 @@ import {
   dbToProduct,
   type Product,
 } from "@/components/ProductCard"
-
-type Review = {
-  stars: number
-  quote: string
-  name: string
-  meta: string
-  avatarColor: string
-  initials: string
-}
-
-function ReviewCard({
-  review: r,
-  className,
-}: {
-  review: Review
-  className?: string
-}) {
-  return (
-    <Card
-      className={cn(
-        "brick-card brick-card-hover flex w-[80vw] shrink-0 flex-col gap-3.5 bg-paper p-4 sm:w-[60vw] md:p-6 lg:w-auto",
-        className
-      )}
-    >
-      <CardContent className="flex h-full flex-col gap-3.5 p-0">
-        <div className="flex gap-0.5" style={{ color: "#FB4903" }}>
-          {Array.from({ length: r.stars }).map((_, j) => (
-            <StarIcon key={j} className="size-4 fill-current" />
-          ))}
-        </div>
-        <p className="font-display text-[20px] leading-[1.05] tracking-[.005em] uppercase">
-          {r.quote}
-        </p>
-        <div className="mt-auto flex items-center gap-2.5 border-t border-dashed border-ink/18 pt-3">
-          <Avatar className="size-9 border-2 border-ink">
-            <AvatarFallback
-              style={{ background: r.avatarColor }}
-              className="text-[12px] font-bold text-ink"
-            >
-              {r.initials}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <b className="text-[14px]">{r.name}</b>
-            <small className="mt-0.5 block font-mono text-[10px] tracking-[.14em] text-ink/55 uppercase">
-              {r.meta}
-            </small>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-const reviews = [
-  {
-    stars: 5,
-    quote:
-      '"The hinge crossover with the bus is genuinely clever. My street has a postal route now."',
-    name: "Daniel K.",
-    meta: "Mega · Subscriber since product 02",
-    avatarColor: "#FB4903",
-    initials: "DK",
-  },
-  {
-    stars: 5,
-    quote:
-      "\"Otto's satchel actually flexes. I can't explain how delightful that is until you hold it.\"",
-    name: "Priya N.",
-    meta: "Standard · 11 months",
-    avatarColor: "#5DDB9C",
-    initials: "PN",
-  },
-  {
-    stars: 5,
-    quote:
-      '"Finished it in one evening. The mint+cream colour pairing is the best of the year."',
-    name: "Lucia F.",
-    meta: "Standard · 6 months",
-    avatarColor: "#FFAEE7",
-    initials: "LF",
-  },
-  {
-    stars: 4,
-    quote:
-      '"Build is great. Sticker sheet is generous. Wish there was a third minifig — that\'s my one nit."',
-    name: "Theo W.",
-    meta: "Mega · 22 months",
-    avatarColor: "#4DA2FF",
-    initials: "TW",
-  },
-]
 
 // Drop 26 requires Standard tier or above
 
@@ -912,51 +818,8 @@ export default function Drop() {
         </section>
       )}
 
-      {/* ── Reviews ── */}
       <section className="bg-paper py-4">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-            {/* Row 1: Rating tile */}
-            <div className="flex flex-col justify-center py-2 lg:col-span-7">
-              <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink">
-                Ką sako
-                <br />
-                <span
-                  className="inline-block rotate-[-1.5deg] border-[3px] border-ink bg-brand-yellow px-[.12em] text-ink shadow-[5px_5px_0_rgba(0,27,33,.12)]"
-                  style={{ transformOrigin: "center center" }}
-                >
-                  nariai.
-                </span>
-              </h2>
-            </div>
-
-            {/* Row 2+: review cards — carousel on mobile, 2-col grid on desktop */}
-            {/* bleed wrapper — escapes the grid cell horizontally on mobile */}
-            <div className="lg:col-span-12">
-              {/* Mobile: auto-scrolling marquee — bleeds to the viewport
-                  edge like the recommended-products rail, so the first
-                  card sits flush under the heading instead of leaving a
-                  dead gap. */}
-              <div className="-mx-4 overflow-hidden md:mx-0 lg:hidden">
-                <div className="reviews-track flex gap-4 pt-1 pb-3">
-                  {[...reviews, ...reviews].map((r, i) => (
-                    <ReviewCard
-                      key={i}
-                      review={r}
-                      className={i === 0 ? "ml-4" : undefined}
-                    />
-                  ))}
-                </div>
-              </div>
-              {/* Desktop: 2-col grid */}
-              <div className="hidden lg:grid lg:grid-cols-2 lg:gap-4">
-                {reviews.map((r, i) => (
-                  <ReviewCard key={i} review={r} />
-                ))}
-              </div>
-            </div>
-          </div>
-
           {/* FAQ */}
           {(product?.faq ?? []).length > 0 && (
             <div className="mt-4">
