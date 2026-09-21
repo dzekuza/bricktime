@@ -268,18 +268,22 @@ export default function Nav() {
 
       <Breadcrumb />
 
-      {/* Mobile drawer */}
+      {/* Mobile top drawer — slides down from under the header, height hugs content */}
       <div
-        className="fixed right-0 bottom-0 left-0 z-40 flex flex-col border-t border-ink/10 bg-paper/95 backdrop-blur-lg md:hidden"
+        className={`fixed inset-0 z-30 bg-ink/30 transition-opacity duration-300 md:hidden ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        onClick={() => setOpen(false)}
+        aria-hidden="true"
+      />
+      <div
+        className="fixed top-0 right-0 left-0 z-40 rounded-b-[28px] border-b-2 border-ink bg-paper transition-transform duration-300 ease-out md:hidden"
         style={{
-          top: navHeight,
-          opacity: open ? 1 : 0,
-          transform: open ? "translateY(0)" : "translateY(-8px)",
+          paddingTop: navHeight,
+          transform: open ? "translateY(0)" : "translateY(-100%)",
           pointerEvents: open ? "all" : "none",
-          transition: "opacity 0.2s ease, transform 0.2s ease",
         }}
+        aria-hidden={!open}
       >
-        <div className="flex h-full flex-col justify-between gap-4 p-5">
+        <div className="flex flex-col gap-4 p-5">
           {/* Nav links */}
           <nav className="flex flex-col gap-1">
             {links.map((l, i) => {
