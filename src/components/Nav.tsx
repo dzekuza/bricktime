@@ -8,7 +8,6 @@ import {
   UserIcon,
   InfoIcon,
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import {
   Popover,
   PopoverContent,
@@ -232,12 +231,6 @@ export default function Nav() {
 
             {/* Right — CTA + avatar + hamburger */}
             <div className="flex items-center justify-end gap-7">
-              <Link
-                to="/subscribe"
-                className={`relative hidden text-[15px] font-semibold text-ink after:absolute after:right-0 after:-bottom-1.5 after:left-0 after:h-[2px] after:origin-left after:bg-ink after:transition-transform after:duration-200 after:content-[''] md:flex ${pathname.startsWith("/subscribe") ? "after:scale-x-100" : "after:scale-x-0 hover:after:scale-x-100"}`}
-              >
-                Prenumeratos
-              </Link>
               <div className="flex items-center">
                 {user && profile?.plan && profile.status === "active" ? (
                   <>
@@ -245,16 +238,12 @@ export default function Nav() {
                     <PlanChip plan={profile.plan} />
                   </>
                 ) : (
-                  <Button
-                    asChild
-                    size="sm"
-                    className="brick-hover-sm mr-3 hidden rounded-full border-2 border-ink bg-ink font-bold text-paper md:inline-flex"
+                  <Link
+                    to="/subscribe"
+                    className={`relative mr-3 hidden items-center gap-1 text-[15px] font-semibold text-ink after:absolute after:right-0 after:-bottom-1.5 after:left-0 after:h-[2px] after:origin-left after:bg-ink after:transition-transform after:duration-200 after:content-[''] md:flex ${pathname.startsWith("/subscribe") ? "after:scale-x-100" : "after:scale-x-0 hover:after:scale-x-100"}`}
                   >
-                    <Link to="/subscribe">
-                      Pradėk konstruoti{" "}
-                      <ArrowRightIcon data-icon="inline-end" />
-                    </Link>
-                  </Button>
+                    Pradėk konstruoti <ArrowRightIcon className="size-4" />
+                  </Link>
                 )}
               </div>
 
