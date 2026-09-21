@@ -121,11 +121,13 @@ export default function Subscriptions({
             {/* Tagline tile — full width */}
             <div
               ref={headerRef}
-              className="reveal sticky top-20 z-20 flex flex-col items-center gap-4 bg-paper pt-6 pb-0 md:py-9 lg:static lg:flex-row lg:items-end lg:justify-between"
+              className="reveal sticky top-28 z-20 flex flex-col items-center gap-4 bg-paper pt-0 pb-0 md:py-9 lg:static lg:flex-row lg:items-end lg:justify-between"
             >
               {/* Billing toggle */}
-              <div className="order-first flex shrink-0 flex-col items-center gap-2 pt-1 lg:order-last lg:ml-6 lg:self-start">
-                <span className="label-mono text-ink/45">Atsiskaitymas</span>
+              <div className="order-first flex shrink-0 flex-col items-center gap-2 lg:order-last lg:ml-6 lg:self-start">
+                <span className="label-mono hidden text-ink/45 lg:inline">
+                  Atsiskaitymas
+                </span>
                 <div className="flex items-center gap-1 rounded-full border-2 border-ink bg-paper p-1.5 shadow-[4px_4px_0_#001B21]">
                   <button
                     onClick={() => setBilling("monthly")}
@@ -200,12 +202,12 @@ export default function Subscriptions({
                 : subscriptions.map((plan, i) => (
                     <div
                       key={plan.id}
-                      className="reveal brick-card sticky flex min-w-0 flex-1 flex-col p-4 pt-10 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-[transform,box-shadow] duration-300 ease-out hover:z-10 hover:-translate-y-3 hover:shadow-[10px_10px_0_rgba(245,241,235,.25)] lg:relative lg:!top-0 lg:p-5 lg:pt-10"
+                      className="reveal brick-card sticky flex min-w-0 flex-1 flex-col [--card-step:56px] p-4 pt-6 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-[transform,box-shadow] duration-300 ease-out hover:z-10 hover:-translate-y-3 hover:shadow-[10px_10px_0_rgba(245,241,235,.25)] lg:relative lg:!top-0 lg:p-5 lg:pt-10"
                       style={{
                         background: plan.bg_color,
                         transitionDelay: `${i * 80}ms`,
                         zIndex: CARD_Z_BASE + i,
-                        top: `${80 + headerHeight + BRICK_OVERHANG + i * 72}px`,
+                        top: `calc(${112 + headerHeight + BRICK_OVERHANG}px + ${i} * var(--card-step))`,
                       }}
                       onMouseEnter={onCardEnter}
                       onMouseLeave={onCardLeave}
@@ -245,7 +247,13 @@ export default function Subscriptions({
                           {billing === "yearly" ? "/mėn. (metinis)" : "/mėn."}
                         </span>
                       </div>
-                      <div className="mt-3 h-7">
+                      <div
+                        className={
+                          plan.featured
+                            ? "mt-3 h-7"
+                            : "hidden lg:mt-3 lg:block lg:h-7"
+                        }
+                      >
                         {plan.featured && (
                           <Badge className="rotate-2 rounded border-2 border-ink bg-ink px-3 py-1 font-mono text-[11px] tracking-[.08em] text-primary-foreground uppercase">
                             Populiariausias

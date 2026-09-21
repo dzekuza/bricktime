@@ -233,6 +233,7 @@ export default function Account() {
   )
   const [subscriber, setSubscriber] = useState<SubscriberData | null>(null)
   const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set())
+  const [dbPoints, setDbPoints] = useState<number | null>(null)
   const [leaderboardRank, setLeaderboardRank] = useState<number | null>(null)
   const [postCount, setPostCount] = useState(0)
   const [showUpgrade, setShowUpgrade] = useState(false)
@@ -385,7 +386,15 @@ export default function Account() {
         .select("id", { count: "exact" })
         .eq("subscriber_id", user.id)
         .is("parent_id", null),
-    ]).then(([{ data: sub }, { data: ach }, { count }]) => {
+      supabase
+        .from("user_profile_view")
+        .select("total_points")
+        .eq("id", user.id)
+        .maybeSingle(),
+    ]).then(([{ data: sub }, { data: ach }, { count }, { data: pts }]) => {
+      // Same source as the community leaderboard, so daily check-in points
+      // (not derivable from unlocked achievements) match on both pages.
+      setDbPoints(pts?.total_points ?? null)
       if (sub) {
         setSubscriber(sub as SubscriberData)
         const tierIdx = tierOptions.findIndex((t) => t.key === sub.plan)
@@ -518,10 +527,12 @@ export default function Account() {
       FALLBACK_TIER)
     : (tierOptions[0] ?? FALLBACK_TIER)
   const activeAvatar = avatarOptions[selectedAvatarId] ?? avatarOptions[0]
-  const totalPoints = calculatePoints(
-    [...unlockedIds].map((id) => ({ achievementId: id, unlockedAt: "" })),
-    achievements
-  )
+  const totalPoints =
+    dbPoints ??
+    calculatePoints(
+      [...unlockedIds].map((id) => ({ achievementId: id, unlockedAt: "" })),
+      achievements
+    )
   const memberSince = subscriber?.joined_at
     ? new Date(subscriber.joined_at).toLocaleDateString("lt-LT", {
         year: "numeric",
