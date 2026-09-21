@@ -9,7 +9,10 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
-import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
+import {
+  getSubscriptionBrickSvg,
+  getSubscriptionDisplayName,
+} from "@/lib/subscription-branding"
 import { Seo } from "@/components/Seo"
 import { useProductAvailability } from "@/hooks/useProductAvailability"
 import { ManufacturerInfo } from "@/components/ManufacturerInfo"
@@ -199,6 +202,7 @@ export default function Drop() {
   const { setLabel } = useBreadcrumbLabel()
   const [product, setProduct] = useState<DbProduct | null>(null)
   const [activeThumb, setActiveThumb] = useState(0)
+  const carouselRef = useRef<HTMLDivElement>(null)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [relatedRows, setRelatedRows] = useState<Record<string, unknown>[]>([])
   const { available } = useProductAvailability()
@@ -249,6 +253,18 @@ export default function Drop() {
   const DROP_REQUIRED_TIER =
     dropRequiredTierIdx === -1 ? 2 : dropRequiredTierIdx
 
+  const tierPill = (
+    <div
+      className="rounded-full border-2 border-ink px-4 py-2 font-display text-[18px] leading-none"
+      style={{
+        background: tiers[DROP_REQUIRED_TIER].bg,
+        color: tiers[DROP_REQUIRED_TIER].textColor,
+      }}
+    >
+      {tiers[DROP_REQUIRED_TIER].name}
+    </div>
+  )
+
   const galleryImages: string[] = product
     ? ([product.image_url, ...(product.gallery ?? [])].filter(
         Boolean
@@ -261,6 +277,23 @@ export default function Drop() {
     image,
   }))
   const activeImage = thumbs[activeThumb]
+
+  const tierBrick = (
+    <img
+      src={getSubscriptionBrickSvg(product?.tier ?? "standard")}
+      alt=""
+      className="pointer-events-none absolute top-[14px] left-[14px] z-10 h-10 w-auto select-none"
+    />
+  )
+
+  const releaseBadge = product?.release_date && (
+    <div
+      className="pointer-events-none absolute top-6 right-6 rotate-[3deg] rounded-[8px] border-2 border-ink bg-brand-yellow px-4 py-2.5 font-display text-2xl leading-none text-ink capitalize"
+      style={{ boxShadow: "4px 4px 0 #001B21" }}
+    >
+      {formatReleaseMonthFirst(product.release_date)}
+    </div>
+  )
 
   const lightboxPrev = useCallback(
     () => setActiveThumb((i) => (i - 1 + thumbs.length) % thumbs.length),
@@ -302,10 +335,78 @@ export default function Drop() {
             {/* Gallery tile */}
             <div className="brick-card p-4">
               <div className="flex flex-col gap-4">
-                {/* Main image */}
+                {/* Mobile: swipeable gallery carousel */}
+                {thumbs.length > 0 && (
+                  <div className="relative md:hidden">
+                    <div
+                      ref={carouselRef}
+                      className="scrollbar-none flex snap-x snap-mandatory overflow-x-auto rounded-[24px] border-2 border-ink"
+                      onScroll={(e) => {
+                        const el = e.currentTarget
+                        setActiveThumb(
+                          Math.round(el.scrollLeft / el.clientWidth)
+                        )
+                      }}
+                    >
+                      {thumbs.map((t, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setLightboxOpen(true)}
+                          className="relative aspect-square w-full shrink-0 snap-center overflow-hidden"
+                          style={{ background: t.bg }}
+                          aria-label={t.label}
+                        >
+                          <img
+                            src={t.image}
+                            alt={t.label}
+                            className="absolute inset-0 h-full w-full object-cover"
+                            style={{ objectPosition: "center 20%" }}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                    <div className="pointer-events-none absolute inset-0 rounded-[24px] bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
+                    {tierBrick}
+                    {releaseBadge}
+                    {thumbs.length > 1 && (
+                      <>
+                        {[-1, 1].map((dir) => {
+                          const target = activeThumb + dir
+                          if (target < 0 || target >= thumbs.length) return null
+                          const Icon = dir < 0 ? ArrowLeftIcon : ArrowRightIcon
+                          return (
+                            <button
+                              key={dir}
+                              type="button"
+                              onClick={() => {
+                                const el = carouselRef.current
+                                el?.scrollTo({
+                                  left: target * el.clientWidth,
+                                  behavior: "smooth",
+                                })
+                              }}
+                              aria-label={dir < 0 ? "Ankstesnė" : "Kita"}
+                              className={`absolute top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border-2 border-ink bg-paper text-ink ${dir < 0 ? "left-3" : "right-3"}`}
+                            >
+                              <Icon className="size-5" />
+                            </button>
+                          )
+                        })}
+                      </>
+                    )}
+                    {thumbs.length > 1 && (
+                      <div className="pointer-events-none absolute right-4 bottom-4 rounded-full bg-ink/60 px-3 py-1 font-mono text-[10px] tracking-[.18em] text-paper/80 backdrop-blur-sm">
+                        {activeThumb + 1} / {thumbs.length}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Desktop: main image */}
                 <div
                   className={[
-                    "relative aspect-square overflow-hidden rounded-[24px] border-2 border-ink md:aspect-auto md:h-[520px]",
+                    "relative hidden overflow-hidden rounded-[24px] border-2 border-ink md:block md:h-[520px]",
                     activeImage ? "cursor-zoom-in" : "",
                   ].join(" ")}
                   style={{ background: activeImage?.bg ?? "#f8f6f2" }}
@@ -322,14 +423,8 @@ export default function Drop() {
                   )}
                   {/* Overlay badges */}
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
-                  {product?.release_date && (
-                    <div
-                      className="absolute top-6 left-6 rotate-[-3deg] rounded-[8px] border-2 border-ink bg-brand-yellow px-4 py-2.5 font-display text-2xl leading-none text-ink capitalize"
-                      style={{ boxShadow: "4px 4px 0 #001B21" }}
-                    >
-                      {formatReleaseMonthFirst(product.release_date)}
-                    </div>
-                  )}
+                  {tierBrick}
+                  {releaseBadge}
 
                   {activeImage && (
                     <div className="absolute bottom-5 left-6 font-mono text-[10px] tracking-[.18em] text-paper/70 uppercase">
@@ -340,13 +435,13 @@ export default function Drop() {
 
                 {/* Thumbnails */}
                 {thumbs.length > 1 && (
-                  <div className="scrollbar-none flex gap-3 overflow-x-auto pb-1 md:grid md:grid-cols-4 md:overflow-visible md:pb-0">
+                  <div className="hidden gap-3 md:grid md:grid-cols-4">
                     {thumbs.map((t, i) => (
                       <button
                         key={i}
                         onClick={() => setActiveThumb(i)}
                         className={[
-                          "relative h-[90px] w-[90px] shrink-0 overflow-hidden rounded-lg border-2 border-ink transition-all md:w-auto",
+                          "relative h-[90px] overflow-hidden rounded-lg border-2 border-ink transition-all",
                           activeThumb === i
                             ? "outline outline-[3px] outline-offset-2 outline-brand-yellow"
                             : "hover:opacity-80",
@@ -394,10 +489,6 @@ export default function Drop() {
 
               <h1 className="heading-display text-d-md mt-7 tracking-[-0.01em] text-ink">
                 {product?.title ?? "Mailbox Row"}
-                <br />+{" "}
-                <span className="inline-block skew-x-[-8deg] text-brand-indigo italic">
-                  {product?.subtitle ?? "Postman Otto"}
-                </span>
               </h1>
 
               <ExpandableHtml
@@ -408,36 +499,8 @@ export default function Drop() {
                 }
               />
 
-              {/* Legal / safety notice — LEGO® age warning + trademark disclaimer */}
-              <div className="mt-5 flex max-w-[48ch] gap-3 rounded-2xl border-2 border-ink/15 bg-ink/[.02] px-4 py-3.5">
-                {/* EN 71-6 age warning pictogram: standard "not for under 3" toy-safety symbol */}
-                <img
-                  src="/age-warning.svg"
-                  alt=""
-                  aria-hidden="true"
-                  className="mt-0.5 h-10 w-10 shrink-0"
-                />
-                <div>
-                  <p className="text-[12px] leading-[1.6] text-ink/55">
-                    Svarbu: LEGO® rinkinyje yra smulkių detalių, todėl jis
-                    netinka vaikams iki 3 metų. Rekomenduojame rinkinį naudoti
-                    pagal gamintojo nurodytą amžiaus rekomendaciją.
-                  </p>
-                  <p className="mt-2 text-[11px] leading-[1.5] text-ink/40">
-                    LEGO® yra LEGO® įmonių grupės prekių ženklas. „Brick Time“
-                    yra nepriklausomas originalių LEGO® rinkinių nuomos
-                    paslaugos teikėjas, kurio LEGO® įmonių grupė neremia,
-                    neįgaliojo ir kitaip nepatvirtino. Kiti nurodomi ženklai
-                    priklauso atitinkamiems jų savininkams ir naudojami tik
-                    rinkiniams identifikuoti.
-                  </p>
-                </div>
-              </div>
-
-              <ManufacturerInfo className="mt-4 max-w-[48ch]" />
-
               {/* Spec grid */}
-              <div className="mt-8 grid grid-cols-3 gap-x-3 gap-y-4 border-t border-ink/10 pt-5">
+              <div className="grid grid-cols-3 gap-x-3 gap-y-4 border-t border-ink/10 pt-5">
                 {[
                   { label: "Detalės", val: String(product?.bricks ?? "—") },
                   {
@@ -478,15 +541,7 @@ export default function Drop() {
               {/* Rent CTA */}
               <div id="buy" className="mt-8 border-t border-ink/10 pt-6">
                 <div className="flex items-center gap-3">
-                  <div
-                    className="rounded-full border-2 border-ink px-4 py-2 font-display text-[18px] leading-none"
-                    style={{
-                      background: tiers[DROP_REQUIRED_TIER].bg,
-                      color: tiers[DROP_REQUIRED_TIER].textColor,
-                    }}
-                  >
-                    {tiers[DROP_REQUIRED_TIER].name}
-                  </div>
+                  {tierPill}
                   <span className="text-[14px] text-ink/50">
                     reikalinga prenumerata
                   </span>
@@ -526,6 +581,34 @@ export default function Drop() {
                     </span>
                   ))}
                 </div>
+
+                {/* Legal / safety notice — LEGO® age warning + trademark disclaimer */}
+                <div className="mt-5 flex max-w-[48ch] gap-3 rounded-2xl border-2 border-ink/15 bg-ink/[.02] px-4 py-3.5">
+                  {/* EN 71-6 age warning pictogram: standard "not for under 3" toy-safety symbol */}
+                  <img
+                    src="/age-warning.svg"
+                    alt=""
+                    aria-hidden="true"
+                    className="mt-0.5 h-10 w-10 shrink-0"
+                  />
+                  <div>
+                    <p className="text-[12px] leading-[1.6] text-ink/55">
+                      Svarbu: LEGO® rinkinyje yra smulkių detalių, todėl jis
+                      netinka vaikams iki 3 metų. Rekomenduojame rinkinį naudoti
+                      pagal gamintojo nurodytą amžiaus rekomendaciją.
+                    </p>
+                    <p className="mt-2 text-[11px] leading-[1.5] text-ink/40">
+                      LEGO® yra LEGO® įmonių grupės prekių ženklas. „Brick Time“
+                      yra nepriklausomas originalių LEGO® rinkinių nuomos
+                      paslaugos teikėjas, kurio LEGO® įmonių grupė neremia,
+                      neįgaliojo ir kitaip nepatvirtino. Kiti nurodomi ženklai
+                      priklauso atitinkamiems jų savininkams ir naudojami tik
+                      rinkiniams identifikuoti.
+                    </p>
+                  </div>
+                </div>
+
+                <ManufacturerInfo className="mt-4 max-w-[48ch]" />
               </div>
             </div>
           </div>
@@ -852,12 +935,7 @@ export default function Drop() {
       {/* ── Sticky mobile CTA ── */}
       <div className="h-20 md:hidden" />
       <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t-2 border-ink bg-paper px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_0_rgba(0,27,33,.06)] md:hidden">
-        <div className="flex flex-col leading-tight">
-          <span className="label-mono text-[10px] text-ink/40">Kaina</span>
-          <span className="font-display text-[20px] font-bold text-ink">
-            {product?.price != null ? `€${product.price}` : "—"}
-          </span>
-        </div>
+        {tierPill}
         {isRentedOut ? (
           <Button
             size="lg"
