@@ -12,7 +12,7 @@ const footerLinks = {
   ],
   Pagalba: [
     { label: "D.U.K.", href: "/duk" },
-    { label: "Kontaktai", href: "mailto:info@bricktime.lt" },
+    { label: "Kontaktai", href: "/kontaktai" },
     { label: "Pristatymas", href: "/pristatymas" },
     { label: "Grąžinimai", href: "/grazinimai" },
   ],
