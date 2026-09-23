@@ -23,7 +23,6 @@ import { Seo } from "@/components/Seo"
 import { StatusBadge } from "@/components/community/StatusBadge"
 import { DailyCheckinBanner } from "@/components/community/DailyCheckinBanner"
 import {
-  drops,
   getRelativeTime,
   type AchievementDef,
   type FeedEventType,
@@ -128,6 +127,8 @@ function FeedCard({
   onComment,
   isOwn,
   onDelete,
+  onDeleteReply,
+  currentUserId,
   isLoggedIn,
   onOpenAuth,
   onReport,
@@ -140,6 +141,8 @@ function FeedCard({
   onComment: (text: string) => Promise<void>
   isOwn: boolean
   onDelete: () => void
+  onDeleteReply: (reply: LiveFeedItem) => void
+  currentUserId?: string
   isLoggedIn: boolean
   onOpenAuth: () => void
   onReport: (reason: string) => Promise<void>
@@ -382,6 +385,15 @@ function FeedCard({
                     {getRelativeTime(reply.created_at)}
                   </p>
                 </div>
+                {currentUserId && reply.subscriber_id === currentUserId && (
+                  <button
+                    onClick={() => onDeleteReply(reply)}
+                    aria-label="Ištrinti komentarą"
+                    className="flex h-fit items-center text-ink/25 transition-all hover:scale-105 hover:text-[#FB4903] active:scale-95"
+                  >
+                    <Trash2 size={13} strokeWidth={2} />
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -461,7 +473,20 @@ function ComposeBox({ avatarId, avatarBg, onPost }: ComposeBoxProps) {
   const [posting, setPosting] = useState(false)
   const [dropNum, setDropNum] = useState<string>("")
   const [showDropPicker, setShowDropPicker] = useState(false)
+  const [drops, setDrops] = useState<
+    { id: number; title: string; bg: string }[]
+  >([])
   const fileRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    supabase
+      .from("products")
+      .select("id, title, bg")
+      .order("id", { ascending: false })
+      .then(({ data }) => {
+        if (data) setDrops(data)
+      })
+  }, [])
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -789,6 +814,17 @@ function FeedPanel({
     setItems((prev) => prev.filter((i) => i.id !== item.id))
   }
 
+  async function deleteReply(reply: LiveFeedItem) {
+    await supabase.from("feed_items").delete().eq("id", reply.id)
+    setItems((prev) =>
+      prev.map((i) =>
+        i.id === reply.parent_id
+          ? { ...i, replies: i.replies?.filter((r) => r.id !== reply.id) }
+          : i
+      )
+    )
+  }
+
   async function addComment(text: string, parentId: string) {
     if (!user || !profile) return
     await supabase.from("feed_items").insert({
@@ -859,6 +895,8 @@ function FeedPanel({
           onComment={(text) => addComment(text, item.id)}
           isOwn={!!user && item.subscriber_id === user.id}
           onDelete={() => deletePost(item)}
+          onDeleteReply={deleteReply}
+          currentUserId={user?.id}
           isLoggedIn={!!user}
           onOpenAuth={onOpenAuth}
           onReport={(reason) => reportItem(item, reason)}

@@ -4,7 +4,7 @@ import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import { supabase } from "@/lib/supabase"
 import { avatarSrc } from "@/lib/avatars"
-import { getRelativeTime, drops } from "@/data/community"
+import { getRelativeTime } from "@/data/community"
 import { useAchievements } from "@/hooks/useAchievements"
 import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
 import { Seo } from "@/components/Seo"
@@ -53,6 +53,9 @@ export default function UserProfile() {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [posts, setPosts] = useState<FeedPost[]>([])
   const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set())
+  const [drops, setDrops] = useState<
+    { id: number; title: string; bg: string }[]
+  >([])
   const [loading, setLoading] = useState(true)
   const { achievements } = useAchievements()
 
@@ -75,7 +78,21 @@ export default function UserProfile() {
         .eq("subscriber_id", userId),
     ]).then(([{ data: prof }, { data: feedData }, { data: achData }]) => {
       if (prof) setProfile(prof as unknown as UserProfile)
-      if (feedData) setPosts(feedData as FeedPost[])
+      if (feedData) {
+        setPosts(feedData as FeedPost[])
+        const ids = feedData
+          .map((p) => p.drop_num)
+          .filter((n): n is number => n !== null)
+        if (ids.length > 0) {
+          supabase
+            .from("products")
+            .select("id, title, bg")
+            .in("id", ids)
+            .then(({ data }) => {
+              if (data) setDrops(data)
+            })
+        }
+      }
       if (achData)
         setUnlockedIds(
           new Set(
