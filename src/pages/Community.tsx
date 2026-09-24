@@ -29,7 +29,6 @@ import {
 } from "@/data/community"
 import { useAchievements } from "@/hooks/useAchievements"
 import { useDailyCheckin, type DailyCheckin } from "@/hooks/useDailyCheckin"
-import { usePageHeaderImage } from "@/hooks/usePageHeaderImage"
 import {
   getSubscriptionDisplayName,
   getSubscriptionTheme,
@@ -1062,24 +1061,19 @@ function ChallengesPanel({ refreshKey }: { refreshKey: number }) {
 
 // ── LeaderboardPanel ──────────────────────────────────────────────────────────
 
-function LeaderboardPanel({ refreshKey }: { refreshKey: number }) {
-  const { user } = useAuth()
-  const [rows, setRows] = useState<
-    Array<{
-      rank: number
-      subscriber_id: string
-      name: string
-      avatar_id: number | null
-      avatar_bg: string | null
-      tier: string
-      total_points: number
-    }>
-  >([])
+interface LeaderboardRow {
+  rank: number
+  subscriber_id: string
+  name: string
+  avatar_id: number | null
+  avatar_bg: string | null
+  tier: string
+  total_points: number
+}
+
+function useLeaderboard(refreshKey: number) {
+  const [rows, setRows] = useState<LeaderboardRow[]>([])
   const [loading, setLoading] = useState(true)
-  const [myStats, setMyStats] = useState<{
-    rank: number | null
-    total_points: number
-  } | null>(null)
 
   useEffect(() => {
     supabase
@@ -1088,10 +1082,28 @@ function LeaderboardPanel({ refreshKey }: { refreshKey: number }) {
       .order("rank", { ascending: true })
       .limit(20)
       .then(({ data }) => {
-        if (data) setRows(data as typeof rows)
+        if (data) setRows(data as LeaderboardRow[])
         setLoading(false)
       })
   }, [refreshKey])
+
+  return { rows, loading }
+}
+
+function LeaderboardPanel({
+  rows,
+  loading,
+  refreshKey,
+}: {
+  rows: LeaderboardRow[]
+  loading: boolean
+  refreshKey: number
+}) {
+  const { user } = useAuth()
+  const [myStats, setMyStats] = useState<{
+    rank: number | null
+    total_points: number
+  } | null>(null)
 
   useEffect(() => {
     if (!user) {
@@ -1123,7 +1135,6 @@ function LeaderboardPanel({ refreshKey }: { refreshKey: number }) {
     )
   }
 
-  const top3 = rows.slice(0, 3)
   const rest = rows.slice(3)
 
   return (
@@ -1159,14 +1170,102 @@ function LeaderboardPanel({ refreshKey }: { refreshKey: number }) {
         </div>
       )}
 
+      <div className="brick-card overflow-hidden">
+        <div className="grid grid-cols-[28px_1fr_60px_44px] gap-3 bg-ink px-4 py-2.5">
+          {["#", "Narys", "Prenumerata", "pts"].map((col) => (
+            <p
+              key={col}
+              className="font-mono text-[9px] tracking-widest text-paper/50 uppercase"
+            >
+              {col}
+            </p>
+          ))}
+        </div>
+        {rest.map((entry) => {
+          const tierName = getSubscriptionDisplayName(entry.tier)
+          const tierTheme = getSubscriptionTheme(entry.tier)
+          const isMe = user && entry.subscriber_id === user.id
+          return (
+            <div
+              key={entry.subscriber_id}
+              className={`grid grid-cols-[28px_1fr_60px_44px] items-center gap-3 border-b border-dashed border-ink/10 px-4 py-3 transition-colors last:border-b-0 hover:bg-ink/[.03] ${isMe ? "bg-brand-yellow/12" : ""}`}
+            >
+              <p className="font-display text-[16px] leading-none text-ink/40">
+                {entry.rank}
+              </p>
+              <Link
+                to={`/profile/${entry.subscriber_id}`}
+                className="flex min-w-0 items-center gap-2 hover:underline"
+              >
+                <div
+                  className="size-6 shrink-0 overflow-hidden rounded-full border border-ink/20"
+                  style={{ background: entry.avatar_bg ?? "#FFD731" }}
+                >
+                  <img
+                    src={avatarSrc(entry.avatar_id ?? 0)}
+                    alt={entry.name ?? ""}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <span className="truncate text-[12px] font-bold text-ink">
+                  {entry.name}
+                  {isMe && (
+                    <span className="ml-1 font-mono text-[9px] text-ink/40">
+                      → Tu
+                    </span>
+                  )}
+                </span>
+              </Link>
+              <div>
+                <span
+                  className="rounded-full border border-ink/15 px-1.5 py-px text-[9px] font-bold"
+                  style={{
+                    background: tierTheme?.bg ?? "#F5F1EB",
+                    color: tierTheme?.textColor ?? "#001B21",
+                  }}
+                >
+                  {tierName}
+                </span>
+              </div>
+              <p className="font-display text-[16px] leading-none text-ink">
+                {entry.total_points}
+              </p>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function LeaderboardPodium({
+  rows,
+  loading,
+}: {
+  rows: LeaderboardRow[]
+  loading: boolean
+}) {
+  if (loading) {
+    return (
+      <div className="py-8 text-center font-mono text-[12px] text-ink/30">
+        Kraunama…
+      </div>
+    )
+  }
+
+  const top3 = rows.slice(0, 3)
+
+  return (
+    <div className="pr-2 pb-2">
       <div className="mb-4 grid grid-cols-3 gap-3">
         {[top3[1], top3[0], top3[2]].filter(Boolean).map((entry, podiumIdx) => {
           const isCenter = podiumIdx === 1
           const tierName = getSubscriptionDisplayName(entry.tier)
           const tierTheme = getSubscriptionTheme(entry.tier)
           return (
-            <div
+            <Link
               key={entry.subscriber_id}
+              to={`/profile/${entry.subscriber_id}`}
               className={`studs-sm flex flex-col items-center rounded-2xl border-2 border-ink p-3 text-center shadow-[4px_4px_0_#001B21] ${isCenter ? "mt-0" : "mt-5"}`}
               style={{ background: entry.avatar_bg ?? "#001B21" }}
             >
@@ -1198,7 +1297,7 @@ function LeaderboardPanel({ refreshKey }: { refreshKey: number }) {
               <p className="font-mono text-[9px] tracking-widest text-paper/50 uppercase">
                 taškai
               </p>
-            </div>
+            </Link>
           )
         })}
       </div>
@@ -1238,68 +1337,6 @@ function LeaderboardPanel({ refreshKey }: { refreshKey: number }) {
           </div>
         ))}
       </div>
-
-      <div className="brick-card overflow-hidden">
-        <div className="grid grid-cols-[28px_1fr_60px_44px] gap-3 bg-ink px-4 py-2.5">
-          {["#", "Narys", "Prenumerata", "pts"].map((col) => (
-            <p
-              key={col}
-              className="font-mono text-[9px] tracking-widest text-paper/50 uppercase"
-            >
-              {col}
-            </p>
-          ))}
-        </div>
-        {rest.map((entry) => {
-          const tierName = getSubscriptionDisplayName(entry.tier)
-          const tierTheme = getSubscriptionTheme(entry.tier)
-          const isMe = user && entry.subscriber_id === user.id
-          return (
-            <div
-              key={entry.subscriber_id}
-              className={`grid grid-cols-[28px_1fr_60px_44px] items-center gap-3 border-b border-dashed border-ink/10 px-4 py-3 transition-colors last:border-b-0 hover:bg-ink/[.03] ${isMe ? "bg-brand-yellow/12" : ""}`}
-            >
-              <p className="font-display text-[16px] leading-none text-ink/40">
-                {entry.rank}
-              </p>
-              <div className="flex min-w-0 items-center gap-2">
-                <div
-                  className="size-6 shrink-0 overflow-hidden rounded-full border border-ink/20"
-                  style={{ background: entry.avatar_bg ?? "#FFD731" }}
-                >
-                  <img
-                    src={avatarSrc(entry.avatar_id ?? 0)}
-                    alt={entry.name ?? ""}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <span className="truncate text-[12px] font-bold text-ink">
-                  {entry.name}
-                  {isMe && (
-                    <span className="ml-1 font-mono text-[9px] text-ink/40">
-                      → Tu
-                    </span>
-                  )}
-                </span>
-              </div>
-              <div>
-                <span
-                  className="rounded-full border border-ink/15 px-1.5 py-px text-[9px] font-bold"
-                  style={{
-                    background: tierTheme?.bg ?? "#F5F1EB",
-                    color: tierTheme?.textColor ?? "#001B21",
-                  }}
-                >
-                  {tierName}
-                </span>
-              </div>
-              <p className="font-display text-[16px] leading-none text-ink">
-                {entry.total_points}
-              </p>
-            </div>
-          )
-        })}
-      </div>
     </div>
   )
 }
@@ -1311,10 +1348,7 @@ export default function Community() {
   const contentRef = useReveal<HTMLDivElement>()
   const [showAuthDialog, setShowAuthDialog] = useState(false)
   const checkin = useDailyCheckin()
-  const headerImage = usePageHeaderImage(
-    "community",
-    "/images/build-cactus.jpg"
-  )
+  const leaderboard = useLeaderboard(checkin.version)
 
   return (
     <>
@@ -1327,7 +1361,7 @@ export default function Community() {
 
       <section className="bg-paper">
         <div ref={heroRef} className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
+          <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-2">
             <div>
               <h1 className="heading-display text-d-xl tracking-[-0.015em] text-ink">
                 Statyk. Dalinkis.
@@ -1343,13 +1377,10 @@ export default function Community() {
                 rinkinius ir kitus apdovanojimus.
               </p>
             </div>
-            <div className="hidden lg:block">
-              <img
-                src={headerImage}
-                alt="BRICKTIME bendruomenė"
-                className="aspect-[2/1] w-full rounded-2xl border-2 border-ink object-cover shadow-[6px_6px_0_#001B21]"
-              />
-            </div>
+            <LeaderboardPodium
+              rows={leaderboard.rows}
+              loading={leaderboard.loading}
+            />
           </div>
         </div>
       </section>
@@ -1360,7 +1391,11 @@ export default function Community() {
             <div className="top-[148px] lg:sticky lg:max-h-[calc(100dvh-148px)] lg:self-start lg:overflow-y-auto">
               <ChallengesPanel refreshKey={checkin.version} />
               <h3 className="label-mono mb-6 text-ink/50">Lyderiai</h3>
-              <LeaderboardPanel refreshKey={checkin.version} />
+              <LeaderboardPanel
+                rows={leaderboard.rows}
+                loading={leaderboard.loading}
+                refreshKey={checkin.version}
+              />
             </div>
 
             <div>

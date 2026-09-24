@@ -2,6 +2,7 @@ import { useSearchParams, Link } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -12,7 +13,11 @@ import {
 import { AuthForm } from "@/components/AuthForm"
 import { useState, useEffect, useMemo } from "react"
 import { supabase } from "@/lib/supabase"
-import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
+import {
+  getSubscriptionBrickSvg,
+  getSubscriptionDisplayName,
+} from "@/lib/subscription-branding"
+import { ImagePlaceholder } from "@/components/ImagePlaceholder"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
 import { useCredits } from "@/hooks/useCredits"
 import { useProductAvailability } from "@/hooks/useProductAvailability"
@@ -501,7 +506,7 @@ export default function Checkout() {
             </div>
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.5fr]">
               {/* Left summary */}
-              <div className="brick-card flex flex-col gap-5 bg-brand-yellow p-8">
+              <div className="brick-card flex flex-col gap-5 bg-brand-yellow p-6 md:p-8">
                 <div>
                   <p className="label-mono text-ink/50">Dovanų kuponas</p>
                   <h2 className="heading-display text-d-xl mt-1 text-ink">
@@ -565,7 +570,7 @@ export default function Checkout() {
                   className="brick-hover-sm mt-8 flex w-full items-center justify-between rounded-[28px] border-2 border-ink bg-brand-orange px-6 py-4 text-paper transition-all disabled:opacity-60"
                 >
                   <span className="font-display text-[22px] leading-none">
-                    {gcLoading ? "Kraunama…" : `Mokėti ${gcDenomLabel} →`}
+                    {gcLoading ? "Kraunama…" : `Mokėti ${gcDenomLabel}`}
                   </span>
                   <span className="font-display text-[32px] leading-none">
                     →
@@ -785,7 +790,12 @@ export default function Checkout() {
               {/* Product card — only when product exists */}
               {product ? (
                 <div className="brick-card overflow-hidden bg-white">
-                  <div className="relative h-[200px] border-b-2 border-ink bg-[#f8f6f2] md:h-[240px]">
+                  <div className="relative h-[200px] border-b-2 border-ink bg-white md:h-[240px]">
+                    <img
+                      src={getSubscriptionBrickSvg(requiredTier.key)}
+                      alt=""
+                      className="pointer-events-none absolute top-[14px] left-[14px] z-10 h-10 w-auto select-none"
+                    />
                     {coverImage ? (
                       <img
                         src={coverImage}
@@ -793,10 +803,7 @@ export default function Checkout() {
                         className="h-full w-full object-contain p-6"
                       />
                     ) : (
-                      <div
-                        className="h-full"
-                        style={{ background: requiredTier.bg }}
-                      />
+                      <ImagePlaceholder />
                     )}
                     <div
                       className="absolute top-4 right-4 rounded-full border-2 border-ink px-3 py-1.5 font-mono text-[11px] font-bold tracking-[.1em] uppercase"
@@ -810,15 +817,17 @@ export default function Checkout() {
                   </div>
 
                   <div className="p-5">
-                    <p className="label-mono text-ink/40">Produktas</p>
-                    <h2 className="heading-display text-d-xs mt-1 text-ink">
+                    {product?.category && (
+                      <Badge
+                        variant="outline"
+                        className="mb-2 rounded-full border-2 border-ink px-3 py-1 font-semibold text-ink"
+                      >
+                        {product.category}
+                      </Badge>
+                    )}
+                    <h2 className="heading-display text-d-xs text-ink">
                       {product?.title}
                     </h2>
-                    {product?.subtitle && (
-                      <p className="mt-1 text-[13px] text-ink/50">
-                        {product?.subtitle}
-                      </p>
-                    )}
 
                     <div className="mt-4 grid grid-cols-3 gap-x-3 gap-y-2.5 border-t-2 border-ink/10 pt-4">
                       {[
@@ -855,7 +864,7 @@ export default function Checkout() {
                   className="brick-card overflow-hidden"
                   style={{ background: requiredTier.bg }}
                 >
-                  <div className="p-8 md:p-10">
+                  <div className="p-6 md:p-8">
                     <p
                       className="label-mono"
                       style={{ color: `${requiredTier.textColor}60` }}
@@ -1099,7 +1108,7 @@ export default function Checkout() {
                       <span className="font-display text-[22px] leading-none">
                         Patvirtinti užsakymą
                       </span>
-                      <span className="font-display text-[32px] leading-none">
+                      <span className="font-display text-[24px] leading-none md:text-[32px]">
                         →
                       </span>
                     </button>
@@ -1288,12 +1297,12 @@ export default function Checkout() {
                                 e.key === "Enter" && applyCoupon()
                               }
                               placeholder="KODAS"
-                              className="flex-1 rounded-2xl border-2 border-ink/20 bg-ink/[.02] px-4 py-3 font-mono text-[13px] tracking-widest uppercase transition-colors outline-none focus:border-ink"
+                              className="min-w-0 flex-1 rounded-2xl border-2 border-ink/20 bg-ink/[.02] px-3 py-3 font-mono text-[13px] tracking-widest uppercase transition-colors outline-none focus:border-ink md:px-4"
                             />
                             <button
                               onClick={applyCoupon}
                               disabled={couponLoading || !couponInput.trim()}
-                              className="rounded-2xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[12px] font-bold text-paper disabled:opacity-40"
+                              className="shrink-0 rounded-2xl border-2 border-ink bg-ink px-3 py-3 font-mono text-[12px] font-bold text-paper disabled:opacity-40 md:px-4"
                             >
                               {couponLoading ? "…" : "Taikyti"}
                             </button>
@@ -1346,14 +1355,14 @@ export default function Checkout() {
                                 e.key === "Enter" && applyGiftCard()
                               }
                               placeholder="XXXX-XXXX"
-                              className="flex-1 rounded-2xl border-2 border-ink/20 bg-ink/[.02] px-4 py-3 font-mono text-[13px] tracking-widest uppercase transition-colors outline-none focus:border-ink"
+                              className="min-w-0 flex-1 rounded-2xl border-2 border-ink/20 bg-ink/[.02] px-3 py-3 font-mono text-[13px] tracking-widest uppercase transition-colors outline-none focus:border-ink md:px-4"
                             />
                             <button
                               onClick={applyGiftCard}
                               disabled={
                                 giftCardLoading || !giftCardInput.trim()
                               }
-                              className="rounded-2xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[12px] font-bold text-paper disabled:opacity-40"
+                              className="shrink-0 rounded-2xl border-2 border-ink bg-ink px-3 py-3 font-mono text-[12px] font-bold text-paper disabled:opacity-40 md:px-4"
                             >
                               {giftCardLoading ? "…" : "Taikyti"}
                             </button>
@@ -1406,9 +1415,9 @@ export default function Checkout() {
                         purchasing ||
                         (!!user && (!requiredPlan || !agreedToTerms))
                       }
-                      className="brick-hover-sm flex w-full items-center justify-between rounded-[28px] border-2 border-ink bg-brand-orange px-6 py-4 text-paper transition-all disabled:cursor-not-allowed disabled:opacity-60"
+                      className="brick-hover-sm flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-brand-orange px-5 py-3.5 text-paper transition-all disabled:cursor-not-allowed disabled:opacity-60 md:rounded-[28px] md:px-6 md:py-4"
                     >
-                      <span className="font-display text-[22px] leading-none">
+                      <span className="font-display text-[18px] leading-none md:text-[22px]">
                         {purchasing
                           ? "Kraunama…"
                           : !user
@@ -1455,7 +1464,7 @@ export default function Checkout() {
                 <span className="font-display text-[18px] leading-none">
                   Patvirtinti užsakymą
                 </span>
-                <span className="font-display text-[24px] leading-none">→</span>
+                <span className="font-display text-[20px] leading-none">→</span>
               </button>
             ) : hasTier && !withinCancellationGrace ? (
               <button
@@ -1486,7 +1495,7 @@ export default function Checkout() {
                 }
                 className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-brand-orange px-5 py-3.5 text-paper disabled:cursor-not-allowed disabled:opacity-60"
               >
-                <span className="font-display text-[18px] leading-none">
+                <span className="font-display text-[16px] leading-none">
                   {purchasing
                     ? "Kraunama…"
                     : !user

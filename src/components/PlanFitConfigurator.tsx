@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { XIcon } from "lucide-react"
 import { supabase } from "@/lib/supabase"
+import { ImagePlaceholder } from "@/components/ImagePlaceholder"
 import { tierConfig, type Tier } from "@/components/ProductCard"
 
 interface LiteProduct {
@@ -138,7 +139,7 @@ export function PlanFitConfigurator({
               key={p.id}
               className="flex items-center gap-3 rounded-2xl border-2 border-ink/10 px-4 py-3"
             >
-              <div className="size-10 shrink-0 overflow-hidden rounded-lg border-2 border-ink/10 bg-[#f8f6f2]">
+              <div className="size-10 shrink-0 overflow-hidden rounded-lg border-2 border-ink/10 bg-white">
                 {p.imageUrl && (
                   <img
                     src={p.imageUrl}
@@ -178,7 +179,7 @@ export function PlanFitConfigurator({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Ieškoti..."
-            className="rounded-full border-2 border-ink/20 px-3 py-1.5 text-[13px] outline-none focus:border-ink"
+            className="min-w-0 flex-1 rounded-full border-2 border-ink/20 px-3 py-1.5 text-[13px] outline-none focus:border-ink"
           />
         </div>
 
@@ -196,7 +197,7 @@ export function PlanFitConfigurator({
             Šiam planui šiuo metu nėra produktų peržiūrai.
           </p>
         ) : (
-          <div className="grid max-h-[420px] grid-cols-3 gap-3 overflow-y-auto pr-1 sm:grid-cols-4 lg:grid-cols-6">
+          <div className="grid max-h-[420px] grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {pickerProducts.map((p) => (
               <button
                 key={p.id}
@@ -204,13 +205,15 @@ export function PlanFitConfigurator({
                 onClick={() => toggleProduct(p.id)}
                 className="flex flex-col items-start gap-1.5 rounded-2xl border-2 border-ink/20 p-2.5 text-left transition-all hover:border-ink/50"
               >
-                <div className="aspect-square w-full overflow-hidden rounded-lg border-2 border-ink/10 bg-[#f8f6f2]">
-                  {p.imageUrl && (
+                <div className="relative aspect-square w-full overflow-hidden rounded-lg border-2 border-ink/10 bg-white">
+                  {p.imageUrl ? (
                     <img
                       src={p.imageUrl}
                       alt={p.title}
                       className="h-full w-full object-contain p-2"
                     />
+                  ) : (
+                    <ImagePlaceholder compact />
                   )}
                 </div>
                 <p className="line-clamp-1 w-full text-[12px] font-bold text-ink">
