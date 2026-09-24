@@ -702,8 +702,8 @@ export default function Checkout() {
                         "Kaina",
                         product?.price != null ? `€${product?.price}` : "—",
                       ],
-                      ["Kategorija", product?.category ?? "—"],
                       ["Prenumerata", requiredTier.name + "+"],
+                      ["Briksių vertė", product?.value ?? "—"],
                     ].map(([label, val]) => (
                       <div key={label as string}>
                         <p className="label-mono text-[9px] text-ink/40">
@@ -843,8 +843,8 @@ export default function Checkout() {
                           "Kaina",
                           product?.price != null ? `€${product?.price}` : "—",
                         ],
-                        ["Kategorija", product?.category ?? "—"],
                         ["Prenumerata", requiredTier.name + "+"],
+                        ["Briksių vertė", product?.value ?? "—"],
                       ].map(([label, val]) => (
                         <div key={label as string}>
                           <p className="label-mono text-[9px] text-ink/40">

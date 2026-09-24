@@ -8,6 +8,10 @@ const MESSAGE_MAP: Array<[RegExp, string]> = [
   ],
   [/user already registered/i, "Toks el. paštas jau užregistruotas."],
   [/password should be at least/i, "Slaptažodis turi būti bent 6 simbolių."],
+  [
+    /different from the old password/i,
+    "Naujas slaptažodis turi skirtis nuo senojo. Pasirink kitą slaptažodį.",
+  ],
   [/unable to validate email address/i, "Neteisingas el. pašto formatas."],
   [/email rate limit exceeded/i, "Per daug bandymų. Pabandyk vėliau."],
   [/for security purposes/i, "Palauk kelias sekundes ir bandyk dar kartą."],
