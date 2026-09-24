@@ -240,7 +240,7 @@ export default function Nav() {
                 ) : (
                   <Link
                     to="/subscribe"
-                    className={`relative mr-3 hidden items-center gap-1 text-[15px] font-semibold text-ink after:absolute after:right-0 after:-bottom-1.5 after:left-0 after:h-[2px] after:origin-left after:bg-ink after:transition-transform after:duration-200 after:content-[''] md:flex ${pathname.startsWith("/subscribe") ? "after:scale-x-100" : "after:scale-x-0 hover:after:scale-x-100"}`}
+                    className="brick-hover-sm mr-3 hidden items-center gap-2 rounded-full border-2 border-ink bg-ink px-6 py-2.5 text-[16px] font-semibold text-paper md:flex"
                   >
                     Pradėk konstruoti <ArrowRightIcon className="size-4" />
                   </Link>
