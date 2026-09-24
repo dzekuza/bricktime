@@ -60,7 +60,6 @@ const FLOAT_AMP = 12
 // Seconds before the drop
 
 const DEFAULT_HERO_VIDEO = HERO_VIDEO_URL
-const DEFAULT_HERO_POSTER = "/hero-video-poster.jpeg"
 
 const DEFAULT_COPY = {
   headline: "Lego® Rinkinių\n==Prenumerata==\nVisiems",
@@ -74,9 +73,19 @@ export default function Hero() {
   const bricksRef = useRef<HTMLDivElement>(null)
   const spanRef = useRef<HTMLSpanElement>(null)
   const [copy, setCopy] = useState(DEFAULT_COPY)
-  const [posterUrl, setPosterUrl] = useState(DEFAULT_HERO_POSTER)
+  const [posterUrl, setPosterUrl] = useState<string | undefined>(undefined)
   const [videoUrl, setVideoUrl] = useState(DEFAULT_HERO_VIDEO)
   const [videoLoaded, setVideoLoaded] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  // React's `muted` attribute isn't always applied before autoplay is evaluated
+  // (iOS Safari), which leaves the video paused with a play button.
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    video.muted = true
+    video.play().catch(() => {})
+  }, [videoUrl])
 
   useEffect(() => {
     supabase
@@ -264,6 +273,7 @@ export default function Hero() {
           )}
           <video
             key={videoUrl}
+            ref={videoRef}
             className={`relative z-[1] h-full w-full object-cover transition-opacity duration-300 ${videoLoaded ? "opacity-100" : "opacity-0"}`}
             autoPlay
             muted
