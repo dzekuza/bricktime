@@ -21,6 +21,7 @@ import {
 import { AuthForm } from "@/components/AuthForm"
 import { Seo } from "@/components/Seo"
 import { StatusBadge } from "@/components/community/StatusBadge"
+import { PointsInfoDialog } from "@/components/community/PointsInfoDialog"
 import { DailyCheckinBanner } from "@/components/community/DailyCheckinBanner"
 import {
   getRelativeTime,
@@ -1238,6 +1239,12 @@ function LeaderboardPanel({
   )
 }
 
+const PODIUM_BG: Record<number, string> = {
+  1: "bg-brand-indigo",
+  2: "bg-brand-orange",
+  3: "bg-brand-sky",
+}
+
 function LeaderboardPodium({
   rows,
   loading,
@@ -1266,8 +1273,7 @@ function LeaderboardPodium({
             <Link
               key={entry.subscriber_id}
               to={`/profile/${entry.subscriber_id}`}
-              className={`studs-sm flex flex-col items-center rounded-2xl border-2 border-ink p-3 text-center shadow-[4px_4px_0_#001B21] ${isCenter ? "mt-0" : "mt-5"}`}
-              style={{ background: entry.avatar_bg ?? "#001B21" }}
+              className={`studs-sm flex flex-col items-center rounded-2xl border-2 border-ink p-3 text-center shadow-[4px_4px_0_#001B21] ${PODIUM_BG[entry.rank] ?? "bg-ink"} ${isCenter ? "mt-0" : "mt-5"}`}
             >
               <p className="text-d-xs mb-2 font-display leading-none text-paper/30">
                 #{entry.rank}
@@ -1337,6 +1343,8 @@ function LeaderboardPodium({
           </div>
         ))}
       </div>
+
+      <PointsInfoDialog />
     </div>
   )
 }
