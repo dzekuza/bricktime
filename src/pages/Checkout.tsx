@@ -908,16 +908,25 @@ export default function Checkout() {
                       {userSub.name}
                     </p>
                   </div>
-                  <span
-                    className={[
-                      "rounded-full border-2 border-ink px-3 py-1.5 font-mono text-[11px] font-bold tracking-[.1em] uppercase",
-                      isEligible
-                        ? "bg-brand-mint text-ink"
-                        : "bg-white/60 text-ink/60",
-                    ].join(" ")}
-                  >
-                    {isEligible ? "✓ Tinkamas" : "✗ Netinkamas"}
-                  </span>
+                  <div className="flex flex-col items-end gap-2">
+                    <span
+                      className={[
+                        "rounded-full border-2 border-ink px-3 py-1.5 font-mono text-[11px] font-bold tracking-[.1em] uppercase",
+                        isEligible
+                          ? "bg-brand-mint text-ink"
+                          : "bg-white/60 text-ink/60",
+                      ].join(" ")}
+                    >
+                      {isEligible ? "✓ Tinkamas" : "✗ Netinkamas"}
+                    </span>
+                    <Link
+                      to="/subscribe"
+                      className="font-mono text-[11px] font-bold tracking-[.1em] uppercase underline underline-offset-2"
+                      style={{ color: userSub.textColor }}
+                    >
+                      Keisti planą →
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>
