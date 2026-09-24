@@ -330,8 +330,8 @@ export default function Drop() {
       <section className="bg-paper py-1 md:py-4">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 items-start gap-6 md:gap-12 lg:grid-cols-2">
-            {/* Gallery tile */}
-            <div className="brick-card p-4">
+            {/* Gallery */}
+            <div>
               <div className="flex flex-col gap-4">
                 {/* Mobile: placeholder when the product has no photos */}
                 {thumbs.length === 0 && (

@@ -221,22 +221,24 @@ export default function FeaturedProducts() {
 
         {/* Footer */}
         <div className="mt-10 flex flex-col items-center gap-3">
-          {hasMore && (
-            <button
-              onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-              className="brick-hover-sm hidden h-12 items-center gap-2 rounded-full border-2 border-ink bg-brand-yellow px-[26px] text-[16px] leading-[26px] font-bold text-ink sm:flex"
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {hasMore && (
+              <button
+                onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+                className="brick-hover-sm hidden h-12 items-center gap-2 rounded-full border-2 border-ink bg-brand-yellow px-[26px] text-[16px] leading-[26px] font-bold text-ink sm:flex"
+              >
+                Rodyti daugiau
+                <PlusIcon size={16} />
+              </button>
+            )}
+            <Link
+              to="/archive"
+              className="brick-hover-sm flex h-12 items-center gap-2 rounded-full border-2 border-ink bg-white px-[26px] text-[16px] leading-[26px] font-bold text-ink"
             >
-              Rodyti daugiau
-              <PlusIcon size={16} />
-            </button>
-          )}
-          <Link
-            to="/archive"
-            className="brick-hover-sm flex h-12 items-center gap-2 rounded-full border-2 border-ink bg-white px-[26px] text-[16px] leading-[26px] font-bold text-ink"
-          >
-            Peržiūrėti rinkinius
-            <ArrowRight size={16} />
-          </Link>
+              Peržiūrėti rinkinius
+              <ArrowRight size={16} />
+            </Link>
+          </div>
           <p className="label-mono text-center text-ink/55">
             Rodoma {shown.length} iš {visible.length} · {sortLabel} pirmiausia
           </p>
