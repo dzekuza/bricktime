@@ -2,6 +2,8 @@ import { useState } from "react"
 import { EyeIcon, EyeOffIcon } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { translateAuthError } from "@/lib/auth-errors"
+import { isStrongPassword, PASSWORD_MIN_LENGTH } from "@/lib/password-rules"
+import { PasswordRequirements } from "@/components/PasswordRequirements"
 
 export function AuthForm({ onClose }: { onClose: () => void }) {
   const [mode, setMode] = useState<"signin" | "register" | "forgot">("signin")
@@ -17,6 +19,12 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
     e.preventDefault()
     setError("")
     setSuccess("")
+
+    if (mode === "register" && !isStrongPassword(password)) {
+      setError("Slaptažodis neatitinka visų reikalavimų.")
+      return
+    }
+
     setLoading(true)
 
     if (mode === "signin") {
@@ -149,7 +157,7 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          minLength={6}
+          minLength={mode === "register" ? PASSWORD_MIN_LENGTH : undefined}
           className="w-full rounded-xl border-2 border-ink/20 bg-paper px-3 py-2 pr-9 font-mono text-[13px] text-ink transition-colors outline-none focus:border-ink"
         />
         <button
@@ -165,6 +173,7 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
           )}
         </button>
       </div>
+      {mode === "register" && <PasswordRequirements password={password} />}
       {mode === "signin" && (
         <button
           type="button"

@@ -6,6 +6,8 @@ import Footer from "@/components/Footer"
 import { Seo } from "@/components/Seo"
 import { supabase } from "@/lib/supabase"
 import { translateAuthError } from "@/lib/auth-errors"
+import { isStrongPassword, PASSWORD_MIN_LENGTH } from "@/lib/password-rules"
+import { PasswordRequirements } from "@/components/PasswordRequirements"
 
 export default function ResetPassword() {
   const navigate = useNavigate()
@@ -19,6 +21,11 @@ export default function ResetPassword() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError("")
+
+    if (!isStrongPassword(password)) {
+      setError("Slaptažodis neatitinka visų reikalavimų.")
+      return
+    }
 
     if (password !== confirmPassword) {
       setError("Slaptažodžiai nesutampa.")
@@ -48,7 +55,7 @@ export default function ResetPassword() {
       <Nav />
       <main className="bg-paper text-ink">
         <section className="py-24 md:py-32">
-          <div className="mx-auto max-w-[420px] px-4 md:px-7">
+          <div className="mx-auto max-w-[420px] px-4 text-center md:px-7">
             <p className="label-mono text-ink/40">Paskyra</p>
             <h1 className="heading-display text-d-lg mt-4 text-ink">
               Naujas slaptažodis
@@ -61,7 +68,7 @@ export default function ResetPassword() {
             ) : (
               <form
                 onSubmit={handleSubmit}
-                className="mt-6 flex flex-col gap-3"
+                className="mt-6 flex flex-col gap-3 text-left"
               >
                 <div className="relative">
                   <input
@@ -70,7 +77,7 @@ export default function ResetPassword() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    minLength={6}
+                    minLength={PASSWORD_MIN_LENGTH}
                     className="w-full rounded-xl border-2 border-ink/20 bg-paper px-3 py-2 pr-9 font-mono text-[13px] text-ink transition-colors outline-none focus:border-ink"
                   />
                   <button
@@ -88,6 +95,7 @@ export default function ResetPassword() {
                     )}
                   </button>
                 </div>
+                <PasswordRequirements password={password} />
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
@@ -95,7 +103,7 @@ export default function ResetPassword() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    minLength={6}
+                    minLength={PASSWORD_MIN_LENGTH}
                     className="w-full rounded-xl border-2 border-ink/20 bg-paper px-3 py-2 pr-9 font-mono text-[13px] text-ink transition-colors outline-none focus:border-ink"
                   />
                   <button
