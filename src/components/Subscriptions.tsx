@@ -202,7 +202,7 @@ export default function Subscriptions({
                 : subscriptions.map((plan, i) => (
                     <div
                       key={plan.id}
-                      className="reveal brick-card sticky flex min-w-0 flex-1 flex-col [--card-step:56px] p-4 pt-6 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-[transform,box-shadow] duration-300 ease-out hover:z-10 hover:-translate-y-3 hover:shadow-[10px_10px_0_rgba(245,241,235,.25)] lg:relative lg:!top-0 lg:p-5 lg:pt-10"
+                      className="reveal brick-card sticky flex min-w-0 flex-1 flex-col p-4 pt-3 shadow-[6px_6px_0_rgba(245,241,235,.15)] transition-[transform,box-shadow] duration-300 ease-out [--card-step:44px] hover:z-10 hover:-translate-y-3 hover:shadow-[10px_10px_0_rgba(245,241,235,.25)] lg:relative lg:!top-0 lg:p-5 lg:pt-10"
                       style={{
                         background: plan.bg_color,
                         transitionDelay: `${i * 80}ms`,
@@ -225,13 +225,7 @@ export default function Subscriptions({
                         ) : null
                       })()}
 
-                      <h3
-                        className="heading-display min-h-8 text-[28px] uppercase md:text-base"
-                        style={{ color: plan.text_color }}
-                      >
-                        {plan.name}
-                      </h3>
-                      <div className="mt-2 flex items-baseline gap-1">
+                      <div className="flex items-baseline gap-1">
                         <AnimatedPrice
                           value={
                             billing === "yearly"
@@ -247,6 +241,12 @@ export default function Subscriptions({
                           {billing === "yearly" ? "/mėn. (metinis)" : "/mėn."}
                         </span>
                       </div>
+                      <h3
+                        className="heading-display mt-2 min-h-8 text-[28px] uppercase md:text-base"
+                        style={{ color: plan.text_color }}
+                      >
+                        {plan.name}
+                      </h3>
                       <div
                         className={
                           plan.featured
@@ -261,7 +261,7 @@ export default function Subscriptions({
                         )}
                       </div>
 
-                      <ul className="mt-3 flex flex-1 flex-col gap-2">
+                      <ul className="mt-3 flex flex-1 flex-col gap-1 lg:gap-2">
                         {plan.perks.map((perk) => (
                           <li
                             key={perk.label}

@@ -17,6 +17,7 @@ import { Seo } from "@/components/Seo"
 import { useProductAvailability } from "@/hooks/useProductAvailability"
 import { ManufacturerInfo } from "@/components/ManufacturerInfo"
 import { ExpandableHtml } from "@/components/ExpandableHtml"
+import { ImagePlaceholder } from "@/components/ImagePlaceholder"
 import {
   ProductCard,
   dbToProduct,
@@ -177,7 +178,7 @@ function RelatedCarousel({ products }: { products: Product[] }) {
       <div className="-mx-4 md:mx-0">
         <div
           ref={ref}
-          className="scrollbar-none flex gap-4 overflow-x-auto pt-1 pb-3"
+          className="scrollbar-none flex gap-4 overflow-x-auto pt-2 pb-4 md:-mx-3 md:px-3"
         >
           {products.map((p, i) => (
             <div
@@ -253,9 +254,9 @@ export default function Drop() {
   const DROP_REQUIRED_TIER =
     dropRequiredTierIdx === -1 ? 2 : dropRequiredTierIdx
 
-  const tierPill = (
+  const renderTierPill = (className = "py-2") => (
     <div
-      className="rounded-full border-2 border-ink px-4 py-2 font-display text-[18px] leading-none"
+      className={`rounded-full border-2 border-ink px-4 font-display text-[18px] leading-none ${className}`}
       style={{
         background: tiers[DROP_REQUIRED_TIER].bg,
         color: tiers[DROP_REQUIRED_TIER].textColor,
@@ -287,10 +288,7 @@ export default function Drop() {
   )
 
   const releaseBadge = product?.release_date && (
-    <div
-      className="pointer-events-none absolute top-6 right-6 rotate-[3deg] rounded-[8px] border-2 border-ink bg-brand-yellow px-4 py-2.5 font-display text-2xl leading-none text-ink capitalize"
-      style={{ boxShadow: "4px 4px 0 #001B21" }}
-    >
+    <div className="pointer-events-none absolute top-4 right-4 rotate-[3deg] rounded-[8px] border-2 border-ink bg-brand-yellow px-2.5 py-1.5 font-display text-base leading-none text-ink capitalize shadow-[3px_3px_0_#001B21] md:top-6 md:right-6 md:px-4 md:py-2.5 md:text-2xl md:shadow-[4px_4px_0_#001B21]">
       {formatReleaseMonthFirst(product.release_date)}
     </div>
   )
@@ -329,12 +327,21 @@ export default function Drop() {
       <Nav />
 
       {/* ── Product Hero ── */}
-      <section className="bg-paper py-4">
+      <section className="bg-paper py-1 md:py-4">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2">
+          <div className="grid grid-cols-1 items-start gap-6 md:gap-12 lg:grid-cols-2">
             {/* Gallery tile */}
             <div className="brick-card p-4">
               <div className="flex flex-col gap-4">
+                {/* Mobile: placeholder when the product has no photos */}
+                {thumbs.length === 0 && (
+                  <div className="relative aspect-square overflow-hidden rounded-[24px] border-2 border-ink bg-[#f8f6f2] md:hidden">
+                    <ImagePlaceholder />
+                    {tierBrick}
+                    {releaseBadge}
+                  </div>
+                )}
+
                 {/* Mobile: swipeable gallery carousel */}
                 {thumbs.length > 0 && (
                   <div className="relative md:hidden">
@@ -421,6 +428,7 @@ export default function Drop() {
                       style={{ objectPosition: "center 20%" }}
                     />
                   )}
+                  {!activeImage && <ImagePlaceholder />}
                   {/* Overlay badges */}
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
                   {tierBrick}
@@ -487,12 +495,12 @@ export default function Drop() {
                 )}
               </div>
 
-              <h1 className="heading-display text-d-md mt-7 tracking-[-0.01em] text-ink">
+              <h1 className="heading-display text-d-md mt-3 tracking-[-0.01em] text-ink md:mt-7">
                 {product?.title ?? "Mailbox Row"}
               </h1>
 
               <ExpandableHtml
-                className="mt-6 max-w-[48ch] text-[18px] leading-[1.62] text-ink/80"
+                className="mt-4 max-w-[48ch] text-[15px] leading-[1.5] text-ink/80 md:mt-6 md:text-[18px] md:leading-[1.62]"
                 html={
                   product?.description ??
                   "A five-storey postwar apartment block in mint and cream, complete with a working mailbox door, three planted balconies, and the universe's first scheduled crossover — Otto's bus is the bus from product №14."
@@ -515,7 +523,6 @@ export default function Drop() {
                     label: "Kaina",
                     val: product?.price != null ? `€${product.price}` : "—",
                   },
-                  { label: "Kategorija", val: product?.category ?? "—" },
                   {
                     label: "Prenumerata",
                     val:
@@ -541,7 +548,7 @@ export default function Drop() {
               {/* Rent CTA */}
               <div id="buy" className="mt-8 border-t border-ink/10 pt-6">
                 <div className="flex items-center gap-3">
-                  {tierPill}
+                  {renderTierPill()}
                   <span className="text-[14px] text-ink/50">
                     reikalinga prenumerata
                   </span>
@@ -935,7 +942,7 @@ export default function Drop() {
       {/* ── Sticky mobile CTA ── */}
       <div className="h-20 md:hidden" />
       <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t-2 border-ink bg-paper px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_0_rgba(0,27,33,.06)] md:hidden">
-        {tierPill}
+        {renderTierPill("flex h-12 items-center")}
         {isRentedOut ? (
           <Button
             size="lg"

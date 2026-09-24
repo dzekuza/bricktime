@@ -71,7 +71,7 @@ export default function Breadcrumb() {
     <div className="mx-auto max-w-[1320px] px-4 md:px-7">
       <nav
         aria-label="Breadcrumb"
-        className="flex flex-nowrap items-center gap-2.5 overflow-hidden py-2.5"
+        className="flex flex-nowrap items-center gap-2.5 overflow-hidden md:py-2.5"
       >
         {all.map((crumb, i) => {
           const isLast = i === all.length - 1
