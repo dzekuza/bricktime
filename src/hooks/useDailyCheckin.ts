@@ -16,10 +16,18 @@ export interface DailyCheckin {
 // the desired end state, not a failure to report.
 const ALREADY_CHECKED_IN = "already checked in today"
 
-function startOfTodayUtc(): string {
-  const start = new Date()
-  start.setUTCHours(0, 0, 0, 0)
-  return start.toISOString()
+const CHECKIN_TZ = "Europe/Vilnius"
+
+// Mirrors the DB's day boundary: midnight in Lithuania, not UTC.
+function startOfTodayVilnius(): string {
+  const ymd = (d: Date) =>
+    new Intl.DateTimeFormat("en-CA", { timeZone: CHECKIN_TZ }).format(d)
+  const today = ymd(new Date())
+  // Vilnius is UTC+2 or UTC+3; pick the offset whose local date rolls over here.
+  const start = [3, 2]
+    .map((h) => new Date(Date.parse(`${today}T00:00:00Z`) - h * 3_600_000))
+    .find((d) => ymd(d) === today && ymd(new Date(d.getTime() - 1)) !== today)
+  return (start ?? new Date(`${today}T00:00:00Z`)).toISOString()
 }
 
 /**
@@ -50,7 +58,7 @@ export function useDailyCheckin(): DailyCheckin {
         .select("id", { count: "exact", head: true })
         .eq("subscriber_id", userId)
         .eq("type", "checkin")
-        .gte("created_at", startOfTodayUtc())
+        .gte("created_at", startOfTodayVilnius())
       if (cancelled) return
       if (countError) {
         setError(countError.message)

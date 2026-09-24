@@ -13,6 +13,7 @@ import { Plans } from "@/pages/Plans"
 import { Orders } from "@/pages/Orders"
 import { Coupons } from "@/pages/Coupons"
 import { Achievements } from "@/pages/Achievements"
+import { Points } from "@/pages/Points"
 import { Community } from "@/pages/Community"
 import { Challenges } from "@/pages/Challenges"
 import { MissingParts } from "@/pages/MissingParts"
@@ -43,6 +44,7 @@ export default function App() {
               <Route path="/orders" element={<Orders />} />
               <Route path="/coupons" element={<Coupons />} />
               <Route path="/achievements" element={<Achievements />} />
+              <Route path="/points" element={<Points />} />
               <Route path="/community" element={<Community />} />
               <Route path="/challenges" element={<Challenges />} />
               <Route path="/missing-parts" element={<MissingParts />} />

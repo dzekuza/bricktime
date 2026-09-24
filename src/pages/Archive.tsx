@@ -12,6 +12,7 @@ import { ProductCard, dbToProduct } from "@/components/ProductCard"
 import { NextDrop } from "@/components/NextDrop"
 import { Seo } from "@/components/Seo"
 import { useProductAvailability } from "@/hooks/useProductAvailability"
+import { usePageHeaderImage } from "@/hooks/usePageHeaderImage"
 
 // ── filter constants ────────────────────────────────────────────────────────
 const SORT_OPTIONS = [
@@ -24,6 +25,8 @@ const SORT_OPTIONS = [
 
 type SortValue = (typeof SORT_OPTIONS)[number]["value"]
 
+const PAGE_SIZE = 25
+
 // ── page ───────────────────────────────────────────────────────────────────
 export default function Archive() {
   const [tierFilter, setTierFilter] = useState<string[]>([])
@@ -35,7 +38,9 @@ export default function Archive() {
   const [userTier, setUserTier] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [now] = useState(() => Date.now())
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const { available } = useProductAvailability()
+  const headerImage = usePageHeaderImage("archive", "/images/build-castle.jpg")
 
   useEffect(() => {
     supabase
@@ -120,6 +125,15 @@ export default function Archive() {
     setAgeFilter([])
   }
 
+  // A narrowed result set starts from the first page again, otherwise an
+  // expanded list would keep showing everything after the filter changes.
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE)
+  }, [tierFilter, seriesFilter, ageFilter, sortBy])
+
+  const shownProducts = filteredProducts.slice(0, visibleCount)
+  const hasMore = filteredProducts.length > shownProducts.length
+
   return (
     <>
       <Seo
@@ -149,7 +163,7 @@ export default function Archive() {
             </div>
             <div className="hidden lg:block">
               <img
-                src="/images/build-castle.jpg"
+                src={headerImage}
                 alt="LEGO® rinkiniai"
                 className="aspect-[2/1] w-full rounded-2xl border-2 border-ink object-cover shadow-[6px_6px_0_#001B21]"
               />
@@ -229,22 +243,25 @@ export default function Archive() {
                     </div>
                   </div>
                 ))
-              : filteredProducts.map((product) => (
+              : shownProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
           </div>
 
           <div className="py-20 text-center">
-            <Button
-              variant="outline"
-              size="lg"
-              className="rounded-full border-2 border-ink bg-paper text-[17px] font-bold text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21]"
-            >
-              Rodyti daugiau ↓
-            </Button>
+            {hasMore && (
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+                className="rounded-full border-2 border-ink bg-paper text-[17px] font-bold text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21]"
+              >
+                Rodyti daugiau ↓
+              </Button>
+            )}
             <p className="label-mono mt-3.5 text-ink/55">
-              Rodoma {filteredProducts.length} iš {products.length} · Naujausi
-              pirmiausia
+              Rodoma {shownProducts.length} iš {filteredProducts.length} ·
+              Naujausi pirmiausia
             </p>
           </div>
         </div>

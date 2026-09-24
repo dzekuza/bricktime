@@ -1,5 +1,7 @@
+import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Separator } from "@/components/ui/separator"
+import { socials } from "@/data/socials"
 
 const footerLinks = {
   Atrask: [
@@ -10,7 +12,7 @@ const footerLinks = {
   ],
   Pagalba: [
     { label: "D.U.K.", href: "/duk" },
-    { label: "Kontaktai", href: "mailto:info@bricktime.lt" },
+    { label: "Kontaktai", href: "/kontaktai" },
     { label: "Pristatymas", href: "/pristatymas" },
     { label: "Grąžinimai", href: "/grazinimai" },
   ],
@@ -22,9 +24,9 @@ const footerLinks = {
   ],
 }
 
-const socials = ["Facebook", "Instagram", "TikTok"]
-
 export default function Footer() {
+  const [logoFailed, setLogoFailed] = useState(false)
+
   return (
     <footer className="bg-paper pt-8 pb-16 text-ink">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
@@ -32,7 +34,20 @@ export default function Footer() {
         <div className="grid grid-cols-2 gap-12 md:grid-cols-[2fr_1fr_1fr_1fr]">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <img src="/bricktime.svg" alt="BRICKTIME" className="h-12 w-auto" />
+            {logoFailed ? (
+              <span className="font-display text-[28px] leading-none text-ink uppercase">
+                Bricktime
+              </span>
+            ) : (
+              <img
+                src="/bricktime.svg"
+                alt="BRICKTIME"
+                width={171}
+                height={49}
+                className="h-12 w-auto"
+                onError={() => setLogoFailed(true)}
+              />
+            )}
             <p className="mt-4 max-w-none text-[14px] leading-relaxed text-ink/60 md:max-w-[32ch]">
               Pirmoji originalių LEGO® rinkinių prenumerata Lietuvoje. Konstruok
               daugiau, atrask naujus projektus ir mėgaukis LEGO® be didelių
@@ -41,11 +56,13 @@ export default function Footer() {
             <div className="mt-6 flex gap-2.5">
               {socials.map((s) => (
                 <a
-                  key={s}
-                  href="#"
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noreferrer noopener"
                   className="rounded-full border-2 border-ink px-3.5 py-1.5 text-[13px] font-semibold text-ink transition-colors hover:bg-ink hover:text-paper"
                 >
-                  {s}
+                  {s.label}
                 </a>
               ))}
             </div>
@@ -97,6 +114,17 @@ export default function Footer() {
           kurio LEGO® įmonių grupė neremia, neįgaliojo ir kitaip nepatvirtino.
           Kiti nurodomi ženklai priklauso atitinkamiems jų savininkams ir
           naudojami tik rinkiniams identifikuoti.
+        </p>
+        <p className="mt-3 text-[11px] text-ink/35">
+          Created by{" "}
+          <a
+            href="https://www.pidea.lt/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-ink/50 transition-colors hover:text-ink"
+          >
+            P.idea
+          </a>
         </p>
       </div>
     </footer>

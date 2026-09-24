@@ -9,7 +9,6 @@ import { Seo } from "@/components/Seo"
 const FeaturedProducts = lazy(() => import("@/components/FeaturedProducts"))
 const HowItWorks = lazy(() => import("@/components/HowItWorks"))
 const Subscriptions = lazy(() => import("@/components/Subscriptions"))
-const Testimonials = lazy(() => import("@/components/Testimonials"))
 const FAQ = lazy(() => import("@/components/FAQ"))
 const Footer = lazy(() => import("@/components/Footer"))
 const FloatingVideoWidget = lazy(
@@ -38,7 +37,6 @@ export default function Home() {
               navigate(`/checkout?plan=${plan.id}&billing=${billing}`)
             }
           />
-          <Testimonials />
           <FAQ />
         </Suspense>
       </main>

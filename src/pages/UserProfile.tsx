@@ -4,7 +4,7 @@ import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import { supabase } from "@/lib/supabase"
 import { avatarSrc } from "@/lib/avatars"
-import { getRelativeTime, drops } from "@/data/community"
+import { getRelativeTime } from "@/data/community"
 import { useAchievements } from "@/hooks/useAchievements"
 import { getSubscriptionDisplayName } from "@/lib/subscription-branding"
 import { Seo } from "@/components/Seo"
@@ -53,6 +53,9 @@ export default function UserProfile() {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [posts, setPosts] = useState<FeedPost[]>([])
   const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set())
+  const [drops, setDrops] = useState<
+    { id: number; title: string; bg: string }[]
+  >([])
   const [loading, setLoading] = useState(true)
   const { achievements } = useAchievements()
 
@@ -75,7 +78,21 @@ export default function UserProfile() {
         .eq("subscriber_id", userId),
     ]).then(([{ data: prof }, { data: feedData }, { data: achData }]) => {
       if (prof) setProfile(prof as unknown as UserProfile)
-      if (feedData) setPosts(feedData as FeedPost[])
+      if (feedData) {
+        setPosts(feedData as FeedPost[])
+        const ids = feedData
+          .map((p) => p.drop_num)
+          .filter((n): n is number => n !== null)
+        if (ids.length > 0) {
+          supabase
+            .from("products")
+            .select("id, title, bg")
+            .in("id", ids)
+            .then(({ data }) => {
+              if (data) setDrops(data)
+            })
+        }
+      }
       if (achData)
         setUnlockedIds(
           new Set(
@@ -147,7 +164,7 @@ export default function UserProfile() {
           {/* Two-column layout */}
           <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
             {/* Avatar + name tile — sticky */}
-            <div className="flex flex-col rounded-2xl border-2 border-ink bg-ink p-6 shadow-[6px_6px_0_#FFD731] md:rounded-3xl md:p-8 lg:sticky lg:top-24 lg:col-span-4">
+            <div className="flex flex-col rounded-2xl border-2 border-ink bg-ink p-6 shadow-[6px_6px_0_#FFD731] md:rounded-3xl md:p-8 lg:sticky lg:top-[148px] lg:col-span-4">
               <div
                 className="mb-4 size-20 overflow-hidden rounded-full border-2 border-paper/20"
                 style={{ background: profile.avatar_bg }}

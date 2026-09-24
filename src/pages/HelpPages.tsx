@@ -13,6 +13,7 @@ type HelpPageProps = {
   intro: string
   path: string
   heroImage?: string
+  heroMascot?: string
   summary: { label: string; value: string }[]
   sections: { title: string; body: string }[]
   checklist: string[]
@@ -24,6 +25,7 @@ function HelpPage({
   intro,
   path,
   heroImage,
+  heroMascot,
   sections,
   checklist,
   helpNote,
@@ -68,6 +70,15 @@ function HelpPage({
                   />
                 </div>
               )}
+              {heroMascot && (
+                <div className="hidden justify-center lg:flex">
+                  <img
+                    src={heroMascot}
+                    alt=""
+                    className="w-full max-w-[360px] object-contain"
+                  />
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -95,7 +106,7 @@ function HelpPage({
               ))}
             </div>
 
-            <aside className="grid gap-4 self-start lg:sticky lg:top-28">
+            <aside className="grid gap-4 self-start lg:sticky lg:top-[148px]">
               <div className="brick-card bg-ink p-6 text-paper md:p-8">
                 <p className="label-mono text-paper/50">Trumpai</p>
                 <ul className="mt-5 space-y-3">
@@ -150,6 +161,7 @@ export function FAQPage() {
       title="D.U.K."
       path="/duk"
       intro="Čia rasi atsakymus į dažniausiai užduodamus klausimus apie Brick Time – nuo prenumeratų ir LEGO® rinkinių iki pristatymo, grąžinimo bei paslaugos veikimo."
+      heroMascot="/duk-mascot.png"
       summary={[
         {
           label: "Atsakymai",

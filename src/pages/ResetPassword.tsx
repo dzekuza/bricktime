@@ -1,9 +1,11 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { EyeIcon, EyeOffIcon } from "lucide-react"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import { Seo } from "@/components/Seo"
 import { supabase } from "@/lib/supabase"
+import { translateAuthError } from "@/lib/auth-errors"
 
 export default function ResetPassword() {
   const navigate = useNavigate()
@@ -12,6 +14,7 @@ export default function ResetPassword() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -27,7 +30,7 @@ export default function ResetPassword() {
     setLoading(false)
 
     if (error) {
-      setError(error.message)
+      setError(translateAuthError(error.message))
     } else {
       setSuccess(true)
       setTimeout(() => navigate("/account"), 1500)
@@ -60,24 +63,56 @@ export default function ResetPassword() {
                 onSubmit={handleSubmit}
                 className="mt-6 flex flex-col gap-3"
               >
-                <input
-                  type="password"
-                  placeholder="Naujas slaptažodis"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  className="rounded-xl border-2 border-ink/20 bg-paper px-3 py-2 font-mono text-[13px] text-ink transition-colors outline-none focus:border-ink"
-                />
-                <input
-                  type="password"
-                  placeholder="Pakartok slaptažodį"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  className="rounded-xl border-2 border-ink/20 bg-paper px-3 py-2 font-mono text-[13px] text-ink transition-colors outline-none focus:border-ink"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Naujas slaptažodis"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="w-full rounded-xl border-2 border-ink/20 bg-paper px-3 py-2 pr-9 font-mono text-[13px] text-ink transition-colors outline-none focus:border-ink"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={
+                      showPassword ? "Slėpti slaptažodį" : "Rodyti slaptažodį"
+                    }
+                    className="absolute top-1/2 right-2.5 -translate-y-1/2 text-ink/40 transition-colors hover:text-ink"
+                  >
+                    {showPassword ? (
+                      <EyeOffIcon className="size-4" />
+                    ) : (
+                      <EyeIcon className="size-4" />
+                    )}
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Pakartok slaptažodį"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="w-full rounded-xl border-2 border-ink/20 bg-paper px-3 py-2 pr-9 font-mono text-[13px] text-ink transition-colors outline-none focus:border-ink"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={
+                      showPassword ? "Slėpti slaptažodį" : "Rodyti slaptažodį"
+                    }
+                    className="absolute top-1/2 right-2.5 -translate-y-1/2 text-ink/40 transition-colors hover:text-ink"
+                  >
+                    {showPassword ? (
+                      <EyeOffIcon className="size-4" />
+                    ) : (
+                      <EyeIcon className="size-4" />
+                    )}
+                  </button>
+                </div>
 
                 {error && (
                   <p className="font-mono text-[11px] text-red-500">{error}</p>

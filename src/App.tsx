@@ -19,6 +19,7 @@ import MerchPage from "@/pages/Merch"
 import MerchDrop from "@/pages/MerchDrop"
 import GiftCards from "@/pages/GiftCards"
 import About from "@/pages/About"
+import Contacts from "@/pages/Contacts"
 import PrivacyPolicy from "@/pages/PrivacyPolicy"
 import StoreRules from "@/pages/StoreRules"
 import NotFound from "@/pages/NotFound"
@@ -72,6 +73,7 @@ export default function App() {
         <Route path="/pristatymas" element={<ShippingPage />} />
         <Route path="/grazinimai" element={<ReturnsPage />} />
         <Route path="/apie" element={<About />} />
+        <Route path="/kontaktai" element={<Contacts />} />
         <Route path="/privatumo-politika" element={<PrivacyPolicy />} />
         <Route path="/parduotuves-taisykles" element={<StoreRules />} />
         <Route path="*" element={<NotFound />} />

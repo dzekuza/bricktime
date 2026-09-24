@@ -46,32 +46,38 @@ export function FilterPopover({
         sideOffset={8}
         className="w-56 rounded-2xl border-2 border-ink p-2 shadow-[4px_4px_0_#001B21]"
       >
-        <div className="max-h-64 overflow-y-auto">
-          {options.map(({ value, label: optLabel }) => {
-            const checked = selected.includes(value)
-            return (
-              <button
-                key={value}
-                onClick={() => toggle(value)}
-                className={[
-                  "flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left font-mono text-[11px] font-semibold tracking-[.04em] uppercase transition-colors",
-                  checked ? "bg-ink text-paper" : "text-ink hover:bg-ink/5",
-                ].join(" ")}
-              >
-                <span
+        <div className="relative">
+          <div className="max-h-64 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">
+            {options.map(({ value, label: optLabel }) => {
+              const checked = selected.includes(value)
+              return (
+                <button
+                  key={value}
+                  onClick={() => toggle(value)}
                   className={[
-                    "flex size-4 shrink-0 items-center justify-center rounded border-2 transition-colors",
-                    checked
-                      ? "border-paper/40 bg-transparent"
-                      : "border-ink/30",
+                    "flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left font-mono text-[11px] font-semibold tracking-[.04em] uppercase transition-colors",
+                    checked ? "bg-ink text-paper" : "text-ink hover:bg-ink/5",
                   ].join(" ")}
                 >
-                  {checked && <CheckIcon className="size-2.5" />}
-                </span>
-                {optLabel}
-              </button>
-            )
-          })}
+                  <span
+                    className={[
+                      "flex size-4 shrink-0 items-center justify-center rounded border-2 transition-colors",
+                      checked
+                        ? "border-paper/40 bg-transparent"
+                        : "border-ink/30",
+                    ].join(" ")}
+                  >
+                    {checked && <CheckIcon className="size-2.5" />}
+                  </span>
+                  {optLabel}
+                </button>
+              )
+            })}
+          </div>
+          {/* iOS Safari's overlay scrollbar only flashes during an active
+              touch, so fade the bottom edge as a persistent hint that the
+              list scrolls. */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-6 rounded-b-2xl bg-gradient-to-t from-popover to-transparent" />
         </div>
         {selected.length > 0 && (
           <div className="mt-1 border-t border-ink/10 pt-1">

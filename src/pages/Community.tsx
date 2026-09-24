@@ -23,13 +23,17 @@ import { Seo } from "@/components/Seo"
 import { StatusBadge } from "@/components/community/StatusBadge"
 import { DailyCheckinBanner } from "@/components/community/DailyCheckinBanner"
 import {
-  drops,
   getRelativeTime,
   type AchievementDef,
   type FeedEventType,
 } from "@/data/community"
 import { useAchievements } from "@/hooks/useAchievements"
 import { useDailyCheckin, type DailyCheckin } from "@/hooks/useDailyCheckin"
+import { usePageHeaderImage } from "@/hooks/usePageHeaderImage"
+import {
+  getSubscriptionDisplayName,
+  getSubscriptionTheme,
+} from "@/lib/subscription-branding"
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -59,14 +63,6 @@ const studPattern = {
   backgroundImage:
     "radial-gradient(circle at 12px 12px, rgba(255,255,255,.18) 3px, transparent 4px)",
   backgroundSize: "24px 24px",
-}
-
-const tierColors: Record<string, string> = {
-  Mega: "#FB4903",
-  Pro: "#4DA2FF",
-  Standard: "#FFD731",
-  Mini: "#FFAEE7",
-  Nano: "#F5F1EB",
 }
 
 const REPORT_REASONS = [
@@ -131,6 +127,8 @@ function FeedCard({
   onComment,
   isOwn,
   onDelete,
+  onDeleteReply,
+  currentUserId,
   isLoggedIn,
   onOpenAuth,
   onReport,
@@ -143,6 +141,8 @@ function FeedCard({
   onComment: (text: string) => Promise<void>
   isOwn: boolean
   onDelete: () => void
+  onDeleteReply: (reply: LiveFeedItem) => void
+  currentUserId?: string
   isLoggedIn: boolean
   onOpenAuth: () => void
   onReport: (reason: string) => Promise<void>
@@ -246,13 +246,12 @@ function FeedCard({
                   className="shrink-0 rounded-full border border-ink/20 px-2 py-0.5 font-mono text-[9px] font-bold tracking-[.1em] uppercase"
                   style={{
                     background:
-                      tierColors[
-                        item.plan.charAt(0).toUpperCase() + item.plan.slice(1)
-                      ] ?? "#F5F1EB",
-                    color: item.plan === "mega" ? "#F5F1EB" : "#001B21",
+                      getSubscriptionTheme(item.plan)?.bg ?? "#F5F1EB",
+                    color:
+                      getSubscriptionTheme(item.plan)?.textColor ?? "#001B21",
                   }}
                 >
-                  {item.plan}
+                  {getSubscriptionDisplayName(item.plan)}
                 </span>
               )}
               {isOwn && <StatusBadge status={item.status} />}
@@ -386,6 +385,15 @@ function FeedCard({
                     {getRelativeTime(reply.created_at)}
                   </p>
                 </div>
+                {currentUserId && reply.subscriber_id === currentUserId && (
+                  <button
+                    onClick={() => onDeleteReply(reply)}
+                    aria-label="Ištrinti komentarą"
+                    className="flex h-fit items-center text-ink/25 transition-all hover:scale-105 hover:text-[#FB4903] active:scale-95"
+                  >
+                    <Trash2 size={13} strokeWidth={2} />
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -465,7 +473,20 @@ function ComposeBox({ avatarId, avatarBg, onPost }: ComposeBoxProps) {
   const [posting, setPosting] = useState(false)
   const [dropNum, setDropNum] = useState<string>("")
   const [showDropPicker, setShowDropPicker] = useState(false)
+  const [drops, setDrops] = useState<
+    { id: number; title: string; bg: string }[]
+  >([])
   const fileRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    supabase
+      .from("products")
+      .select("id, title, bg")
+      .order("id", { ascending: false })
+      .then(({ data }) => {
+        if (data) setDrops(data)
+      })
+  }, [])
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -709,6 +730,7 @@ function FeedPanel({
     const { data } = await supabase
       .from("community_feed")
       .select("*")
+      .neq("type", "checkin")
       .order("created_at", { ascending: true })
       .limit(200)
 
@@ -792,6 +814,17 @@ function FeedPanel({
     setItems((prev) => prev.filter((i) => i.id !== item.id))
   }
 
+  async function deleteReply(reply: LiveFeedItem) {
+    await supabase.from("feed_items").delete().eq("id", reply.id)
+    setItems((prev) =>
+      prev.map((i) =>
+        i.id === reply.parent_id
+          ? { ...i, replies: i.replies?.filter((r) => r.id !== reply.id) }
+          : i
+      )
+    )
+  }
+
   async function addComment(text: string, parentId: string) {
     if (!user || !profile) return
     await supabase.from("feed_items").insert({
@@ -862,6 +895,8 @@ function FeedPanel({
           onComment={(text) => addComment(text, item.id)}
           isOwn={!!user && item.subscriber_id === user.id}
           onDelete={() => deletePost(item)}
+          onDeleteReply={deleteReply}
+          currentUserId={user?.id}
           isLoggedIn={!!user}
           onOpenAuth={onOpenAuth}
           onReport={(reason) => reportItem(item, reason)}
@@ -1127,9 +1162,8 @@ function LeaderboardPanel({ refreshKey }: { refreshKey: number }) {
       <div className="mb-4 grid grid-cols-3 gap-3">
         {[top3[1], top3[0], top3[2]].filter(Boolean).map((entry, podiumIdx) => {
           const isCenter = podiumIdx === 1
-          const tierName = entry.tier
-            ? entry.tier.charAt(0).toUpperCase() + entry.tier.slice(1)
-            : ""
+          const tierName = getSubscriptionDisplayName(entry.tier)
+          const tierTheme = getSubscriptionTheme(entry.tier)
           return (
             <div
               key={entry.subscriber_id}
@@ -1152,8 +1186,8 @@ function LeaderboardPanel({ refreshKey }: { refreshKey: number }) {
               <div
                 className="mt-1 rounded-full border border-paper/20 px-1.5 py-px text-[9px] font-bold"
                 style={{
-                  background: tierColors[tierName] ?? "#FFD731",
-                  color: "#001B21",
+                  background: tierTheme?.bg ?? "#FFD731",
+                  color: tierTheme?.textColor ?? "#001B21",
                 }}
               >
                 {tierName}
@@ -1217,9 +1251,8 @@ function LeaderboardPanel({ refreshKey }: { refreshKey: number }) {
           ))}
         </div>
         {rest.map((entry) => {
-          const tierName = entry.tier
-            ? entry.tier.charAt(0).toUpperCase() + entry.tier.slice(1)
-            : ""
+          const tierName = getSubscriptionDisplayName(entry.tier)
+          const tierTheme = getSubscriptionTheme(entry.tier)
           const isMe = user && entry.subscriber_id === user.id
           return (
             <div
@@ -1253,8 +1286,8 @@ function LeaderboardPanel({ refreshKey }: { refreshKey: number }) {
                 <span
                   className="rounded-full border border-ink/15 px-1.5 py-px text-[9px] font-bold"
                   style={{
-                    background: tierColors[tierName] ?? "#F5F1EB",
-                    color: "#001B21",
+                    background: tierTheme?.bg ?? "#F5F1EB",
+                    color: tierTheme?.textColor ?? "#001B21",
                   }}
                 >
                   {tierName}
@@ -1278,6 +1311,10 @@ export default function Community() {
   const contentRef = useReveal<HTMLDivElement>()
   const [showAuthDialog, setShowAuthDialog] = useState(false)
   const checkin = useDailyCheckin()
+  const headerImage = usePageHeaderImage(
+    "community",
+    "/images/build-cactus.jpg"
+  )
 
   return (
     <>
@@ -1308,7 +1345,7 @@ export default function Community() {
             </div>
             <div className="hidden lg:block">
               <img
-                src="/images/build-cactus.jpg"
+                src={headerImage}
                 alt="BRICKTIME bendruomenė"
                 className="aspect-[2/1] w-full rounded-2xl border-2 border-ink object-cover shadow-[6px_6px_0_#001B21]"
               />
@@ -1320,7 +1357,7 @@ export default function Community() {
       <section className="bg-paper pt-4 pb-20">
         <div ref={contentRef} className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[2fr_3fr]">
-            <div className="top-[120px] lg:sticky lg:max-h-[calc(100dvh-120px)] lg:self-start lg:overflow-y-auto">
+            <div className="top-[148px] lg:sticky lg:max-h-[calc(100dvh-148px)] lg:self-start lg:overflow-y-auto">
               <ChallengesPanel refreshKey={checkin.version} />
               <h3 className="label-mono mb-6 text-ink/50">Lyderiai</h3>
               <LeaderboardPanel refreshKey={checkin.version} />

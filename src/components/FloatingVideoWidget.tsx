@@ -8,6 +8,7 @@ export default function FloatingVideoWidget() {
   const [dismissed, setDismissed] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [videoUrl, setVideoUrl] = useState(PROMO_VIDEO_URL)
+  const [videoLoaded, setVideoLoaded] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
@@ -65,13 +66,19 @@ export default function FloatingVideoWidget() {
 
       {/* Video card */}
       <div
-        className="relative cursor-pointer overflow-hidden rounded-xl border-2 border-ink shadow-[4px_4px_0_#001B21]"
+        className="relative cursor-pointer overflow-hidden rounded-xl border-2 border-ink bg-cream shadow-[4px_4px_0_#001B21]"
         style={{
           width: expanded ? 220 : 130,
           transition: "width 0.35s cubic-bezier(0.34,1.56,0.64,1)",
         }}
         onClick={toggleExpand}
       >
+        {!videoLoaded && (
+          <div
+            className="absolute inset-0 animate-pulse bg-cream"
+            style={{ aspectRatio: "9/16" }}
+          />
+        )}
         <video
           ref={videoRef}
           key={videoUrl}
@@ -80,7 +87,9 @@ export default function FloatingVideoWidget() {
           loop
           muted
           playsInline
-          className="block w-full"
+          preload="auto"
+          onLoadedData={() => setVideoLoaded(true)}
+          className={`block w-full transition-opacity duration-300 ${videoLoaded ? "opacity-100" : "opacity-0"}`}
           style={{ aspectRatio: "9/16", objectFit: "cover" }}
         />
 

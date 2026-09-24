@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Link, useLocation } from "react-router-dom"
 import Breadcrumb from "@/components/Breadcrumb"
 import {
@@ -8,7 +8,6 @@ import {
   UserIcon,
   InfoIcon,
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import {
   Popover,
   PopoverContent,
@@ -25,6 +24,7 @@ import { avatarSrc } from "@/lib/avatars"
 import { AuthForm } from "@/components/AuthForm"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
 import { useCredits } from "@/hooks/useCredits"
+import BrandLogoVideo from "@/components/BrandLogoVideo"
 
 const PLAN_COLORS: Record<string, { bg: string; text: string }> = {
   nano: { bg: "#F5F1EB", text: "#001B21" },
@@ -166,6 +166,8 @@ export default function Nav() {
   const { user, profile } = useAuth()
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const navRef = useRef<HTMLElement>(null)
+  const [navHeight, setNavHeight] = useState(0)
 
   useEffect(() => {
     setOpen(false)
@@ -181,10 +183,22 @@ export default function Nav() {
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
+  useEffect(() => {
+    const nav = navRef.current
+    if (!nav) return
+    const observer = new ResizeObserver(() =>
+      setNavHeight(nav.getBoundingClientRect().height)
+    )
+    observer.observe(nav)
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-transparent py-4 md:py-6">
+      <nav
+        ref={navRef}
+        className="sticky top-0 z-50 bg-transparent py-4 md:py-6"
+      >
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div
             className={[
@@ -212,24 +226,11 @@ export default function Nav() {
             </div>
 
             <Link to="/" className="flex items-center md:justify-self-center">
-              <video
-                src="/nav-logo.mov"
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="h-16 w-auto object-contain"
-              />
+              <BrandLogoVideo className="h-16 w-auto object-contain" />
             </Link>
 
             {/* Right — CTA + avatar + hamburger */}
             <div className="flex items-center justify-end gap-7">
-              <Link
-                to="/subscribe"
-                className={`relative hidden text-[15px] font-semibold text-ink after:absolute after:right-0 after:-bottom-1.5 after:left-0 after:h-[2px] after:origin-left after:bg-ink after:transition-transform after:duration-200 after:content-[''] md:flex ${pathname.startsWith("/subscribe") ? "after:scale-x-100" : "after:scale-x-0 hover:after:scale-x-100"}`}
-              >
-                Prenumeratos
-              </Link>
               <div className="flex items-center">
                 {user && profile?.plan && profile.status === "active" ? (
                   <>
@@ -237,31 +238,29 @@ export default function Nav() {
                     <PlanChip plan={profile.plan} />
                   </>
                 ) : (
-                  <Button
-                    asChild
-                    size="sm"
-                    className="brick-hover-sm mr-3 hidden rounded-full border-2 border-ink bg-ink font-bold text-paper md:inline-flex"
+                  <Link
+                    to="/subscribe"
+                    className={`relative mr-3 hidden items-center gap-1 text-[15px] font-semibold text-ink after:absolute after:right-0 after:-bottom-1.5 after:left-0 after:h-[2px] after:origin-left after:bg-ink after:transition-transform after:duration-200 after:content-[''] md:flex ${pathname.startsWith("/subscribe") ? "after:scale-x-100" : "after:scale-x-0 hover:after:scale-x-100"}`}
                   >
-                    <Link to="/subscribe">
-                      Pradėk konstruoti{" "}
-                      <ArrowRightIcon data-icon="inline-end" />
-                    </Link>
-                  </Button>
+                    Pradėk konstruoti <ArrowRightIcon className="size-4" />
+                  </Link>
                 )}
-                <AvatarPopover />
               </div>
 
-              <button
-                onClick={() => setOpen((v) => !v)}
-                className="grid size-10 place-items-center rounded-full border-2 border-ink bg-paper md:hidden"
-                aria-label={open ? "Uždaryti meniu" : "Atidaryti meniu"}
-              >
-                {open ? (
-                  <XIcon className="size-5 text-ink" />
-                ) : (
-                  <MenuIcon className="size-5 text-ink" />
-                )}
-              </button>
+              <div className="flex items-center gap-2">
+                <AvatarPopover />
+                <button
+                  onClick={() => setOpen((v) => !v)}
+                  className="grid size-9 place-items-center rounded-full border-2 border-ink bg-paper md:hidden"
+                  aria-label={open ? "Uždaryti meniu" : "Atidaryti meniu"}
+                >
+                  {open ? (
+                    <XIcon className="size-5 text-ink" />
+                  ) : (
+                    <MenuIcon className="size-5 text-ink" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -269,18 +268,22 @@ export default function Nav() {
 
       <Breadcrumb />
 
-      {/* Mobile drawer */}
+      {/* Mobile top drawer — slides down from under the header, height hugs content */}
       <div
-        className="fixed right-0 bottom-0 left-0 z-40 flex flex-col border-t border-ink/10 bg-paper/95 backdrop-blur-lg md:hidden"
+        className={`fixed inset-0 z-30 bg-ink/30 transition-opacity duration-300 md:hidden ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        onClick={() => setOpen(false)}
+        aria-hidden="true"
+      />
+      <div
+        className="fixed top-0 right-0 left-0 z-40 rounded-b-[28px] border-b-2 border-ink bg-paper transition-transform duration-300 ease-out md:hidden"
         style={{
-          top: "96px",
-          opacity: open ? 1 : 0,
-          transform: open ? "translateY(0)" : "translateY(-8px)",
+          paddingTop: navHeight,
+          transform: open ? "translateY(0)" : "translateY(-100%)",
           pointerEvents: open ? "all" : "none",
-          transition: "opacity 0.2s ease, transform 0.2s ease",
         }}
+        aria-hidden={!open}
       >
-        <div className="flex h-full flex-col justify-between gap-4 p-5">
+        <div className="flex flex-col gap-4 p-5">
           {/* Nav links */}
           <nav className="flex flex-col gap-1">
             {links.map((l, i) => {

@@ -40,48 +40,19 @@ function Brick({ color, rotate = 0, size = 1 }: BrickProps) {
 interface BrickEntry extends BrickProps {
   left: string
   top: string
-  mobileHide?: boolean
 }
 
 const bricks: BrickEntry[] = [
   // Left side
   { color: "purple", rotate: -12, size: 1.0, left: "5%", top: "6%" },
   { color: "pink", rotate: 10, size: 0.78, left: "16%", top: "32%" },
-  {
-    color: "green",
-    rotate: -6,
-    size: 0.62,
-    left: "7%",
-    top: "52%",
-    mobileHide: true,
-  },
-  {
-    color: "yellow",
-    rotate: 5,
-    size: 0.7,
-    left: "15%",
-    top: "65%",
-    mobileHide: true,
-  },
+  { color: "green", rotate: -6, size: 0.62, left: "7%", top: "52%" },
+  { color: "yellow", rotate: 5, size: 0.7, left: "15%", top: "65%" },
   // Right side
   { color: "pink", rotate: 14, size: 0.72, left: "85%", top: "6%" },
   { color: "yellow", rotate: -8, size: 0.95, left: "74%", top: "22%" },
-  {
-    color: "green",
-    rotate: 6,
-    size: 0.6,
-    left: "84%",
-    top: "44%",
-    mobileHide: true,
-  },
-  {
-    color: "orange",
-    rotate: -5,
-    size: 0.68,
-    left: "73%",
-    top: "55%",
-    mobileHide: true,
-  },
+  { color: "green", rotate: 6, size: 0.6, left: "84%", top: "44%" },
+  { color: "orange", rotate: -5, size: 0.68, left: "73%", top: "55%" },
 ]
 
 // Gentle bob amplitude while floating at scattered positions
@@ -105,6 +76,7 @@ export default function Hero() {
   const [copy, setCopy] = useState(DEFAULT_COPY)
   const [posterUrl, setPosterUrl] = useState(DEFAULT_HERO_POSTER)
   const [videoUrl, setVideoUrl] = useState(DEFAULT_HERO_VIDEO)
+  const [videoLoaded, setVideoLoaded] = useState(false)
 
   useEffect(() => {
     supabase
@@ -272,13 +244,12 @@ export default function Hero() {
         </div>
 
         {/* Bricks scoped to text area — top percentages relative to text height, not full section */}
-        <div ref={bricksRef} className="pointer-events-none absolute inset-0">
-          {bricks.map(({ left, top, mobileHide, ...b }, i) => (
-            <div
-              key={i}
-              className={`absolute ${mobileHide ? "hidden lg:block" : ""}`}
-              style={{ left, top }}
-            >
+        <div
+          ref={bricksRef}
+          className="pointer-events-none absolute inset-0 hidden lg:block"
+        >
+          {bricks.map(({ left, top, ...b }, i) => (
+            <div key={i} className="absolute" style={{ left, top }}>
               <Brick {...b} />
             </div>
           ))}
@@ -288,19 +259,18 @@ export default function Hero() {
       {/* Video below bricks scope */}
       <div className="mx-auto max-w-[1320px] px-4 pb-16 md:px-7">
         <div className="relative aspect-video w-full overflow-hidden rounded-[28px] border-2 border-ink shadow-[6px_6px_0_#001B21] md:rounded-3xl">
-          <img
-            src={posterUrl}
-            alt="BRICKTIME hero"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+          {!videoLoaded && (
+            <div className="absolute inset-0 animate-pulse bg-cream" />
+          )}
           <video
             key={videoUrl}
-            className="relative z-[1] h-full w-full object-cover"
+            className={`relative z-[1] h-full w-full object-cover transition-opacity duration-300 ${videoLoaded ? "opacity-100" : "opacity-0"}`}
             autoPlay
             muted
             loop
             playsInline
             poster={posterUrl}
+            onLoadedData={() => setVideoLoaded(true)}
           >
             <source src={videoUrl} type="video/mp4" />
           </video>
