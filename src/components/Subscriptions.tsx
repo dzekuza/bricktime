@@ -121,7 +121,7 @@ export default function Subscriptions({
             {/* Tagline tile — full width */}
             <div
               ref={headerRef}
-              className="reveal sticky top-28 z-20 flex flex-col items-center gap-4 bg-paper pt-0 pb-0 md:py-9 lg:static lg:flex-row lg:items-end lg:justify-between"
+              className="reveal sticky top-[140px] z-20 flex flex-col items-center gap-4 bg-paper pt-0 pb-0 md:py-9 lg:static lg:flex-row lg:items-end lg:justify-between"
             >
               {/* Billing toggle */}
               <div className="order-first flex shrink-0 flex-col items-center gap-2 lg:order-last lg:ml-6 lg:self-start">
@@ -207,7 +207,7 @@ export default function Subscriptions({
                         background: plan.bg_color,
                         transitionDelay: `${i * 80}ms`,
                         zIndex: CARD_Z_BASE + i,
-                        top: `calc(${112 + headerHeight + BRICK_OVERHANG}px + ${i} * var(--card-step))`,
+                        top: `calc(${140 + headerHeight + BRICK_OVERHANG}px + ${i} * var(--card-step))`,
                       }}
                       onMouseEnter={onCardEnter}
                       onMouseLeave={onCardLeave}
