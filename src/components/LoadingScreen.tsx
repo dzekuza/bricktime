@@ -4,6 +4,18 @@ import BrandLogoVideo from "@/components/BrandLogoVideo"
 export default function LoadingScreen({ onDone }: { onDone: () => void }) {
   const [fading, setFading] = useState(false)
 
+  // Lock scroll under the overlay so touch-scrolling during the intro can't
+  // leave the landing page offset once it fades out.
+  useEffect(() => {
+    const { overflow } = document.body.style
+    document.body.style.overflow = "hidden"
+    window.scrollTo(0, 0)
+    return () => {
+      document.body.style.overflow = overflow
+      window.scrollTo(0, 0)
+    }
+  }, [])
+
   useEffect(() => {
     const finish = () => {
       setFading(true)
