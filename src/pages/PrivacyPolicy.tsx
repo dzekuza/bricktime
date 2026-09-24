@@ -148,10 +148,7 @@ export default function PrivacyPolicy() {
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <div className="grid gap-8 lg:grid-cols-[1.1fr_.9fr]">
               <div>
-                <p className="label-mono text-ink/40">
-                  Teisinė informacija / Privatumas
-                </p>
-                <h1 className="heading-display text-d-xl mt-4 max-w-[12ch] tracking-[-0.015em] text-ink">
+                <h1 className="heading-display text-d-xl max-w-[12ch] tracking-[-0.015em] text-ink">
                   Privatumo
                   <br />
                   politika
@@ -164,8 +161,7 @@ export default function PrivacyPolicy() {
               </div>
 
               <aside className="brick-card self-start bg-ink p-6 text-paper md:p-8">
-                <p className="label-mono text-paper/50">Trumpai</p>
-                <div className="mt-5 space-y-4">
+                <div className="space-y-4">
                   {contactRows.map(([label, value]) => (
                     <div
                       key={label}
@@ -222,7 +218,7 @@ export default function PrivacyPolicy() {
                   {section.body.map((paragraph) => (
                     <p
                       key={paragraph}
-                      className="max-w-[78ch] text-[15px] leading-7 text-ink/74 md:text-[16px]"
+                      className="text-[15px] leading-7 text-ink/74 md:text-[16px]"
                     >
                       {paragraph}
                     </p>
@@ -250,7 +246,7 @@ export default function PrivacyPolicy() {
               <h2 className="heading-display text-d-xs mt-3 text-ink">
                 Jei turite klausimų
               </h2>
-              <p className="mt-4 max-w-[64ch] text-[15px] leading-7 text-ink/78 md:text-[16px]">
+              <p className="mt-4 text-[15px] leading-7 text-ink/78 md:text-[16px]">
                 Jei turėtumėte klausimų dėl šios privatumo politikos ar savo
                 asmens duomenų tvarkymo, susisiekite el. paštu{" "}
                 <a

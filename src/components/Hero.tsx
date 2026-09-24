@@ -171,7 +171,7 @@ export default function Hero() {
     <section className="relative overflow-hidden bg-paper">
       {/* Text + bricks — bricks are absolute within this wrapper, not the full section */}
       <div className="relative">
-        <div className="relative z-10 mx-auto max-w-[1320px] px-4 pt-10 pb-10 text-center md:px-7 md:pt-14">
+        <div className="relative z-10 mx-auto max-w-[1320px] px-4 pt-6 pb-10 text-center md:px-7 md:pt-4">
           {/* Social proof */}
           <div className="mb-8 flex items-center justify-center gap-3">
             <div className="flex">

@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom"
 import { ArrowRightIcon } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { ImagePlaceholder } from "@/components/ImagePlaceholder"
 import {
   getSubscriptionDisplayName,
   getSubscriptionTheme,
@@ -154,36 +156,24 @@ function MockModel({
 }
 
 function StudBg({
-  color,
   image,
   children,
   className = "",
 }: {
-  color: string
   image?: string
   children: React.ReactNode
   className?: string
 }) {
   return (
-    <div
-      className={`relative overflow-hidden ${className}`}
-      style={
-        image
-          ? { background: "#f8f6f2" }
-          : {
-              background: color,
-              backgroundImage:
-                "radial-gradient(circle at 14px 14px, rgba(255,255,255,.16) 4px, transparent 5px)",
-              backgroundSize: "36px 36px",
-            }
-      }
-    >
-      {image && (
+    <div className={`relative overflow-hidden bg-white ${className}`}>
+      {image ? (
         <img
           src={image}
           alt=""
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
+      ) : (
+        <ImagePlaceholder />
       )}
       {children}
     </div>
@@ -208,7 +198,6 @@ export function ProductCard({ product }: { product: Product }) {
       className="group brick-card brick-card-hover flex flex-col overflow-hidden bg-paper text-ink no-underline"
     >
       <StudBg
-        color={product.bg}
         image={product.image}
         className="relative h-[280px] border-b-2 border-ink"
       >
@@ -244,12 +233,17 @@ export function ProductCard({ product }: { product: Product }) {
 
       <div className="flex flex-1 flex-col gap-3 p-4 md:p-5">
         <div>
+          {product.category && (
+            <Badge
+              variant="outline"
+              className="mb-2 rounded-full border-2 border-ink px-3 py-1 font-semibold text-ink"
+            >
+              {product.category}
+            </Badge>
+          )}
           <h3 className="heading-display text-d-xs leading-[.95] text-ink">
             {product.title}
           </h3>
-          <p className="mt-1 font-mono text-[11px] tracking-[.12em] text-ink/50 uppercase">
-            {product.subtitle}
-          </p>
         </div>
 
         <div className="grid grid-cols-3 gap-x-3 gap-y-2.5 border-t border-ink/10 pt-3">
@@ -275,12 +269,6 @@ export function ProductCard({ product }: { product: Product }) {
             <p className="label-mono text-[9px] text-ink/40">Kaina</p>
             <p className="font-mono text-[12px] font-bold text-ink">
               {product.price != null ? `€${product.price}` : "—"}
-            </p>
-          </div>
-          <div>
-            <p className="label-mono text-[9px] text-ink/40">Kategorija</p>
-            <p className="font-mono text-[12px] font-bold text-ink capitalize">
-              {product.category || "—"}
             </p>
           </div>
           <div>

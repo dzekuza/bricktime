@@ -7,62 +7,14 @@ import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/hooks/useAuth"
 import type { MerchItem } from "./Merch"
 import { Seo } from "@/components/Seo"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { ExpandableHtml } from "@/components/ExpandableHtml"
+import { ImagePlaceholder } from "@/components/ImagePlaceholder"
 
 const TYPE_LABEL: Record<string, string> = {
   hoodie: "Džemperis",
   "t-shirt": "Marškinėliai",
-}
-
-function ClothingIcon({ type }: { type: string }) {
-  if (type === "hoodie") {
-    return (
-      <svg
-        width="120"
-        height="120"
-        viewBox="0 0 80 80"
-        fill="none"
-        className="text-current"
-      >
-        <path
-          d="M28 12 L12 28 L20 32 L20 68 L60 68 L60 32 L68 28 L52 12 C52 12 48 20 40 20 C32 20 28 12 28 12Z"
-          stroke="currentColor"
-          strokeWidth="3"
-          strokeLinejoin="round"
-          fill="none"
-        />
-        <path
-          d="M28 12 C28 12 32 20 40 20 C48 20 52 12 52 12"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-      </svg>
-    )
-  }
-  return (
-    <svg
-      width="120"
-      height="120"
-      viewBox="0 0 80 80"
-      fill="none"
-      className="text-current"
-    >
-      <path
-        d="M28 10 L10 28 L20 33 L20 70 L60 70 L60 33 L70 28 L52 10 Z"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <path
-        d="M28 10 C28 10 33 22 52 10"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        fill="none"
-      />
-    </svg>
-  )
 }
 
 export default function MerchDrop() {
@@ -158,8 +110,6 @@ export default function MerchDrop() {
     }
     window.location.href = data.url
   }
-  const isDark = item.bg === "#001B21" || item.bg.toLowerCase() === "#001b21"
-  const contentColor = isDark ? "text-paper/30" : "text-ink/30"
 
   return (
     <>
@@ -170,161 +120,174 @@ export default function MerchDrop() {
       />
       <Nav />
 
-      <div className="bg-paper py-4 md:py-6">
+      <section className="bg-paper py-1 md:py-4">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-            {/* Visual */}
-            <div className="flex flex-col gap-3">
-              <div
-                className="brick-card flex min-h-[480px] items-center justify-center p-14"
-                style={{ background: item.bg }}
-              >
-                {activeImage ? (
-                  <img
-                    src={activeImage}
-                    alt={item.name}
-                    className="max-h-[400px] w-full object-contain"
-                  />
-                ) : (
-                  <div
-                    className={`flex flex-col items-center gap-4 opacity-25 ${contentColor}`}
-                  >
-                    <ClothingIcon type={item.type} />
-                    <span className="font-mono text-[11px] tracking-[.22em] uppercase">
-                      Iliustracija netrukus
-                    </span>
+          <div className="grid grid-cols-1 items-start gap-6 md:gap-12 lg:grid-cols-2">
+            {/* Gallery tile */}
+            <div className="brick-card p-4">
+              <div className="flex flex-col gap-4">
+                <div className="relative aspect-square overflow-hidden rounded-[24px] border-2 border-ink bg-white md:aspect-auto md:h-[520px]">
+                  {activeImage ? (
+                    <img
+                      src={activeImage}
+                      alt={item.name}
+                      className="absolute inset-0 h-full w-full object-contain p-6"
+                    />
+                  ) : (
+                    <ImagePlaceholder />
+                  )}
+                </div>
+
+                {gallery.length > 1 && (
+                  <div className="grid grid-cols-4 gap-3">
+                    {gallery.map((url) => (
+                      <button
+                        key={url}
+                        type="button"
+                        onClick={() => setActiveImage(url)}
+                        aria-label={`${item.name} nuotrauka`}
+                        aria-current={url === activeImage}
+                        className={[
+                          "relative h-[90px] overflow-hidden rounded-lg border-2 border-ink bg-white transition-all",
+                          url === activeImage
+                            ? "outline outline-[3px] outline-offset-2 outline-brand-yellow"
+                            : "hover:opacity-80",
+                        ].join(" ")}
+                      >
+                        <img
+                          src={url}
+                          alt=""
+                          className="absolute inset-0 h-full w-full object-contain p-2"
+                        />
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>
-
-              {gallery.length > 1 && (
-                <div className="flex flex-wrap gap-3">
-                  {gallery.map((url) => (
-                    <button
-                      key={url}
-                      type="button"
-                      onClick={() => setActiveImage(url)}
-                      aria-label={`${item.name} nuotrauka`}
-                      aria-current={url === activeImage}
-                      className={`brick-hover-sm h-20 w-20 overflow-hidden rounded-xl border-2 p-2 ${
-                        url === activeImage ? "border-ink" : "border-ink/20"
-                      }`}
-                      style={{ background: item.bg }}
-                    >
-                      <img
-                        src={url}
-                        alt=""
-                        className="h-full w-full object-contain"
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
 
-            {/* Details */}
-            <div className="flex flex-col gap-6 py-2">
-              <div>
-                <span className="label-mono mb-3 inline-block text-ink/50">
-                  {TYPE_LABEL[item.type]}
-                </span>
-                <h1 className="heading-display text-d-md text-ink">
-                  {item.name}
-                </h1>
-                <p className="mt-3 font-mono text-[28px] font-bold text-ink">
-                  €{item.price}
-                </p>
+            {/* Details tile */}
+            <div className="brick-card bg-paper p-6 md:p-8">
+              <div className="flex flex-wrap items-center gap-3">
+                <Badge
+                  variant="outline"
+                  className="rounded-full border-2 border-ink px-3 py-1 font-semibold text-ink"
+                >
+                  {TYPE_LABEL[item.type] ?? item.type}
+                </Badge>
               </div>
 
-              <p className="text-[16px] leading-relaxed text-ink/65">
-                {item.description}
-              </p>
+              <h1 className="heading-display text-d-md mt-3 tracking-[-0.01em] text-ink md:mt-7">
+                {item.name}
+              </h1>
 
-              {/* Size picker */}
-              <div className="flex flex-col gap-3">
-                <span className="label-mono text-ink/50">
-                  Dydis{selectedSize ? ` — ${selectedSize}` : ""}
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {item.sizes.map((size) => {
-                    const sizeOutOfStock = (item.stock[size] ?? 0) <= 0
-                    const disabled = isComingSoon || sizeOutOfStock
-                    return (
-                      <button
-                        key={size}
-                        disabled={disabled}
-                        onClick={() => setSelectedSize(size)}
-                        title={sizeOutOfStock ? "Išparduota" : undefined}
-                        className={[
-                          "rounded-xl border-2 px-4 py-2 font-mono text-[13px] font-bold uppercase transition-all",
-                          disabled
-                            ? "cursor-not-allowed border-ink/15 text-ink/25 line-through"
-                            : selectedSize === size
-                              ? "border-ink bg-ink text-paper shadow-[3px_3px_0_#001B21]"
-                              : "border-ink/30 text-ink hover:border-ink",
-                        ].join(" ")}
-                      >
-                        {size}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Success banner */}
-              {paymentSuccess && (
-                <div className="brick-card flex flex-col gap-2 bg-brand-mint p-5">
-                  <p className="font-display text-[22px] font-bold text-ink uppercase">
-                    ✓ Užsakymas gautas!
-                  </p>
-                  <p className="text-[14px] leading-relaxed text-ink/70">
-                    Ačiū! Patvirtinimą gausite el. paštu. Produktas bus
-                    išsiųstas per 3–5 d. d.
-                  </p>
-                </div>
+              {item.description && (
+                <ExpandableHtml
+                  className="mt-4 max-w-[48ch] text-[15px] leading-[1.5] text-ink/80 md:mt-6 md:text-[18px] md:leading-[1.62]"
+                  html={item.description}
+                />
               )}
 
-              {/* CTA */}
-              {!paymentSuccess && (
-                <div className="mt-2">
-                  {isComingSoon ? (
-                    <div className="brick-card flex flex-col gap-3 bg-ink/[0.03] p-6">
+              <p className="heading-display text-d-sm mt-4 text-ink md:mt-6">
+                €{item.price}
+              </p>
+
+              {/* Buy */}
+              <div id="buy" className="pt-6">
+                {/* Size picker */}
+                <div className="flex flex-col gap-3">
+                  <span className="label-mono text-ink/50">
+                    Dydis{selectedSize ? ` — ${selectedSize}` : ""}
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {item.sizes.map((size) => {
+                      const sizeOutOfStock = (item.stock[size] ?? 0) <= 0
+                      const disabled = isComingSoon || sizeOutOfStock
+                      return (
+                        <button
+                          key={size}
+                          disabled={disabled}
+                          onClick={() => setSelectedSize(size)}
+                          title={sizeOutOfStock ? "Išparduota" : undefined}
+                          className={[
+                            "rounded-xl border-2 px-4 py-2 font-mono text-[13px] font-bold uppercase transition-all",
+                            disabled
+                              ? "cursor-not-allowed border-ink/15 text-ink/25 line-through"
+                              : selectedSize === size
+                                ? "border-ink bg-ink text-paper shadow-[3px_3px_0_#001B21]"
+                                : "border-ink/30 text-ink hover:border-ink",
+                          ].join(" ")}
+                        >
+                          {size}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Success banner */}
+                {paymentSuccess && (
+                  <div className="brick-card mt-5 flex flex-col gap-2 bg-brand-mint p-5">
+                    <p className="font-display text-[22px] font-bold text-ink uppercase">
+                      ✓ Užsakymas gautas!
+                    </p>
+                    <p className="text-[14px] leading-relaxed text-ink/70">
+                      Ačiū! Patvirtinimą gausite el. paštu. Produktas bus
+                      išsiųstas per 3–5 d. d.
+                    </p>
+                  </div>
+                )}
+
+                {/* CTA */}
+                {!paymentSuccess &&
+                  (isComingSoon ? (
+                    <div className="mt-5 flex flex-col gap-3 rounded-2xl border-2 border-ink/15 bg-ink/[.02] px-4 py-3.5">
                       <p className="label-mono text-ink/40">
                         Dar ne parduotuvėje
                       </p>
-                      <p className="text-[15px] leading-relaxed text-ink/55">
+                      <p className="text-[14px] leading-[1.6] text-ink/55">
                         Šis produktas kol kas ruošiamas. Seki BRICKTIME
                         naujienoms ir sužinok pirmasis, kai merch atsiras
                         parduotuvėje.
                       </p>
                     </div>
                   ) : (
-                    <button
+                    <Button
+                      size="lg"
                       disabled={!selectedSize || buying}
                       onClick={handleBuy}
-                      className="w-full rounded-xl border-2 border-ink bg-ink py-4 font-mono text-[14px] font-bold tracking-[.08em] text-paper uppercase transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_#001B21] disabled:cursor-not-allowed disabled:opacity-30"
+                      className="mt-5 w-full justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)] disabled:opacity-40"
                     >
                       {buying
                         ? "Kraunama…"
                         : selectedSize
-                          ? `Pirkti — ${selectedSize}`
+                          ? `Pirkti — ${selectedSize} →`
                           : "Pasirink dydį"}
-                    </button>
+                    </Button>
+                  ))}
+
+                <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] tracking-[.16em] text-ink/40 uppercase">
+                  {["Saugus mokėjimas", "Pristatymas per 3–5 d. d."].map(
+                    (t) => (
+                      <span key={t} className="flex items-center gap-1.5">
+                        <span className="size-2 rounded-full bg-ink/30" />
+                        {t}
+                      </span>
+                    )
                   )}
                 </div>
-              )}
 
-              {/* Back */}
-              <Link
-                to="/merch"
-                className="label-mono mt-2 inline-flex items-center gap-1.5 text-ink/40 transition-colors hover:text-ink"
-              >
-                ← Visi merch produktai
-              </Link>
+                <Link
+                  to="/merch"
+                  className="label-mono mt-5 inline-flex items-center gap-1.5 text-ink/40 transition-colors hover:text-ink"
+                >
+                  ← Visi merch produktai
+                </Link>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       <Footer />
     </>
