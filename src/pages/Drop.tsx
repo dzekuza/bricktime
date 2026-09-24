@@ -327,7 +327,7 @@ export default function Drop() {
       <Nav />
 
       {/* ── Product Hero ── */}
-      <section className="bg-paper py-1 md:py-4">
+      <section className="bg-paper pt-4 pb-1 md:py-4">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 items-start gap-6 md:gap-12 lg:grid-cols-2">
             {/* Gallery */}
@@ -367,8 +367,7 @@ export default function Drop() {
                           <img
                             src={t.image}
                             alt={t.label}
-                            className="absolute inset-0 h-full w-full object-cover"
-                            style={{ objectPosition: "center 20%" }}
+                            className="absolute inset-0 h-full w-full object-cover object-center"
                           />
                         </button>
                       ))}
@@ -424,8 +423,7 @@ export default function Drop() {
                       key={activeThumb}
                       src={activeImage.image}
                       alt={activeImage.label}
-                      className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300"
-                      style={{ objectPosition: "center 20%" }}
+                      className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300 object-center"
                     />
                   )}
                   {!activeImage && <ImagePlaceholder />}
@@ -459,8 +457,7 @@ export default function Drop() {
                         <img
                           src={t.image}
                           alt={t.label}
-                          className="absolute inset-0 h-full w-full object-cover"
-                          style={{ objectPosition: "center 20%" }}
+                          className="absolute inset-0 h-full w-full object-cover object-center"
                         />
                         <div className="absolute inset-0 bg-ink/30" />
                         <span className="absolute right-0 bottom-1.5 left-0 text-center font-mono text-[8px] tracking-[.12em] text-paper/80 uppercase">

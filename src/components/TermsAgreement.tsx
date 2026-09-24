@@ -16,13 +16,12 @@ export function TermsAgreement({
 }: TermsAgreementProps) {
   return (
     <div
-      className={`flex items-start gap-2.5 text-[13px] leading-[1.5] text-ink/60 ${className ?? ""}`}
+      className={`flex items-start gap-2.5 text-[13px] leading-5 text-ink/60 ${className ?? ""}`}
     >
       <Checkbox
         id={id}
         checked={checked}
         onCheckedChange={(v) => onCheckedChange(v === true)}
-        className="mt-0.5"
       />
       <span>
         <label htmlFor={id} className="cursor-pointer">
