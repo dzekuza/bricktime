@@ -423,7 +423,7 @@ export default function Drop() {
                       key={activeThumb}
                       src={activeImage.image}
                       alt={activeImage.label}
-                      className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300 object-center"
+                      className="absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-300"
                     />
                   )}
                   {!activeImage && <ImagePlaceholder />}
@@ -527,8 +527,9 @@ export default function Drop() {
                       "+",
                   },
                   {
-                    label: "Briksių vertė",
-                    val: product?.value != null ? String(product.value) : "—",
+                    label: "Vertė",
+                    val:
+                      product?.value != null ? `${product.value} Briksių` : "—",
                   },
                 ].map(({ label, val }) => (
                   <div key={label} className="flex flex-col gap-1">
