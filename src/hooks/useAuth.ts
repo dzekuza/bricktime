@@ -5,6 +5,7 @@ export interface AuthProfile {
   name: string
   avatarId: number
   avatarBg: string
+  avatarUrl: string | null
   plan: string | null
   status: string | null
   cancelAt: string | null

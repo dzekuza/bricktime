@@ -30,6 +30,7 @@ interface UserProfile {
   name: string
   avatar_id: number
   avatar_bg: string
+  avatar_url: string | null
   plan: string | null
   status: string | null
   joined_at: string | null
@@ -170,7 +171,7 @@ export default function UserProfile() {
                 style={{ background: profile.avatar_bg }}
               >
                 <img
-                  src={avatarSrc(profile.avatar_id)}
+                  src={profile.avatar_url ?? avatarSrc(profile.avatar_id)}
                   alt={profile.name}
                   className="h-full w-full object-cover"
                 />

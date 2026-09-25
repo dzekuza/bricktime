@@ -61,7 +61,7 @@ function AvatarPopover() {
         aria-label="Paskyra"
       >
         <img
-          src={avatarSrc(avatarId)}
+          src={profile?.avatarUrl ?? avatarSrc(avatarId)}
           alt="Paskyra"
           className="h-full w-full object-cover"
         />
@@ -240,7 +240,7 @@ export default function Nav() {
                 ) : (
                   <Link
                     to="/subscribe"
-                    className="brick-hover-sm mr-3 hidden items-center gap-2 rounded-full border-2 border-ink bg-ink px-6 py-2.5 text-[16px] font-semibold text-paper md:flex"
+                    className="brick-hover-sm mr-3 hidden h-9 items-center gap-2 rounded-full border-2 border-ink bg-ink px-5 text-[15px] font-semibold text-paper md:flex"
                   >
                     Pradėk konstruoti <ArrowRightIcon className="size-4" />
                   </Link>

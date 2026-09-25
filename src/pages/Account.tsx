@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { useNavigate } from "react-router-dom"
+import { PencilIcon, PlusIcon } from "lucide-react"
 import { calculatePoints, type AchievementDef } from "@/data/community"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
@@ -25,6 +26,9 @@ const SUBSCRIBER_STATUS_LABELS: Record<string, string> = {
   cancelled: "Atšaukta",
 }
 const HOME_DELIVERY_FEE = 3
+
+const AVATAR_MIME_TYPES = ["image/png", "image/jpeg", "image/webp"]
+const AVATAR_MAX_BYTES = 2 * 1024 * 1024
 
 // ── predefined avatars ──────────────────────────────────────────────────────
 const avatarOptions = [
@@ -277,6 +281,11 @@ export default function Account() {
   const [selectedAvatarId, setSelectedAvatarId] = useState(
     profile?.avatarId ?? 0
   )
+  const [customAvatarUrl, setCustomAvatarUrl] = useState<string | null>(
+    profile?.avatarUrl ?? null
+  )
+  const [avatarUploadError, setAvatarUploadError] = useState("")
+  const avatarFileRef = useRef<HTMLInputElement>(null)
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
   const [giftCards, setGiftCards] = useState<
     Array<{
@@ -364,7 +373,10 @@ export default function Account() {
   }, [user])
 
   useEffect(() => {
-    if (profile) setSelectedAvatarId(profile.avatarId)
+    if (profile) {
+      setSelectedAvatarId(profile.avatarId)
+      setCustomAvatarUrl(profile.avatarUrl)
+    }
   }, [profile])
 
   useEffect(() => {
@@ -542,12 +554,54 @@ export default function Account() {
 
   async function saveAvatar(id: number) {
     setSelectedAvatarId(id)
+    setCustomAvatarUrl(null)
     setShowAvatarPicker(false)
     if (!user) return
     await supabase
       .from("subscribers")
-      .update({ avatar_id: id, avatar_bg: avatarOptions[id].bg })
+      .update({
+        avatar_id: id,
+        avatar_bg: avatarOptions[id].bg,
+        avatar_url: null,
+      })
       .eq("id", user.id)
+    await refreshProfile()
+  }
+
+  async function uploadAvatar(file: File) {
+    if (!user) return
+    if (!AVATAR_MIME_TYPES.includes(file.type)) {
+      setAvatarUploadError("Tinka tik PNG, JPG arba WebP nuotraukos.")
+      return
+    }
+    if (file.size > AVATAR_MAX_BYTES) {
+      setAvatarUploadError("Nuotrauka per didelė (maks. 2 MB).")
+      return
+    }
+    setAvatarUploadError("")
+    // Unique path per upload so the CDN never serves a stale cached image.
+    const path = `${user.id}/${Date.now()}.${file.type.split("/")[1]}`
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { contentType: file.type })
+    if (uploadError) {
+      setAvatarUploadError("Nepavyko įkelti nuotraukos.")
+      return
+    }
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("avatars").getPublicUrl(path)
+    const { error: updateError } = await supabase
+      .from("subscribers")
+      .update({ avatar_url: publicUrl })
+      .eq("id", user.id)
+    if (updateError) {
+      setAvatarUploadError("Nepavyko išsaugoti nuotraukos.")
+      return
+    }
+    setCustomAvatarUrl(publicUrl)
+    setShowAvatarPicker(false)
+    await refreshProfile()
   }
 
   async function handlePlanChange() {
@@ -654,7 +708,7 @@ export default function Account() {
             {/* User tile */}
             <div className="flex min-h-[340px] flex-col rounded-2xl border-2 border-ink bg-paper p-6 shadow-[6px_6px_0_#001B21] md:rounded-3xl md:p-9 lg:col-span-8">
               <div className="flex items-start gap-5">
-                <div className="shrink-0">
+                <div className="relative shrink-0">
                   <button
                     onClick={() => setShowAvatarPicker((v) => !v)}
                     className="group relative size-[72px] overflow-hidden rounded-full border-2 border-ink/30 transition-all hover:scale-105 hover:border-ink/70"
@@ -662,20 +716,24 @@ export default function Account() {
                     aria-label="Keisti avataras"
                   >
                     <img
-                      src={activeAvatar.src}
-                      alt={activeAvatar.label}
+                      src={customAvatarUrl ?? activeAvatar.src}
+                      alt={
+                        customAvatarUrl ? "Mano nuotrauka" : activeAvatar.label
+                      }
                       className="h-full w-full object-cover object-top"
                     />
-                    <span className="absolute inset-0 flex items-end justify-center rounded-full bg-ink/0 pb-1.5 transition-colors group-hover:bg-ink/40">
-                      <span className="font-mono text-[8px] font-bold tracking-[.1em] text-ink uppercase opacity-0 transition-opacity group-hover:opacity-100">
-                        Keisti
-                      </span>
-                    </span>
+                  </button>
+                  <button
+                    onClick={() => setShowAvatarPicker((v) => !v)}
+                    className="absolute right-0 bottom-0 flex size-7 items-center justify-center rounded-full border-2 border-ink bg-paper text-ink transition-transform hover:scale-110"
+                    aria-label="Keisti avataras"
+                  >
+                    <PencilIcon className="size-3.5" />
                   </button>
                 </div>
                 <div className="flex-1">
                   <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
-                    <h1 className="heading-display text-d-lg leading-[.9] text-ink">
+                    <h1 className="heading-display text-d-md leading-[.9] text-ink">
                       {[profile?.name, subscriber?.last_name]
                         .filter(Boolean)
                         .join(" ") || user.email?.split("@")[0]}
@@ -708,7 +766,7 @@ export default function Account() {
                         <span
                           className={[
                             "size-14 overflow-hidden rounded-full border-2 transition-all",
-                            selectedAvatarId === av.id
+                            !customAvatarUrl && selectedAvatarId === av.id
                               ? "scale-110 border-ink shadow-[0_0_0_3px_rgba(0,27,33,.2)]"
                               : "border-ink/20 hover:scale-105 hover:border-ink/60",
                           ].join(" ")}
@@ -725,7 +783,50 @@ export default function Account() {
                         </span>
                       </button>
                     ))}
+                    <button
+                      onClick={() => avatarFileRef.current?.click()}
+                      className="flex flex-col items-center gap-1.5 transition-all"
+                      aria-label="Įkelti savo nuotrauką"
+                    >
+                      <span
+                        className={[
+                          "flex size-14 items-center justify-center overflow-hidden rounded-full border-2 transition-all",
+                          customAvatarUrl
+                            ? "scale-110 border-ink shadow-[0_0_0_3px_rgba(0,27,33,.2)]"
+                            : "border-dashed border-ink/40 text-ink/50 hover:scale-105 hover:border-ink/70 hover:text-ink",
+                        ].join(" ")}
+                      >
+                        {customAvatarUrl ? (
+                          <img
+                            src={customAvatarUrl}
+                            alt="Mano nuotrauka"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <PlusIcon className="size-6" />
+                        )}
+                      </span>
+                      <span className="font-mono text-[9px] tracking-[.1em] text-ink/50 uppercase">
+                        Sava
+                      </span>
+                    </button>
+                    <input
+                      ref={avatarFileRef}
+                      type="file"
+                      accept={AVATAR_MIME_TYPES.join(",")}
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        e.target.value = ""
+                        if (file) void uploadAvatar(file)
+                      }}
+                    />
                   </div>
+                  {avatarUploadError && (
+                    <p className="mt-3 font-mono text-[11px] text-brand-orange">
+                      {avatarUploadError}
+                    </p>
+                  )}
                 </div>
               )}
 

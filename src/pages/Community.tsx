@@ -50,6 +50,7 @@ interface LiveFeedItem {
   user_name: string
   avatar_id: number
   avatar_bg: string
+  avatar_url: string | null
   plan: string | null
   parent_id: string | null
   status: "pending" | "approved" | "rejected"
@@ -225,7 +226,7 @@ function FeedCard({
               style={{ background: item.avatar_bg }}
             >
               <img
-                src={avatarSrc(item.avatar_id)}
+                src={item.avatar_url ?? avatarSrc(item.avatar_id)}
                 alt={item.user_name}
                 className="h-full w-full object-cover"
               />
@@ -371,7 +372,7 @@ function FeedCard({
                   style={{ background: reply.avatar_bg }}
                 >
                   <img
-                    src={avatarSrc(reply.avatar_id)}
+                    src={reply.avatar_url ?? avatarSrc(reply.avatar_id)}
                     alt={reply.user_name}
                     className="h-full w-full object-cover"
                   />
@@ -462,10 +463,16 @@ function FeedCard({
 interface ComposeBoxProps {
   avatarId: number
   avatarBg: string
+  avatarUrl: string | null
   onPost: (text: string, imageFile?: File, dropNum?: number) => Promise<void>
 }
 
-function ComposeBox({ avatarId, avatarBg, onPost }: ComposeBoxProps) {
+function ComposeBox({
+  avatarId,
+  avatarBg,
+  avatarUrl,
+  onPost,
+}: ComposeBoxProps) {
   const [text, setText] = useState("")
   const [focused, setFocused] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -532,7 +539,7 @@ function ComposeBox({ avatarId, avatarBg, onPost }: ComposeBoxProps) {
           style={{ background: avatarBg }}
         >
           <img
-            src={avatarSrc(avatarId)}
+            src={avatarUrl ?? avatarSrc(avatarId)}
             alt="Aš"
             className="h-full w-full object-cover"
           />
@@ -874,6 +881,7 @@ function FeedPanel({
         <ComposeBox
           avatarId={profile.avatarId}
           avatarBg={profile.avatarBg}
+          avatarUrl={profile.avatarUrl}
           onPost={addPost}
         />
       ) : (
@@ -1068,6 +1076,7 @@ interface LeaderboardRow {
   name: string
   avatar_id: number | null
   avatar_bg: string | null
+  avatar_url: string | null
   tier: string
   total_points: number
 }
@@ -1079,7 +1088,7 @@ function useLeaderboard(refreshKey: number) {
   useEffect(() => {
     supabase
       .from("leaderboard")
-      .select("rank,subscriber_id,name,avatar_id,avatar_bg,tier,total_points")
+      .select("rank,subscriber_id,name,avatar_id,avatar_bg,avatar_url,tier,total_points")
       .order("rank", { ascending: true })
       .limit(20)
       .then(({ data }) => {
@@ -1203,7 +1212,7 @@ function LeaderboardPanel({
                   style={{ background: entry.avatar_bg ?? "#FFD731" }}
                 >
                   <img
-                    src={avatarSrc(entry.avatar_id ?? 0)}
+                    src={entry.avatar_url ?? avatarSrc(entry.avatar_id ?? 0)}
                     alt={entry.name ?? ""}
                     className="h-full w-full object-cover"
                   />
@@ -1280,7 +1289,7 @@ function LeaderboardPodium({
               </p>
               <div className="mb-2 size-9 overflow-hidden rounded-full border-2 border-paper/30">
                 <img
-                  src={avatarSrc(entry.avatar_id ?? 0)}
+                  src={entry.avatar_url ?? avatarSrc(entry.avatar_id ?? 0)}
                   alt={entry.name ?? ""}
                   className="h-full w-full object-cover"
                 />

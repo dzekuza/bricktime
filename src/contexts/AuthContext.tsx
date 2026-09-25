@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function loadProfile(userId: string) {
     const { data, error: err } = await supabase
       .from("subscribers")
-      .select("id, name, avatar_id, avatar_bg, plan, status, cancel_at")
+      .select("id, name, avatar_id, avatar_bg, avatar_url, plan, status, cancel_at")
       .eq("id", userId)
       .single()
     if (err) {
@@ -54,6 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         name: data.name,
         avatarId: data.avatar_id,
         avatarBg: data.avatar_bg,
+        avatarUrl: data.avatar_url,
         plan: data.plan ?? null,
         status: data.status ?? null,
         cancelAt: data.cancel_at ?? null,

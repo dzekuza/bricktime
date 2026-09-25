@@ -1340,6 +1340,7 @@ export type Database = {
       subscribers: {
         Row: {
           avatar_bg: string
+          avatar_url: string | null
           avatar_id: number
           cancel_at: string | null
           city: string | null
@@ -1364,6 +1365,7 @@ export type Database = {
         }
         Insert: {
           avatar_bg?: string
+          avatar_url?: string | null
           avatar_id?: number
           cancel_at?: string | null
           city?: string | null
@@ -1388,6 +1390,7 @@ export type Database = {
         }
         Update: {
           avatar_bg?: string
+          avatar_url?: string | null
           avatar_id?: number
           cancel_at?: string | null
           city?: string | null
@@ -1472,6 +1475,7 @@ export type Database = {
         Row: {
           achievement_id: string | null
           avatar_bg: string | null
+          avatar_url: string | null
           avatar_id: number | null
           body: string | null
           created_at: string | null
@@ -1558,6 +1562,7 @@ export type Database = {
         Row: {
           achievement_count: number | null
           avatar_bg: string | null
+          avatar_url: string | null
           avatar_id: number | null
           drops_received: number | null
           name: string | null
@@ -1580,6 +1585,7 @@ export type Database = {
       public_profiles: {
         Row: {
           avatar_bg: string | null
+          avatar_url: string | null
           avatar_id: number | null
           id: string | null
           name: string | null
@@ -1612,6 +1618,7 @@ export type Database = {
         Row: {
           achievement_count: number | null
           avatar_bg: string | null
+          avatar_url: string | null
           avatar_id: number | null
           drops_received: number | null
           id: string | null
