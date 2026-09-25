@@ -824,15 +824,15 @@ export default function Account() {
                     Keisti
                   </button>
                 </div>
-                <div className="mt-auto hidden gap-2.5 md:flex">
+                <div className="mt-auto hidden flex-col gap-2.5 md:flex">
                   <button
-                    className="flex-1 rounded-full border-2 border-ink bg-ink px-3 py-2 text-[14px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
+                    className="rounded-full border-2 border-ink bg-ink px-3 py-2 text-[14px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
                     onClick={() => setShowUpgrade(!showUpgrade)}
                   >
                     Keisti prenumeratą
                   </button>
                   <button
-                    className="flex-1 rounded-full border-2 border-ink bg-paper px-3 py-2 text-[14px] font-bold text-ink transition-all hover:bg-ink/5"
+                    className="rounded-full border-2 border-ink bg-paper px-3 py-2 text-[14px] font-bold text-ink transition-all hover:bg-ink/5"
                     onClick={openBillingPortal}
                     disabled={portalLoading}
                   >

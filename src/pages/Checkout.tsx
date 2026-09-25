@@ -867,7 +867,7 @@ export default function Checkout() {
                   <div className="p-6 md:p-8">
                     <p
                       className="label-mono"
-                      style={{ color: `${requiredTier.textColor}60` }}
+                      style={{ color: `${requiredTier.textColor}D9` }}
                     >
                       Prenumerata
                     </p>
@@ -897,7 +897,7 @@ export default function Checkout() {
                   <div>
                     <p
                       className="label-mono"
-                      style={{ color: `${userSub.textColor}60` }}
+                      style={{ color: `${userSub.textColor}D9` }}
                     >
                       Tavo prenumerata
                     </p>
