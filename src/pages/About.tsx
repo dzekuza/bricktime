@@ -189,9 +189,7 @@ export default function About() {
               <h2 className="heading-display text-d-lg tracking-[-0.015em] text-paper">
                 Prisijunk
                 <br />
-                <span className="inline-block skew-x-[-8deg] text-brand-yellow italic">
-                  šiandien.
-                </span>
+                <span className="text-brand-yellow">šiandien.</span>
               </h2>
               <p className="max-w-[44ch] text-[17px] leading-[1.65] text-paper/65">
                 Pasirink prenumeratą, išsirink pirmąjį LEGO® rinkinį ir netrukus

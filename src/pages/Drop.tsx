@@ -140,7 +140,7 @@ function RelatedCarousel({ products }: { products: Product[] }) {
     <div className="mt-10">
       {/* Header row: heading left, controls right */}
       <div className="mb-6 flex items-end justify-between gap-4">
-        <h2 className="heading-display text-d-md tracking-[-0.015em] text-ink">
+        <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink">
           Gali
           <br />
           <span
@@ -477,7 +477,7 @@ export default function Drop() {
             >
               <div className="flex flex-wrap items-center gap-3">
                 {product?.release_date && (
-                  <Badge className="rounded-full border-2 border-ink bg-brand-mint px-3 py-1 font-semibold text-ink capitalize">
+                  <Badge className="py-2font-semibold h-auto rounded-full border-2 border-ink bg-brand-mint px-3 text-ink capitalize">
                     <span className="mr-1.5 inline-block size-2 rounded-full bg-ink" />
                     {formatReleaseMonthFirst(product.release_date)}
                   </Badge>
@@ -485,7 +485,7 @@ export default function Drop() {
                 {product?.category && (
                   <Badge
                     variant="outline"
-                    className="rounded-full border-2 border-ink px-3 py-1 font-semibold text-ink"
+                    className="h-auto rounded-full border-2 border-ink px-3 py-2 font-semibold text-ink"
                   >
                     {product.category}
                   </Badge>
@@ -519,12 +519,6 @@ export default function Drop() {
                   {
                     label: "Kaina",
                     val: product?.price != null ? `€${product.price}` : "—",
-                  },
-                  {
-                    label: "Prenumerata",
-                    val:
-                      getSubscriptionDisplayName(product?.tier ?? "standard") +
-                      "+",
                   },
                   {
                     label: "Vertė",

@@ -148,7 +148,7 @@ export default function PrivacyPolicy() {
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <div className="grid gap-8 lg:grid-cols-[1.1fr_.9fr]">
               <div>
-                <h1 className="heading-display text-d-xl max-w-[12ch] tracking-[-0.015em] text-ink">
+                <h1 className="heading-display text-d-xl mt-8 max-w-[12ch] tracking-[-0.015em] text-ink">
                   Privatumo
                   <br />
                   politika

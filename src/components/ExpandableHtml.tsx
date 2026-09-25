@@ -37,10 +37,10 @@ export function ExpandableHtml({
   }, [sanitized])
 
   return (
-    <div>
+    <div className="pb-2">
       <div
         ref={ref}
-        className={cn(className, !expanded && "line-clamp-5")}
+        className={cn(className, !expanded && "line-clamp-3")}
         dangerouslySetInnerHTML={{ __html: sanitized }}
       />
       {isClamped && (

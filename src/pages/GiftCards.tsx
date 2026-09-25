@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import { useSearchParams, useNavigate } from "react-router-dom"
@@ -110,6 +110,14 @@ export default function GiftCards() {
   const [buyerEmail, setBuyerEmail] = useState("")
   const [message, setMessage] = useState("")
   const [formError, setFormError] = useState("")
+  const formRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (selected === null) return
+    // Stacked layout only: on desktop the form already sits beside the picker.
+    if (!window.matchMedia("(max-width: 1023px)").matches) return
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }, [selected])
 
   function handleBuy() {
     if (selected === null || !recipientEmail || !buyerEmail) return
@@ -214,7 +222,7 @@ export default function GiftCards() {
               </div>
 
               {/* Right — form */}
-              <div>
+              <div ref={formRef} className="scroll-mt-20">
                 {selected !== null ? (
                   <div className="rounded-[35px] border-2 border-ink bg-paper p-6 shadow-[6px_6px_0_#001B21] md:p-[38px]">
                     {/* Header */}

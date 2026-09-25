@@ -220,7 +220,8 @@ export default function MerchPage() {
           <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
             <div>
               <h1 className="heading-display text-d-xl tracking-[-0.015em] text-ink">
-                BRICKTIME{" "}
+                BRICKTIME
+                <br />
                 <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">
                   merch.
                 </span>

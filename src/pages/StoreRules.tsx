@@ -148,10 +148,7 @@ export default function StoreRules() {
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <div className="grid gap-8 lg:grid-cols-[1.1fr_.9fr]">
               <div>
-                <p className="label-mono text-ink/40">
-                  Teisinė informacija / Taisyklės
-                </p>
-                <h1 className="heading-display text-d-xl mt-4 max-w-[14ch] tracking-[-0.015em] text-ink">
+                <h1 className="heading-display text-d-xl mt-8 max-w-[14ch] tracking-[-0.015em] text-ink">
                   Parduotuvės
                   <br />
                   taisyklės
@@ -163,8 +160,7 @@ export default function StoreRules() {
               </div>
 
               <aside className="brick-card self-start bg-ink p-6 text-paper md:p-8">
-                <p className="label-mono text-paper/50">Trumpai</p>
-                <div className="mt-5 space-y-4">
+                <div className="space-y-4">
                   {contactRows.map(([label, value]) => (
                     <div
                       key={label}
