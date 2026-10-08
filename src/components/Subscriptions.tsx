@@ -176,7 +176,7 @@ export default function Subscriptions({
             </div>
 
             {/* Plan cards row — full width, overlapping */}
-            <div className="mt-8 flex flex-col lg:mt-10 lg:flex-row lg:-space-x-6">
+            <div className="mt-8 flex flex-col gap-3 lg:mt-10 lg:flex-row lg:gap-0 lg:-space-x-6">
               {loading
                 ? Array.from({ length: 6 }).map((_, i) => (
                     <div

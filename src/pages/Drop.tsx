@@ -326,643 +326,650 @@ export default function Drop() {
       />
       <Nav />
 
-      {/* ── Product Hero ── */}
-      <section className="bg-paper py-1 md:py-4">
-        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div className="grid grid-cols-1 items-start gap-6 md:gap-12 lg:grid-cols-2">
-            {/* Gallery tile */}
-            <div className="brick-card p-4">
-              <div className="flex flex-col gap-4">
-                {/* Mobile: placeholder when the product has no photos */}
-                {thumbs.length === 0 && (
-                  <div className="relative aspect-square overflow-hidden rounded-[24px] border-2 border-ink bg-[#f8f6f2] md:hidden">
-                    <ImagePlaceholder />
+      <main>
+        {/* ── Product Hero ── */}
+        <section className="bg-paper py-1 md:py-4">
+          <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+            <div className="grid grid-cols-1 items-start gap-6 md:gap-12 lg:grid-cols-2">
+              {/* Gallery tile */}
+              <div className="brick-card p-4">
+                <div className="flex flex-col gap-4">
+                  {/* Mobile: placeholder when the product has no photos */}
+                  {thumbs.length === 0 && (
+                    <div className="relative aspect-square overflow-hidden rounded-[24px] border-2 border-ink bg-[#f8f6f2] md:hidden">
+                      <ImagePlaceholder />
+                      {tierBrick}
+                      {releaseBadge}
+                    </div>
+                  )}
+
+                  {/* Mobile: swipeable gallery carousel */}
+                  {thumbs.length > 0 && (
+                    <div className="relative md:hidden">
+                      <div
+                        ref={carouselRef}
+                        className="scrollbar-none flex snap-x snap-mandatory overflow-x-auto rounded-[24px] border-2 border-ink"
+                        onScroll={(e) => {
+                          const el = e.currentTarget
+                          setActiveThumb(
+                            Math.round(el.scrollLeft / el.clientWidth)
+                          )
+                        }}
+                      >
+                        {thumbs.map((t, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => setLightboxOpen(true)}
+                            className="relative aspect-square w-full shrink-0 snap-center overflow-hidden"
+                            style={{ background: t.bg }}
+                            aria-label={t.label}
+                          >
+                            <img
+                              src={t.image}
+                              alt={t.label}
+                              className="absolute inset-0 h-full w-full object-cover"
+                            />
+                          </button>
+                        ))}
+                      </div>
+                      <div className="pointer-events-none absolute inset-0 rounded-[24px] bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
+                      {tierBrick}
+                      {releaseBadge}
+                      {thumbs.length > 1 && (
+                        <>
+                          {[-1, 1].map((dir) => {
+                            const target = activeThumb + dir
+                            if (target < 0 || target >= thumbs.length)
+                              return null
+                            const Icon =
+                              dir < 0 ? ArrowLeftIcon : ArrowRightIcon
+                            return (
+                              <button
+                                key={dir}
+                                type="button"
+                                onClick={() => {
+                                  const el = carouselRef.current
+                                  el?.scrollTo({
+                                    left: target * el.clientWidth,
+                                    behavior: "smooth",
+                                  })
+                                }}
+                                aria-label={dir < 0 ? "Ankstesnė" : "Kita"}
+                                className={`absolute top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border-2 border-ink bg-paper text-ink ${dir < 0 ? "left-3" : "right-3"}`}
+                              >
+                                <Icon className="size-5" />
+                              </button>
+                            )
+                          })}
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Desktop: main image */}
+                  <div
+                    className={[
+                      "relative hidden overflow-hidden rounded-[24px] border-2 border-ink md:block md:h-[520px]",
+                      activeImage ? "cursor-zoom-in" : "",
+                    ].join(" ")}
+                    style={{ background: activeImage?.bg ?? "#f8f6f2" }}
+                    onClick={() => activeImage && setLightboxOpen(true)}
+                  >
+                    {activeImage && (
+                      <img
+                        key={activeThumb}
+                        src={activeImage.image}
+                        alt={activeImage.label}
+                        className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300"
+                      />
+                    )}
+                    {!activeImage && <ImagePlaceholder />}
+                    {/* Overlay badges */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
                     {tierBrick}
                     {releaseBadge}
-                  </div>
-                )}
 
-                {/* Mobile: swipeable gallery carousel */}
-                {thumbs.length > 0 && (
-                  <div className="relative md:hidden">
-                    <div
-                      ref={carouselRef}
-                      className="scrollbar-none flex snap-x snap-mandatory overflow-x-auto rounded-[24px] border-2 border-ink"
-                      onScroll={(e) => {
-                        const el = e.currentTarget
-                        setActiveThumb(
-                          Math.round(el.scrollLeft / el.clientWidth)
-                        )
-                      }}
-                    >
+                    {activeImage && (
+                      <div className="absolute bottom-5 left-6 font-mono text-[10px] tracking-[.18em] text-paper/70 uppercase">
+                        {activeImage.label}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Thumbnails */}
+                  {thumbs.length > 1 && (
+                    <div className="hidden gap-3 md:grid md:grid-cols-4">
                       {thumbs.map((t, i) => (
                         <button
                           key={i}
-                          type="button"
-                          onClick={() => setLightboxOpen(true)}
-                          className="relative aspect-square w-full shrink-0 snap-center overflow-hidden"
+                          onClick={() => setActiveThumb(i)}
+                          className={[
+                            "relative h-[90px] overflow-hidden rounded-lg border-2 border-ink transition-all",
+                            activeThumb === i
+                              ? "outline outline-[3px] outline-offset-2 outline-brand-yellow"
+                              : "hover:opacity-80",
+                          ].join(" ")}
                           style={{ background: t.bg }}
-                          aria-label={t.label}
                         >
                           <img
                             src={t.image}
                             alt={t.label}
                             className="absolute inset-0 h-full w-full object-cover"
-                            style={{ objectPosition: "center 20%" }}
                           />
+                          <div className="absolute inset-0 bg-ink/30" />
+                          <span className="absolute right-0 bottom-1.5 left-0 text-center font-mono text-[8px] tracking-[.12em] text-paper/80 uppercase">
+                            {t.label.replace(/\[|\]/g, "").trim()}
+                          </span>
                         </button>
                       ))}
                     </div>
-                    <div className="pointer-events-none absolute inset-0 rounded-[24px] bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
-                    {tierBrick}
-                    {releaseBadge}
-                    {thumbs.length > 1 && (
-                      <>
-                        {[-1, 1].map((dir) => {
-                          const target = activeThumb + dir
-                          if (target < 0 || target >= thumbs.length) return null
-                          const Icon = dir < 0 ? ArrowLeftIcon : ArrowRightIcon
-                          return (
-                            <button
-                              key={dir}
-                              type="button"
-                              onClick={() => {
-                                const el = carouselRef.current
-                                el?.scrollTo({
-                                  left: target * el.clientWidth,
-                                  behavior: "smooth",
-                                })
-                              }}
-                              aria-label={dir < 0 ? "Ankstesnė" : "Kita"}
-                              className={`absolute top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border-2 border-ink bg-paper text-ink ${dir < 0 ? "left-3" : "right-3"}`}
-                            >
-                              <Icon className="size-5" />
-                            </button>
-                          )
-                        })}
-                      </>
-                    )}
-                    {thumbs.length > 1 && (
-                      <div className="pointer-events-none absolute right-4 bottom-4 rounded-full bg-ink/60 px-3 py-1 font-mono text-[10px] tracking-[.18em] text-paper/80 backdrop-blur-sm">
-                        {activeThumb + 1} / {thumbs.length}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Desktop: main image */}
-                <div
-                  className={[
-                    "relative hidden overflow-hidden rounded-[24px] border-2 border-ink md:block md:h-[520px]",
-                    activeImage ? "cursor-zoom-in" : "",
-                  ].join(" ")}
-                  style={{ background: activeImage?.bg ?? "#f8f6f2" }}
-                  onClick={() => activeImage && setLightboxOpen(true)}
-                >
-                  {activeImage && (
-                    <img
-                      key={activeThumb}
-                      src={activeImage.image}
-                      alt={activeImage.label}
-                      className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300"
-                      style={{ objectPosition: "center 20%" }}
-                    />
                   )}
-                  {!activeImage && <ImagePlaceholder />}
-                  {/* Overlay badges */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
-                  {tierBrick}
-                  {releaseBadge}
+                </div>
+              </div>
 
-                  {activeImage && (
-                    <div className="absolute bottom-5 left-6 font-mono text-[10px] tracking-[.18em] text-paper/70 uppercase">
-                      {activeImage.label}
+              {/* Details tile */}
+              <div
+                className="brick-card bg-paper p-6 md:p-8"
+                style={{ boxShadow: "6px 6px 0 rgba(0,0,0,.06)" }}
+              >
+                <div className="flex flex-wrap items-center gap-3">
+                  {product?.release_date && (
+                    <Badge className="rounded-full border-2 border-ink bg-brand-mint px-3 py-1 font-semibold text-ink capitalize">
+                      <span className="mr-1.5 inline-block size-2 rounded-full bg-ink" />
+                      {formatReleaseMonthFirst(product.release_date)}
+                    </Badge>
+                  )}
+                  {product?.category && (
+                    <Badge
+                      variant="outline"
+                      className="rounded-full border-2 border-ink px-3 py-1 font-semibold text-ink"
+                    >
+                      {product.category}
+                    </Badge>
+                  )}
+                </div>
+
+                <h1 className="heading-display text-d-md mt-3 tracking-[-0.01em] text-ink md:mt-7">
+                  {product?.title ?? "Mailbox Row"}
+                </h1>
+
+                <ExpandableHtml
+                  className="mt-4 max-w-[48ch] text-[15px] leading-[1.5] text-ink/80 md:mt-6 md:text-[18px] md:leading-[1.62]"
+                  html={
+                    product?.description ??
+                    "A five-storey postwar apartment block in mint and cream, complete with a working mailbox door, three planted balconies, and the universe's first scheduled crossover — Otto's bus is the bus from product №14."
+                  }
+                />
+
+                {/* Spec grid */}
+                <div className="grid grid-cols-3 gap-x-3 gap-y-4 border-t border-ink/10 pt-5">
+                  {[
+                    { label: "Detalės", val: String(product?.bricks ?? "—") },
+                    {
+                      label: "Metai",
+                      val: product?.year ? String(product.year) : "—",
+                    },
+                    {
+                      label: "Amžius",
+                      val:
+                        product?.min_age != null ? `${product.min_age}+` : "—",
+                    },
+                    {
+                      label: "Kaina",
+                      val: product?.price != null ? `€${product.price}` : "—",
+                    },
+                    {
+                      label: "Prenumerata",
+                      val:
+                        getSubscriptionDisplayName(
+                          product?.tier ?? "standard"
+                        ) + "+",
+                    },
+                    {
+                      label: "Briksių vertė",
+                      val: product?.value != null ? String(product.value) : "—",
+                    },
+                  ].map(({ label, val }) => (
+                    <div key={label} className="flex flex-col gap-1">
+                      <span className="label-mono text-[12px] text-ink/40">
+                        {label}
+                      </span>
+                      <span className="font-mono text-[14px] font-bold text-ink capitalize">
+                        {val}
+                      </span>
                     </div>
-                  )}
-                </div>
-
-                {/* Thumbnails */}
-                {thumbs.length > 1 && (
-                  <div className="hidden gap-3 md:grid md:grid-cols-4">
-                    {thumbs.map((t, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setActiveThumb(i)}
-                        className={[
-                          "relative h-[90px] overflow-hidden rounded-lg border-2 border-ink transition-all",
-                          activeThumb === i
-                            ? "outline outline-[3px] outline-offset-2 outline-brand-yellow"
-                            : "hover:opacity-80",
-                        ].join(" ")}
-                        style={{ background: t.bg }}
-                      >
-                        <img
-                          src={t.image}
-                          alt={t.label}
-                          className="absolute inset-0 h-full w-full object-cover"
-                          style={{ objectPosition: "center 20%" }}
-                        />
-                        <div className="absolute inset-0 bg-ink/30" />
-                        <span className="absolute right-0 bottom-1.5 left-0 text-center font-mono text-[8px] tracking-[.12em] text-paper/80 uppercase">
-                          {t.label.replace(/\[|\]/g, "").trim()}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Details tile */}
-            <div
-              className="brick-card bg-paper p-6 md:p-8"
-              style={{ boxShadow: "6px 6px 0 rgba(0,0,0,.06)" }}
-            >
-              <div className="flex flex-wrap items-center gap-3">
-                {product?.release_date && (
-                  <Badge className="rounded-full border-2 border-ink bg-brand-mint px-3 py-1 font-semibold text-ink capitalize">
-                    <span className="mr-1.5 inline-block size-2 rounded-full bg-ink" />
-                    {formatReleaseMonthFirst(product.release_date)}
-                  </Badge>
-                )}
-                {product?.category && (
-                  <Badge
-                    variant="outline"
-                    className="rounded-full border-2 border-ink px-3 py-1 font-semibold text-ink"
-                  >
-                    {product.category}
-                  </Badge>
-                )}
-              </div>
-
-              <h1 className="heading-display text-d-md mt-3 tracking-[-0.01em] text-ink md:mt-7">
-                {product?.title ?? "Mailbox Row"}
-              </h1>
-
-              <ExpandableHtml
-                className="mt-4 max-w-[48ch] text-[15px] leading-[1.5] text-ink/80 md:mt-6 md:text-[18px] md:leading-[1.62]"
-                html={
-                  product?.description ??
-                  "A five-storey postwar apartment block in mint and cream, complete with a working mailbox door, three planted balconies, and the universe's first scheduled crossover — Otto's bus is the bus from product №14."
-                }
-              />
-
-              {/* Spec grid */}
-              <div className="grid grid-cols-3 gap-x-3 gap-y-4 border-t border-ink/10 pt-5">
-                {[
-                  { label: "Detalės", val: String(product?.bricks ?? "—") },
-                  {
-                    label: "Metai",
-                    val: product?.year ? String(product.year) : "—",
-                  },
-                  {
-                    label: "Amžius",
-                    val: product?.min_age != null ? `${product.min_age}+` : "—",
-                  },
-                  {
-                    label: "Kaina",
-                    val: product?.price != null ? `€${product.price}` : "—",
-                  },
-                  {
-                    label: "Prenumerata",
-                    val:
-                      getSubscriptionDisplayName(product?.tier ?? "standard") +
-                      "+",
-                  },
-                  {
-                    label: "Briksių vertė",
-                    val: product?.value != null ? String(product.value) : "—",
-                  },
-                ].map(({ label, val }) => (
-                  <div key={label} className="flex flex-col gap-1">
-                    <span className="label-mono text-[12px] text-ink/40">
-                      {label}
-                    </span>
-                    <span className="font-mono text-[14px] font-bold text-ink capitalize">
-                      {val}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Rent CTA */}
-              <div id="buy" className="mt-8 border-t border-ink/10 pt-6">
-                <div className="flex items-center gap-3">
-                  {renderTierPill()}
-                  <span className="text-[14px] text-ink/50">
-                    reikalinga prenumerata
-                  </span>
-                </div>
-
-                <p className="mt-4 text-[14px] leading-[1.6] text-ink/70">
-                  {isRentedOut
-                    ? "Šiuo metu visi šio rinkinio egzemplioriai išnuomoti. Grįžk vėliau – kai tik kas nors jį grąžins, galėsi užsisakyti."
-                    : "Šis rinkinys įskaičiuotas į tavo prenumeratą – jokio papildomo mokesčio. Tiesiog užsisakyk, konstruok ir grąžink."}
-                </p>
-
-                {isRentedOut ? (
-                  <Button
-                    size="lg"
-                    disabled
-                    className="mt-5 w-full justify-center rounded-full border-2 border-ink/30 bg-ink/10 text-[16px] font-bold text-ink/40"
-                  >
-                    Užimtas
-                  </Button>
-                ) : (
-                  <Button
-                    asChild
-                    size="lg"
-                    className="mt-5 w-full justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)]"
-                  >
-                    <Link to={`/checkout?product=${product?.id}`}>
-                      Rinkis šį rinkinį →
-                    </Link>
-                  </Button>
-                )}
-
-                <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] tracking-[.16em] text-ink/40 uppercase">
-                  {["Nemokamas pristatymas", "Atšauk bet kada"].map((s) => (
-                    <span key={s} className="flex items-center gap-1.5">
-                      <span className="size-2 rounded-full bg-ink/30" />
-                      {s}
-                    </span>
                   ))}
                 </div>
 
-                {/* Legal / safety notice — LEGO® age warning + trademark disclaimer */}
-                <div className="mt-5 flex max-w-[48ch] gap-3 rounded-2xl border-2 border-ink/15 bg-ink/[.02] px-4 py-3.5">
-                  {/* EN 71-6 age warning pictogram: standard "not for under 3" toy-safety symbol */}
-                  <img
-                    src="/age-warning.svg"
-                    alt=""
-                    aria-hidden="true"
-                    className="mt-0.5 h-10 w-10 shrink-0"
-                  />
-                  <div>
-                    <p className="text-[12px] leading-[1.6] text-ink/55">
-                      Svarbu: LEGO® rinkinyje yra smulkių detalių, todėl jis
-                      netinka vaikams iki 3 metų. Rekomenduojame rinkinį naudoti
-                      pagal gamintojo nurodytą amžiaus rekomendaciją.
-                    </p>
-                    <p className="mt-2 text-[11px] leading-[1.5] text-ink/40">
-                      LEGO® yra LEGO® įmonių grupės prekių ženklas. „Brick Time“
-                      yra nepriklausomas originalių LEGO® rinkinių nuomos
-                      paslaugos teikėjas, kurio LEGO® įmonių grupė neremia,
-                      neįgaliojo ir kitaip nepatvirtino. Kiti nurodomi ženklai
-                      priklauso atitinkamiems jų savininkams ir naudojami tik
-                      rinkiniams identifikuoti.
-                    </p>
+                {/* Rent CTA */}
+                <div id="buy" className="mt-8 border-t border-ink/10 pt-6">
+                  <div className="flex items-center gap-3">
+                    {renderTierPill()}
+                    <span className="text-[14px] text-ink/50">
+                      reikalinga prenumerata
+                    </span>
                   </div>
-                </div>
 
-                <ManufacturerInfo className="mt-4 max-w-[48ch]" />
+                  <p className="mt-4 text-[14px] leading-[1.6] text-ink/70">
+                    {isRentedOut
+                      ? "Šiuo metu visi šio rinkinio egzemplioriai išnuomoti. Grįžk vėliau – kai tik kas nors jį grąžins, galėsi užsisakyti."
+                      : "Šis rinkinys įskaičiuotas į tavo prenumeratą – jokio papildomo mokesčio. Tiesiog užsisakyk, konstruok ir grąžink."}
+                  </p>
+
+                  {isRentedOut ? (
+                    <Button
+                      size="lg"
+                      disabled
+                      className="mt-5 w-full justify-center rounded-full border-2 border-ink/30 bg-ink/10 text-[16px] font-bold text-ink/40"
+                    >
+                      Užimtas
+                    </Button>
+                  ) : (
+                    <Button
+                      asChild
+                      size="lg"
+                      className="mt-5 w-full justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)]"
+                    >
+                      <Link to={`/checkout?product=${product?.id}`}>
+                        Rinkis šį rinkinį →
+                      </Link>
+                    </Button>
+                  )}
+
+                  <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] tracking-[.16em] text-ink/40 uppercase">
+                    {["Nemokamas pristatymas", "Atšauk bet kada"].map((s) => (
+                      <span key={s} className="flex items-center gap-1.5">
+                        <span className="size-2 rounded-full bg-ink/30" />
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Legal / safety notice — LEGO® age warning + trademark disclaimer */}
+                  <div className="mt-5 flex max-w-[48ch] gap-3 rounded-2xl border-2 border-ink/15 bg-ink/[.02] px-4 py-3.5">
+                    {/* EN 71-6 age warning pictogram: standard "not for under 3" toy-safety symbol */}
+                    <img
+                      src="/age-warning.svg"
+                      alt=""
+                      aria-hidden="true"
+                      className="mt-0.5 h-10 w-10 shrink-0"
+                    />
+                    <div>
+                      <p className="text-[12px] leading-[1.6] text-ink/55">
+                        Svarbu: LEGO® rinkinyje yra smulkių detalių, todėl jis
+                        netinka vaikams iki 3 metų. Rekomenduojame rinkinį
+                        naudoti pagal gamintojo nurodytą amžiaus rekomendaciją.
+                      </p>
+                      <p className="mt-2 text-[11px] leading-[1.5] text-ink/40">
+                        LEGO® yra LEGO® įmonių grupės prekių ženklas. „Brick
+                        Time“ yra nepriklausomas originalių LEGO® rinkinių
+                        nuomos paslaugos teikėjas, kurio LEGO® įmonių grupė
+                        neremia, neįgaliojo ir kitaip nepatvirtino. Kiti
+                        nurodomi ženklai priklauso atitinkamiems jų savininkams
+                        ir naudojami tik rinkiniams identifikuoti.
+                      </p>
+                    </div>
+                  </div>
+
+                  <ManufacturerInfo className="mt-4 max-w-[48ch]" />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── What's in the bag ── */}
-      {product?.bags &&
-        product.bags.length > 0 &&
-        (() => {
-          const bags = product.bags
-          const featured = bags[bags.length - 1]
-          const rest = bags.slice(0, bags.length - 1)
-          return (
-            <section className="bg-paper py-4">
-              <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-                  <div className="brick-card flex flex-col justify-center bg-paper p-6 md:p-8 lg:col-span-5">
-                    <h3 className="label-mono text-ink/50">
-                      ⬢ What's in the bag
-                    </h3>
-                    <h2 className="heading-display text-d-lg mt-3 leading-[.9] tracking-[-0.01em] text-ink">
-                      {bags.length} bag{bags.length !== 1 ? "s" : ""}.<br />
-                      One build.
-                    </h2>
-                    <p className="mt-5 max-w-[40ch] text-[16px] leading-[1.65] text-ink/65">
-                      Tear the seal, scan the QR, and you'll find these{" "}
-                      {bags.length} bagged sub-builds — each one a
-                      self-contained section of the model.
-                    </p>
-                  </div>
-                  <div
-                    className="brick-card brick-card-hover relative flex min-h-[280px] flex-col justify-end p-6 md:p-8 lg:col-span-7"
-                    style={{ background: featured.bg }}
-                  >
-                    <Badge className="absolute top-6 right-6 rounded-full border-[1.5px] border-ink bg-paper px-2.5 py-1 font-mono text-[10px] tracking-[.14em] text-ink uppercase">
-                      Bag {featured.num}
-                    </Badge>
-                    <div className="absolute top-6 left-8 font-display text-[110px] leading-none text-ink/15 select-none">
-                      {featured.num}
+        {/* ── What's in the bag ── */}
+        {product?.bags &&
+          product.bags.length > 0 &&
+          (() => {
+            const bags = product.bags
+            const featured = bags[bags.length - 1]
+            const rest = bags.slice(0, bags.length - 1)
+            return (
+              <section className="bg-paper py-4">
+                <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+                    <div className="brick-card flex flex-col justify-center bg-paper p-6 md:p-8 lg:col-span-5">
+                      <h3 className="label-mono text-ink/50">
+                        ⬢ What's in the bag
+                      </h3>
+                      <h2 className="heading-display text-d-lg mt-3 leading-[.9] tracking-[-0.01em] text-ink">
+                        {bags.length} bag{bags.length !== 1 ? "s" : ""}.<br />
+                        One build.
+                      </h2>
+                      <p className="mt-5 max-w-[40ch] text-[16px] leading-[1.65] text-ink/65">
+                        Tear the seal, scan the QR, and you'll find these{" "}
+                        {bags.length} bagged sub-builds — each one a
+                        self-contained section of the model.
+                      </p>
                     </div>
-                    <h4 className="font-display text-[36px] leading-[.95] text-ink uppercase">
-                      {featured.label.split("\n").map((l, i) => (
-                        <span key={i}>
-                          {l}
-                          <br />
-                        </span>
-                      ))}
-                    </h4>
-                    <p className="mt-2 max-w-[40ch] text-[14px] leading-[1.5] text-ink/75">
-                      {featured.desc}
-                    </p>
-                  </div>
-                  {rest.map((bag) => (
                     <div
-                      key={bag.num}
-                      className="brick-card brick-card-hover relative flex min-h-[260px] flex-col justify-end p-6 md:p-7 lg:col-span-4"
-                      style={{ background: bag.bg }}
+                      className="brick-card brick-card-hover relative flex min-h-[280px] flex-col justify-end p-6 md:p-8 lg:col-span-7"
+                      style={{ background: featured.bg }}
                     >
-                      <Badge className="absolute top-5 right-5 rounded-full border-[1.5px] border-ink bg-paper px-2.5 py-1 font-mono text-[10px] tracking-[.14em] text-ink uppercase">
-                        Bag {bag.num}
+                      <Badge className="absolute top-6 right-6 rounded-full border-[1.5px] border-ink bg-paper px-2.5 py-1 font-mono text-[10px] tracking-[.14em] text-ink uppercase">
+                        Bag {featured.num}
                       </Badge>
-                      <div className="absolute top-5 left-7 font-display text-[88px] leading-none text-ink/15 select-none">
-                        {bag.num}
+                      <div className="absolute top-6 left-8 font-display text-[110px] leading-none text-ink/15 select-none">
+                        {featured.num}
                       </div>
-                      <h4 className="font-display text-[28px] leading-[.95] text-ink uppercase">
-                        {bag.label.split("\n").map((l, i) => (
+                      <h4 className="font-display text-[36px] leading-[.95] text-ink uppercase">
+                        {featured.label.split("\n").map((l, i) => (
                           <span key={i}>
                             {l}
                             <br />
                           </span>
                         ))}
                       </h4>
-                      <p className="mt-2 text-[13px] leading-[1.5] text-ink/75">
-                        {bag.desc}
+                      <p className="mt-2 max-w-[40ch] text-[14px] leading-[1.5] text-ink/75">
+                        {featured.desc}
                       </p>
                     </div>
+                    {rest.map((bag) => (
+                      <div
+                        key={bag.num}
+                        className="brick-card brick-card-hover relative flex min-h-[260px] flex-col justify-end p-6 md:p-7 lg:col-span-4"
+                        style={{ background: bag.bg }}
+                      >
+                        <Badge className="absolute top-5 right-5 rounded-full border-[1.5px] border-ink bg-paper px-2.5 py-1 font-mono text-[10px] tracking-[.14em] text-ink uppercase">
+                          Bag {bag.num}
+                        </Badge>
+                        <div className="absolute top-5 left-7 font-display text-[88px] leading-none text-ink/15 select-none">
+                          {bag.num}
+                        </div>
+                        <h4 className="font-display text-[28px] leading-[.95] text-ink uppercase">
+                          {bag.label.split("\n").map((l, i) => (
+                            <span key={i}>
+                              {l}
+                              <br />
+                            </span>
+                          ))}
+                        </h4>
+                        <p className="mt-2 text-[13px] leading-[1.5] text-ink/75">
+                          {bag.desc}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )
+          })()}
+
+        {/* ── Story ── */}
+        {product?.story?.headline && (
+          <section className="bg-paper py-4">
+            <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+                <div
+                  className="brick-card relative min-h-[480px] overflow-hidden lg:col-span-5"
+                  style={
+                    product.story.image_url
+                      ? undefined
+                      : {
+                          background: "#FB4903",
+                          backgroundImage:
+                            "radial-gradient(circle at 18px 18px, rgba(255,255,255,.14) 5px, transparent 6px)",
+                          backgroundSize: "48px 48px",
+                        }
+                  }
+                >
+                  {product.story.image_url ? (
+                    <img
+                      src={product.story.image_url}
+                      alt="Story"
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-10 grid place-items-center rounded-xl border-2 border-dashed border-paper/35 text-center font-mono text-[11px] tracking-[.18em] text-paper/55 uppercase">
+                      No story image yet
+                    </div>
+                  )}
+                </div>
+                <div className="brick-card flex flex-col justify-center bg-paper p-6 md:p-10 lg:col-span-7">
+                  <h3 className="label-mono text-ink/50">⬢ The story</h3>
+                  <h2 className="heading-display text-d-lg mt-3 leading-[.9] tracking-[-0.01em] text-ink">
+                    {product.story.headline}
+                  </h2>
+                  {(product.story.body ?? []).map((para, i) => (
+                    <p
+                      key={i}
+                      className="mt-4 text-[17px] leading-[1.6] text-ink/80"
+                    >
+                      {para}
+                    </p>
                   ))}
+                  {product.story.author_name && (
+                    <div className="mt-8 flex items-center gap-4 border-t border-dashed border-ink/20 pt-6">
+                      <Avatar className="size-[54px] border-2 border-ink">
+                        <AvatarFallback className="bg-brand-mint font-bold text-ink">
+                          {product.story.author_name
+                            .split(" ")
+                            .map((w) => w[0])
+                            .join("")
+                            .slice(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <b className="text-[15px]">
+                          {product.story.author_name}
+                        </b>
+                        {product.story.author_role && (
+                          <small className="mt-0.5 block font-mono text-[11px] tracking-[.14em] text-ink/55 uppercase">
+                            {product.story.author_role}
+                          </small>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-            </section>
-          )
-        })()}
-
-      {/* ── Story ── */}
-      {product?.story?.headline && (
-        <section className="bg-paper py-4">
-          <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-              <div
-                className="brick-card relative min-h-[480px] overflow-hidden lg:col-span-5"
-                style={
-                  product.story.image_url
-                    ? undefined
-                    : {
-                        background: "#FB4903",
-                        backgroundImage:
-                          "radial-gradient(circle at 18px 18px, rgba(255,255,255,.14) 5px, transparent 6px)",
-                        backgroundSize: "48px 48px",
-                      }
-                }
-              >
-                {product.story.image_url ? (
-                  <img
-                    src={product.story.image_url}
-                    alt="Story"
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="absolute inset-10 grid place-items-center rounded-xl border-2 border-dashed border-paper/35 text-center font-mono text-[11px] tracking-[.18em] text-paper/55 uppercase">
-                    No story image yet
-                  </div>
-                )}
-              </div>
-              <div className="brick-card flex flex-col justify-center bg-paper p-6 md:p-10 lg:col-span-7">
-                <h3 className="label-mono text-ink/50">⬢ The story</h3>
-                <h2 className="heading-display text-d-lg mt-3 leading-[.9] tracking-[-0.01em] text-ink">
-                  {product.story.headline}
-                </h2>
-                {(product.story.body ?? []).map((para, i) => (
-                  <p
-                    key={i}
-                    className="mt-4 text-[17px] leading-[1.6] text-ink/80"
-                  >
-                    {para}
-                  </p>
-                ))}
-                {product.story.author_name && (
-                  <div className="mt-8 flex items-center gap-4 border-t border-dashed border-ink/20 pt-6">
-                    <Avatar className="size-[54px] border-2 border-ink">
-                      <AvatarFallback className="bg-brand-mint font-bold text-ink">
-                        {product.story.author_name
-                          .split(" ")
-                          .map((w) => w[0])
-                          .join("")
-                          .slice(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <b className="text-[15px]">{product.story.author_name}</b>
-                      {product.story.author_role && (
-                        <small className="mt-0.5 block font-mono text-[11px] tracking-[.14em] text-ink/55 uppercase">
-                          {product.story.author_role}
-                        </small>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
             </div>
-          </div>
-        </section>
-      )}
+          </section>
+        )}
 
-      {/* ── Minifig ── */}
-      {product?.minifig?.name && (
-        <section className="bg-paper py-4">
-          <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-              <div className="brick-card flex flex-col justify-center bg-paper p-6 md:p-8 lg:col-span-5">
-                <h3 className="label-mono text-ink/50">⬢ Exclusive minifig</h3>
-                <h2 className="heading-display text-d-xl mt-3 leading-[.9] tracking-[-0.01em] text-ink">
-                  {product.minifig.name}
-                </h2>
-                {product.minifig.description && (
-                  <p className="mt-5 max-w-[38ch] text-[16px] leading-[1.65] text-ink/75">
-                    {product.minifig.description}
-                  </p>
-                )}
-              </div>
-              <div
-                className="relative grid min-h-[480px] place-items-center overflow-hidden rounded-2xl border-2 bg-ink p-12 shadow-[6px_6px_0_#001B21] md:rounded-3xl lg:col-span-7"
-                style={{
-                  borderColor: "rgba(245,241,235,.2)",
-                  backgroundImage:
-                    "linear-gradient(transparent 31px, rgba(245,241,235,.08) 32px), linear-gradient(90deg, transparent 31px, rgba(245,241,235,.08) 32px)",
-                  backgroundSize: "32px 32px",
-                }}
-              >
-                {product.minifig.edition && (
-                  <div className="absolute top-6 left-6 font-mono text-[11px] tracking-[.18em] text-paper/70 uppercase">
-                    № {product.id} / 1<br />
-                    <b className="text-brand-yellow">
-                      {product.minifig.edition} PRESSED
-                    </b>
-                  </div>
-                )}
+        {/* ── Minifig ── */}
+        {product?.minifig?.name && (
+          <section className="bg-paper py-4">
+            <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+                <div className="brick-card flex flex-col justify-center bg-paper p-6 md:p-8 lg:col-span-5">
+                  <h3 className="label-mono text-ink/50">
+                    ⬢ Exclusive minifig
+                  </h3>
+                  <h2 className="heading-display text-d-xl mt-3 leading-[.9] tracking-[-0.01em] text-ink">
+                    {product.minifig.name}
+                  </h2>
+                  {product.minifig.description && (
+                    <p className="mt-5 max-w-[38ch] text-[16px] leading-[1.65] text-ink/75">
+                      {product.minifig.description}
+                    </p>
+                  )}
+                </div>
                 <div
-                  className="absolute top-6 right-6 grid size-16 place-items-center rounded-full border-2 border-paper text-center font-mono text-[11px] text-ink"
+                  className="relative grid min-h-[480px] place-items-center overflow-hidden rounded-2xl border-2 bg-ink p-12 shadow-[6px_6px_0_#001B21] md:rounded-3xl lg:col-span-7"
                   style={{
-                    background:
-                      "linear-gradient(135deg,#FFAEE7,#FFD731,#5DDB9C,#4DA2FF)",
-                    lineHeight: ".95",
+                    borderColor: "rgba(245,241,235,.2)",
+                    backgroundImage:
+                      "linear-gradient(transparent 31px, rgba(245,241,235,.08) 32px), linear-gradient(90deg, transparent 31px, rgba(245,241,235,.08) 32px)",
+                    backgroundSize: "32px 32px",
                   }}
                 >
-                  EXCL.
-                  <br />
-                  MINIFIG
-                </div>
-                {product.minifig.image_url ? (
-                  <img
-                    src={product.minifig.image_url}
-                    alt={product.minifig.name}
-                    className="max-h-[240px] object-contain"
-                  />
-                ) : (
-                  <div className="grid h-[240px] w-[160px] place-items-center rounded-xl border-2 border-dashed border-paper/35 text-center font-mono text-[10px] tracking-[.14em] text-paper/40 uppercase">
-                    No minifig
+                  {product.minifig.edition && (
+                    <div className="absolute top-6 left-6 font-mono text-[11px] tracking-[.18em] text-paper/70 uppercase">
+                      № {product.id} / 1<br />
+                      <b className="text-brand-yellow">
+                        {product.minifig.edition} PRESSED
+                      </b>
+                    </div>
+                  )}
+                  <div
+                    className="absolute top-6 right-6 grid size-16 place-items-center rounded-full border-2 border-paper text-center font-mono text-[11px] text-ink"
+                    style={{
+                      background:
+                        "linear-gradient(135deg,#FFAEE7,#FFD731,#5DDB9C,#4DA2FF)",
+                      lineHeight: ".95",
+                    }}
+                  >
+                    EXCL.
                     <br />
-                    image yet
+                    MINIFIG
+                  </div>
+                  {product.minifig.image_url ? (
+                    <img
+                      src={product.minifig.image_url}
+                      alt={product.minifig.name}
+                      className="max-h-[240px] object-contain"
+                    />
+                  ) : (
+                    <div className="grid h-[240px] w-[160px] place-items-center rounded-xl border-2 border-dashed border-paper/35 text-center font-mono text-[10px] tracking-[.14em] text-paper/40 uppercase">
+                      No minifig
+                      <br />
+                      image yet
+                    </div>
+                  )}
+                  <div className="absolute bottom-6 left-6 font-display text-3xl leading-[.95] text-paper uppercase">
+                    {product.minifig.name}
+                  </div>
+                </div>
+                {product.minifig.kit_items.length > 0 && (
+                  <div className="brick-card bg-paper p-6 md:p-8 lg:col-span-12">
+                    <h3 className="label-mono text-ink/50">
+                      ⬢ {product.minifig.name}'s kit
+                    </h3>
+                    {product.minifig.kit_headline && (
+                      <h3 className="heading-display text-d-md mt-3 leading-[.9] tracking-[-0.01em] text-ink">
+                        {product.minifig.kit_headline}
+                      </h3>
+                    )}
+                    <ul className="mt-8 grid grid-cols-1 gap-[18px] md:grid-cols-3">
+                      {product.minifig.kit_items.map((item) => (
+                        <li
+                          key={item.title}
+                          className="flex items-start gap-3.5"
+                        >
+                          <span className="mt-0.5 grid size-8 flex-none place-items-center rounded-full bg-ink text-sm font-bold text-paper">
+                            ✓
+                          </span>
+                          <div>
+                            <b className="block text-[17px]">{item.title}</b>
+                            {item.body && (
+                              <span className="mt-1 block text-[14px] leading-[1.5] text-ink/70">
+                                {item.body}
+                              </span>
+                            )}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
-                <div className="absolute bottom-6 left-6 font-display text-3xl leading-[.95] text-paper uppercase">
-                  {product.minifig.name}
-                </div>
               </div>
-              {product.minifig.kit_items.length > 0 && (
-                <div className="brick-card bg-paper p-6 md:p-8 lg:col-span-12">
-                  <h3 className="label-mono text-ink/50">
-                    ⬢ {product.minifig.name}'s kit
-                  </h3>
-                  {product.minifig.kit_headline && (
-                    <h3 className="heading-display text-d-md mt-3 leading-[.9] tracking-[-0.01em] text-ink">
-                      {product.minifig.kit_headline}
-                    </h3>
-                  )}
-                  <ul className="mt-8 grid grid-cols-1 gap-[18px] md:grid-cols-3">
-                    {product.minifig.kit_items.map((item) => (
-                      <li key={item.title} className="flex items-start gap-3.5">
-                        <span className="mt-0.5 grid size-8 flex-none place-items-center rounded-full bg-ink text-sm font-bold text-paper">
-                          ✓
-                        </span>
-                        <div>
-                          <b className="block text-[17px]">{item.title}</b>
-                          {item.body && (
-                            <span className="mt-1 block text-[14px] leading-[1.5] text-ink/70">
-                              {item.body}
-                            </span>
-                          )}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </div>
-          </div>
-        </section>
-      )}
+          </section>
+        )}
 
-      {/* ── Compatibility ── */}
-      {product?.compatibility && product.compatibility.length > 0 && (
-        <section className="bg-paper py-4">
-          <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-              <div className="brick-card flex flex-col justify-center bg-paper p-6 md:p-8 lg:col-span-5">
-                <h3 className="label-mono text-ink/50">⬢ Universe map</h3>
-                <h2 className="heading-display text-d-lg mt-3 leading-[.9] tracking-[-0.01em] text-ink">
-                  Slots into {product.compatibility.length} existing product
-                  {product.compatibility.length !== 1 ? "s" : ""}.
-                </h2>
-              </div>
-              <div
-                className="brick-card flex flex-col justify-center p-6 md:p-8 lg:col-span-7"
-                style={{ background: "#FFD731" }}
-              >
-                <p className="max-w-[44ch] text-[20px] leading-[1.55] font-medium text-ink">
-                  Every BRICKTIME product is part of one growing universe. This
-                  one connects directly with these products via shared pins,
-                  scale, and color set.
-                </p>
-              </div>
-              {product.compatibility.map((c) => (
+        {/* ── Compatibility ── */}
+        {product?.compatibility && product.compatibility.length > 0 && (
+          <section className="bg-paper py-4">
+            <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+                <div className="brick-card flex flex-col justify-center bg-paper p-6 md:p-8 lg:col-span-5">
+                  <h3 className="label-mono text-ink/50">⬢ Universe map</h3>
+                  <h2 className="heading-display text-d-lg mt-3 leading-[.9] tracking-[-0.01em] text-ink">
+                    Slots into {product.compatibility.length} existing product
+                    {product.compatibility.length !== 1 ? "s" : ""}.
+                  </h2>
+                </div>
                 <div
-                  key={c.drop}
-                  className="brick-card brick-card-hover flex flex-col gap-3.5 p-6 text-ink md:p-7 lg:col-span-4"
-                  style={{ background: c.bg }}
+                  className="brick-card flex flex-col justify-center p-6 md:p-8 lg:col-span-7"
+                  style={{ background: "#FFD731" }}
                 >
-                  <h3 className="label-mono text-ink/50">{c.drop}</h3>
-                  <h4 className="font-display text-[28px] leading-[.95] uppercase">
-                    {c.title}
-                  </h4>
-                  <p className="text-[14px] leading-[1.5] text-ink/70">
-                    {c.desc}
+                  <p className="max-w-[44ch] text-[20px] leading-[1.55] font-medium text-ink">
+                    Every BRICKTIME product is part of one growing universe.
+                    This one connects directly with these products via shared
+                    pins, scale, and color set.
                   </p>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      <section className="bg-paper py-4">
-        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          {/* FAQ */}
-          {(product?.faq ?? []).length > 0 && (
-            <div className="mt-4">
-              <div className="brick-card mb-4 bg-ink p-6 md:p-8">
-                <h3 className="label-mono text-paper/50">⬢ Common questions</h3>
-                <h2 className="heading-display text-d-md mt-3 leading-[.9] tracking-[-0.01em] text-paper">
-                  FAQ
-                </h2>
-              </div>
-              <div className="flex flex-col gap-3">
-                {(product?.faq ?? []).map((item, i) => (
-                  <div key={i} className="brick-card bg-paper p-6 md:p-7">
-                    <h4 className="font-display text-[22px] leading-[1] text-ink uppercase">
-                      {item.q}
+                {product.compatibility.map((c) => (
+                  <div
+                    key={c.drop}
+                    className="brick-card brick-card-hover flex flex-col gap-3.5 p-6 text-ink md:p-7 lg:col-span-4"
+                    style={{ background: c.bg }}
+                  >
+                    <h3 className="label-mono text-ink/50">{c.drop}</h3>
+                    <h4 className="font-display text-[28px] leading-[.95] uppercase">
+                      {c.title}
                     </h4>
-                    <p className="mt-3 text-[16px] leading-[1.65] text-ink/75">
-                      {item.a}
+                    <p className="text-[14px] leading-[1.5] text-ink/70">
+                      {c.desc}
                     </p>
                   </div>
                 ))}
               </div>
             </div>
-          )}
-
-          {/* You might also like */}
-          {related.length > 0 && <RelatedCarousel products={related} />}
-        </div>
-      </section>
-
-      {/* ── Sticky mobile CTA ── */}
-      <div className="h-20 md:hidden" />
-      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t-2 border-ink bg-paper px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_0_rgba(0,27,33,.06)] md:hidden">
-        {renderTierPill("flex h-12 items-center")}
-        {isRentedOut ? (
-          <Button
-            size="lg"
-            disabled
-            className="flex-1 justify-center rounded-full border-2 border-ink/30 bg-ink/10 text-[15px] font-bold text-ink/40"
-          >
-            Užimtas
-          </Button>
-        ) : (
-          <Button
-            asChild
-            size="lg"
-            className="flex-1 justify-center rounded-full border-2 border-ink bg-ink text-[15px] font-bold text-paper"
-          >
-            <Link to={`/checkout?product=${product?.id}`}>
-              Rinkis šį rinkinį →
-            </Link>
-          </Button>
+          </section>
         )}
-      </div>
+
+        <section className="bg-paper py-4">
+          <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+            {/* FAQ */}
+            {(product?.faq ?? []).length > 0 && (
+              <div className="mt-4">
+                <div className="brick-card mb-4 bg-ink p-6 md:p-8">
+                  <h3 className="label-mono text-paper/50">
+                    ⬢ Common questions
+                  </h3>
+                  <h2 className="heading-display text-d-md mt-3 leading-[.9] tracking-[-0.01em] text-paper">
+                    FAQ
+                  </h2>
+                </div>
+                <div className="flex flex-col gap-3">
+                  {(product?.faq ?? []).map((item, i) => (
+                    <div key={i} className="brick-card bg-paper p-6 md:p-7">
+                      <h4 className="font-display text-[22px] leading-[1] text-ink uppercase">
+                        {item.q}
+                      </h4>
+                      <p className="mt-3 text-[16px] leading-[1.65] text-ink/75">
+                        {item.a}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* You might also like */}
+            {related.length > 0 && <RelatedCarousel products={related} />}
+          </div>
+        </section>
+
+        {/* ── Sticky mobile CTA ── */}
+        <div className="h-20 md:hidden" />
+        <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t-2 border-ink bg-paper px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_0_rgba(0,27,33,.06)] md:hidden">
+          {renderTierPill("flex h-12 items-center")}
+          {isRentedOut ? (
+            <Button
+              size="lg"
+              disabled
+              className="flex-1 justify-center rounded-full border-2 border-ink/30 bg-ink/10 text-[15px] font-bold text-ink/40"
+            >
+              Užimtas
+            </Button>
+          ) : (
+            <Button
+              asChild
+              size="lg"
+              className="flex-1 justify-center rounded-full border-2 border-ink bg-ink text-[15px] font-bold text-paper"
+            >
+              <Link to={`/checkout?product=${product?.id}`}>
+                Rinkis šį rinkinį →
+              </Link>
+            </Button>
+          )}
+        </div>
+      </main>
 
       <Footer />
 
