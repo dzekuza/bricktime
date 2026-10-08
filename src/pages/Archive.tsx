@@ -143,129 +143,131 @@ export default function Archive() {
       />
       <Nav />
 
-      {/* ── Hero ── */}
-      <section className="bg-paper">
-        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
-            <div>
-              <h1 className="heading-display text-d-xl tracking-[-0.015em] text-ink">
-                Visi rinkiniai
-                <br />
-                <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">
-                  vienoje
-                </span>{" "}
-                vietoje
-              </h1>
-              <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">
-                Naršyk rinkinius pagal temą, sudėtingumą ar prenumeratą ir
-                atrask kitą konstravimo projektą.
+      <main>
+        {/* ── Hero ── */}
+        <section className="bg-paper">
+          <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+            <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
+              <div>
+                <h1 className="heading-display text-d-xl tracking-[-0.015em] text-ink">
+                  Visi rinkiniai
+                  <br />
+                  <span className="inline-block -rotate-[1.5deg] border-[3px] border-ink bg-brand-yellow px-2 shadow-[5px_5px_0_rgba(0,27,33,0.12)]">
+                    vienoje
+                  </span>{" "}
+                  vietoje
+                </h1>
+                <p className="mt-6 max-w-[52ch] text-[17px] leading-[1.65] text-ink/65">
+                  Naršyk rinkinius pagal temą, sudėtingumą ar prenumeratą ir
+                  atrask kitą konstravimo projektą.
+                </p>
+              </div>
+              <div className="hidden lg:block">
+                <img
+                  src={headerImage}
+                  alt="LEGO® rinkiniai"
+                  className="aspect-[2/1] w-full rounded-2xl border-2 border-ink object-cover shadow-[6px_6px_0_#001B21]"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <NextDrop />
+
+        {/* ── Grid ── */}
+        <section className="bg-paper pt-4 pb-16">
+          <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+            {/* Filters */}
+            <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <FilterPopover
+                  label={seriesFilter.length === 0 ? "Visos temos" : "Tema"}
+                  options={categories.map((s) => ({ value: s, label: s }))}
+                  selected={seriesFilter}
+                  onChange={setSeriesFilter}
+                />
+                <FilterPopover
+                  label="Filtrai pagal prenumeratą"
+                  options={SUBSCRIPTION_CHIPS.map(({ key, label }) => ({
+                    value: key,
+                    label,
+                  }))}
+                  selected={tierFilter}
+                  onChange={setTierFilter}
+                />
+                <FilterPopover
+                  label="Amžius"
+                  options={AGE_CHIPS.map((age) => ({
+                    value: String(age),
+                    label: `${age}+`,
+                  }))}
+                  selected={ageFilter}
+                  onChange={setAgeFilter}
+                />
+                {hasActiveFilter && (
+                  <>
+                    <span className="mx-1 h-5 w-px bg-ink/20" />
+                    <span className="font-mono text-[11px] tracking-[.06em] text-ink/50 uppercase">
+                      {filteredProducts.length} iš {products.length}
+                    </span>
+                    <button
+                      onClick={clearFilters}
+                      className="inline-flex items-center gap-1 font-mono text-[11px] tracking-[.06em] text-ink/40 uppercase transition-colors hover:text-ink"
+                    >
+                      <XIcon className="size-3" />
+                      Išvalyti
+                    </button>
+                  </>
+                )}
+              </div>
+              <SortPopover
+                value={sortBy}
+                options={SORT_OPTIONS}
+                onChange={setSortBy}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3">
+              {loading
+                ? Array.from({ length: 6 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="brick-card animate-pulse overflow-hidden"
+                    >
+                      <div className="h-[280px] bg-ink/10" />
+                      <div className="flex flex-col gap-3 p-4 md:p-5">
+                        <div className="h-5 w-2/3 rounded bg-ink/10" />
+                        <div className="h-3 w-1/2 rounded bg-ink/10" />
+                        <div className="h-3 w-full rounded bg-ink/10" />
+                        <div className="mt-auto h-9 rounded-xl bg-ink/10" />
+                      </div>
+                    </div>
+                  ))
+                : shownProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+            </div>
+
+            <div className="py-20 text-center">
+              {hasMore && (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+                  className="rounded-full border-2 border-ink bg-paper text-[17px] font-bold text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21]"
+                >
+                  Rodyti daugiau ↓
+                </Button>
+              )}
+              <p className="label-mono mt-3.5 text-ink/55">
+                Rodoma {shownProducts.length} iš {filteredProducts.length} ·
+                Naujausi pirmiausia
               </p>
             </div>
-            <div className="hidden lg:block">
-              <img
-                src={headerImage}
-                alt="LEGO® rinkiniai"
-                className="aspect-[2/1] w-full rounded-2xl border-2 border-ink object-cover shadow-[6px_6px_0_#001B21]"
-              />
-            </div>
           </div>
-        </div>
-      </section>
-
-      <NextDrop />
-
-      {/* ── Grid ── */}
-      <section className="bg-paper pt-4 pb-16">
-        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          {/* Filters */}
-          <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <FilterPopover
-                label={seriesFilter.length === 0 ? "Visos temos" : "Tema"}
-                options={categories.map((s) => ({ value: s, label: s }))}
-                selected={seriesFilter}
-                onChange={setSeriesFilter}
-              />
-              <FilterPopover
-                label="Filtrai pagal prenumeratą"
-                options={SUBSCRIPTION_CHIPS.map(({ key, label }) => ({
-                  value: key,
-                  label,
-                }))}
-                selected={tierFilter}
-                onChange={setTierFilter}
-              />
-              <FilterPopover
-                label="Amžius"
-                options={AGE_CHIPS.map((age) => ({
-                  value: String(age),
-                  label: `${age}+`,
-                }))}
-                selected={ageFilter}
-                onChange={setAgeFilter}
-              />
-              {hasActiveFilter && (
-                <>
-                  <span className="mx-1 h-5 w-px bg-ink/20" />
-                  <span className="font-mono text-[11px] tracking-[.06em] text-ink/50 uppercase">
-                    {filteredProducts.length} iš {products.length}
-                  </span>
-                  <button
-                    onClick={clearFilters}
-                    className="inline-flex items-center gap-1 font-mono text-[11px] tracking-[.06em] text-ink/40 uppercase transition-colors hover:text-ink"
-                  >
-                    <XIcon className="size-3" />
-                    Išvalyti
-                  </button>
-                </>
-              )}
-            </div>
-            <SortPopover
-              value={sortBy}
-              options={SORT_OPTIONS}
-              onChange={setSortBy}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3">
-            {loading
-              ? Array.from({ length: 6 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="brick-card animate-pulse overflow-hidden"
-                  >
-                    <div className="h-[280px] bg-ink/10" />
-                    <div className="flex flex-col gap-3 p-4 md:p-5">
-                      <div className="h-5 w-2/3 rounded bg-ink/10" />
-                      <div className="h-3 w-1/2 rounded bg-ink/10" />
-                      <div className="h-3 w-full rounded bg-ink/10" />
-                      <div className="mt-auto h-9 rounded-xl bg-ink/10" />
-                    </div>
-                  </div>
-                ))
-              : shownProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-          </div>
-
-          <div className="py-20 text-center">
-            {hasMore && (
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-                className="rounded-full border-2 border-ink bg-paper text-[17px] font-bold text-ink transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_#001B21]"
-              >
-                Rodyti daugiau ↓
-              </Button>
-            )}
-            <p className="label-mono mt-3.5 text-ink/55">
-              Rodoma {shownProducts.length} iš {filteredProducts.length} ·
-              Naujausi pirmiausia
-            </p>
-          </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
       <Footer />
     </>
