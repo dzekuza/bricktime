@@ -373,7 +373,6 @@ export default function Drop() {
                           </button>
                         ))}
                       </div>
-                      <div className="pointer-events-none absolute inset-0 rounded-[24px] bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
                       {tierBrick}
                       {releaseBadge}
                       {thumbs.length > 1 && (
