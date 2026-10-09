@@ -140,7 +140,7 @@ function RelatedCarousel({ products }: { products: Product[] }) {
     <div className="mt-10">
       {/* Header row: heading left, controls right */}
       <div className="mb-6 flex items-end justify-between gap-4">
-        <h2 className="heading-display text-d-md tracking-[-0.015em] text-ink">
+        <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink">
           Gali
           <br />
           <span
