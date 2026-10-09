@@ -514,8 +514,11 @@ export default function Drop() {
                         ) + "+",
                     },
                     {
-                      label: "Briksių vertė",
-                      val: product?.value != null ? String(product.value) : "—",
+                      label: "Vertė",
+                      val:
+                        product?.value != null
+                          ? `${product.value} briksių`
+                          : "—",
                     },
                   ].map(({ label, val }) => (
                     <div key={label} className="flex flex-col gap-1">
