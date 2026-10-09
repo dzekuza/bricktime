@@ -768,7 +768,7 @@ export default function Drop() {
                   <h3 className="label-mono text-ink/50">
                     ⬢ Exclusive minifig
                   </h3>
-                  <h2 className="heading-display text-d-xl mt-3 leading-[.9] tracking-[-0.01em] text-ink">
+                  <h2 className="heading-display text-d-lg mt-3 leading-[.9] tracking-[-0.01em] text-ink">
                     {product.minifig.name}
                   </h2>
                   {product.minifig.description && (
@@ -911,7 +911,7 @@ export default function Drop() {
                   <h3 className="label-mono text-paper/50">
                     ⬢ Common questions
                   </h3>
-                  <h2 className="heading-display text-d-md mt-3 leading-[.9] tracking-[-0.01em] text-paper">
+                  <h2 className="heading-display text-d-lg mt-3 leading-[.9] tracking-[-0.01em] text-paper">
                     FAQ
                   </h2>
                 </div>

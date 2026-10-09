@@ -223,7 +223,7 @@ export default function UserProfile() {
               {/* Achievements */}
               {unlockedIds.size > 0 && (
                 <div>
-                  <h2 className="mb-4 text-xl font-bold text-ink">
+                  <h2 className="heading-display text-d-xs mb-4 text-ink">
                     Pažymėjimai
                   </h2>
                   <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
@@ -259,7 +259,9 @@ export default function UserProfile() {
               {/* Builds */}
               {builds.length > 0 && (
                 <div>
-                  <h2 className="mb-4 text-xl font-bold text-ink">Statybos</h2>
+                  <h2 className="heading-display text-d-xs mb-4 text-ink">
+                    Statybos
+                  </h2>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {builds.map((post) => {
                       const drop = drops.find((d) => d.id === post.drop_num)
@@ -319,7 +321,7 @@ export default function UserProfile() {
               {/* Comments / posts */}
               {comments.length > 0 && (
                 <div>
-                  <h2 className="mb-4 text-xl font-bold text-ink">
+                  <h2 className="heading-display text-d-xs mb-4 text-ink">
                     Komentarai
                   </h2>
                   <div className="flex flex-col gap-3">
