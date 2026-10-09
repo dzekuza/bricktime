@@ -425,16 +425,8 @@ export default function Drop() {
                       />
                     )}
                     {!activeImage && <ImagePlaceholder />}
-                    {/* Overlay badges */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
                     {tierBrick}
                     {releaseBadge}
-
-                    {activeImage && (
-                      <div className="absolute bottom-5 left-6 font-mono text-[10px] tracking-[.18em] text-paper/70 uppercase">
-                        {activeImage.label}
-                      </div>
-                    )}
                   </div>
 
                   {/* Thumbnails */}
@@ -457,10 +449,6 @@ export default function Drop() {
                             alt={t.label}
                             className="absolute inset-0 h-full w-full object-cover"
                           />
-                          <div className="absolute inset-0 bg-ink/30" />
-                          <span className="absolute right-0 bottom-1.5 left-0 text-center font-mono text-[8px] tracking-[.12em] text-paper/80 uppercase">
-                            {t.label.replace(/\[|\]/g, "").trim()}
-                          </span>
                         </button>
                       ))}
                     </div>
@@ -503,7 +491,7 @@ export default function Drop() {
                 />
 
                 {/* Spec grid */}
-                <div className="grid grid-cols-3 gap-x-3 gap-y-4 border-t border-ink/10 pt-5">
+                <div className="mt-5 grid grid-cols-3 gap-x-3 gap-y-4 border-t border-ink/10 pt-5 md:mt-6">
                   {[
                     { label: "Detalės", val: String(product?.bricks ?? "—") },
                     {

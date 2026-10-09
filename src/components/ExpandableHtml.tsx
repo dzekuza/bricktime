@@ -17,6 +17,19 @@ const ALLOWED_TAGS = [
   "span",
 ]
 
+const BLOCK_TAG_RE = /<(p|ul|ol|li|br)\b/i
+
+// Descriptions pasted as plain text rely on newlines for paragraphs, which HTML collapses.
+function toParagraphs(html: string) {
+  if (BLOCK_TAG_RE.test(html)) return html
+  return html
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => `<p>${line}</p>`)
+    .join("")
+}
+
 export function ExpandableHtml({
   html,
   className = "",
@@ -28,7 +41,7 @@ export function ExpandableHtml({
   const [isClamped, setIsClamped] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
-  const sanitized = DOMPurify.sanitize(html, { ALLOWED_TAGS })
+  const sanitized = DOMPurify.sanitize(toParagraphs(html), { ALLOWED_TAGS })
 
   useLayoutEffect(() => {
     const el = ref.current
@@ -40,7 +53,7 @@ export function ExpandableHtml({
     <div>
       <div
         ref={ref}
-        className={cn(className, !expanded && "line-clamp-5")}
+        className={cn("rich-text", className, !expanded && "line-clamp-5")}
         dangerouslySetInnerHTML={{ __html: sanitized }}
       />
       {isClamped && (
