@@ -179,8 +179,8 @@ export default function Archive() {
         <section className="bg-paper pt-4 pb-16">
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             {/* Filters */}
-            <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap items-center gap-2">
+            <div className="mb-8 flex flex-wrap items-center gap-2 md:justify-between md:gap-3">
+              <div className="contents md:flex md:flex-wrap md:items-center md:gap-2">
                 <FilterPopover
                   label={seriesFilter.length === 0 ? "Visos temos" : "Tema"}
                   options={categories.map((s) => ({ value: s, label: s }))}
@@ -189,6 +189,7 @@ export default function Archive() {
                 />
                 <FilterPopover
                   label="Filtrai pagal prenumeratą"
+                  shortLabel="Prenumerata"
                   options={SUBSCRIPTION_CHIPS.map(({ key, label }) => ({
                     value: key,
                     label,

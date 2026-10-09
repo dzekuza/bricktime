@@ -7,11 +7,14 @@ import {
 
 export function FilterPopover({
   label,
+  shortLabel,
   options,
   selected,
   onChange,
 }: {
   label: string
+  // Shown below md so the filter bar fits in two rows on phones.
+  shortLabel?: string
   options: { value: string; label: string }[]
   selected: string[]
   onChange: (next: string[]) => void
@@ -29,9 +32,16 @@ export function FilterPopover({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button className="brick-hover-sm flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-4 py-1.5 data-[state=open]:bg-ink data-[state=open]:text-paper">
-          <span className="label-mono font-bold whitespace-nowrap">
-            {label}
+        <button className="brick-hover-sm flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-3 py-1.5 data-[state=open]:bg-ink data-[state=open]:text-paper md:px-4">
+          <span className="label-mono font-bold whitespace-nowrap max-md:tracking-[.1em]">
+            {shortLabel ? (
+              <>
+                <span className="md:hidden">{shortLabel}</span>
+                <span className="hidden md:inline">{label}</span>
+              </>
+            ) : (
+              label
+            )}
           </span>
           {active && (
             <span className="flex size-4 items-center justify-center rounded-full bg-ink/10 text-[10px] leading-none font-bold text-ink">

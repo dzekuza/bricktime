@@ -131,8 +131,8 @@ export default function FeaturedProducts() {
     <section className="bg-paper py-10 md:py-20">
       <div className="mx-auto max-w-[1320px] px-4 md:px-7">
         {/* Filter bar */}
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="mb-8 flex flex-wrap items-center gap-2 md:justify-between md:gap-3">
+          <div className="contents md:flex md:flex-wrap md:items-center md:gap-2">
             <FilterPopover
               label={seriesFilter.length === 0 ? "Visos temos" : "Tema"}
               options={categories.map((s) => ({ value: s, label: s }))}
@@ -141,6 +141,7 @@ export default function FeaturedProducts() {
             />
             <FilterPopover
               label="Filtrai pagal prenumeratą"
+              shortLabel="Prenumerata"
               options={SUBSCRIPTION_CHIPS.map(({ key, label }) => ({
                 value: key,
                 label,

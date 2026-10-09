@@ -23,8 +23,8 @@ export function SortPopover<T extends string>({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="brick-hover-sm flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-4 py-1.5 data-[state=open]:bg-ink data-[state=open]:text-paper">
-          <span className="label-mono font-bold whitespace-nowrap">
+        <button className="brick-hover-sm flex items-center gap-1.5 rounded-full border-2 border-ink bg-white px-3 py-1.5 data-[state=open]:bg-ink data-[state=open]:text-paper md:px-4">
+          <span className="label-mono font-bold whitespace-nowrap max-md:tracking-[.1em]">
             Rūšiuoti: {label}
           </span>
           <ChevronDownIcon className="size-3 text-current opacity-50" />

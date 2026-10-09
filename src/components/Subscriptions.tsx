@@ -16,8 +16,8 @@ const BRICK_BY_COLOR: Record<string, string> = {
 }
 import { useSubscriptions, type DbSubscription } from "@/hooks/useSubscriptions"
 
-// Decorative brick pokes 36px above each card; keep it clear of the pinned header.
-const BRICK_OVERHANG = 40
+// Gap between the pinned billing toggle and the first card; matches the toggle's top gap.
+const BRICK_OVERHANG = 24
 // Must stay above the pinned header (z-20) so card tops and bricks are never covered.
 const CARD_Z_BASE = 21
 
@@ -121,7 +121,7 @@ export default function Subscriptions({
             {/* Tagline tile — full width */}
             <div
               ref={headerRef}
-              className="reveal sticky top-28 z-20 flex flex-col items-center gap-4 bg-paper pt-0 pb-0 md:py-9 lg:static lg:flex-row lg:items-end lg:justify-between"
+              className="reveal sticky top-28 z-20 flex flex-col items-center gap-4 bg-paper pt-3 pb-0 lg:static lg:py-9 lg:flex-row lg:items-end lg:justify-between"
             >
               {/* Billing toggle */}
               <div className="order-first flex shrink-0 flex-col items-center gap-2 lg:order-last lg:ml-6 lg:self-start">

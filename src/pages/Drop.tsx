@@ -140,7 +140,7 @@ function RelatedCarousel({ products }: { products: Product[] }) {
     <div className="mt-10">
       {/* Header row: heading left, controls right */}
       <div className="mb-6 flex items-end justify-between gap-4">
-        <h2 className="heading-display text-d-md tracking-[-0.015em] text-ink">
+        <h2 className="heading-display text-d-lg tracking-[-0.015em] text-ink">
           Gali
           <br />
           <span
@@ -373,7 +373,6 @@ export default function Drop() {
                           </button>
                         ))}
                       </div>
-                      <div className="pointer-events-none absolute inset-0 rounded-[24px] bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
                       {tierBrick}
                       {releaseBadge}
                       {thumbs.length > 1 && (
@@ -425,16 +424,8 @@ export default function Drop() {
                       />
                     )}
                     {!activeImage && <ImagePlaceholder />}
-                    {/* Overlay badges */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
                     {tierBrick}
                     {releaseBadge}
-
-                    {activeImage && (
-                      <div className="absolute bottom-5 left-6 font-mono text-[10px] tracking-[.18em] text-paper/70 uppercase">
-                        {activeImage.label}
-                      </div>
-                    )}
                   </div>
 
                   {/* Thumbnails */}
@@ -457,10 +448,6 @@ export default function Drop() {
                             alt={t.label}
                             className="absolute inset-0 h-full w-full object-cover"
                           />
-                          <div className="absolute inset-0 bg-ink/30" />
-                          <span className="absolute right-0 bottom-1.5 left-0 text-center font-mono text-[8px] tracking-[.12em] text-paper/80 uppercase">
-                            {t.label.replace(/\[|\]/g, "").trim()}
-                          </span>
                         </button>
                       ))}
                     </div>
@@ -503,7 +490,7 @@ export default function Drop() {
                 />
 
                 {/* Spec grid */}
-                <div className="grid grid-cols-3 gap-x-3 gap-y-4 border-t border-ink/10 pt-5">
+                <div className="mt-5 grid grid-cols-3 gap-x-3 gap-y-4 border-t border-ink/10 pt-5 md:mt-6">
                   {[
                     { label: "Detalės", val: String(product?.bricks ?? "—") },
                     {
@@ -527,8 +514,11 @@ export default function Drop() {
                         ) + "+",
                     },
                     {
-                      label: "Briksių vertė",
-                      val: product?.value != null ? String(product.value) : "—",
+                      label: "Vertė",
+                      val:
+                        product?.value != null
+                          ? `${product.value} briksių`
+                          : "—",
                     },
                   ].map(({ label, val }) => (
                     <div key={label} className="flex flex-col gap-1">
@@ -778,7 +768,7 @@ export default function Drop() {
                   <h3 className="label-mono text-ink/50">
                     ⬢ Exclusive minifig
                   </h3>
-                  <h2 className="heading-display text-d-xl mt-3 leading-[.9] tracking-[-0.01em] text-ink">
+                  <h2 className="heading-display text-d-lg mt-3 leading-[.9] tracking-[-0.01em] text-ink">
                     {product.minifig.name}
                   </h2>
                   {product.minifig.description && (
@@ -921,7 +911,7 @@ export default function Drop() {
                   <h3 className="label-mono text-paper/50">
                     ⬢ Common questions
                   </h3>
-                  <h2 className="heading-display text-d-md mt-3 leading-[.9] tracking-[-0.01em] text-paper">
+                  <h2 className="heading-display text-d-lg mt-3 leading-[.9] tracking-[-0.01em] text-paper">
                     FAQ
                   </h2>
                 </div>

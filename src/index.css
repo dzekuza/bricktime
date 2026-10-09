@@ -200,6 +200,37 @@ body,
     @apply font-mono text-[11px] tracking-[.22em] uppercase;
   }
 
+  /* Product description HTML — restores list/paragraph styling stripped by preflight */
+  .rich-text {
+    & p + p,
+    & p + ul,
+    & p + ol,
+    & ul + p,
+    & ol + p {
+      @apply mt-3;
+    }
+    & ul {
+      @apply list-disc pl-5;
+    }
+    & ol {
+      @apply list-decimal pl-5;
+    }
+    & li + li {
+      @apply mt-1;
+    }
+    & strong,
+    & b {
+      @apply font-bold text-ink;
+    }
+    & em,
+    & i {
+      @apply italic;
+    }
+    & u {
+      @apply underline underline-offset-2;
+    }
+  }
+
   /* Display heading base — font + case + tight leading + tracking */
   .heading-display {
     font-family: var(--font-display);
