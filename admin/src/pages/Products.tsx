@@ -61,7 +61,7 @@ export function Products() {
     supabase
       .from("products")
       .select(
-        "id, title, subtitle, description, category, year, bricks, minifigs, build_time, value, price, min_age, stock, rating, tier, allowed_tiers, status, image_url, gallery, faq, bags, story, minifig, compatibility, release_date, early_access_tiers, early_access_hours, isDangerous"
+        "id, title, subtitle, description, category, year, bricks, minifigs, build_time, value, price, min_age, stock, rating, tier, allowed_tiers, status, image_url, gallery, faq, bags, story, minifig, compatibility, release_date, early_access_tiers, early_access_hours, featured, isDangerous"
       )
       .order("id")
       .then(({ data, error }) => {

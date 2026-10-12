@@ -1201,7 +1201,7 @@ export function ProductEditDialog({
           {/* ── Settings tab ─────────────────────────────────────────── */}
           <TabsContent
             value="settings"
-            className="flex-1 overflow-y-auto px-6 py-5"
+            className="@container flex-1 overflow-y-auto px-6 py-5"
           >
             <div className="flex flex-col gap-5">
               {/* Release schedule */}
@@ -1276,7 +1276,7 @@ export function ProductEditDialog({
               </div>
               <Separator />
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-6 @lg:grid-cols-2 @lg:gap-4">
                 <div className="flex flex-col gap-1.5">
                   <Label>Available to plans</Label>
                   <div className="flex flex-col gap-2">
