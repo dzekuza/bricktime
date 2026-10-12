@@ -29,6 +29,7 @@ import {
   type Subscriber,
   type SubscriberStatus,
 } from "@/data/subscribers"
+import { LIVE_TIERS } from "@/data/products"
 import { supabase } from "@/lib/supabase"
 
 const PLAN_PRICES: Record<string, number> = {
@@ -415,11 +416,11 @@ export function Subscribers() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All plans</SelectItem>
-            <SelectItem value="nano">Mėgėjas</SelectItem>
-            <SelectItem value="mini">Kūrėjas</SelectItem>
-            <SelectItem value="standard">Meistras</SelectItem>
-            <SelectItem value="pro">Pro</SelectItem>
-            <SelectItem value="mega">Legenda</SelectItem>
+            {LIVE_TIERS.map((t) => (
+              <SelectItem key={t} value={t}>
+                {planLabels[t]}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
