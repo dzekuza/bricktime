@@ -30,6 +30,7 @@ import type { LpTerminal } from "@/lib/lpexpress"
 import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
 import { PlanFitConfigurator } from "@/components/PlanFitConfigurator"
+import type { Tier } from "@/components/ProductCard"
 
 const HOME_DELIVERY_FEE = 3
 const CANCELLATION_GRACE_DAYS = 14
@@ -108,6 +109,7 @@ type DbProduct = {
   image_url: string | null
   gallery: string[]
   tier: string
+  allowed_tiers: string[]
   value: number | null
   price: number | null
   min_age: number | null
@@ -175,7 +177,7 @@ export default function Checkout() {
     supabase
       .from("products")
       .select(
-        "id, title, subtitle, description, bricks, minifigs, build_time, image_url, gallery, tier, value, price, min_age, year, category, rating"
+        "id, title, subtitle, description, bricks, minifigs, build_time, image_url, gallery, tier, allowed_tiers, value, price, min_age, year, category, rating"
       )
       .eq("id", Number(productId))
       .single()
@@ -230,8 +232,10 @@ export default function Checkout() {
   const { available: productAvailability } = useProductAvailability()
   const hasTier = useMemo(
     () =>
-      !!productId && userSub !== null && userSub.level >= requiredTier.level,
-    [productId, userSub, requiredTier]
+      !!productId &&
+      userSub !== null &&
+      (product?.allowed_tiers ?? []).includes(userSub.key),
+    [productId, userSub, product?.allowed_tiers]
   )
   const hasCredits = remainingCredits >= (product?.value ?? 0)
   const [daysUntilCancel, setDaysUntilCancel] = useState<number | null>(null)
@@ -1440,7 +1444,7 @@ export default function Checkout() {
 
           {requiredPlan && (
             <PlanFitConfigurator
-              tierLevel={requiredTier.level}
+              planKey={requiredTier.key as Tier}
               planName={requiredTier.name}
               budgetCredits={requiredPlan.credits}
               currentProductId={product?.id}

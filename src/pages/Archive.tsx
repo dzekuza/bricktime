@@ -94,7 +94,8 @@ export default function Archive() {
   const filteredProducts = products
     .filter((p) => {
       const tierOk =
-        tierFilter.length === 0 || tierFilter.includes(p.requiredTier)
+        tierFilter.length === 0 ||
+        p.allowedTiers.some((t) => tierFilter.includes(t))
       const seriesOk =
         seriesFilter.length === 0 || seriesFilter.includes(p.category)
       const ageOk =
