@@ -1117,6 +1117,7 @@ export type Database = {
       }
       products: {
         Row: {
+          allowed_tiers: Database["public"]["Enums"]["plan_tier"][]
           bags: Json
           bg: string
           brick_colors: string[]
@@ -1153,6 +1154,7 @@ export type Database = {
           year: number
         }
         Insert: {
+          allowed_tiers?: Database["public"]["Enums"]["plan_tier"][]
           bags?: Json
           bg?: string
           brick_colors?: string[]
@@ -1189,6 +1191,7 @@ export type Database = {
           year: number
         }
         Update: {
+          allowed_tiers?: Database["public"]["Enums"]["plan_tier"][]
           bags?: Json
           bg?: string
           brick_colors?: string[]
@@ -1341,6 +1344,7 @@ export type Database = {
         Row: {
           avatar_bg: string
           avatar_id: number
+          avatar_url: string | null
           cancel_at: string | null
           city: string | null
           email: string
@@ -1365,6 +1369,7 @@ export type Database = {
         Insert: {
           avatar_bg?: string
           avatar_id?: number
+          avatar_url?: string | null
           cancel_at?: string | null
           city?: string | null
           email: string
@@ -1389,6 +1394,7 @@ export type Database = {
         Update: {
           avatar_bg?: string
           avatar_id?: number
+          avatar_url?: string | null
           cancel_at?: string | null
           city?: string | null
           email?: string
@@ -1473,6 +1479,7 @@ export type Database = {
           achievement_id: string | null
           avatar_bg: string | null
           avatar_id: number | null
+          avatar_url: string | null
           body: string | null
           created_at: string | null
           drop_num: number | null
@@ -1559,6 +1566,7 @@ export type Database = {
           achievement_count: number | null
           avatar_bg: string | null
           avatar_id: number | null
+          avatar_url: string | null
           drops_received: number | null
           name: string | null
           rank: number | null
@@ -1581,18 +1589,21 @@ export type Database = {
         Row: {
           avatar_bg: string | null
           avatar_id: number | null
+          avatar_url: string | null
           id: string | null
           name: string | null
         }
         Insert: {
           avatar_bg?: string | null
           avatar_id?: number | null
+          avatar_url?: string | null
           id?: string | null
           name?: string | null
         }
         Update: {
           avatar_bg?: string | null
           avatar_id?: number | null
+          avatar_url?: string | null
           id?: string | null
           name?: string | null
         }
@@ -1613,6 +1624,7 @@ export type Database = {
           achievement_count: number | null
           avatar_bg: string | null
           avatar_id: number | null
+          avatar_url: string | null
           drops_received: number | null
           id: string | null
           joined_at: string | null
@@ -1625,6 +1637,7 @@ export type Database = {
           achievement_count?: never
           avatar_bg?: string | null
           avatar_id?: number | null
+          avatar_url?: string | null
           drops_received?: never
           id?: string | null
           joined_at?: string | null
@@ -1637,6 +1650,7 @@ export type Database = {
           achievement_count?: never
           avatar_bg?: string | null
           avatar_id?: number | null
+          avatar_url?: string | null
           drops_received?: never
           id?: string | null
           joined_at?: string | null
@@ -1706,12 +1720,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1735,11 +1749,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1760,11 +1774,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1785,11 +1799,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1802,11 +1816,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never) = never,
+    : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
