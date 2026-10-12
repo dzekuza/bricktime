@@ -1,4 +1,11 @@
-export type Tier = "nano" | "mini" | "standard" | "pro" | "mega"
+export type Tier =
+  | "nano"
+  | "mini"
+  | "standard"
+  | "pro"
+  | "mega"
+  | "mystery_s"
+  | "mystery_m"
 export type ProductStatus = "available" | "sold_out" | "limited"
 
 export interface FaqItem {
@@ -52,7 +59,10 @@ export interface Product {
   min_age?: number | null
   stock?: number
   rating?: string
+  // Cheapest of allowed_tiers — drives the storefront card colour and upsell.
   tier: Tier
+  // Exact plans that may rent the set; no "and above" inheritance.
+  allowed_tiers?: Tier[]
   status: ProductStatus
   // The storefront landing page lists only featured sets; /archive lists all.
   featured?: boolean
@@ -78,7 +88,21 @@ export const tierColors: Record<Tier, string> = {
     "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
   pro: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
   mega: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+  mystery_s:
+    "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300",
+  mystery_m:
+    "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300",
 }
+
+// Plans currently sold, cheapest first ('pro' is retired).
+export const LIVE_TIERS: Tier[] = [
+  "mystery_s",
+  "nano",
+  "mystery_m",
+  "mini",
+  "standard",
+  "mega",
+]
 
 // Client-approved tier rename (Nano/Mini/Standard/Pro -> LT names). "Mega"
 // wasn't part of the approved list, kept as a neutral placeholder since
@@ -89,6 +113,8 @@ export const tierLabels: Record<Tier, string> = {
   standard: "Meistras",
   pro: "Pro",
   mega: "Legenda",
+  mystery_s: "Mystery Box Mėgėjams",
+  mystery_m: "Mystery Box Kūrėjams",
 }
 
 export const statusColors: Record<ProductStatus, string> = {

@@ -25,6 +25,8 @@ import {
 import { DateTimePicker } from "@/components/DateTimePicker"
 import { cn } from "@/lib/utils"
 import {
+  LIVE_TIERS,
+  tierLabels,
   type Product,
   type Tier,
   type ProductStatus,
@@ -57,19 +59,6 @@ function useCategories(): readonly string[] {
   }, [])
   return names
 }
-const TIERS: Tier[] = ["nano", "mini", "standard", "pro", "mega"]
-// Client-approved tier rename (Nano/Mini/Standard/Pro -> LT names). "Mega" was
-// not covered by the approved list, so it's kept as a neutral placeholder to
-// avoid clashing with "Legenda" (now used by "pro").
-const TIER_LABELS: Record<string, string> = {
-  nano: "Mėgėjas",
-  mini: "Kūrėjas",
-  standard: "Meistras",
-  pro: "Pro",
-  mega: "Legenda",
-  mystery_s: "Mystery Box S",
-  mystery_m: "Mystery Box M",
-}
 const STATUSES: ProductStatus[] = ["available", "sold_out", "limited"]
 
 const BLANK: Omit<Product, "id"> = {
@@ -87,8 +76,9 @@ const BLANK: Omit<Product, "id"> = {
   // A new set is rentable by default; 0 would publish it already "Užimtas".
   stock: 1,
   tier: "standard",
+  allowed_tiers: ["standard", "mega"],
   status: "available",
-  featured: false,
+  featured: true,
   gallery: [],
   faq: [],
   bags: [],
@@ -333,12 +323,25 @@ export function ProductEditDialog({
     })
   }
 
+  const allowedTiers = form.allowed_tiers ?? []
+  function toggleAllowedTier(t: Tier) {
+    const next = allowedTiers.includes(t)
+      ? allowedTiers.filter((x) => x !== t)
+      : [...allowedTiers, t]
+    setForm((f) => ({
+      ...f,
+      allowed_tiers: LIVE_TIERS.filter((x) => next.includes(x)),
+      tier: LIVE_TIERS.find((x) => next.includes(x)) ?? f.tier,
+    }))
+  }
+
   function handleSave() {
     onSave(form)
     onOpenChange(false)
   }
 
-  const canSave = form.title.trim().length > 0 && form.bricks > 0
+  const canSave =
+    form.title.trim().length > 0 && form.bricks > 0 && allowedTiers.length > 0
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -1219,17 +1222,7 @@ export function ProductEditDialog({
                 <div className="flex flex-col gap-3">
                   <Label>Early access</Label>
                   <div className="flex flex-col gap-2">
-                    {(
-                      [
-                        "nano",
-                        "mini",
-                        "standard",
-                        "pro",
-                        "mega",
-                        "mystery_s",
-                        "mystery_m",
-                      ] as const
-                    ).map((t) => {
+                    {LIVE_TIERS.map((t) => {
                       const checked = (form.early_access_tiers ?? []).includes(
                         t
                       )
@@ -1254,7 +1247,7 @@ export function ProductEditDialog({
                             className="rounded border-border"
                           />
                           <span className="text-sm capitalize">
-                            {TIER_LABELS[t]}
+                            {tierLabels[t]}
                           </span>
                         </label>
                       )
@@ -1285,24 +1278,26 @@ export function ProductEditDialog({
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <Label>Required tier</Label>
-                  <Select
-                    value={form.tier}
-                    onValueChange={(v) => set("tier", v as Tier)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {TIERS.map((t) => (
-                        <SelectItem key={t} value={t}>
-                          {TIER_LABELS[t]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label>Available to plans</Label>
+                  <div className="flex flex-col gap-2">
+                    {LIVE_TIERS.map((t) => (
+                      <label
+                        key={t}
+                        className="flex cursor-pointer items-center gap-2 select-none"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={allowedTiers.includes(t)}
+                          onChange={() => toggleAllowedTier(t)}
+                          className="rounded border-border"
+                        />
+                        <span className="text-sm">{tierLabels[t]}</span>
+                      </label>
+                    ))}
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    Minimum plan needed to rent this set.
+                    Only the checked plans can rent this set. Pick at least
+                    one.
                   </p>
                 </div>
                 <div className="flex flex-col gap-1.5">

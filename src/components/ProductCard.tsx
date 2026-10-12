@@ -36,6 +36,7 @@ export interface Product {
   brickColors: string[]
   brickHeights: number[]
   requiredTier: Tier
+  allowedTiers: Tier[]
   minAge?: number | null
   price?: number | null
   value?: number | null
@@ -117,6 +118,7 @@ export function dbToProduct(
     brickColors: (row.brick_colors as string[]) ?? [],
     brickHeights: (row.brick_heights as number[]) ?? [],
     requiredTier: row.tier as Tier,
+    allowedTiers: (row.allowed_tiers as Tier[] | undefined) ?? [],
     minAge: row.min_age as number | null | undefined,
     price: row.price as number | null | undefined,
     value: row.value as number | null | undefined,

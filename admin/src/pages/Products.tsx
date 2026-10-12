@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import {
+  LIVE_TIERS,
   tierColors,
   tierLabels,
   statusColors,
@@ -60,7 +61,7 @@ export function Products() {
     supabase
       .from("products")
       .select(
-        "id, title, subtitle, description, category, year, bricks, minifigs, build_time, value, price, min_age, stock, rating, tier, status, image_url, gallery, faq, bags, story, minifig, compatibility, release_date, early_access_tiers, early_access_hours, isDangerous"
+        "id, title, subtitle, description, category, year, bricks, minifigs, build_time, value, price, min_age, stock, rating, tier, allowed_tiers, status, image_url, gallery, faq, bags, story, minifig, compatibility, release_date, early_access_tiers, early_access_hours, isDangerous"
       )
       .order("id")
       .then(({ data, error }) => {
@@ -76,7 +77,9 @@ export function Products() {
         const matchesSearch =
           p.title.toLowerCase().includes(search.toLowerCase()) ||
           p.category.toLowerCase().includes(search.toLowerCase())
-        const matchesTier = tierFilter === "all" || p.tier === tierFilter
+        const matchesTier =
+          tierFilter === "all" ||
+          (p.allowed_tiers ?? []).includes(tierFilter as Tier)
         const matchesStatus =
           statusFilter === "all" || p.status === statusFilter
         return matchesSearch && matchesTier && matchesStatus
@@ -288,16 +291,17 @@ export function Products() {
         size: 90,
       },
       {
-        accessorKey: "tier",
-        header: "Tier",
-        cell: ({ getValue }) => {
-          const v = getValue<Tier>()
-          return (
-            <Badge className={cn("capitalize", tierColors[v])}>
-              {tierLabels[v]}
-            </Badge>
-          )
-        },
+        accessorKey: "allowed_tiers",
+        header: "Plans",
+        cell: ({ getValue }) => (
+          <div className="flex flex-wrap gap-1">
+            {(getValue<Tier[] | undefined>() ?? []).map((v) => (
+              <Badge key={v} className={tierColors[v]}>
+                {tierLabels[v]}
+              </Badge>
+            ))}
+          </div>
+        ),
         size: 100,
       },
       {
@@ -414,11 +418,11 @@ export function Products() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All tiers</SelectItem>
-            <SelectItem value="nano">Mėgėjas</SelectItem>
-            <SelectItem value="mini">Kūrėjas</SelectItem>
-            <SelectItem value="standard">Meistras</SelectItem>
-            <SelectItem value="pro">Pro</SelectItem>
-            <SelectItem value="mega">Legenda</SelectItem>
+            {LIVE_TIERS.map((t) => (
+              <SelectItem key={t} value={t}>
+                {tierLabels[t]}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>

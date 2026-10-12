@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { XIcon } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { ImagePlaceholder } from "@/components/ImagePlaceholder"
-import { tierConfig, type Tier } from "@/components/ProductCard"
+import type { Tier } from "@/components/ProductCard"
 
 interface LiteProduct {
   id: number
@@ -14,14 +14,14 @@ interface LiteProduct {
 }
 
 interface PlanFitConfiguratorProps {
-  tierLevel: number
+  planKey: Tier
   planName: string
   budgetCredits: number
   currentProductId?: number
 }
 
 export function PlanFitConfigurator({
-  tierLevel,
+  planKey,
   planName,
   budgetCredits,
   currentProductId,
@@ -34,14 +34,11 @@ export function PlanFitConfigurator({
   )
 
   useEffect(() => {
-    const allowedTierKeys = (Object.keys(tierConfig) as Tier[]).filter(
-      (key) => tierConfig[key].level <= tierLevel
-    )
     setLoading(true)
     supabase
       .from("products")
       .select("id, title, subtitle, image_url, tier, value")
-      .in("tier", allowedTierKeys)
+      .contains("allowed_tiers", [planKey])
       .order("id", { ascending: false })
       // NOTE: this is a lightweight preview, not the full catalog — a cap keeps
       // the payload small. Move to a paginated/searchable fetch if this grows.
@@ -61,26 +58,21 @@ export function PlanFitConfigurator({
         }
         setLoading(false)
       })
-  }, [tierLevel])
-
-  const eligibleProducts = useMemo(
-    () => products.filter((p) => (tierConfig[p.tier]?.level ?? 0) <= tierLevel),
-    [products, tierLevel]
-  )
+  }, [planKey])
 
   const selectedProducts = useMemo(
-    () => eligibleProducts.filter((p) => selectedIds.includes(p.id)),
-    [eligibleProducts, selectedIds]
+    () => products.filter((p) => selectedIds.includes(p.id)),
+    [products, selectedIds]
   )
 
   const pickerProducts = useMemo(() => {
-    const notSelected = eligibleProducts.filter(
+    const notSelected = products.filter(
       (p) => !selectedIds.includes(p.id)
     )
     if (!query.trim()) return notSelected
     const q = query.trim().toLowerCase()
     return notSelected.filter((p) => p.title.toLowerCase().includes(q))
-  }, [eligibleProducts, selectedIds, query])
+  }, [products, selectedIds, query])
 
   const usedBudget = selectedProducts.reduce((sum, p) => sum + p.value, 0)
   const remainingBudget = budgetCredits - usedBudget
@@ -192,7 +184,7 @@ export function PlanFitConfigurator({
               />
             ))}
           </div>
-        ) : eligibleProducts.length === 0 ? (
+        ) : products.length === 0 ? (
           <p className="text-[14px] text-ink/50">
             Šiam planui šiuo metu nėra produktų peržiūrai.
           </p>

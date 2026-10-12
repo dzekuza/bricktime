@@ -57,7 +57,8 @@ function applyFilters(products: Product[], filters: Filters): Product[] {
     const seriesOk =
       filters.series.length === 0 || filters.series.includes(p.category)
     const planOk =
-      filters.plan.length === 0 || filters.plan.includes(p.requiredTier)
+      filters.plan.length === 0 ||
+      p.allowedTiers.some((t) => filters.plan.includes(t))
     const ageOk =
       filters.age.length === 0 ||
       p.minAge == null ||
