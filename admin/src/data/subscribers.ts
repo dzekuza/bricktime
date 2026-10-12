@@ -1,4 +1,11 @@
-export type Plan = "nano" | "mini" | "standard" | "pro" | "mega"
+export type Plan =
+  | "nano"
+  | "mini"
+  | "standard"
+  | "pro"
+  | "mega"
+  | "mystery_s"
+  | "mystery_m"
 export type SubscriberStatus = "active" | "paused" | "cancelled"
 
 export interface Subscriber {
@@ -122,6 +129,10 @@ export const planColors: Record<Plan, string> = {
     "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
   pro: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
   mega: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+  mystery_s:
+    "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300",
+  mystery_m:
+    "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300",
 }
 
 // Client-approved tier rename (Nano/Mini/Standard/Pro -> LT names). "Mega"
@@ -133,6 +144,8 @@ export const planLabels: Record<Plan, string> = {
   standard: "Meistras",
   pro: "Pro",
   mega: "Legenda",
+  mystery_s: "Mystery Box Mėgėjams",
+  mystery_m: "Mystery Box Kūrėjams",
 }
 
 export const subscriberStatusColors: Record<SubscriberStatus, string> = {

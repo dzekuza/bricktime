@@ -63,7 +63,7 @@ const SUBSCRIPTION_BRANDING = {
     },
   },
   mystery_s: {
-    displayName: "Mystery box Mėgėjams",
+    displayName: "Mystery Box Mėgėjams",
     brickImage: null,
     brickSvg: "/bricks/brick-yellow.svg",
     theme: {
