@@ -78,7 +78,7 @@ const BLANK: Omit<Product, "id"> = {
   tier: "standard",
   allowed_tiers: ["standard", "mega"],
   status: "available",
-  featured: false,
+  featured: true,
   gallery: [],
   faq: [],
   bags: [],
