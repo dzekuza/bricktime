@@ -215,7 +215,10 @@ export default function FeaturedProducts() {
                     key={product.id}
                     className="w-[82vw] shrink-0 first:ml-4 last:mr-4 md:w-auto md:shrink md:first:ml-0 md:last:mr-0"
                   >
-                    <ProductCard product={product} />
+                    <ProductCard
+                      product={product}
+                      preferredTiers={tierFilter}
+                    />
                   </div>
                 ))}
           </div>
