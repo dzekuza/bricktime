@@ -247,7 +247,11 @@ export default function Archive() {
                     </div>
                   ))
                 : shownProducts.map((product) => (
-                    <ProductCard key={product.id} product={product} />
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      preferredTiers={tierFilter}
+                    />
                   ))}
             </div>
 

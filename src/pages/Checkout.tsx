@@ -30,6 +30,7 @@ import type { LpTerminal } from "@/lib/lpexpress"
 import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
 import { PlanFitConfigurator } from "@/components/PlanFitConfigurator"
+import { getDisplayPlan } from "@/lib/product-filters"
 import type { Tier } from "@/components/ProductCard"
 
 const HOME_DELIVERY_FEE = 3
@@ -225,8 +226,13 @@ export default function Checkout() {
   }, [user])
 
   const requiredTier = useMemo(
-    () => tierByName[product?.tier ?? tierParam] ?? tierByName.standard,
-    [product?.tier, tierParam]
+    () =>
+      tierByName[
+        product
+          ? getDisplayPlan(product.allowed_tiers ?? [], product.tier)
+          : tierParam
+      ] ?? tierByName.standard,
+    [product, tierParam]
   )
   const { remainingCredits } = useCredits()
   const { available: productAvailability } = useProductAvailability()

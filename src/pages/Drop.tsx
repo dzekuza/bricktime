@@ -12,7 +12,9 @@ import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
 import {
   getSubscriptionBrickSvg,
   getSubscriptionDisplayName,
+  getSubscriptionTheme,
 } from "@/lib/subscription-branding"
+import { getDisplayPlan, sortPlans } from "@/lib/product-filters"
 import { Seo } from "@/components/Seo"
 import { useProductAvailability } from "@/hooks/useProductAvailability"
 import { ManufacturerInfo } from "@/components/ManufacturerInfo"
@@ -23,56 +25,6 @@ import {
   dbToProduct,
   type Product,
 } from "@/components/ProductCard"
-
-// Drop 26 requires Standard tier or above
-
-const tiers = [
-  {
-    key: "nano",
-    name: getSubscriptionDisplayName("nano"),
-    price: 9,
-    annualPrice: 7,
-    spec: "60–90 bricks",
-    bg: "#55DB9C",
-    textColor: "#001B21",
-  },
-  {
-    key: "mini",
-    name: getSubscriptionDisplayName("mini"),
-    price: 14,
-    annualPrice: 11,
-    spec: "120–180 bricks",
-    bg: "#FB4903",
-    textColor: "#F5F1EB",
-  },
-  {
-    key: "standard",
-    name: getSubscriptionDisplayName("standard"),
-    price: 24,
-    annualPrice: 19,
-    spec: "240–320 bricks",
-    bg: "#4DA2FF",
-    textColor: "#001B21",
-  },
-  {
-    key: "pro",
-    name: getSubscriptionDisplayName("pro"),
-    price: 35,
-    annualPrice: 28,
-    spec: "340–400 bricks",
-    bg: "#FFAEE7",
-    textColor: "#001B21",
-  },
-  {
-    key: "mega",
-    name: getSubscriptionDisplayName("mega"),
-    price: 55,
-    annualPrice: 44,
-    spec: "420–520 bricks",
-    bg: "#5C4ADE",
-    textColor: "#F5F1EB",
-  },
-]
 
 type FaqItem = { q: string; a: string }
 type BagItem = { num: string; label: string; desc: string; bg: string }
@@ -106,6 +58,7 @@ type DbProduct = {
   image_url: string | null
   gallery: string[]
   tier: string
+  allowed_tiers: string[]
   year: number | null
   value: number | null
   price: number | null
@@ -214,7 +167,7 @@ export default function Drop() {
     supabase
       .from("products")
       .select(
-        "id, title, subtitle, description, category, bricks, minifigs, build_time, image_url, gallery, tier, year, value, price, min_age, rating, faq, bags, story, minifig, compatibility, release_date, isDangerous"
+        "id, title, subtitle, description, category, bricks, minifigs, build_time, image_url, gallery, tier, allowed_tiers, year, value, price, min_age, rating, faq, bags, story, minifig, compatibility, release_date, isDangerous"
       )
       .eq("id", Number(id))
       .single()
@@ -248,23 +201,25 @@ export default function Drop() {
     [relatedRows, available]
   )
 
-  const dropRequiredTierIdx = tiers.findIndex(
-    (t) => t.key === (product?.tier ?? "standard")
-  )
-  const DROP_REQUIRED_TIER =
-    dropRequiredTierIdx === -1 ? 2 : dropRequiredTierIdx
+  const allowedPlans = product?.allowed_tiers ?? []
+  const displayPlan = getDisplayPlan(allowedPlans, product?.tier ?? "standard")
+  // Every plan that can rent the set, cheapest regular plan first, so a set
+  // open to "Kūrėjas" never reads as requiring a higher plan.
+  const planPills =
+    allowedPlans.length > 0 ? sortPlans(allowedPlans) : [displayPlan]
 
-  const renderTierPill = (className = "py-2") => (
-    <div
-      className={`rounded-full border-2 border-ink px-4 font-display text-[18px] leading-none ${className}`}
-      style={{
-        background: tiers[DROP_REQUIRED_TIER].bg,
-        color: tiers[DROP_REQUIRED_TIER].textColor,
-      }}
-    >
-      {tiers[DROP_REQUIRED_TIER].name}
-    </div>
-  )
+  const renderTierPill = (plan: string, className = "py-2") => {
+    const theme = getSubscriptionTheme(plan)
+    return (
+      <div
+        key={plan}
+        className={`rounded-full border-2 border-ink px-4 font-display text-[18px] leading-none ${className}`}
+        style={{ background: theme?.bg, color: theme?.textColor }}
+      >
+        {getSubscriptionDisplayName(plan)}
+      </div>
+    )
+  }
 
   const galleryImages: string[] = product
     ? ([product.image_url, ...(product.gallery ?? [])].filter(
@@ -281,7 +236,7 @@ export default function Drop() {
 
   const tierBrick = (
     <img
-      src={getSubscriptionBrickSvg(product?.tier ?? "standard")}
+      src={getSubscriptionBrickSvg(displayPlan)}
       alt=""
       className="pointer-events-none absolute top-[14px] left-[14px] z-10 h-10 w-auto select-none"
     />
@@ -508,10 +463,7 @@ export default function Drop() {
                     },
                     {
                       label: "Prenumerata",
-                      val:
-                        getSubscriptionDisplayName(
-                          product?.tier ?? "standard"
-                        ) + "+",
+                      val: getSubscriptionDisplayName(displayPlan),
                     },
                     {
                       label: "Vertė",
@@ -534,10 +486,12 @@ export default function Drop() {
 
                 {/* Rent CTA */}
                 <div id="buy" className="mt-8 border-t border-ink/10 pt-6">
-                  <div className="flex items-center gap-3">
-                    {renderTierPill()}
+                  <div className="flex flex-wrap items-center gap-3">
+                    {planPills.map((plan) => renderTierPill(plan))}
                     <span className="text-[14px] text-ink/50">
-                      reikalinga prenumerata
+                      {planPills.length > 1
+                        ? "tinkamos prenumeratos"
+                        : "reikalinga prenumerata"}
                     </span>
                   </div>
 
@@ -938,7 +892,7 @@ export default function Drop() {
         {/* ── Sticky mobile CTA ── */}
         <div className="h-20 md:hidden" />
         <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t-2 border-ink bg-paper px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_0_rgba(0,27,33,.06)] md:hidden">
-          {renderTierPill("flex h-12 items-center")}
+          {renderTierPill(displayPlan, "flex h-12 items-center")}
           {isRentedOut ? (
             <Button
               size="lg"

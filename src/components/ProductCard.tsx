@@ -8,6 +8,7 @@ import {
   getSubscriptionBrickSvg,
 } from "@/lib/subscription-branding"
 import { formatReleaseMonth } from "@/lib/vilnius-time"
+import { getDisplayPlan } from "@/lib/product-filters"
 
 export type Tier =
   | "nano"
@@ -190,9 +191,20 @@ function NewBadge() {
   )
 }
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({
+  product,
+  preferredTiers,
+}: {
+  product: Product
+  preferredTiers?: readonly string[]
+}) {
   const badgeBg = product.badge === "sold-out" ? "#001B21" : "#FB4903"
-  const tier = tierConfig[product.requiredTier]
+  const displayTier = getDisplayPlan(
+    product.allowedTiers,
+    product.requiredTier,
+    preferredTiers
+  ) as Tier
+  const tier = tierConfig[displayTier]
 
   return (
     <Link
@@ -204,7 +216,7 @@ export function ProductCard({ product }: { product: Product }) {
         className="relative h-[280px] border-b-2 border-ink"
       >
         <img
-          src={getSubscriptionBrickSvg(product.requiredTier)}
+          src={getSubscriptionBrickSvg(displayTier)}
           alt=""
           className="pointer-events-none absolute top-[14px] left-[14px] z-10 h-10 w-auto select-none"
         />
