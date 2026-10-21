@@ -12,6 +12,28 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 }
 
+// subscribers.stripe_customer_id is writable by the row's owner, so only reuse
+// it when Stripe confirms the customer belongs to the caller's email.
+async function getOwnedCustomerId(
+  customerId: string | null,
+  userEmail: string | undefined
+) {
+  if (!customerId || !userEmail) return null
+  try {
+    const customer = await stripe.customers.retrieve(customerId)
+    if (customer.deleted) return null
+    return customer.email?.toLowerCase() === userEmail.toLowerCase()
+      ? customer.id
+      : null
+  } catch (err) {
+    console.error("create-penalty-checkout: customer lookup failed", {
+      customerId,
+      error: (err as Error).message,
+    })
+    return null
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders })
@@ -54,17 +76,31 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     )
-    const { data: subscriber } = await supabase
+    const { data: subscriber, error: subscriberError } = await supabase
       .from("subscribers")
       .select("stripe_customer_id, penalty_amount, penalty_reason")
       .eq("id", userId)
       .maybeSingle()
 
+    if (subscriberError) {
+      console.error("create-penalty-checkout: subscriber lookup failed", {
+        userId,
+        error: subscriberError,
+      })
+      return new Response(JSON.stringify({ error: "Failed to load penalty" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      })
+    }
+
     const amount = subscriber?.penalty_amount ?? 0
     if (amount <= 0) throw new Error("No outstanding penalty")
 
     const reason = subscriber?.penalty_reason
-    const customerId = subscriber?.stripe_customer_id ?? null
+    const customerId = await getOwnedCustomerId(
+      subscriber?.stripe_customer_id ?? null,
+      userEmail
+    )
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
