@@ -84,6 +84,21 @@ begin
   new.status := 'processing';
   new.start_date := current_date;
   new.due_date := current_date + 30;
+  -- Shipping, return and timestamp columns are written by admins and the
+  -- lpexpress edge functions; a member only picks the product and delivery.
+  new.return_note := null;
+  new.return_requested_at := null;
+  new.lp_parcel_id := null;
+  new.lp_barcode := null;
+  new.lp_tracking_state := null;
+  new.lp_label_created_at := null;
+  new.lp_return_terminal_id := null;
+  new.lp_return_parcel_id := null;
+  new.lp_return_barcode := null;
+  new.lp_return_tracking_state := null;
+  new.lp_return_label_created_at := null;
+  new.created_at := now();
+  new.updated_at := now();
 
   return new;
 end;
