@@ -57,6 +57,7 @@ Deno.serve(async (req) => {
         },
       ],
       customer_email: userEmail ?? undefined,
+      invoice_creation: { enabled: true },
       success_url: successUrl,
       cancel_url: cancelUrl,
       metadata: { itemId, size },

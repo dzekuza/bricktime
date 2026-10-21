@@ -90,6 +90,7 @@ Deno.serve(async (req) => {
         },
       ],
       customer_email: buyerEmail,
+      invoice_creation: { enabled: true },
       success_url: successUrl
         .replace("{CODE}", encodeURIComponent(code))
         .replace("{SESSION_ID}", "{CHECKOUT_SESSION_ID}"),
