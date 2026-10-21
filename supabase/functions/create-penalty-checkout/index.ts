@@ -26,11 +26,12 @@ async function getOwnedCustomerId(
       ? customer.id
       : null
   } catch (err) {
-    console.error("create-penalty-checkout: customer lookup failed", {
-      customerId,
-      error: (err as Error).message,
-    })
-    return null
+    // Only a confirmed-missing customer falls back to customer_email; any other
+    // Stripe failure aborts so the invoice isn't silently split from the account.
+    if ((err as { code?: string } | null)?.code === "resource_missing") {
+      return null
+    }
+    throw err
   }
 }
 
