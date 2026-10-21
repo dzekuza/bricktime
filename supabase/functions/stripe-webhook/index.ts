@@ -131,60 +131,63 @@ async function handlePenaltyCheckout(session: Stripe.Checkout.Session) {
       `Loading penalty for ${userId} failed: ${loadError.message}`
     )
   }
-  if (!subscriber?.penalty_amount) return
+  // A cleared penalty falls through to resolving the record, so a retry after
+  // a failure below still finishes the job instead of returning early.
+  if (subscriber?.penalty_amount) {
+    // An admin may have raised the penalty after this session was created, so
+    // an older, smaller payment must not clear it.
+    const owedCents = Math.round(Number(subscriber.penalty_amount) * 100)
+    if (session.currency !== "eur" || (session.amount_total ?? 0) < owedCents) {
+      console.error("Penalty payment does not cover the current penalty", {
+        userId,
+        sessionId: session.id,
+        paidCents: session.amount_total,
+        owedCents,
+      })
+      return
+    }
 
-  // An admin may have raised the penalty after this session was created, so
-  // an older, smaller payment must not clear it.
-  const owedCents = Math.round(Number(subscriber.penalty_amount) * 100)
-  if (session.currency !== "eur" || (session.amount_total ?? 0) < owedCents) {
-    console.error("Penalty payment does not cover the current penalty", {
+    // Compare-and-set: if an admin changed the amount since the read above,
+    // nothing is cleared.
+    const { data: cleared, error: clearError } = await supabase
+      .from("subscribers")
+      .update({ penalty_amount: null, penalty_reason: null })
+      .eq("id", userId)
+      .eq("penalty_amount", subscriber.penalty_amount)
+      .select("id")
+    if (clearError) {
+      throw new Error(
+        `Clearing penalty for ${userId} failed: ${clearError.message}`
+      )
+    }
+    if (!cleared?.length) {
+      console.error("Penalty changed before it could be cleared", {
+        userId,
+        sessionId: session.id,
+      })
+      return
+    }
+  }
+
+  // Only the record create-penalty-checkout attached to this session; a
+  // forgiven or already-paid record is no longer pending, so this is a no-op.
+  const penaltyRecordId = session.metadata?.penaltyRecordId
+  if (!penaltyRecordId) {
+    console.error("Penalty session has no penalty record to resolve", {
       userId,
       sessionId: session.id,
-      paidCents: session.amount_total,
-      owedCents,
     })
     return
   }
-
-  // Compare-and-set: if an admin changed the amount since the read above,
-  // nothing is cleared.
-  const { data: cleared, error: clearError } = await supabase
-    .from("subscribers")
-    .update({ penalty_amount: null, penalty_reason: null })
-    .eq("id", userId)
-    .eq("penalty_amount", subscriber.penalty_amount)
-    .select("id")
-  if (clearError) {
-    throw new Error(
-      `Clearing penalty for ${userId} failed: ${clearError.message}`
-    )
-  }
-  if (!cleared?.length) {
-    console.error("Penalty changed before it could be cleared", {
-      userId,
-      sessionId: session.id,
-    })
-    return
-  }
-
-  // subscribers.email is member-editable, so penalty records are matched on
-  // the auth account's email instead.
-  const { data: authUser, error: authError } =
-    await supabase.auth.admin.getUserById(userId)
-  if (authError) {
-    throw new Error(`Loading auth user ${userId} failed: ${authError.message}`)
-  }
-  const email = authUser.user?.email
-  if (!email) return
 
   const { error: resolveError } = await supabase
     .from("subscriber_penalties")
     .update({ status: "paid", resolved_at: new Date().toISOString() })
-    .eq("subscriber_email", email)
+    .eq("id", penaltyRecordId)
     .eq("status", "pending")
   if (resolveError) {
     throw new Error(
-      `Resolving penalty records for ${userId} failed: ${resolveError.message}`
+      `Resolving penalty record ${penaltyRecordId} failed: ${resolveError.message}`
     )
   }
 }
@@ -347,6 +350,15 @@ Deno.serve(async (req) => {
             .from("subscribers")
             .update(update)
             .eq("id", subscriber.id)
+        }
+        break
+      }
+
+      // Delayed payment methods complete the session unpaid and settle later.
+      case "checkout.session.async_payment_succeeded": {
+        const session = event.data.object as Stripe.Checkout.Session
+        if (session.metadata?.type === "penalty") {
+          await handlePenaltyCheckout(session)
         }
         break
       }

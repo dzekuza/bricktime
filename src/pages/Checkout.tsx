@@ -13,6 +13,7 @@ import {
 import { AuthForm } from "@/components/AuthForm"
 import { useState, useEffect, useMemo } from "react"
 import { supabase } from "@/lib/supabase"
+import { waitForSubscriberBilling } from "@/lib/wait-for-subscriber"
 import {
   getSubscriptionBrickSvg,
   getSubscriptionDisplayName,
@@ -449,9 +450,17 @@ export default function Checkout() {
     if (params.get("success") !== "true") return
     const planKey = params.get("plan")
     if (!planKey || !user) return
-    // NOTE: the Stripe webhook records the plan; this only lets isEligible
-    // recalculate before the webhook lands.
-    setUserSub(tierByName[planKey] ?? null)
+    const controller = new AbortController()
+    waitForSubscriberBilling(
+      user.id,
+      (s) => s.status === "active" && s.plan === planKey,
+      controller.signal
+    ).then((row) => {
+      if (!row) return
+      setUserSub(tierByName[row.plan] ?? null)
+      setHomeDelivery(row.home_delivery ?? false)
+    })
+    return () => controller.abort()
   }, [user, params])
 
   async function handleConfirm() {

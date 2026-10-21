@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react"
 import { useSearchParams, Link, useNavigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase"
+import { waitForSubscriberBilling } from "@/lib/wait-for-subscriber"
 import type { PlanTier } from "@/lib/db-enums"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
@@ -186,9 +187,17 @@ export default function Subscribe() {
   // handle Stripe success redirect: ?success=true&plan=xxx
   useEffect(() => {
     if (params.get("success") !== "true") return
-    if (!params.get("plan") || !user) return
-    // NOTE: the Stripe webhook records the plan; members can't write it.
-    setSubmitted(true)
+    const planKey = params.get("plan")
+    if (!planKey || !user) return
+    const controller = new AbortController()
+    waitForSubscriberBilling(
+      user.id,
+      (s) => s.status === "active" && s.plan === planKey,
+      controller.signal
+    ).then((row) => {
+      if (row) setSubmitted(true)
+    })
+    return () => controller.abort()
   }, [user, params])
 
   async function applyCoupon() {

@@ -98,6 +98,27 @@ Deno.serve(async (req) => {
     if (amount <= 0) throw new Error("No outstanding penalty")
 
     const reason = subscriber?.penalty_reason
+
+    // Lets the webhook resolve exactly the penalty record this payment covers.
+    const { data: penaltyRecord, error: recordError } = await supabase
+      .from("subscriber_penalties")
+      .select("id")
+      .eq("subscriber_email", userEmail ?? "")
+      .eq("status", "pending")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    if (recordError) {
+      console.error("create-penalty-checkout: penalty record lookup failed", {
+        userId,
+        error: recordError,
+      })
+      return new Response(JSON.stringify({ error: "Failed to load penalty" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      })
+    }
+
     const customerId = await getOwnedCustomerId(
       subscriber?.stripe_customer_id ?? null,
       userEmail
@@ -127,7 +148,11 @@ Deno.serve(async (req) => {
       client_reference_id: userId,
       success_url: successUrl,
       cancel_url: cancelUrl,
-      metadata: { userId, type: "penalty" },
+      metadata: {
+        userId,
+        type: "penalty",
+        ...(penaltyRecord ? { penaltyRecordId: penaltyRecord.id } : {}),
+      },
     })
 
     return new Response(JSON.stringify({ url: session.url }), {
