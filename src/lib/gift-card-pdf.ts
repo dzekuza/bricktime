@@ -7,6 +7,35 @@ const INDIGO: [number, number, number] = [92, 74, 222]
 const YELLOW: [number, number, number] = [255, 215, 49]
 const ORANGE: [number, number, number] = [251, 73, 3]
 
+// jsPDF's built-in Helvetica/Courier are WinAnsi-only, so ą, č, ę, ė, į, ų, ū
+// come out as garbled, letter-spaced text. Embed Unicode TTFs instead.
+const FONTS = [
+  { file: "SpaceGrotesk-Regular.ttf", family: "SpaceGrotesk", style: "normal" },
+  { file: "SpaceGrotesk-Bold.ttf", family: "SpaceGrotesk", style: "bold" },
+  { file: "JetBrainsMono-Bold.ttf", family: "JetBrainsMono", style: "bold" },
+] as const
+
+async function toBase64(buffer: ArrayBuffer): Promise<string> {
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(new Blob([buffer]))
+  })
+  return dataUrl.slice(dataUrl.indexOf(",") + 1)
+}
+
+async function registerFonts(doc: jsPDF) {
+  await Promise.all(
+    FONTS.map(async ({ file, family, style }) => {
+      const res = await fetch(`/fonts/${file}`)
+      if (!res.ok) throw new Error(`Failed to load font ${file}`)
+      doc.addFileToVFS(file, await toBase64(await res.arrayBuffer()))
+      doc.addFont(file, family, style)
+    })
+  )
+}
+
 function formatAmount(amountCents: number): string {
   return `${(amountCents / 100).toLocaleString("lt-LT", {
     minimumFractionDigits: 2,
@@ -21,7 +50,7 @@ function formatDate(date: Date): string {
   return `${y}-${m}-${d}`
 }
 
-export function downloadGiftCardPdf({
+export async function downloadGiftCardPdf({
   code,
   amountCents,
   recipientEmail,
@@ -35,6 +64,7 @@ export function downloadGiftCardPdf({
   expiresAt: Date
 }) {
   const doc = new jsPDF({ unit: "mm", format: "a5", orientation: "portrait" })
+  await registerFonts(doc)
   const pageWidth = doc.internal.pageSize.getWidth()
   const margin = 12
   const cardWidth = pageWidth - margin * 2
@@ -43,7 +73,7 @@ export function downloadGiftCardPdf({
   doc.setFillColor(...CREAM)
   doc.rect(0, 0, pageWidth, doc.internal.pageSize.getHeight(), "F")
 
-  doc.setFont("helvetica", "bold")
+  doc.setFont("SpaceGrotesk", "bold")
   doc.setFontSize(16)
   doc.setTextColor(...INK)
   doc.text("BRICKTIME", pageWidth / 2, y + 4, { align: "center" })
@@ -53,11 +83,11 @@ export function downloadGiftCardPdf({
   const headerHeight = 26
   doc.setFillColor(...INK)
   doc.roundedRect(margin, y, cardWidth, headerHeight, 4, 4, "F")
-  doc.setFont("helvetica", "normal")
+  doc.setFont("SpaceGrotesk", "normal")
   doc.setFontSize(8)
   doc.setTextColor(...YELLOW)
   doc.text("DOVANŲ KUPONAS", pageWidth / 2, y + 9, { align: "center" })
-  doc.setFont("helvetica", "bold")
+  doc.setFont("SpaceGrotesk", "bold")
   doc.setFontSize(15)
   doc.setTextColor(...CREAM)
   doc.text("Tavo dovana atkeliavo!", pageWidth / 2, y + 19, {
@@ -69,13 +99,13 @@ export function downloadGiftCardPdf({
   const amountHeight = 40
   doc.setFillColor(...INDIGO)
   doc.roundedRect(margin, y, cardWidth, amountHeight, 4, 4, "F")
-  doc.setFont("helvetica", "normal")
+  doc.setFont("SpaceGrotesk", "normal")
   doc.setFontSize(8)
   doc.setTextColor(245, 241, 235)
-  doc.text("BRICKTIME DOVANŲ KUPONAS", pageWidth / 2, y + 9, {
+  doc.text("KUPONO VERTĖ", pageWidth / 2, y + 9, {
     align: "center",
   })
-  doc.setFont("helvetica", "bold")
+  doc.setFont("SpaceGrotesk", "bold")
   doc.setFontSize(28)
   doc.setTextColor(...PAPER)
   doc.text(formatAmount(amountCents), pageWidth / 2, y + 22, {
@@ -92,14 +122,14 @@ export function downloadGiftCardPdf({
     5,
     "F"
   )
-  doc.setFont("courier", "bold")
+  doc.setFont("JetBrainsMono", "bold")
   doc.setFontSize(13)
   doc.setTextColor(...INK)
   doc.text(code, pageWidth / 2, y + 34, { align: "center" })
   y += amountHeight + 10
 
   // Purchase info
-  doc.setFont("helvetica", "normal")
+  doc.setFont("SpaceGrotesk", "normal")
   doc.setFontSize(8)
   doc.setTextColor(0, 27, 33)
   doc.text("PIRKIMO INFORMACIJA", margin, y)
@@ -117,11 +147,11 @@ export function downloadGiftCardPdf({
     doc.setLineWidth(0.2)
     doc.setLineDashPattern([1, 1], 0)
     doc.line(margin, y, margin + cardWidth, y)
-    doc.setFont("helvetica", "normal")
+    doc.setFont("SpaceGrotesk", "normal")
     doc.setFontSize(10)
     doc.setTextColor(0, 27, 33)
     doc.text(label, margin, y + 6)
-    doc.setFont("helvetica", "bold")
+    doc.setFont("SpaceGrotesk", "bold")
     doc.setTextColor(...(label === "Galioja iki" ? ORANGE : INK))
     doc.text(value, margin + cardWidth, y + 6, { align: "right" })
     y += 10
@@ -133,22 +163,22 @@ export function downloadGiftCardPdf({
   y += 8
 
   // Quote
-  doc.setFont("helvetica", "italic")
+  doc.setFont("SpaceGrotesk", "normal")
   doc.setFontSize(10)
   doc.setTextColor(...INK)
   const quote = doc.splitTextToSize(
-    "„Linkiu smagaus konstravimo - mėgaukis kiekviena detale!“",
+    "„Smagaus konstravimo – mėgaukis kiekviena detale!“",
     cardWidth - 8
   )
-  doc.text(quote, margin + 4, y + 6)
+  doc.text(quote, pageWidth / 2, y + 6, { align: "center" })
   y += quote.length * 5 + 12
 
   // Instructions footer
-  doc.setFont("helvetica", "normal")
+  doc.setFont("SpaceGrotesk", "normal")
   doc.setFontSize(8)
   doc.setTextColor(0, 27, 33)
   const instructions = doc.splitTextToSize(
-    "Prisijunk arba susikurk paskyrą • Atsiskaitydamas įvesk dovanų kupono kodą • Kupono vertė bus automatiškai pritaikyta atsiskaitant už prenumeratą",
+    "Prisijunk arba susikurk paskyrą bricktime.lt • Apmokėjimo metu įvesk kupono kodą • Kupono vertė bus nuskaičiuota nuo prenumeratos ar prekių kainos",
     cardWidth
   )
   doc.text(instructions, pageWidth / 2, y, { align: "center" })
