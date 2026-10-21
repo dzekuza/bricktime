@@ -13,6 +13,7 @@ import {
 import { AuthForm } from "@/components/AuthForm"
 import { useState, useEffect, useMemo } from "react"
 import { supabase } from "@/lib/supabase"
+import { waitForSubscriberBilling } from "@/lib/wait-for-subscriber"
 import {
   getSubscriptionBrickSvg,
   getSubscriptionDisplayName,
@@ -449,30 +450,18 @@ export default function Checkout() {
     if (params.get("success") !== "true") return
     const planKey = params.get("plan")
     if (!planKey || !user) return
-    supabase
-      .from("subscribers")
-      .upsert(
-        {
-          id: user.id,
-          email: user.email ?? "",
-          name: user.email?.split("@")[0] ?? "Subscriber",
-          plan: planKey as
-            | "nano"
-            | "mini"
-            | "standard"
-            | "pro"
-            | "mega"
-            | "mystery_s"
-            | "mystery_m",
-          status: "active",
-        },
-        { onConflict: "id" }
-      )
-      .then(() => {
-        // refresh subscription state so isEligible recalculates
-        setUserSub(tierByName[planKey] ?? null)
-      })
-  }, [user, params]) // eslint-disable-line react-hooks/exhaustive-deps
+    const controller = new AbortController()
+    waitForSubscriberBilling(
+      user.id,
+      (s) => s.status === "active" && s.plan === planKey,
+      controller.signal
+    ).then((row) => {
+      if (!row) return
+      setUserSub(tierByName[row.plan] ?? null)
+      setHomeDelivery(row.home_delivery ?? false)
+    })
+    return () => controller.abort()
+  }, [user, params])
 
   async function handleConfirm() {
     if (!user || !product) return

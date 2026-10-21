@@ -7,6 +7,7 @@ import type { PlanTier } from "@/lib/db-enums"
 
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase"
+import { waitForSubscriberBilling } from "@/lib/wait-for-subscriber"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
 import { useAchievements } from "@/hooks/useAchievements"
 import { useCredits } from "@/hooks/useCredits"
@@ -293,6 +294,7 @@ export default function Account() {
   >([])
   const [giftCardsLoading, setGiftCardsLoading] = useState(true)
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
+  const [penaltyConfirming, setPenaltyConfirming] = useState(false)
 
   async function payPenalty() {
     if (!user?.email || !subscriber?.penalty_amount) return
@@ -321,22 +323,25 @@ export default function Account() {
   useEffect(() => {
     const q = new URLSearchParams(window.location.search)
     if (q.get("penalty_paid") !== "true" || !user?.email) return
-    Promise.all([
-      supabase
-        .from("subscribers")
-        .update({ penalty_amount: null, penalty_reason: null })
-        .eq("id", user.id),
-      supabase
-        .from("subscriber_penalties")
-        .update({ status: "paid", resolved_at: new Date().toISOString() })
-        .eq("subscriber_email", user.email)
-        .eq("status", "pending"),
-    ]).then(() => {
-      setSubscriber((s) =>
-        s ? { ...s, penalty_amount: null, penalty_reason: null } : s
-      )
-      window.history.replaceState({}, "", "/account")
+    window.history.replaceState({}, "", "/account")
+    // Hides the pay button until the webhook clears the penalty, so a slow
+    // webhook can't lead to a second payment.
+    setPenaltyConfirming(true)
+    const controller = new AbortController()
+    waitForSubscriberBilling(
+      user.id,
+      (s) => s.penalty_amount == null,
+      controller.signal
+    ).then((row) => {
+      if (controller.signal.aborted) return
+      if (row) {
+        setSubscriber((s) =>
+          s ? { ...s, penalty_amount: null, penalty_reason: null } : s
+        )
+      }
+      setPenaltyConfirming(false)
     })
+    return () => controller.abort()
   }, [user])
 
   // handle Stripe plan-change redirect: ?plan_changed=true&plan=xxx
@@ -345,22 +350,20 @@ export default function Account() {
     if (q.get("plan_changed") !== "true" || !user) return
     const planKey = q.get("plan") as PlanTier | null
     if (!planKey) return
-    const hasHomeDelivery = q.get("home_delivery") === "1"
-    supabase
-      .from("subscribers")
-      .update({
-        plan: planKey,
-        status: "active",
-        home_delivery: hasHomeDelivery,
-      })
-      .eq("id", user.id)
-      .then(() => {
-        setSubscriber((s) =>
-          s ? { ...s, plan: planKey, home_delivery: hasHomeDelivery } : s
-        )
-        setShowUpgrade(false)
-        window.history.replaceState({}, "", "/account")
-      })
+    setShowUpgrade(false)
+    window.history.replaceState({}, "", "/account")
+    const controller = new AbortController()
+    waitForSubscriberBilling(
+      user.id,
+      (s) => s.status === "active" && s.plan === planKey,
+      controller.signal
+    ).then((row) => {
+      if (!row) return
+      setSubscriber((s) =>
+        s ? { ...s, plan: row.plan, home_delivery: row.home_delivery } : s
+      )
+    })
+    return () => controller.abort()
   }, [user])
 
   useEffect(() => {
@@ -1018,12 +1021,18 @@ export default function Account() {
                   </p>
                 )}
               </div>
-              <button
-                onClick={payPenalty}
-                className="brick-hover-sm self-start rounded-xl border-2 border-red-500 bg-red-500 px-6 py-3 font-semibold text-white transition-all hover:bg-red-600 md:self-auto"
-              >
-                Sumokėti baudą
-              </button>
+              {penaltyConfirming ? (
+                <p className="label-mono self-start text-red-600 md:self-auto">
+                  Mokėjimas tvirtinamas…
+                </p>
+              ) : (
+                <button
+                  onClick={payPenalty}
+                  className="brick-hover-sm self-start rounded-xl border-2 border-red-500 bg-red-500 px-6 py-3 font-semibold text-white transition-all hover:bg-red-600 md:self-auto"
+                >
+                  Sumokėti baudą
+                </button>
+              )}
             </div>
           </div>
         </section>
