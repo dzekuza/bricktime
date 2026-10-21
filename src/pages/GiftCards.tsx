@@ -75,7 +75,7 @@ function SuccessBanner({
         </p>
         <button
           onClick={() =>
-            downloadGiftCardPdf({
+            void downloadGiftCardPdf({
               code,
               amountCents,
               recipientEmail,
