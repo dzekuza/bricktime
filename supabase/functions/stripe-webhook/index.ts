@@ -115,6 +115,80 @@ async function handleGiftCardCheckout(session: Stripe.Checkout.Session) {
   })
 }
 
+// Members can no longer write penalty columns themselves, so the paid
+// penalty is cleared here. Errors throw so Stripe retries the event.
+async function handlePenaltyCheckout(session: Stripe.Checkout.Session) {
+  const userId = session.metadata?.userId
+  if (!userId || session.payment_status !== "paid") return
+
+  const { data: subscriber, error: loadError } = await supabase
+    .from("subscribers")
+    .select("penalty_amount")
+    .eq("id", userId)
+    .maybeSingle()
+  if (loadError) {
+    throw new Error(
+      `Loading penalty for ${userId} failed: ${loadError.message}`
+    )
+  }
+  if (!subscriber?.penalty_amount) return
+
+  // An admin may have raised the penalty after this session was created, so
+  // an older, smaller payment must not clear it.
+  const owedCents = Math.round(Number(subscriber.penalty_amount) * 100)
+  if (session.currency !== "eur" || (session.amount_total ?? 0) < owedCents) {
+    console.error("Penalty payment does not cover the current penalty", {
+      userId,
+      sessionId: session.id,
+      paidCents: session.amount_total,
+      owedCents,
+    })
+    return
+  }
+
+  // Compare-and-set: if an admin changed the amount since the read above,
+  // nothing is cleared.
+  const { data: cleared, error: clearError } = await supabase
+    .from("subscribers")
+    .update({ penalty_amount: null, penalty_reason: null })
+    .eq("id", userId)
+    .eq("penalty_amount", subscriber.penalty_amount)
+    .select("id")
+  if (clearError) {
+    throw new Error(
+      `Clearing penalty for ${userId} failed: ${clearError.message}`
+    )
+  }
+  if (!cleared?.length) {
+    console.error("Penalty changed before it could be cleared", {
+      userId,
+      sessionId: session.id,
+    })
+    return
+  }
+
+  // subscribers.email is member-editable, so penalty records are matched on
+  // the auth account's email instead.
+  const { data: authUser, error: authError } =
+    await supabase.auth.admin.getUserById(userId)
+  if (authError) {
+    throw new Error(`Loading auth user ${userId} failed: ${authError.message}`)
+  }
+  const email = authUser.user?.email
+  if (!email) return
+
+  const { error: resolveError } = await supabase
+    .from("subscriber_penalties")
+    .update({ status: "paid", resolved_at: new Date().toISOString() })
+    .eq("subscriber_email", email)
+    .eq("status", "pending")
+  if (resolveError) {
+    throw new Error(
+      `Resolving penalty records for ${userId} failed: ${resolveError.message}`
+    )
+  }
+}
+
 async function findSubscriber(args: {
   userId?: string | null
   email?: string | null
@@ -227,6 +301,14 @@ Deno.serve(async (req) => {
 
         if (session.mode === "payment" && session.metadata?.code) {
           await handleGiftCardCheckout(session)
+          break
+        }
+
+        if (
+          session.mode === "payment" &&
+          session.metadata?.type === "penalty"
+        ) {
+          await handlePenaltyCheckout(session)
           break
         }
 

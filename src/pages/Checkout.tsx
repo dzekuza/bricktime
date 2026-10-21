@@ -449,30 +449,10 @@ export default function Checkout() {
     if (params.get("success") !== "true") return
     const planKey = params.get("plan")
     if (!planKey || !user) return
-    supabase
-      .from("subscribers")
-      .upsert(
-        {
-          id: user.id,
-          email: user.email ?? "",
-          name: user.email?.split("@")[0] ?? "Subscriber",
-          plan: planKey as
-            | "nano"
-            | "mini"
-            | "standard"
-            | "pro"
-            | "mega"
-            | "mystery_s"
-            | "mystery_m",
-          status: "active",
-        },
-        { onConflict: "id" }
-      )
-      .then(() => {
-        // refresh subscription state so isEligible recalculates
-        setUserSub(tierByName[planKey] ?? null)
-      })
-  }, [user, params]) // eslint-disable-line react-hooks/exhaustive-deps
+    // NOTE: the Stripe webhook records the plan; this only lets isEligible
+    // recalculate before the webhook lands.
+    setUserSub(tierByName[planKey] ?? null)
+  }, [user, params])
 
   async function handleConfirm() {
     if (!user || !product) return

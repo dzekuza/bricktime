@@ -321,22 +321,11 @@ export default function Account() {
   useEffect(() => {
     const q = new URLSearchParams(window.location.search)
     if (q.get("penalty_paid") !== "true" || !user?.email) return
-    Promise.all([
-      supabase
-        .from("subscribers")
-        .update({ penalty_amount: null, penalty_reason: null })
-        .eq("id", user.id),
-      supabase
-        .from("subscriber_penalties")
-        .update({ status: "paid", resolved_at: new Date().toISOString() })
-        .eq("subscriber_email", user.email)
-        .eq("status", "pending"),
-    ]).then(() => {
-      setSubscriber((s) =>
-        s ? { ...s, penalty_amount: null, penalty_reason: null } : s
-      )
-      window.history.replaceState({}, "", "/account")
-    })
+    // NOTE: the Stripe webhook clears the penalty; members can't write it.
+    setSubscriber((s) =>
+      s ? { ...s, penalty_amount: null, penalty_reason: null } : s
+    )
+    window.history.replaceState({}, "", "/account")
   }, [user])
 
   // handle Stripe plan-change redirect: ?plan_changed=true&plan=xxx
@@ -346,21 +335,12 @@ export default function Account() {
     const planKey = q.get("plan") as PlanTier | null
     if (!planKey) return
     const hasHomeDelivery = q.get("home_delivery") === "1"
-    supabase
-      .from("subscribers")
-      .update({
-        plan: planKey,
-        status: "active",
-        home_delivery: hasHomeDelivery,
-      })
-      .eq("id", user.id)
-      .then(() => {
-        setSubscriber((s) =>
-          s ? { ...s, plan: planKey, home_delivery: hasHomeDelivery } : s
-        )
-        setShowUpgrade(false)
-        window.history.replaceState({}, "", "/account")
-      })
+    // NOTE: the Stripe webhook records the new plan; members can't write it.
+    setSubscriber((s) =>
+      s ? { ...s, plan: planKey, home_delivery: hasHomeDelivery } : s
+    )
+    setShowUpgrade(false)
+    window.history.replaceState({}, "", "/account")
   }, [user])
 
   useEffect(() => {

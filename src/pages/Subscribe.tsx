@@ -186,23 +186,9 @@ export default function Subscribe() {
   // handle Stripe success redirect: ?success=true&plan=xxx
   useEffect(() => {
     if (params.get("success") !== "true") return
-    const planKey = params.get("plan") as PlanTier | null
-    if (!planKey || !user) return
-    const hasHomeDelivery = params.get("home_delivery") === "1"
-    supabase
-      .from("subscribers")
-      .upsert(
-        {
-          id: user.id,
-          email: user.email ?? "",
-          name: user.email?.split("@")[0] ?? "Subscriber",
-          plan: planKey,
-          status: "active",
-          home_delivery: hasHomeDelivery,
-        },
-        { onConflict: "id" }
-      )
-      .then(() => setSubmitted(true))
+    if (!params.get("plan") || !user) return
+    // NOTE: the Stripe webhook records the plan; members can't write it.
+    setSubmitted(true)
   }, [user, params])
 
   async function applyCoupon() {
