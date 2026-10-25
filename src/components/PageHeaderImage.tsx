@@ -4,7 +4,7 @@ type PageHeaderImageProps = {
 }
 
 const FRAME_CLASS =
-  "aspect-[2/1] w-full rounded-2xl border-2 border-ink shadow-[6px_6px_0_#001B21]"
+  "aspect-[2/1] w-full rounded-2xl border-2 border-ink shadow-[6px_6px_0_var(--color-ink)]"
 
 export function PageHeaderImage({ src, alt }: PageHeaderImageProps) {
   if (src === null) return null
