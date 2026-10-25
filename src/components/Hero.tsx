@@ -60,7 +60,6 @@ const FLOAT_AMP = 12
 // Seconds before the drop
 
 const DEFAULT_HERO_VIDEO = HERO_VIDEO_URL
-const DEFAULT_HERO_POSTER = "/hero-video-poster.jpeg"
 
 const DEFAULT_COPY = {
   headline: "Lego® Rinkinių\n==Prenumerata==\nVisiems",
@@ -74,7 +73,7 @@ export default function Hero() {
   const bricksRef = useRef<HTMLDivElement>(null)
   const spanRef = useRef<HTMLSpanElement>(null)
   const [copy, setCopy] = useState(DEFAULT_COPY)
-  const [posterUrl, setPosterUrl] = useState(DEFAULT_HERO_POSTER)
+  const [posterUrl, setPosterUrl] = useState<string | undefined>(undefined)
   const [videoUrl, setVideoUrl] = useState(DEFAULT_HERO_VIDEO)
   const [videoLoaded, setVideoLoaded] = useState(false)
 

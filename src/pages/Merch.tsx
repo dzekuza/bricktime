@@ -4,6 +4,7 @@ import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import { supabase } from "@/lib/supabase"
 import { Seo } from "@/components/Seo"
+import { PageHeaderImage } from "@/components/PageHeaderImage"
 import { usePageHeaderImage } from "@/hooks/usePageHeaderImage"
 
 export interface MerchItem {
@@ -186,7 +187,7 @@ function MerchCardSkeleton() {
 }
 
 export default function MerchPage() {
-  const headerImage = usePageHeaderImage("merch", "/images/build-sailboat.jpg")
+  const headerImage = usePageHeaderImage("merch")
   const [items, setItems] = useState<MerchItem[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -230,13 +231,7 @@ export default function MerchPage() {
                 kūryba, konstravimas ir Brick Time bendruomenė.
               </p>
             </div>
-            <div className="hidden lg:block">
-              <img
-                src={headerImage}
-                alt="LEGO® statyba"
-                className="aspect-[2/1] w-full rounded-2xl border-2 border-ink object-cover shadow-[6px_6px_0_#001B21]"
-              />
-            </div>
+            <PageHeaderImage src={headerImage} alt="LEGO® statyba" />
           </div>
         </div>
       </section>

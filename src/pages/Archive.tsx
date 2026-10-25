@@ -12,6 +12,7 @@ import { ProductCard, dbToProduct } from "@/components/ProductCard"
 import { NextDrop } from "@/components/NextDrop"
 import { Seo } from "@/components/Seo"
 import { useProductAvailability } from "@/hooks/useProductAvailability"
+import { PageHeaderImage } from "@/components/PageHeaderImage"
 import { usePageHeaderImage } from "@/hooks/usePageHeaderImage"
 
 // ── filter constants ────────────────────────────────────────────────────────
@@ -40,7 +41,7 @@ export default function Archive() {
   const [now] = useState(() => Date.now())
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const { available } = useProductAvailability()
-  const headerImage = usePageHeaderImage("archive", "/images/build-castle.jpg")
+  const headerImage = usePageHeaderImage("archive")
 
   useEffect(() => {
     supabase
@@ -163,13 +164,7 @@ export default function Archive() {
                   atrask kitą konstravimo projektą.
                 </p>
               </div>
-              <div className="hidden lg:block">
-                <img
-                  src={headerImage}
-                  alt="LEGO® rinkiniai"
-                  className="aspect-[2/1] w-full rounded-2xl border-2 border-ink object-cover shadow-[6px_6px_0_#001B21]"
-                />
-              </div>
+              <PageHeaderImage src={headerImage} alt="LEGO® rinkiniai" />
             </div>
           </div>
         </section>
