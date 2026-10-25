@@ -17,19 +17,11 @@ interface PageHeadersTabProps {
   onChange: (items: PageHeader[]) => void
 }
 
-const PAGES: { slug: PageHeader["slug"]; label: string; fallback: string }[] = [
-  {
-    slug: "archive",
-    label: "Rinkiniai (catalog)",
-    fallback: "build-castle.jpg",
-  },
-  { slug: "merch", label: "Merch", fallback: "build-sailboat.jpg" },
-  {
-    slug: "gift_cards",
-    label: "Dovanų kuponai",
-    fallback: "build-spaceship.jpg",
-  },
-  { slug: "community", label: "Bendruomenė", fallback: "build-cactus.jpg" },
+const PAGES: { slug: PageHeader["slug"]; label: string }[] = [
+  { slug: "archive", label: "Rinkiniai (catalog)" },
+  { slug: "merch", label: "Merch" },
+  { slug: "gift_cards", label: "Dovanų kuponai" },
+  { slug: "community", label: "Bendruomenė" },
 ]
 
 export function PageHeadersTab({ items, onChange }: PageHeadersTabProps) {
@@ -56,12 +48,11 @@ export function PageHeadersTab({ items, onChange }: PageHeadersTabProps) {
         <CardDescription>
           The photo shown next to the headline at the top of the Rinkiniai,
           Merch, Dovanų kuponai and Bendruomenė pages. Each change saves
-          immediately. Leave empty to fall back to the site's bundled default
-          photo for that page.
+          immediately. Leave empty to show no photo on that page.
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6 sm:grid-cols-2">
-        {PAGES.map(({ slug, label, fallback }) => {
+        {PAGES.map(({ slug, label }) => {
           const item = items.find((i) => i.slug === slug)
           return (
             <div key={slug} className="flex flex-col gap-2">
@@ -70,7 +61,7 @@ export function PageHeadersTab({ items, onChange }: PageHeadersTabProps) {
                 value={item?.image_url ?? null}
                 accept="image/*"
                 acceptPrefix="image/"
-                placeholder={`Drop image here or click to upload (default: ${fallback})`}
+                placeholder="Drop image here or click to upload"
                 aspectClassName="aspect-[2/1]"
                 onUpload={async (file) =>
                   setImage(slug, await uploadToStorage(file))
