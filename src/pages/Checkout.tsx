@@ -145,6 +145,10 @@ export default function Checkout() {
   const [showModal, setShowModal] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [homeDelivery, setHomeDelivery] = useState(false)
+  // Legenda (mega) includes free courier delivery.
+  const homeDeliveryFee = userSub?.key === "mega" ? 0 : HOME_DELIVERY_FEE
+  const homeDeliveryLabel =
+    homeDeliveryFee > 0 ? `+€${homeDeliveryFee}` : "Nemokamas"
   const [terminal, setTerminal] = useState<LpTerminal | null>(null)
   const [profileData, setProfileData] = useState<Partial<
     Record<keyof ProfileValues, string | null>
@@ -728,12 +732,12 @@ export default function Checkout() {
                     <span
                       className={[
                         "rounded-full border-2 border-ink px-3 py-1.5 font-mono text-[11px] font-bold tracking-[.1em] uppercase",
-                        homeDelivery
+                        homeDelivery && homeDeliveryFee > 0
                           ? "bg-brand-yellow text-ink"
                           : "bg-brand-mint text-ink",
                       ].join(" ")}
                     >
-                      {homeDelivery ? `+€${HOME_DELIVERY_FEE}` : "Nemokamas"}
+                      {homeDelivery ? homeDeliveryLabel : "Nemokamas"}
                     </span>
                   </div>
                 </div>
@@ -962,8 +966,11 @@ export default function Checkout() {
                           {
                             value: true,
                             label: "Pristatymas kurjeriu",
-                            note: `+€${HOME_DELIVERY_FEE}`,
-                            accent: "bg-brand-yellow",
+                            note: homeDeliveryLabel,
+                            accent:
+                              homeDeliveryFee > 0
+                                ? "bg-brand-yellow"
+                                : "bg-brand-mint",
                           },
                         ].map(({ value, label, note, accent }) => (
                           <button
@@ -1069,9 +1076,7 @@ export default function Checkout() {
                         Šio užsakymo suma
                       </p>
                       <p className="mt-0.5 font-display text-[26px] leading-none text-ink">
-                        {homeDelivery && userSub
-                          ? `€${HOME_DELIVERY_FEE}`
-                          : "€0"}
+                        {homeDelivery && userSub ? `€${homeDeliveryFee}` : "€0"}
                       </p>
                     </div>
                     <p className="label-mono max-w-[140px] text-right text-ink/40">
