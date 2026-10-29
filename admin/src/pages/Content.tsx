@@ -16,6 +16,7 @@ import { FaqCtaTab } from "@/components/content/FaqCtaTab"
 import { CategoriesTab } from "@/components/content/CategoriesTab"
 import { FaqQuestionsTab } from "@/components/content/FaqQuestionsTab"
 import { PageHeadersTab } from "@/components/content/PageHeadersTab"
+import { LegalPagesTab } from "@/components/content/LegalPagesTab"
 
 type HomeContent = Tables<"home_content">
 type MarqueeItem = Tables<"home_marquee_items">
@@ -24,13 +25,16 @@ type Testimonial = Tables<"home_testimonials">
 type FaqItem = Tables<"faq_items">
 type PageHeader = Tables<"page_headers">
 
-const SCOPES = [
+type Scope = "home" | "shared" | "legal"
+
+const SCOPES: { value: Scope; label: string }[] = [
   { value: "home", label: "Home page" },
   { value: "shared", label: "Shared (used on multiple pages)" },
+  { value: "legal", label: "Legal pages" },
 ]
 
 export function Content() {
-  const [scope, setScope] = useState<"home" | "shared">("home")
+  const [scope, setScope] = useState<Scope>("home")
   const [content, setContent] = useState<HomeContent | null>(null)
   const [marqueeItems, setMarqueeItems] = useState<MarqueeItem[]>([])
   const [steps, setSteps] = useState<Step[]>([])
@@ -81,10 +85,7 @@ export function Content() {
             Headings, copy and images shown across the storefront.
           </p>
         </div>
-        <Select
-          value={scope}
-          onValueChange={(v) => setScope(v as "home" | "shared")}
-        >
+        <Select value={scope} onValueChange={(v) => setScope(v as Scope)}>
           <SelectTrigger className="w-[260px]">
             <SelectValue />
           </SelectTrigger>
@@ -98,7 +99,9 @@ export function Content() {
         </Select>
       </div>
 
-      {loading || !content ? (
+      {scope === "legal" ? (
+        <LegalPagesTab />
+      ) : loading || !content ? (
         <div className="py-20 text-center text-sm text-muted-foreground">
           Loading content…
         </div>

@@ -664,6 +664,30 @@ export type Database = {
         }
         Relationships: []
       }
+      legal_pages: {
+        Row: {
+          intro: string
+          revision_date: string
+          sections: Json
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          intro: string
+          revision_date: string
+          sections?: Json
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          intro?: string
+          revision_date?: string
+          sections?: Json
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       merch_items: {
         Row: {
           bg: string
