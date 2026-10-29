@@ -475,6 +475,7 @@ function ComposeBox({ avatarId, avatarBg, onPost }: ComposeBoxProps) {
   const [drops, setDrops] = useState<
     { id: number; title: string; bg: string }[]
   >([])
+  const [isDragging, setIsDragging] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -487,12 +488,37 @@ function ComposeBox({ avatarId, avatarBg, onPost }: ComposeBoxProps) {
       })
   }, [])
 
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+  function attachImage(file: File) {
+    if (!file.type.startsWith("image/")) return
     setImageFile(file)
     setPreviewUrl(URL.createObjectURL(file))
     setFocused(true)
+  }
+
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) attachImage(file)
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    if (!e.dataTransfer.types.includes("Files")) return
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  function handleDragLeave(e: React.DragEvent) {
+    // Ignore leave events fired when moving over child elements
+    if (e.currentTarget.contains(e.relatedTarget as Node | null)) return
+    setIsDragging(false)
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setIsDragging(false)
+    const file = Array.from(e.dataTransfer.files).find((f) =>
+      f.type.startsWith("image/")
+    )
+    if (file) attachImage(file)
   }
 
   function removeImage() {
@@ -523,8 +549,18 @@ function ComposeBox({ avatarId, avatarBg, onPost }: ComposeBoxProps) {
 
   return (
     <div
-      className={`brick-card p-4 transition-all ${expanded ? "shadow-[6px_6px_0_#001B21]" : ""}`}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className={`brick-card relative p-4 transition-all ${expanded ? "shadow-[6px_6px_0_#001B21]" : ""}`}
     >
+      {isDragging && (
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl border-2 border-dashed border-ink bg-cream/90 md:rounded-3xl">
+          <p className="flex items-center gap-2 font-mono text-[12px] font-bold text-ink">
+            <ImageIcon size={16} /> Paleisk nuotrauką čia
+          </p>
+        </div>
+      )}
       <div className="flex gap-3">
         <div
           className="size-9 shrink-0 overflow-hidden rounded-full border-2 border-ink"
