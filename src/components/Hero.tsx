@@ -14,14 +14,14 @@ gsap.registerPlugin(useGSAP)
 const avatarColors = ["#5DDB9C", "#FFAEE7", "#FB4903", "#4DA2FF"]
 const avatarInitials = ["MK", "TJ", "AR", "LP"]
 
-// Lithuanian noun agreement for "kūrėjas": 1 -> kūrėjas, 2-9 -> kūrėjai,
-// 0 and 10-19 -> kūrėjų.
-function creatorsLabel(n: number): string {
+// Lithuanian noun agreement for "atsiliepimas": 1 -> atsiliepimas,
+// 2-9 -> atsiliepimai, 0 and 10-19 -> atsiliepimų.
+function reviewsLabel(n: number): string {
   const lastTwo = n % 100
   const last = n % 10
-  if (last === 1 && lastTwo !== 11) return "kūrėjas"
-  if (last === 0 || (lastTwo >= 11 && lastTwo <= 19)) return "kūrėjų"
-  return "kūrėjai"
+  if (last === 1 && lastTwo !== 11) return "atsiliepimas"
+  if (last === 0 || (lastTwo >= 11 && lastTwo <= 19)) return "atsiliepimų"
+  return "atsiliepimai"
 }
 
 type BrickColor = "purple" | "pink" | "green" | "yellow" | "blue" | "orange"
@@ -201,23 +201,21 @@ export default function Hero() {
                 </Avatar>
               ))}
             </div>
-            {stats && (
-              <div className="flex items-center gap-1 text-[13px] text-ink/60">
-                {stats.average_rating != null && (
-                  <>
-                    <span className="inline-flex items-center gap-0.5 font-bold text-ink">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <StarIcon key={i} className="size-3 fill-current" />
-                      ))}{" "}
-                      {Number(stats.average_rating).toFixed(1)}
-                    </span>
-                    {" · "}
-                  </>
-                )}
-                {stats.active_subscribers.toLocaleString("lt-LT")}{" "}
-                {creatorsLabel(stats.active_subscribers)}
-              </div>
-            )}
+            {stats &&
+              stats.average_rating != null &&
+              stats.review_count > 0 && (
+                <div className="flex items-center gap-1 text-[13px] text-ink/60">
+                  <span className="inline-flex items-center gap-0.5 font-bold text-ink">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <StarIcon key={i} className="size-3 fill-current" />
+                    ))}{" "}
+                    {Number(stats.average_rating).toFixed(1)}
+                  </span>
+                  {" · "}
+                  {stats.review_count.toLocaleString("lt-LT")}{" "}
+                  {reviewsLabel(stats.review_count)}
+                </div>
+              )}
           </div>
 
           {/* Headline */}
