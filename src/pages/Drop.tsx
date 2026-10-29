@@ -287,7 +287,7 @@ export default function Drop() {
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <div className="grid grid-cols-1 items-start gap-6 md:gap-12 lg:grid-cols-2">
               {/* Gallery tile */}
-              <div className="brick-card p-4">
+              <div className="brick-card p-4 lg:sticky lg:top-28">
                 <div className="flex flex-col gap-4">
                   {/* Mobile: placeholder when the product has no photos */}
                   {thumbs.length === 0 && (
@@ -498,7 +498,7 @@ export default function Drop() {
                   <p className="mt-4 text-[14px] leading-[1.6] text-ink/70">
                     {isRentedOut
                       ? "Šiuo metu visi šio rinkinio egzemplioriai išnuomoti. Grįžk vėliau – kai tik kas nors jį grąžins, galėsi užsisakyti."
-                      : "Šis rinkinys įskaičiuotas į tavo prenumeratą – jokio papildomo mokesčio. Tiesiog užsisakyk, konstruok ir grąžink."}
+                      : "Rinkinys atkeliaus Brick Time dėžėje: su originalia instrukcija, saugos lapeliu ir detalėmis, paruoštomis statyti. Naujas rinkinys siunčiamas gamintojo maišeliuose, jau naudotas – mūsų surūšiuotuose. Originali LEGO®️ dėžė nepridedama."}
                   </p>
 
                   {isRentedOut ? (

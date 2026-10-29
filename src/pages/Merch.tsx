@@ -87,8 +87,6 @@ function MerchCard({ item }: { item: MerchItem }) {
 
   const isDark = item.bg === "#001B21" || item.bg.toLowerCase() === "#001b21"
   const contentColor = isDark ? "text-paper/40" : "text-ink/40"
-  const labelColor = isDark ? "text-paper/70" : "text-ink/70"
-  const chipBorder = isDark ? "border-paper/30" : "border-ink/30"
 
   return (
     <Link
@@ -97,12 +95,10 @@ function MerchCard({ item }: { item: MerchItem }) {
     >
       {/* Visual */}
       <div
-        className="relative flex min-h-[300px] items-center justify-center p-6 md:p-10"
+        className="relative flex min-h-[300px] items-center justify-center"
         style={{ background: item.bg }}
       >
-        <span
-          className={`label-mono absolute top-4 left-4 rounded-full border-2 ${chipBorder} px-3 py-1 ${labelColor}`}
-        >
+        <span className="label-mono absolute top-4 left-4 rounded-full border-2 border-ink bg-paper px-3 py-1 text-ink">
           {TYPE_LABEL[item.type]}
         </span>
 
@@ -124,9 +120,7 @@ function MerchCard({ item }: { item: MerchItem }) {
         )}
 
         {isComingSoon && (
-          <span
-            className={`label-mono absolute top-4 right-4 rounded-full border-2 ${chipBorder} bg-black/10 px-3 py-1 ${labelColor} backdrop-blur-sm`}
-          >
+          <span className="label-mono absolute top-4 right-4 rounded-full border-2 border-ink bg-paper px-3 py-1 text-ink">
             Greitai
           </span>
         )}
