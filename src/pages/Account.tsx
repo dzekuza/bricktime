@@ -568,13 +568,39 @@ export default function Account() {
     setPlanChanging(true)
     setPlanChangeError("")
     const origin = window.location.origin
+    const successUrl = `${origin}/account?plan_changed=true&plan=${newTier.key}${nextHomeDelivery ? "&home_delivery=1" : ""}`
+
+    // Swap the existing subscription in place; only open a new checkout when
+    // there is no active subscription to change.
+    const { data: swap, error: swapError } = await supabase.functions.invoke(
+      "change-subscription",
+      {
+        body: {
+          planKey: newTier.key,
+          billing: upgradeBilling,
+          homeDelivery: nextHomeDelivery,
+        },
+      }
+    )
+    if (swapError || swap?.error) {
+      setPlanChanging(false)
+      setPlanChangeError(
+        swap?.error ?? swapError?.message ?? "Nepavyko. Bandyk dar kartą."
+      )
+      return
+    }
+    if (swap?.changed) {
+      window.location.href = successUrl
+      return
+    }
+
     const { data, error } = await supabase.functions.invoke("create-checkout", {
       body: {
         planKey: newTier.key,
         billing: upgradeBilling,
         userId: user.id,
         userEmail: user.email ?? "",
-        successUrl: `${origin}/account?plan_changed=true&plan=${newTier.key}${nextHomeDelivery ? "&home_delivery=1" : ""}`,
+        successUrl,
         cancelUrl: `${origin}/account`,
         homeDelivery: nextHomeDelivery,
       },

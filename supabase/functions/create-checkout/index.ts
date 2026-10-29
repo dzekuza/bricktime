@@ -44,6 +44,27 @@ Deno.serve(async (req) => {
 
     if (planError || !plan) throw new Error(`Unknown plan: ${planKey}`)
 
+    // Reuse the stored Stripe customer so history and subscriptions stay on one
+    // customer; fall back to the email when it is missing or no longer exists.
+    let customerId: string | null = null
+    if (userId) {
+      const { data: subscriber } = await supabase
+        .from("subscribers")
+        .select("stripe_customer_id")
+        .eq("id", userId)
+        .maybeSingle()
+      if (subscriber?.stripe_customer_id) {
+        try {
+          const customer = await stripe.customers.retrieve(
+            subscriber.stripe_customer_id
+          )
+          if (!customer.deleted) customerId = customer.id
+        } catch {
+          customerId = null
+        }
+      }
+    }
+
     // Legenda (mega) includes free courier delivery — never charge the add-on fee for it.
     const chargeHomeDeliveryFee = homeDelivery && planKey !== "mega"
 
@@ -126,7 +147,9 @@ Deno.serve(async (req) => {
           : []),
       ],
       ...(giftCardCoupon && { discounts: [{ coupon: giftCardCoupon.id }] }),
-      customer_email: userEmail ?? undefined,
+      ...(customerId
+        ? { customer: customerId }
+        : { customer_email: userEmail ?? undefined }),
       client_reference_id: userId,
       success_url: successUrl,
       cancel_url: cancelUrl,
