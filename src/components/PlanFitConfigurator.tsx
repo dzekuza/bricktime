@@ -13,6 +13,21 @@ interface LiteProduct {
   value: number
 }
 
+// Plan names are nouns, so "į …" needs the accusative and "su … planu" the
+// genitive; other plans (e.g. Mystery Box) fall back to the plain name.
+const PLAN_ACCUSATIVE: Partial<Record<Tier, string>> = {
+  nano: "Mėgėją",
+  mini: "Kūrėją",
+  standard: "Meistrą",
+  mega: "Legendą",
+}
+const PLAN_GENITIVE: Partial<Record<Tier, string>> = {
+  nano: "Mėgėjo",
+  mini: "Kūrėjo",
+  standard: "Meistro",
+  mega: "Legendos",
+}
+
 interface PlanFitConfiguratorProps {
   planKey: Tier
   planName: string
@@ -66,9 +81,7 @@ export function PlanFitConfigurator({
   )
 
   const pickerProducts = useMemo(() => {
-    const notSelected = products.filter(
-      (p) => !selectedIds.includes(p.id)
-    )
+    const notSelected = products.filter((p) => !selectedIds.includes(p.id))
     if (!query.trim()) return notSelected
     const q = query.trim().toLowerCase()
     return notSelected.filter((p) => p.title.toLowerCase().includes(q))
@@ -92,12 +105,13 @@ export function PlanFitConfigurator({
       <h2 className="heading-display text-d-sm mt-2 text-ink">
         Pasitikrink, kiek produktų telpa į{" "}
         <span className="inline-block -rotate-[1deg] border-2 border-ink bg-brand-yellow px-2">
-          {planName}
+          {PLAN_ACCUSATIVE[planKey] ?? planName}
         </span>
       </h2>
       <p className="mt-3 max-w-[62ch] text-[15px] leading-[1.6] text-ink/65">
-        Su {planName} planu turėsi {budgetCredits} Kr. kas mėnesį — pasirink
-        produktus žemiau ir pažiūrėk, kiek jų vienu metu tilptų.
+        Su {PLAN_GENITIVE[planKey] ?? planName} planu turėsi {budgetCredits} Kr.
+        kas mėnesį — pasirink produktus žemiau ir pažiūrėk, kiek jų vienu metu
+        tilptų.
       </p>
 
       {/* Budget meter */}
