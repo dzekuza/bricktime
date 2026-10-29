@@ -317,6 +317,29 @@ Deno.serve(async (req) => {
 
         if (session.mode !== "subscription") break
 
+        // Redeem only once the session completes — creating it must not burn the card.
+        const giftCardCode = session.metadata?.giftCardCode
+        if (giftCardCode) {
+          const { data: redeemed, error: redeemError } = await supabase
+            .from("gift_cards")
+            .update({
+              status: "used",
+              redeemed_at: new Date().toISOString(),
+              redeemed_by_user_id: session.client_reference_id,
+            })
+            .eq("code", giftCardCode)
+            .eq("status", "active")
+            .select("code")
+          if (redeemError) throw redeemError
+          // Zero rows means another checkout redeemed the card first; the
+          // discount was already granted, so flag it for manual review.
+          if (!redeemed?.length) {
+            console.error(
+              `Gift card ${giftCardCode} already redeemed; session ${session.id} was discounted`
+            )
+          }
+        }
+
         const planKey = parsePlanKey(session.metadata?.planKey)
         const homeDelivery = parseHomeDelivery(session.metadata?.homeDelivery)
         const customerId =

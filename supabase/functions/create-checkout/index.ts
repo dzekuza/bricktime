@@ -50,10 +50,41 @@ Deno.serve(async (req) => {
     const planPrice =
       billing === "annual" ? (plan.annual_price ?? plan.price) : plan.price
 
+    // Gift cards are discounted server-side below; a client-sent amount is only
+    // honoured for coupons.
     const unitAmount =
-      discountedAmount != null && discountedAmount > 0
+      !giftCardCode && discountedAmount != null && discountedAmount > 0
         ? Math.round(discountedAmount * 100)
         : Math.round(planPrice * 100)
+
+    let giftCardDiscountCents = 0
+    if (giftCardCode) {
+      const { data: card } = await supabase
+        .from("gift_cards")
+        .select("amount_cents, status, expires_at")
+        .eq("code", String(giftCardCode).toUpperCase())
+        .maybeSingle()
+
+      if (!card || card.status !== "active" || new Date(card.expires_at) < new Date()) {
+        throw new Error("Dovanų kortelė negalioja")
+      }
+
+      // Cap at the first invoice so Stripe never sees an oversized coupon.
+      const firstInvoiceCents = unitAmount + (chargeHomeDeliveryFee ? 300 : 0)
+      giftCardDiscountCents = Math.min(card.amount_cents, firstInvoiceCents)
+    }
+
+    // `once` keeps the credit on the first invoice only; later months bill in full.
+    const giftCardCoupon =
+      giftCardDiscountCents > 0
+        ? await stripe.coupons.create({
+            amount_off: giftCardDiscountCents,
+            currency: "eur",
+            duration: "once",
+            max_redemptions: 1,
+            name: "Dovanų kortelė",
+          })
+        : null
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
@@ -81,6 +112,7 @@ Deno.serve(async (req) => {
             ]
           : []),
       ],
+      ...(giftCardCoupon && { discounts: [{ coupon: giftCardCoupon.id }] }),
       customer_email: userEmail ?? undefined,
       client_reference_id: userId,
       success_url: successUrl,
@@ -90,6 +122,7 @@ Deno.serve(async (req) => {
         planKey,
         billing: billing ?? "monthly",
         homeDelivery: homeDelivery ? "true" : "false",
+        ...(giftCardCoupon && { giftCardCode: String(giftCardCode).toUpperCase() }),
       },
       subscription_data: {
         metadata: {
@@ -100,14 +133,6 @@ Deno.serve(async (req) => {
         },
       },
     })
-
-    if (giftCardCode) {
-      await supabase
-        .from("gift_cards")
-        .update({ status: "used", redeemed_at: new Date().toISOString() })
-        .eq("code", giftCardCode)
-        .eq("status", "active")
-    }
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
