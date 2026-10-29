@@ -37,13 +37,19 @@ export function AuthForm({ onClose }: { onClose: () => void }) {
     } else {
       // The matching `subscribers` row is created by the on_auth_user_created
       // trigger — the client cannot insert one (no insert policy on the table).
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: { data: { name } },
       })
       setLoading(false)
       if (error) setError(translateAuthError(error.message))
+      // With email confirmation on, Supabase hides duplicates by returning a
+      // fake user with no identities instead of an "already registered" error.
+      else if (data.user?.identities?.length === 0)
+        setError(
+          "Paskyra su šiuo el. paštu jau egzistuoja. Prisijunk arba atstatyk slaptažodį."
+        )
       else {
         setSuccess(
           "Paskyra sukurta! Atidaryk gautą laišką ir paspausk patvirtinimo nuorodą – tada galėsi prisijungti."
