@@ -18,6 +18,7 @@ import { getDisplayPlan, sortPlans } from "@/lib/product-filters"
 import { Seo } from "@/components/Seo"
 import { useProductAvailability } from "@/hooks/useProductAvailability"
 import { ManufacturerInfo } from "@/components/ManufacturerInfo"
+import { ProductReviews } from "@/components/reviews/ProductReviews"
 import { ExpandableHtml } from "@/components/ExpandableHtml"
 import { ImagePlaceholder } from "@/components/ImagePlaceholder"
 import {
@@ -855,6 +856,8 @@ export default function Drop() {
             </div>
           </section>
         )}
+
+        {product && <ProductReviews productId={product.id} />}
 
         <section className="bg-paper py-4">
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">

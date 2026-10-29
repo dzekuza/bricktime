@@ -18,6 +18,7 @@ import {
   MessageSquareIcon,
   FlagIcon,
   AwardIcon,
+  StarIcon,
 } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 import {
@@ -48,6 +49,7 @@ const navMain = [
   { label: "Rewards", to: "/achievements", icon: TrophyIcon },
   { label: "Points", to: "/points", icon: AwardIcon },
   { label: "Community", to: "/community", icon: MessageSquareIcon },
+  { label: "Reviews", to: "/reviews", icon: StarIcon },
   { label: "Challenges", to: "/challenges", icon: FlagIcon },
   { label: "Missing Parts", to: "/missing-parts", icon: WrenchIcon },
   { label: "Merch", to: "/merch", icon: ShirtIcon },

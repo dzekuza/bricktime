@@ -12,6 +12,7 @@ import { Subscribers } from "@/pages/Subscribers"
 import { Plans } from "@/pages/Plans"
 import { Orders } from "@/pages/Orders"
 import { Coupons } from "@/pages/Coupons"
+import { Reviews } from "@/pages/Reviews"
 import { Achievements } from "@/pages/Achievements"
 import { Points } from "@/pages/Points"
 import { Community } from "@/pages/Community"
@@ -46,6 +47,7 @@ export default function App() {
               <Route path="/achievements" element={<Achievements />} />
               <Route path="/points" element={<Points />} />
               <Route path="/community" element={<Community />} />
+              <Route path="/reviews" element={<Reviews />} />
               <Route path="/challenges" element={<Challenges />} />
               <Route path="/missing-parts" element={<MissingParts />} />
               <Route path="/merch" element={<Merch />} />
