@@ -625,7 +625,7 @@ export default function Checkout() {
     return (
       <div className="min-h-screen bg-paper">
         <Nav />
-        <section className="py-10 md:py-20">
+        <section>
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               {/* Left — product image */}
@@ -1515,7 +1515,7 @@ export default function Checkout() {
       {/* Confirmation modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="brick-card w-[calc(100vw-2rem)] max-w-[380px] gap-0 border-0 bg-paper p-0 shadow-none">
-          <div className="p-6">
+          <div className="min-w-0 p-6">
             <DialogTitle className="heading-display text-d-xs text-ink">
               Patvirtinti užsakymą?
             </DialogTitle>
