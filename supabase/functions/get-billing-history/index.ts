@@ -57,7 +57,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (userEmail) {
+    // Email matching only for a confirmed address, so an unverified sign-up
+    // cannot pull in another person's customers.
+    if (userEmail && authData.user.email_confirmed_at) {
       const customers = await stripe.customers.list({
         email: userEmail,
         limit: 10,
