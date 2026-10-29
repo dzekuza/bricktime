@@ -47,15 +47,23 @@ Deno.serve(async (req) => {
     // Legenda (mega) includes free courier delivery — never charge the add-on fee for it.
     const chargeHomeDeliveryFee = homeDelivery && planKey !== "mega"
 
-    const planPrice =
-      billing === "annual" ? (plan.annual_price ?? plan.price) : plan.price
+    // plans.annual_price is the discounted per-month rate; yearly billing charges
+    // 12 of those once a year, so every line item must use the same interval.
+    const isAnnual = billing === "annual"
+    const interval = isAnnual ? "year" : "month"
+    const monthsPerInterval = isAnnual ? 12 : 1
+
+    const planPrice = isAnnual ? (plan.annual_price ?? plan.price) : plan.price
 
     // Gift cards are discounted server-side below; a client-sent amount is only
     // honoured for coupons.
     const unitAmount =
-      !giftCardCode && discountedAmount != null && discountedAmount > 0
+      !giftCardCode &&
+      !isAnnual &&
+      discountedAmount != null &&
+      discountedAmount > 0
         ? Math.round(discountedAmount * 100)
-        : Math.round(planPrice * 100)
+        : Math.round(planPrice * 100) * monthsPerInterval
 
     let giftCardDiscountCents = 0
     if (giftCardCode) {
@@ -65,12 +73,17 @@ Deno.serve(async (req) => {
         .eq("code", String(giftCardCode).toUpperCase())
         .maybeSingle()
 
-      if (!card || card.status !== "active" || new Date(card.expires_at) < new Date()) {
+      if (
+        !card ||
+        card.status !== "active" ||
+        new Date(card.expires_at) < new Date()
+      ) {
         throw new Error("Dovanų kortelė negalioja")
       }
 
       // Cap at the first invoice so Stripe never sees an oversized coupon.
-      const firstInvoiceCents = unitAmount + (chargeHomeDeliveryFee ? 300 : 0)
+      const firstInvoiceCents =
+        unitAmount + (chargeHomeDeliveryFee ? 300 * monthsPerInterval : 0)
       giftCardDiscountCents = Math.min(card.amount_cents, firstInvoiceCents)
     }
 
@@ -94,7 +107,7 @@ Deno.serve(async (req) => {
             currency: "eur",
             product_data: { name: plan.name ?? `BRICKTIME ${planKey}` },
             unit_amount: unitAmount,
-            recurring: { interval: "month" },
+            recurring: { interval },
           },
           quantity: 1,
         },
@@ -104,8 +117,8 @@ Deno.serve(async (req) => {
                 price_data: {
                   currency: "eur",
                   product_data: { name: "Pristatymas į duris" },
-                  unit_amount: 300,
-                  recurring: { interval: "month" },
+                  unit_amount: 300 * monthsPerInterval,
+                  recurring: { interval },
                 },
                 quantity: 1,
               },
@@ -122,7 +135,9 @@ Deno.serve(async (req) => {
         planKey,
         billing: billing ?? "monthly",
         homeDelivery: homeDelivery ? "true" : "false",
-        ...(giftCardCoupon && { giftCardCode: String(giftCardCode).toUpperCase() }),
+        ...(giftCardCoupon && {
+          giftCardCode: String(giftCardCode).toUpperCase(),
+        }),
       },
       subscription_data: {
         metadata: {

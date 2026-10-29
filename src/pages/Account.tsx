@@ -226,6 +226,7 @@ export default function Account() {
         key: p.id as PlanTier,
         name: p.name,
         price: p.price,
+        annualPrice: p.annual_price ?? p.price,
         bg: p.bg_color,
         textColor: p.text_color,
         level: i + 1,
@@ -272,6 +273,9 @@ export default function Account() {
   const [portalError, setPortalError] = useState("")
   const [selectedTier, setSelectedTier] = useState(2)
   const [upgradeHomeDelivery, setUpgradeHomeDelivery] = useState(false)
+  const [upgradeBilling, setUpgradeBilling] = useState<"monthly" | "annual">(
+    "monthly"
+  )
   const [missingPartOrder, setMissingPartOrder] = useState<RentedOrder | null>(
     null
   )
@@ -567,6 +571,7 @@ export default function Account() {
     const { data, error } = await supabase.functions.invoke("create-checkout", {
       body: {
         planKey: newTier.key,
+        billing: upgradeBilling,
         userId: user.id,
         userEmail: user.email ?? "",
         successUrl: `${origin}/account?plan_changed=true&plan=${newTier.key}${nextHomeDelivery ? "&home_delivery=1" : ""}`,
@@ -866,6 +871,28 @@ export default function Account() {
             {showUpgrade && (
               <div className="brick-card bg-paper p-3 md:p-8 lg:col-span-12">
                 <h3 className="label-mono mb-5 text-ink">Keisti prenumeratą</h3>
+                <div className="mb-4 flex gap-2">
+                  {(
+                    [
+                      { value: "monthly", label: "Kas mėnesį" },
+                      { value: "annual", label: "Kasmet −15%" },
+                    ] as const
+                  ).map(({ value, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setUpgradeBilling(value)}
+                      className={[
+                        "rounded-full border-2 px-4 py-1.5 font-mono text-[11px] tracking-[.1em] uppercase transition-colors",
+                        upgradeBilling === value
+                          ? "border-ink bg-ink text-paper"
+                          : "border-ink/30 text-ink hover:border-ink",
+                      ].join(" ")}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
                   {tierOptions.map((t, i) => (
                     <button
@@ -903,7 +930,8 @@ export default function Account() {
                               : "#001B2180",
                         }}
                       >
-                        €{t.price}/mėn.
+                        €{upgradeBilling === "annual" ? t.annualPrice : t.price}
+                        /mėn.
                       </div>
                     </button>
                   ))}
