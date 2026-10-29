@@ -395,6 +395,13 @@ export default function Checkout() {
     () => plans.find((p) => p.id === requiredTier.key) ?? null,
     [plans, requiredTier.key]
   )
+  // A subscriber whose plan already covers the product checks fit against
+  // their own plan; everyone else sees the plan they would need to buy.
+  const fitTier = hasTier && userSub ? userSub : requiredTier
+  const fitPlan = useMemo(
+    () => plans.find((p) => p.id === fitTier.key) ?? null,
+    [plans, fitTier.key]
+  )
 
   const basePrice =
     billing === "annual"
@@ -1442,11 +1449,11 @@ export default function Checkout() {
             </div>
           </div>
 
-          {requiredPlan && (
+          {fitPlan && (
             <PlanFitConfigurator
-              planKey={requiredTier.key as Tier}
-              planName={requiredTier.name}
-              budgetCredits={requiredPlan.credits}
+              planKey={fitTier.key as Tier}
+              planName={fitTier.name}
+              budgetCredits={fitPlan.credits}
               currentProductId={product?.id}
             />
           )}
