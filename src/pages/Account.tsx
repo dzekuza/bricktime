@@ -561,7 +561,7 @@ export default function Account() {
     if (!user) return
     const newTier = tierOptions[selectedTier] ?? FALLBACK_TIER
     const nextHomeDelivery = upgradeHomeDelivery
-    if (newTier.key === subscriber?.plan) {
+    if (hasSubscription && newTier.key === subscriber?.plan) {
       setPlanChangeError("Jau esi šiame plane.")
       return
     }
@@ -934,7 +934,7 @@ export default function Account() {
                         background: selectedTier === i ? t.bg : "transparent",
                       }}
                     >
-                      {t.key === subscriber?.plan && (
+                      {hasSubscription && t.key === subscriber?.plan && (
                         <span className="absolute -top-3 left-3 rounded-full border border-ink bg-ink px-2 py-0.5 font-mono text-[9px] tracking-[.1em] text-paper uppercase">
                           Dabartinis
                         </span>
