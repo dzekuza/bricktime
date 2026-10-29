@@ -81,7 +81,7 @@ function eventLabel(
     case "checkin":
       return `${name} aplankė šiandien`
     case "build_photo":
-      return `${name} pasidalino statyba`
+      return `${name} pasidalino nuotrauka`
     case "comment":
       return `${name} komentavo${dropTitle ? ` „${dropTitle}"` : ""}`
     case "like":
