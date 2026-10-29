@@ -105,7 +105,7 @@ function PlanChip({ plan }: { plan: string }) {
   return (
     <Link
       to="/account"
-      className="-mr-7 hidden items-center rounded-full border-2 border-ink py-[7px] pr-9 pl-3.5 md:flex"
+      className="-mr-4 hidden items-center rounded-full border-2 border-ink px-3.5 py-[7px] md:flex"
       style={{ background: bg }}
     >
       <span
