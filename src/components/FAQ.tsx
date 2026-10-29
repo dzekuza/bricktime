@@ -12,14 +12,7 @@ import { Button } from "@/components/ui/button"
 import { HeadingMarkup } from "@/components/HeadingMarkup"
 import { faqs as defaultFaqs } from "@/data/faq"
 import { supabase } from "@/lib/supabase"
-
-type PublicStats = {
-  active_subscribers: number
-  sets_sent: number
-  active_sets: number
-  average_rating: number | null
-  review_count: number
-}
+import { usePublicStats, type PublicStats } from "@/hooks/usePublicStats"
 
 // Shown until public_stats resolves, and for the rating before any review is
 // approved. An em dash rather than a zero: "0" reads as a measured value.
@@ -38,9 +31,10 @@ function buildStats(stats: PublicStats | null) {
       yellow: false,
     },
     {
-      value: stats?.average_rating != null
-        ? stats.average_rating.toFixed(1)
-        : STAT_PLACEHOLDER,
+      value:
+        stats?.average_rating != null
+          ? stats.average_rating.toFixed(1)
+          : STAT_PLACEHOLDER,
       label: "Vidutinis įvertinimas",
       yellow: true,
     },
@@ -83,20 +77,7 @@ export default function FAQ(props: FAQProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [faqs, setFaqs] = useState(defaultFaqs)
   const [dbCta, setDbCta] = useState<typeof DEFAULT_CTA | null>(null)
-  const [publicStats, setPublicStats] = useState<PublicStats | null>(null)
-
-  // public_stats is a single-row aggregate view. It has to come from the
-  // server rather than counting client-side, because anon cannot read
-  // subscribers at all.
-  useEffect(() => {
-    supabase
-      .from("public_stats")
-      .select("*")
-      .single()
-      .then(({ data }) => {
-        if (data) setPublicStats(data as PublicStats)
-      })
-  }, [])
+  const publicStats = usePublicStats()
 
   const stats = buildStats(publicStats)
 
