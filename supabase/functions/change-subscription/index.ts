@@ -59,9 +59,19 @@ Deno.serve(async (req) => {
       return json({ changed: false, reason: "no_active_subscription" })
     }
 
-    const subscription = await stripe.subscriptions.retrieve(
-      subscriber.stripe_subscription_id
-    )
+    // A stored id Stripe no longer knows (deleted, or from the other Stripe
+    // mode) is a stale row, not a failure — fall back to a fresh checkout.
+    let subscription: Stripe.Subscription
+    try {
+      subscription = await stripe.subscriptions.retrieve(
+        subscriber.stripe_subscription_id
+      )
+    } catch (err) {
+      if ((err as { code?: string }).code === "resource_missing") {
+        return json({ changed: false, reason: "no_active_subscription" })
+      }
+      throw err
+    }
     if (!SWAPPABLE_STATUSES.has(subscription.status)) {
       return json({ changed: false, reason: "no_active_subscription" })
     }
