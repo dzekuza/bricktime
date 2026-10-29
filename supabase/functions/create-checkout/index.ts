@@ -12,17 +12,35 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 }
 
+const unauthorized = () =>
+  new Response(JSON.stringify({ error: "Unauthorized" }), {
+    status: 401,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  })
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders })
   }
 
   try {
+    // Identity comes from the caller's token — body userId/userEmail are ignored
+    // so nobody can start a checkout against another user's Stripe customer.
+    const authHeader = req.headers.get("Authorization")
+    if (!authHeader) return unauthorized()
+    const userClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    )
+    const { data: authData } = await userClient.auth.getUser()
+    if (!authData.user) return unauthorized()
+    const userId = authData.user.id
+    const userEmail = authData.user.email
+
     const {
       planKey,
       billing,
-      userId,
-      userEmail,
       successUrl,
       cancelUrl,
       discountedAmount,
@@ -44,18 +62,47 @@ Deno.serve(async (req) => {
 
     if (planError || !plan) throw new Error(`Unknown plan: ${planKey}`)
 
+    // Reuse the stored Stripe customer so history and subscriptions stay on one
+    // customer; fall back to the email when it is missing or no longer exists.
+    let customerId: string | null = null
+    if (userId) {
+      const { data: subscriber } = await supabase
+        .from("subscribers")
+        .select("stripe_customer_id")
+        .eq("id", userId)
+        .maybeSingle()
+      if (subscriber?.stripe_customer_id) {
+        try {
+          const customer = await stripe.customers.retrieve(
+            subscriber.stripe_customer_id
+          )
+          if (!customer.deleted) customerId = customer.id
+        } catch {
+          customerId = null
+        }
+      }
+    }
+
     // Legenda (mega) includes free courier delivery — never charge the add-on fee for it.
     const chargeHomeDeliveryFee = homeDelivery && planKey !== "mega"
 
-    const planPrice =
-      billing === "annual" ? (plan.annual_price ?? plan.price) : plan.price
+    // plans.annual_price is the discounted per-month rate; yearly billing charges
+    // 12 of those once a year, so every line item must use the same interval.
+    const isAnnual = billing === "annual"
+    const interval = isAnnual ? "year" : "month"
+    const monthsPerInterval = isAnnual ? 12 : 1
+
+    const planPrice = isAnnual ? (plan.annual_price ?? plan.price) : plan.price
 
     // Gift cards are discounted server-side below; a client-sent amount is only
     // honoured for coupons.
     const unitAmount =
-      !giftCardCode && discountedAmount != null && discountedAmount > 0
+      !giftCardCode &&
+      !isAnnual &&
+      discountedAmount != null &&
+      discountedAmount > 0
         ? Math.round(discountedAmount * 100)
-        : Math.round(planPrice * 100)
+        : Math.round(planPrice * 100) * monthsPerInterval
 
     let giftCardDiscountCents = 0
     if (giftCardCode) {
@@ -65,12 +112,17 @@ Deno.serve(async (req) => {
         .eq("code", String(giftCardCode).toUpperCase())
         .maybeSingle()
 
-      if (!card || card.status !== "active" || new Date(card.expires_at) < new Date()) {
+      if (
+        !card ||
+        card.status !== "active" ||
+        new Date(card.expires_at) < new Date()
+      ) {
         throw new Error("Dovanų kortelė negalioja")
       }
 
       // Cap at the first invoice so Stripe never sees an oversized coupon.
-      const firstInvoiceCents = unitAmount + (chargeHomeDeliveryFee ? 300 : 0)
+      const firstInvoiceCents =
+        unitAmount + (chargeHomeDeliveryFee ? 300 * monthsPerInterval : 0)
       giftCardDiscountCents = Math.min(card.amount_cents, firstInvoiceCents)
     }
 
@@ -94,7 +146,7 @@ Deno.serve(async (req) => {
             currency: "eur",
             product_data: { name: plan.name ?? `BRICKTIME ${planKey}` },
             unit_amount: unitAmount,
-            recurring: { interval: "month" },
+            recurring: { interval },
           },
           quantity: 1,
         },
@@ -104,8 +156,8 @@ Deno.serve(async (req) => {
                 price_data: {
                   currency: "eur",
                   product_data: { name: "Pristatymas į duris" },
-                  unit_amount: 300,
-                  recurring: { interval: "month" },
+                  unit_amount: 300 * monthsPerInterval,
+                  recurring: { interval },
                 },
                 quantity: 1,
               },
@@ -113,7 +165,9 @@ Deno.serve(async (req) => {
           : []),
       ],
       ...(giftCardCoupon && { discounts: [{ coupon: giftCardCoupon.id }] }),
-      customer_email: userEmail ?? undefined,
+      ...(customerId
+        ? { customer: customerId }
+        : { customer_email: userEmail ?? undefined }),
       client_reference_id: userId,
       success_url: successUrl,
       cancel_url: cancelUrl,
@@ -122,7 +176,9 @@ Deno.serve(async (req) => {
         planKey,
         billing: billing ?? "monthly",
         homeDelivery: homeDelivery ? "true" : "false",
-        ...(giftCardCoupon && { giftCardCode: String(giftCardCode).toUpperCase() }),
+        ...(giftCardCoupon && {
+          giftCardCode: String(giftCardCode).toUpperCase(),
+        }),
       },
       subscription_data: {
         metadata: {

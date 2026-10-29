@@ -8,8 +8,15 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 }
+
+const unauthorized = () =>
+  new Response(JSON.stringify({ error: "Unauthorized" }), {
+    status: 401,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  })
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -17,14 +24,27 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { userId, userEmail } = await req.json()
+    // Identity comes from the caller's token, never from the request body.
+    const authHeader = req.headers.get("Authorization")
+    if (!authHeader) return unauthorized()
+    const userClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    )
+    const { data: authData } = await userClient.auth.getUser()
+    if (!authData.user) return unauthorized()
+    const userId = authData.user.id
+    const userEmail = authData.user.email
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     )
 
-    let customerId: string | null = null
+    // Older checkouts created a new Stripe customer each time, so history spans
+    // the stored customer plus every customer sharing the account email.
+    const customerIds = new Set<string>()
 
     if (userId) {
       const { data: subscriber } = await supabase
@@ -32,25 +52,38 @@ Deno.serve(async (req) => {
         .select("stripe_customer_id")
         .eq("id", userId)
         .maybeSingle()
-      customerId = subscriber?.stripe_customer_id ?? null
+      if (subscriber?.stripe_customer_id) {
+        customerIds.add(subscriber.stripe_customer_id)
+      }
     }
 
-    if (!customerId) {
-      const customers = await stripe.customers.list({ email: userEmail, limit: 1 })
-      customerId = customers.data[0]?.id ?? null
+    // Email matching only for a confirmed address, so an unverified sign-up
+    // cannot pull in another person's customers.
+    if (userEmail && authData.user.email_confirmed_at) {
+      const customers = await stripe.customers.list({
+        email: userEmail,
+        limit: 10,
+      })
+      for (const customer of customers.data) customerIds.add(customer.id)
     }
 
-    if (!customerId) {
+    if (customerIds.size === 0) {
       return new Response(JSON.stringify({ invoices: [] }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       })
     }
 
-    const invoices = await stripe.invoices.list({
-      customer: customerId,
-      limit: 24,
-      status: "paid",
-    })
+    const lists = await Promise.all(
+      [...customerIds].map((customer) =>
+        stripe.invoices.list({ customer, limit: 24, status: "paid" })
+      )
+    )
+    const invoices = {
+      data: lists
+        .flatMap((list) => list.data)
+        .sort((a, b) => b.created - a.created)
+        .slice(0, 24),
+    }
 
     const result = invoices.data.map((inv) => ({
       id: inv.id,
