@@ -69,6 +69,14 @@ export const tierConfig: Record<
   mystery_m: planTier("mystery_m", 0),
 }
 
+// "su …" takes the instrumental case, so the plan name can't be reused as-is.
+const SUBSCRIBE_WITH_LABEL: Partial<Record<Tier, string>> = {
+  nano: "Mėgėju",
+  mini: "Kūrėju",
+  standard: "Meistru",
+  mega: "Legenda",
+}
+
 const NEW_BADGE_DAYS = 7
 
 // A set counts as new for a week after it drops, so a scheduled coming-soon
@@ -303,7 +311,9 @@ export function ProductCard({
           className="mt-auto flex items-center justify-between rounded-xl border-2 border-ink px-4 py-2.5 text-[13px] font-bold transition-all group-hover:shadow-[4px_4px_0_#001B21]"
           style={{ background: tier.bg, color: tier.textColor }}
         >
-          <span>Prenumeruok su {tier.label}</span>
+          <span>
+            Prenumeruok su {SUBSCRIBE_WITH_LABEL[displayTier] ?? tier.label}
+          </span>
           <ArrowRightIcon className="size-4" />
         </div>
       </div>
