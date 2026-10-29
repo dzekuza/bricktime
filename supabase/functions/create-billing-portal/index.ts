@@ -55,7 +55,9 @@ Deno.serve(async (req) => {
       customerId = subscriber?.stripe_customer_id ?? null
     }
 
-    if (!customerId) {
+    // Email fallback only for a confirmed address; an unverified sign-up must
+    // not reach another person's billing portal.
+    if (!customerId && userEmail && authData.user.email_confirmed_at) {
       const customers = await stripe.customers.list({ email: userEmail, limit: 1 })
       customerId = customers.data[0]?.id ?? null
     }
