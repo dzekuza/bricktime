@@ -100,8 +100,9 @@ Deno.serve(async (req) => {
       homeDelivery: homeDelivery ? "true" : "false",
     }
 
-    // error_if_incomplete: a failed proration charge leaves the old plan in
-    // place instead of a half-applied swap.
+    // always_invoice bills the price difference now, and error_if_incomplete
+    // leaves the old plan in place if that payment fails — so a plan is never
+    // granted before it is paid for.
     await stripe.subscriptions.update(subscription.id, {
       items: [
         ...subscription.items.data.map((item) => ({
@@ -131,7 +132,7 @@ Deno.serve(async (req) => {
             ]
           : []),
       ],
-      proration_behavior: "create_prorations",
+      proration_behavior: "always_invoice",
       payment_behavior: "error_if_incomplete",
       cancel_at_period_end: false,
       metadata,

@@ -12,13 +12,30 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 }
 
+const unauthorized = () =>
+  new Response(JSON.stringify({ error: "Unauthorized" }), {
+    status: 401,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  })
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders })
   }
 
   try {
-    const { userId, userEmail } = await req.json()
+    // Identity comes from the caller's token, never from the request body.
+    const authHeader = req.headers.get("Authorization")
+    if (!authHeader) return unauthorized()
+    const userClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    )
+    const { data: authData } = await userClient.auth.getUser()
+    if (!authData.user) return unauthorized()
+    const userId = authData.user.id
+    const userEmail = authData.user.email
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
