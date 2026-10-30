@@ -727,49 +727,45 @@ export default function Account() {
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
             {/* User tile */}
-            <div className="flex min-h-[340px] flex-col rounded-2xl border-2 border-ink bg-paper p-6 shadow-[6px_6px_0_#001B21] md:rounded-3xl md:p-9 lg:col-span-8">
-              <div className="flex items-start gap-5">
-                <div className="shrink-0">
-                  <button
-                    onClick={() => setShowAvatarPicker((v) => !v)}
-                    className="group relative size-[72px] overflow-hidden rounded-full border-2 border-ink/30 transition-all hover:scale-105 hover:border-ink/70"
-                    style={{ background: activeAvatar.bg }}
-                    aria-label="Keisti avataras"
-                  >
-                    <img
-                      src={activeAvatar.src}
-                      alt={activeAvatar.label}
-                      className="h-full w-full object-cover object-top"
-                    />
-                    <span className="absolute inset-0 flex items-end justify-center rounded-full bg-ink/0 pb-1.5 transition-colors group-hover:bg-ink/40">
-                      <span className="font-mono text-[8px] font-bold tracking-[.1em] text-ink uppercase opacity-0 transition-opacity group-hover:opacity-100">
-                        Keisti
-                      </span>
+            <div className="brick-card flex flex-col gap-7 bg-paper p-6 md:min-h-[340px] md:p-9 lg:col-span-8">
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+                <button
+                  onClick={() => setShowAvatarPicker((v) => !v)}
+                  className="group relative size-20 shrink-0 overflow-hidden rounded-full border-2 border-ink/30 transition-all hover:scale-105 hover:border-ink/70"
+                  style={{ background: activeAvatar.bg }}
+                  aria-label="Keisti avataras"
+                >
+                  <img
+                    src={activeAvatar.src}
+                    alt={activeAvatar.label}
+                    className="h-full w-full object-cover object-top"
+                  />
+                  <span className="absolute inset-0 flex items-end justify-center rounded-full bg-ink/0 pb-1.5 transition-colors group-hover:bg-ink/40">
+                    <span className="font-mono text-[8px] font-bold tracking-[.1em] text-ink uppercase opacity-0 transition-opacity group-hover:opacity-100">
+                      Keisti
                     </span>
-                  </button>
-                </div>
-                <div className="flex-1">
-                  <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
-                    <h1 className="heading-display text-d-lg leading-[.9] text-ink">
-                      {[profile?.name, subscriber?.last_name]
-                        .filter(Boolean)
-                        .join(" ") || user.email?.split("@")[0]}
-                    </h1>
-                    <button
-                      onClick={() => setProfileOpen(true)}
-                      className="brick-hover-sm inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-paper px-4 py-1.5 font-mono text-[12px] font-bold text-ink transition-all"
-                    >
-                      Redaguoti profilį →
-                    </button>
-                  </div>
-                  <p className="mt-1.5 text-[15px] text-ink/60">
+                  </span>
+                </button>
+                <div className="min-w-0 flex-1">
+                  <h1 className="heading-display text-d-lg leading-[.9] text-ink">
+                    {[profile?.name, subscriber?.last_name]
+                      .filter(Boolean)
+                      .join(" ") || user.email?.split("@")[0]}
+                  </h1>
+                  <p className="mt-2 truncate text-[15px] text-ink/60">
                     {subscriber?.email ?? user.email}
                   </p>
                 </div>
+                <button
+                  onClick={() => setProfileOpen(true)}
+                  className="brick-hover-sm h-11 shrink-0 self-start rounded-full border-2 border-ink bg-paper px-5 font-mono text-[12px] font-bold text-ink transition-all sm:self-center"
+                >
+                  Redaguoti profilį →
+                </button>
               </div>
 
               {showAvatarPicker && (
-                <div className="mt-5 rounded-2xl border border-ink/15 bg-ink/5 p-4">
+                <div className="rounded-2xl border border-ink/15 bg-ink/5 p-4">
                   <p className="mb-3 font-mono text-[10px] tracking-[.18em] text-ink/40 uppercase">
                     Pasirink avataras
                   </p>
@@ -804,7 +800,7 @@ export default function Account() {
                 </div>
               )}
 
-              <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-5 border-t-2 border-ink/10 pt-6 sm:grid-cols-4">
                 {[
                   { val: postCount, label: "Įrašai" },
                   { val: memberSince, label: "Narys nuo" },
@@ -814,29 +810,25 @@ export default function Account() {
                     label: "Briksiai",
                   },
                 ].map((s) => (
-                  <div
-                    key={s.label}
-                    className="rounded-3xl border border-ink/20 bg-paper p-4"
-                  >
-                    <div className="font-display text-[18px] leading-tight text-ink uppercase">
+                  <div key={s.label}>
+                    <div className="font-display text-[28px] leading-none text-ink uppercase">
                       {s.val}
                     </div>
-                    <div className="mt-1 font-mono text-[10px] tracking-[.14em] text-ink/50 uppercase">
-                      {s.label}
-                    </div>
+                    <div className="label-mono mt-2 text-ink/50">{s.label}</div>
                   </div>
                 ))}
               </div>
-              <div className="mt-4 flex flex-wrap gap-3">
+
+              <div className="mt-auto flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t-2 border-ink/10 pt-5">
                 <button
                   onClick={signOut}
-                  className="self-start rounded-full border-2 border-ink bg-red-600 px-3 py-2 text-[14px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
+                  className="brick-hover-sm h-11 rounded-full border-2 border-ink bg-paper px-5 text-[14px] font-bold text-ink transition-all"
                 >
                   Atsijungti →
                 </button>
                 <button
                   onClick={() => setDeleteAccountOpen(true)}
-                  className="self-start rounded-full border-2 border-ink/20 px-3 py-2 text-[14px] font-bold text-ink/50 transition-colors hover:border-red-600 hover:text-red-600"
+                  className="font-mono text-[12px] text-ink/50 underline underline-offset-4 transition-colors hover:text-brand-orange"
                 >
                   Ištrinti paskyrą
                 </button>
