@@ -1305,7 +1305,10 @@ export default function Account() {
                     </p>
                   </div>
                   <span className="rounded-full border-2 border-ink bg-green-400 px-3 py-1 font-mono text-[10px] tracking-[.14em] text-ink uppercase">
-                    {subscriber?.status ?? "–"}
+                    {subscriber?.status
+                      ? (SUBSCRIBER_STATUS_LABELS[subscriber.status] ??
+                        subscriber.status)
+                      : "–"}
                   </span>
                 </div>
               ) : (
