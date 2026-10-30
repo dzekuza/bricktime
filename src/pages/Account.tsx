@@ -626,6 +626,17 @@ export default function Account() {
     }
     window.location.href = data.url
   }
+  // The plan picker lives in the profile section above; bring it into view
+  // when it is opened from the payments card further down.
+  function openPlanChange() {
+    setShowUpgrade(true)
+    requestAnimationFrame(() =>
+      document
+        .getElementById("plan-change")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" })
+    )
+  }
+
 
   async function openBillingPortal() {
     if (!user?.email) return
@@ -909,7 +920,10 @@ export default function Account() {
 
             {/* Upgrade plan picker */}
             {showUpgrade && (
-              <div className="brick-card bg-paper p-3 md:p-8 lg:col-span-12">
+              <div
+                id="plan-change"
+                className="brick-card scroll-mt-28 bg-paper p-3 md:p-8 lg:col-span-12"
+              >
                 <h3 className="label-mono mb-5 text-ink">Keisti prenumeratą</h3>
                 <div className="mb-4 flex gap-2">
                   {(
@@ -1245,6 +1259,22 @@ export default function Account() {
                         Pranešti apie trūkstamą detalę
                       </button>
                     )}
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={openBillingPortal}
+                        disabled={portalLoading}
+                        className="brick-hover-sm rounded-xl border-2 border-ink bg-paper px-4 py-3 font-mono text-[11px] tracking-[.14em] text-ink uppercase transition-all disabled:pointer-events-none disabled:opacity-50"
+                      >
+                        {portalLoading ? "Kraunama…" : "Mano prenumerata →"}
+                      </button>
+                      <button
+                        onClick={openBillingPortal}
+                        disabled={portalLoading}
+                        className="brick-hover-sm rounded-xl border-2 border-ink bg-paper px-4 py-3 font-mono text-[11px] tracking-[.14em] text-ink uppercase transition-all disabled:pointer-events-none disabled:opacity-50"
+                      >
+                        Atšaukti
+                      </button>
+                    </div>
                     {order.status === "return_requested" &&
                       (order.returnBarcode ? (
                         <button
@@ -1325,11 +1355,10 @@ export default function Account() {
                 {hasSubscription ? (
                   <>
                     <button
-                      onClick={openBillingPortal}
-                      disabled={portalLoading}
-                      className="brick-hover-sm w-full rounded-xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[11px] tracking-[.14em] text-paper uppercase transition-all disabled:pointer-events-none disabled:opacity-50"
+                      onClick={openPlanChange}
+                      className="brick-hover-sm w-full rounded-xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[11px] tracking-[.14em] text-paper uppercase transition-all"
                     >
-                      {portalLoading ? "Kraunama…" : "Mano prenumerata →"}
+                      Keisti prenumeratą
                     </button>
                     <p className="text-center font-mono text-[10px] text-ink/30">
                       Kortelė · istorija · atšaukimas
