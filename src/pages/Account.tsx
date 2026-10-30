@@ -790,6 +790,11 @@ export default function Account() {
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="bg-paper pb-4">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+          {hasSubscription && (
+            <div className="mb-4 flex flex-col gap-3">
+              {subscriptionNotices}
+            </div>
+          )}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
             {/* User tile */}
             <div className="brick-card flex flex-col gap-7 bg-paper p-6 md:min-h-[340px] md:p-9 lg:col-span-8">
@@ -939,10 +944,6 @@ export default function Account() {
                         : "–"}
                     </b>
                   </p>
-                </div>
-
-                <div className="mt-4 flex flex-col gap-2">
-                  {subscriptionNotices}
                 </div>
 
                 <div className="mt-auto flex gap-3 pt-6 md:hidden">
