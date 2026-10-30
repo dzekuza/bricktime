@@ -19,6 +19,9 @@ import { DeleteAccountDialog } from "@/components/DeleteAccountDialog"
 import { fetchLabelPdf, downloadPdf } from "@/lib/lpexpress"
 import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
+import { DiscountCodeField } from "@/components/account/DiscountCodeField"
+import { useDiscountCode } from "@/hooks/useDiscountCode"
+import { readFunctionError } from "@/lib/function-error"
 
 const SUBSCRIBER_STATUS_LABELS: Record<string, string> = {
   active: "Aktyvi",
@@ -241,6 +244,7 @@ export default function Account() {
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [planChanging, setPlanChanging] = useState(false)
   const [planChangeError, setPlanChangeError] = useState("")
+  const discount = useDiscountCode()
   const [agreedToPlanChangeTerms, setAgreedToPlanChangeTerms] = useState(false)
   const [rentedOrders, setRentedOrders] = useState<RentedOrder[]>([])
   const [ordersLoading, setOrdersLoading] = useState(true)
@@ -579,13 +583,15 @@ export default function Account() {
           planKey: newTier.key,
           billing: upgradeBilling,
           homeDelivery: nextHomeDelivery,
+          ...(discount.applied && { code: discount.applied.code }),
         },
       }
     )
     if (swapError || swap?.error) {
       setPlanChanging(false)
       setPlanChangeError(
-        swap?.error ?? swapError?.message ?? "Nepavyko. Bandyk dar kartą."
+        swap?.error ??
+          (await readFunctionError(swapError, "Nepavyko. Bandyk dar kartą."))
       )
       return
     }
@@ -603,11 +609,19 @@ export default function Account() {
         successUrl,
         cancelUrl: `${origin}/account`,
         homeDelivery: nextHomeDelivery,
+        ...(discount.applied?.kind === "gift" && {
+          giftCardCode: discount.applied.code,
+        }),
+        ...(discount.applied?.kind === "coupon" && {
+          couponCode: discount.applied.code,
+        }),
       },
     })
     setPlanChanging(false)
     if (error || !data?.url) {
-      setPlanChangeError(error?.message ?? "Nepavyko. Bandyk dar kartą.")
+      setPlanChangeError(
+        await readFunctionError(error, "Nepavyko. Bandyk dar kartą.")
+      )
       return
     }
     window.location.href = data.url
@@ -1013,6 +1027,7 @@ export default function Account() {
                       </button>
                     ))}
                   </div>
+                  <DiscountCodeField discount={discount} />
                   {planChangeError && (
                     <p className="font-mono text-[11px] text-red-500">
                       {planChangeError}
