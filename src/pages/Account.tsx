@@ -553,6 +553,21 @@ export default function Account() {
   const pendingTier = subscriber?.pending_plan
     ? tierOptions.find((t) => t.key === subscriber.pending_plan)
     : undefined
+  const subscriptionNotices = (
+    <SubscriptionNotices
+      pendingPlanName={pendingTier?.name ?? null}
+      pendingCredits={
+        pendingTier
+          ? (dbPlans.find((p) => p.id === pendingTier.key)?.credits ?? null)
+          : null
+      }
+      cancelRequested={subscriber?.cancel_requested ?? false}
+      cancelAt={subscriber?.cancel_at ?? null}
+      busy={subscriptionBusy}
+      onWithdrawPlan={withdrawPendingPlan}
+      onUndoCancel={() => cancelSubscription(true)}
+    />
+  )
   const activeAvatar = avatarOptions[selectedAvatarId] ?? avatarOptions[0]
   const totalPoints =
     dbPoints ??
@@ -924,6 +939,10 @@ export default function Account() {
                         : "–"}
                     </b>
                   </p>
+                </div>
+
+                <div className="mt-4 flex flex-col gap-2">
+                  {subscriptionNotices}
                 </div>
 
                 <div className="mt-auto flex gap-3 pt-6 md:hidden">
@@ -1325,20 +1344,7 @@ export default function Account() {
                     <p className="text-center font-mono text-[10px] text-ink/30">
                       Kortelė · istorija
                     </p>
-                    <SubscriptionNotices
-                      pendingPlanName={pendingTier?.name ?? null}
-                      pendingCredits={
-                        pendingTier
-                          ? (dbPlans.find((p) => p.id === pendingTier.key)
-                              ?.credits ?? null)
-                          : null
-                      }
-                      cancelRequested={subscriber?.cancel_requested ?? false}
-                      cancelAt={subscriber?.cancel_at ?? null}
-                      busy={subscriptionBusy}
-                      onWithdrawPlan={withdrawPendingPlan}
-                      onUndoCancel={() => cancelSubscription(true)}
-                    />
+                    {subscriptionNotices}
                   </>
                 ) : (
                   <button
