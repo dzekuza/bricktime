@@ -240,7 +240,7 @@ export default function Nav() {
                 ) : (
                   <Link
                     to="/subscribe"
-                    className="brick-hover-sm mr-3 hidden items-center gap-2 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[15px] font-bold text-paper md:inline-flex"
+                    className="brick-hover-sm -mr-3 hidden items-center gap-2 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[15px] font-bold text-paper md:inline-flex"
                   >
                     Pradėk konstruoti <ArrowRightIcon className="size-4" />
                   </Link>
