@@ -23,16 +23,30 @@ export async function applyCoupon(
     return { monthlyPrice: Math.max(0, cut), stripeCouponId: null }
   }
 
+  // A yearly invoice is one billing cycle, so a `repeating` coupon would cut
+  // all 12 months. Cover only the months the coupon is good for, once.
+  const isYearly = monthsPerInterval > 1
+  const coveredMonths = Math.min(terms.durationMonths, monthsPerInterval)
   const coupon = await stripe.coupons.create({
-    duration: "repeating",
-    duration_in_months: terms.durationMonths,
+    ...(isYearly
+      ? { duration: "once" as const }
+      : {
+          duration: "repeating" as const,
+          duration_in_months: terms.durationMonths,
+        }),
     max_redemptions: 1,
     name: "Nuolaidos kodas",
     ...(terms.type === "percentage"
-      ? { percent_off: terms.value }
+      ? {
+          percent_off: isYearly
+            ? Number(
+                ((terms.value * coveredMonths) / monthsPerInterval).toFixed(2)
+              )
+            : terms.value,
+        }
       : {
-          // `value` is per month; yearly invoices carry 12 months.
-          amount_off: Math.round(terms.value * 100) * monthsPerInterval,
+          // `value` is per month.
+          amount_off: Math.round(terms.value * 100) * coveredMonths,
           currency: "eur",
         }),
   })
