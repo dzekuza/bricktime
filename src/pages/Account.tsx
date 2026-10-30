@@ -19,6 +19,7 @@ import { fetchLabelPdf, downloadPdf } from "@/lib/lpexpress"
 import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
 import { DiscountCodeField } from "@/components/account/DiscountCodeField"
+import { PaymentHistory } from "@/components/account/PaymentHistory"
 import { PlanChangeSummary } from "@/components/account/PlanChangeSummary"
 import {
   RentedOrderCard,
@@ -1293,110 +1294,11 @@ export default function Account() {
             {/* Payment history */}
             <div className="brick-card p-6 md:p-8 lg:col-span-7">
               <p className="label-mono text-ink/40">Mokėjimų istorija</p>
-              {billingLoading ? (
-                <div className="mt-6 py-8 text-center">
-                  <p className="font-mono text-[11px] text-ink/30">Kraunama…</p>
-                </div>
-              ) : stripeInvoices.length === 0 && penaltyHistory.length === 0 ? (
-                <div className="mt-6 flex flex-col items-center justify-center py-8 text-center">
-                  <p className="font-display text-[32px] leading-none text-ink/10 uppercase">
-                    Tuščia
-                  </p>
-                  <p className="mt-2 font-mono text-[11px] text-ink/30">
-                    Mokėjimų istorija bus rodoma čia
-                  </p>
-                </div>
-              ) : (
-                <div className="mt-4 flex flex-col divide-y divide-ink/8">
-                  {stripeInvoices.map((inv) => (
-                    <div
-                      key={inv.id}
-                      className="flex items-center justify-between py-3.5"
-                    >
-                      <div className="flex flex-col gap-0.5">
-                        <p className="text-[14px] font-medium text-ink">
-                          {inv.description}
-                        </p>
-                        <p className="font-mono text-[11px] text-ink/40">
-                          {new Date(inv.date * 1000).toLocaleDateString(
-                            "lt-LT",
-                            {
-                              year: "numeric",
-                              month: "short",
-                              day: "numeric",
-                            }
-                          )}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="font-display text-[20px] leading-none text-ink">
-                          {inv.currency.toUpperCase() === "EUR"
-                            ? "€"
-                            : inv.currency.toUpperCase()}
-                          {inv.amount.toFixed(2)}
-                        </span>
-                        {inv.pdf ? (
-                          <a
-                            href={inv.pdf}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="rounded-full border border-ink/20 px-2.5 py-0.5 font-mono text-[9px] tracking-[.12em] text-ink/50 uppercase transition-colors hover:border-ink hover:text-ink"
-                          >
-                            PDF
-                          </a>
-                        ) : (
-                          <span className="rounded-full border border-green-400 bg-green-50 px-2.5 py-0.5 font-mono text-[9px] tracking-[.12em] text-green-600 uppercase">
-                            Sumokėta
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {penaltyHistory.map((p) => (
-                    <div
-                      key={p.id}
-                      className="flex items-center justify-between py-3.5"
-                    >
-                      <div className="flex flex-col gap-0.5">
-                        <p className="text-[14px] font-medium text-ink">
-                          {p.reason ?? "Bauda"}
-                        </p>
-                        <p className="font-mono text-[11px] text-ink/40">
-                          {new Date(p.created_at ?? "").toLocaleDateString(
-                            "lt-LT",
-                            {
-                              year: "numeric",
-                              month: "short",
-                              day: "numeric",
-                            }
-                          )}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="font-display text-[20px] leading-none text-ink">
-                          €{p.amount.toFixed(2)}
-                        </span>
-                        <span
-                          className={[
-                            "rounded-full border px-2.5 py-0.5 font-mono text-[9px] tracking-[.12em] uppercase",
-                            p.status === "paid"
-                              ? "border-green-400 bg-green-50 text-green-600"
-                              : p.status === "forgiven"
-                                ? "border-ink/20 bg-ink/5 text-ink/40"
-                                : "border-red-400 bg-red-50 text-red-500",
-                          ].join(" ")}
-                        >
-                          {p.status === "paid"
-                            ? "Bauda sumokėta"
-                            : p.status === "forgiven"
-                              ? "Atleista"
-                              : "Laukiama"}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <PaymentHistory
+                invoices={stripeInvoices}
+                penalties={penaltyHistory}
+                loading={billingLoading}
+              />
             </div>
           </div>
         </div>
