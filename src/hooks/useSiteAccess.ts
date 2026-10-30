@@ -12,8 +12,9 @@ function hasStoredAccess() {
 }
 
 export function useSiteAccess() {
+  // The gate only guards the deployed site; `vite dev` is never public.
   const [granted, setGranted] = useState(
-    () => !ACCESS_CODE || hasStoredAccess()
+    () => import.meta.env.DEV || !ACCESS_CODE || hasStoredAccess()
   )
 
   useEffect(() => {
