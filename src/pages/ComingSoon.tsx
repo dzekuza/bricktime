@@ -1,7 +1,13 @@
 import { useState, type FormEvent } from "react"
-import { supabase } from "@/lib/supabase"
 import { Seo } from "@/components/Seo"
 import BrandLogoVideo from "@/components/BrandLogoVideo"
+import { WaitlistForm } from "@/components/coming-soon/WaitlistForm"
+
+const STEPS = [
+  "Pasirink prenumeratą",
+  "Konstruok įspūdingus rinkinius",
+  "Baigęs — keisk juos į kitus",
+]
 
 function AccessUnlock({ onUnlock }: { onUnlock: (code: string) => boolean }) {
   const [open, setOpen] = useState(false)
@@ -45,7 +51,7 @@ function AccessUnlock({ onUnlock }: { onUnlock: (code: string) => boolean }) {
         OK
       </button>
       {error && (
-        <span className="font-mono text-[12px] text-red-500">
+        <span className="font-mono text-[12px] text-brand-orange">
           Neteisingas kodas
         </span>
       )}
@@ -58,38 +64,8 @@ export default function ComingSoon({
 }: {
   onUnlock: (code: string) => boolean
 }) {
-  const [email, setEmail] = useState("")
-  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">(
-    "idle"
-  )
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    const trimmed = email.trim()
-    if (!trimmed) return
-    setStatus("loading")
-    const { error } = await supabase
-      .from("coming_soon_subscribers")
-      .insert({ email: trimmed })
-
-    if (error && error.code !== "23505") {
-      setStatus("error")
-      return
-    }
-
-    const { error: omnisendError } = await supabase.functions.invoke(
-      "omnisend-subscribe",
-      { body: { email: trimmed } }
-    )
-    if (omnisendError) {
-      console.error("Failed to subscribe to Omnisend:", omnisendError)
-    }
-
-    setStatus("done")
-  }
-
   return (
-    <div className="studs-indigo relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-16">
+    <div className="studs-indigo relative min-h-[100dvh] overflow-hidden">
       <Seo
         title="Brick Time – LEGO® rinkinių prenumerata netrukus"
         description="Brick Time – LEGO® rinkinių prenumeratos paslauga Lietuvoje. Prisiregistruok ir sužinok pirmas, kai atidarysime."
@@ -97,76 +73,43 @@ export default function ComingSoon({
       />
       <div className="grid-overlay pointer-events-none absolute inset-0" />
 
-      <div className="relative z-10 mb-10 flex items-center">
-        <BrandLogoVideo className="h-16 w-auto rounded-xl object-contain" />
-      </div>
+      <div className="relative z-10 mx-auto flex min-h-[100dvh] max-w-[1320px] flex-col px-4 py-8 md:px-7 md:py-12">
+        <BrandLogoVideo className="h-14 w-auto self-start rounded-xl object-contain md:h-16" />
 
-      <div className="brick-card relative z-10 flex w-full max-w-lg flex-col items-center gap-6 bg-paper p-8 text-center md:p-11">
-        <span className="label-mono rounded-full border-2 border-ink bg-brand-yellow px-3 py-1 text-ink">
-          Netrukus
-        </span>
-
-        <h1 className="heading-display text-d-lg text-ink">
-          BRICKTIME <span className="text-brand-indigo">startuoja</span> greitai
-        </h1>
-
-        <div className="max-w-sm text-[16px] leading-relaxed text-ink/70">
-          <p>Ruošiame pirmąją Lietuvoje LEGO® rinkinių prenumeratą.</p>
-          <ul className="mt-3 flex flex-col items-start gap-1.5 text-left">
-            {[
-              "Pasirink prenumeratą",
-              "konstruok įspūdingus rinkinius",
-              "baigęs — keisk juos į kitus",
-            ].map((item) => (
-              <li key={item} className="flex items-center gap-2">
-                <span className="size-1.5 shrink-0 rounded-full bg-brand-mint" />
-                {item}
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3">
-            Palik savo el. paštą ir pirmasis sužinok apie BRICKTIME startą.
-          </p>
-        </div>
-
-        {status === "done" ? (
-          <div className="w-full rounded-2xl border-2 border-ink bg-[#5DDB9C] p-5">
-            <p className="font-mono text-[13px] font-bold text-ink">
-              ✓ Ačiū! Pranešime, kai startuosime.
+        <main className="grid flex-1 items-center gap-10 py-10 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
+          <section>
+            <span className="label-mono rounded-full border-2 border-ink bg-brand-yellow px-3 py-1 text-ink">
+              Netrukus
+            </span>
+            <h1 className="heading-display text-d-xl mt-5 text-paper">
+              BRICKTIME startuoja{" "}
+              <span className="inline-block -rotate-1 border-2 border-ink bg-brand-yellow px-3 text-ink">
+                greitai
+              </span>
+            </h1>
+            <p className="mt-6 max-w-[44ch] text-[18px] leading-relaxed text-paper/80">
+              Ruošiame pirmąją Lietuvoje LEGO® rinkinių prenumeratą.
             </p>
-          </div>
-        ) : (
-          <form
-            onSubmit={handleSubmit}
-            className="flex w-full flex-col gap-3 sm:flex-row"
-          >
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="tavo@example.com"
-              className="flex-1 rounded-full border-2 border-ink/20 bg-paper px-5 py-3 font-mono text-[14px] text-ink outline-none focus:border-ink"
-            />
-            <button
-              type="submit"
-              disabled={status === "loading"}
-              className="brick-hover-sm rounded-full border-2 border-ink bg-brand-indigo px-6 py-3 font-mono text-[13px] font-bold tracking-[.1em] text-paper uppercase disabled:opacity-50"
-            >
-              {status === "loading" ? "Siunčiama…" : "Pranešk man"}
-            </button>
-          </form>
-        )}
+            <ol className="mt-8 max-w-md divide-y-2 divide-paper/20 border-y-2 border-paper/20">
+              {STEPS.map((step, i) => (
+                <li key={step} className="flex items-baseline gap-4 py-4">
+                  <span className="label-mono text-paper/80">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="text-[17px] font-bold text-paper">
+                    {step}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </section>
 
-        {status === "error" && (
-          <p className="font-mono text-[12px] text-red-500">
-            Nepavyko užregistruoti. Bandyk dar kartą.
-          </p>
-        )}
-      </div>
+          <WaitlistForm />
+        </main>
 
-      <div className="relative z-10 mt-10">
-        <AccessUnlock onUnlock={onUnlock} />
+        <footer>
+          <AccessUnlock onUnlock={onUnlock} />
+        </footer>
       </div>
     </div>
   )
