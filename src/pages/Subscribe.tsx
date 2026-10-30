@@ -156,10 +156,6 @@ export default function Subscribe() {
     setPurchasing(true)
     setPurchaseError("")
     const planKey = plan.id as PlanTier
-    const basePrice =
-      billing === "annual" ? (plan.annual_price ?? plan.price) : plan.price
-    const discountedPrice = getDiscountedPrice(basePrice)
-    const hasDiscount = appliedCoupon != null && discountedPrice < basePrice
     const origin = window.location.origin
     const { data, error } = await supabase.functions.invoke("create-checkout", {
       body: {
@@ -169,7 +165,8 @@ export default function Subscribe() {
         userEmail: user.email ?? form.email,
         successUrl: `${origin}/subscribe?success=true&plan=${planKey}${homeDelivery ? "&home_delivery=1" : ""}`,
         cancelUrl: `${origin}/subscribe?plan=${planKey}`,
-        ...(hasDiscount && { discountedAmount: discountedPrice }),
+        ...(appliedCoupon &&
+          !appliedCoupon.giftCardCode && { couponCode: appliedCoupon.code }),
         ...(appliedCoupon?.giftCardCode && {
           giftCardCode: appliedCoupon.giftCardCode,
         }),

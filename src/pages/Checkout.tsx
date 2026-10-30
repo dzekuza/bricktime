@@ -431,7 +431,6 @@ export default function Checkout() {
     setPurchasing(true)
     setPurchaseError("")
     const origin = window.location.origin
-    const hasDiscount = appliedCoupon != null && discountedPrice < basePrice
     const { data, error } = await supabase.functions.invoke("create-checkout", {
       body: {
         planKey: requiredTier.key,
@@ -444,7 +443,7 @@ export default function Checkout() {
         cancelUrl: productId
           ? `${origin}/checkout?product=${productId}`
           : `${origin}/subscribe`,
-        ...(hasDiscount && { discountedAmount: discountedPrice }),
+        ...(appliedCoupon && { couponCode: appliedCoupon.code }),
         ...(appliedGiftCard && { giftCardCode: appliedGiftCard.code }),
       },
     })

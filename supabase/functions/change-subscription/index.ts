@@ -1,6 +1,9 @@
 import Stripe from "https://esm.sh/stripe@14.21.0"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
+import { applyCoupon } from "../_shared/coupon.ts"
+import { assertNoDowngradeWhileHolding } from "../_shared/downgrade-guard.ts"
+
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2024-06-20",
   httpClient: Stripe.createFetchHttpClient(),
@@ -24,10 +27,10 @@ const json = (body: unknown, status = 200) =>
 type DiscountCode =
   | {
       kind: "coupon"
-      id: string
-      usesCount: number
+      code: string
       type: "percentage" | "fixed"
       value: number
+      durationMonths: number | null
     }
   | { kind: "gift"; code: string; cents: number }
 
@@ -44,7 +47,7 @@ async function resolveDiscountCode(
   const { data: coupon } = await supabase
     .from("coupons")
     .select(
-      "id, discount_type, discount_value, max_uses, uses_count, expires_at, active"
+      "code, discount_type, discount_value, duration_months, max_uses, uses_count, expires_at, active"
     )
     .eq("code", code)
     .maybeSingle()
@@ -56,10 +59,10 @@ async function resolveDiscountCode(
     if (!coupon.active || expired || exhausted) throw invalid
     return {
       kind: "coupon",
-      id: coupon.id,
-      usesCount: coupon.uses_count,
+      code,
       type: coupon.discount_type,
       value: Number(coupon.discount_value),
+      durationMonths: coupon.duration_months,
     }
   }
 
@@ -144,25 +147,13 @@ Deno.serve(async (req) => {
     // Sets are budgeted against the plan they were rented on. Dropping to a
     // cheaper plan while holding sets would keep them for less than they cost,
     // so downgrades wait until everything is returned.
-    if (subscriber.plan && subscriber.plan !== planKey) {
-      const { data: currentPlan } = await supabase
-        .from("plans")
-        .select("price")
-        .eq("id", subscriber.plan)
-        .maybeSingle()
-      if (currentPlan && plan.price < currentPlan.price) {
-        const { count } = await supabase
-          .from("orders")
-          .select("id", { count: "exact", head: true })
-          .eq("subscriber_id", user.id)
-          .neq("status", "returned")
-        if ((count ?? 0) > 0) {
-          throw new Error(
-            "Pereiti į pigesnį planą galėsi, kai grąžinsi visus paimtus rinkinius."
-          )
-        }
-      }
-    }
+    await assertNoDowngradeWhileHolding(
+      supabase,
+      user.id,
+      subscriber.plan,
+      planKey,
+      plan.price
+    )
 
     // Legenda (mega) includes free courier delivery.
     const chargeHomeDeliveryFee = homeDelivery && planKey !== "mega"
@@ -177,16 +168,11 @@ Deno.serve(async (req) => {
       : plan.price
 
     const discount = code ? await resolveDiscountCode(supabase, code) : null
-    // Coupons cut the recurring price, same as the new-checkout path.
-    const chargedMonthlyPrice =
+    const priced =
       discount?.kind === "coupon"
-        ? Math.max(
-            0,
-            discount.type === "percentage"
-              ? monthlyPrice * (1 - discount.value / 100)
-              : monthlyPrice - discount.value
-          )
-        : monthlyPrice
+        ? await applyCoupon(stripe, discount, monthlyPrice, monthsPerInterval)
+        : { monthlyPrice, stripeCouponId: null }
+    const chargedMonthlyPrice = priced.monthlyPrice
 
     const planProduct = await stripe.products.create({
       name: plan.name ?? `BRICKTIME ${planKey}`,
@@ -266,6 +252,9 @@ Deno.serve(async (req) => {
               ]
             : []),
         ],
+        ...(priced.stripeCouponId && {
+          discounts: [{ coupon: priced.stripeCouponId }],
+        }),
         proration_behavior: "always_invoice",
         payment_behavior: "error_if_incomplete",
         cancel_at_period_end: false,
@@ -299,12 +288,16 @@ Deno.serve(async (req) => {
     }
 
     if (discount?.kind === "coupon") {
-      // Guarded on the value we read so concurrent redemptions can't be lost.
-      await supabase
-        .from("coupons")
-        .update({ uses_count: discount.usesCount + 1 })
-        .eq("id", discount.id)
-        .eq("uses_count", discount.usesCount)
+      // The swap already succeeded, so a lost count must not fail the request.
+      const { error: redeemError } = await supabase.rpc("redeem_coupon", {
+        p_code: discount.code,
+      })
+      if (redeemError) {
+        console.error(
+          `change-subscription: redeem_coupon ${discount.code} failed:`,
+          redeemError.message
+        )
+      }
     }
 
     return json({ changed: true })

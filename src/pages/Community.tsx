@@ -1305,7 +1305,7 @@ function LeaderboardPodium({
               className={`studs-sm flex flex-col items-center rounded-2xl border-2 border-ink p-3 text-center shadow-[4px_4px_0_#001B21] ${isCenter ? "mt-0" : "mt-5"}`}
               style={{ background: entry.avatar_bg ?? "#001B21" }}
             >
-              <p className="text-d-xs mb-2 font-display leading-none text-paper/30">
+              <p className="text-d-xs mb-2 font-display leading-none text-paper">
                 #{entry.rank}
               </p>
               <div className="mb-2 size-9 overflow-hidden rounded-full border-2 border-paper/30">
@@ -1363,9 +1363,7 @@ function LeaderboardPodium({
             key={rank}
             className="flex flex-col items-center gap-0.5 rounded-xl border-2 border-ink/10 bg-ink/[.03] px-2 py-2.5 text-center"
           >
-            <span className="font-mono text-[9px] tracking-widest text-ink/30 uppercase">
-              {rank}
-            </span>
+            <span className="label-mono text-ink/70">{rank}</span>
             <span className="mt-0.5 text-[18px] leading-none">{emoji}</span>
             <p className="mt-1 text-[10px] leading-tight font-bold text-ink">
               {prize}

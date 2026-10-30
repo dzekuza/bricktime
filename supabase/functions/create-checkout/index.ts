@@ -1,6 +1,9 @@
 import Stripe from "https://esm.sh/stripe@14.21.0"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
+import { applyCoupon } from "../_shared/coupon.ts"
+import { assertNoDowngradeWhileHolding } from "../_shared/downgrade-guard.ts"
+
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2024-06-20",
   httpClient: Stripe.createFetchHttpClient(),
@@ -43,7 +46,6 @@ Deno.serve(async (req) => {
       billing,
       successUrl,
       cancelUrl,
-      discountedAmount,
       giftCardCode,
       couponCode,
       homeDelivery,
@@ -63,24 +65,33 @@ Deno.serve(async (req) => {
 
     if (planError || !plan) throw new Error(`Unknown plan: ${planKey}`)
 
+    const { data: subscriber } = await supabase
+      .from("subscribers")
+      .select("stripe_customer_id, plan")
+      .eq("id", userId)
+      .maybeSingle()
+
+    // Cancelling and re-subscribing must not dodge the downgrade check: the
+    // old plan stays on the subscriber row after cancellation.
+    await assertNoDowngradeWhileHolding(
+      supabase,
+      userId,
+      subscriber?.plan,
+      planKey,
+      plan.price
+    )
+
     // Reuse the stored Stripe customer so history and subscriptions stay on one
     // customer; fall back to the email when it is missing or no longer exists.
     let customerId: string | null = null
-    if (userId) {
-      const { data: subscriber } = await supabase
-        .from("subscribers")
-        .select("stripe_customer_id")
-        .eq("id", userId)
-        .maybeSingle()
-      if (subscriber?.stripe_customer_id) {
-        try {
-          const customer = await stripe.customers.retrieve(
-            subscriber.stripe_customer_id
-          )
-          if (!customer.deleted) customerId = customer.id
-        } catch {
-          customerId = null
-        }
+    if (subscriber?.stripe_customer_id) {
+      try {
+        const customer = await stripe.customers.retrieve(
+          subscriber.stripe_customer_id
+        )
+        if (!customer.deleted) customerId = customer.id
+      } catch {
+        customerId = null
       }
     }
 
@@ -96,13 +107,16 @@ Deno.serve(async (req) => {
     const planPrice = isAnnual ? (plan.annual_price ?? plan.price) : plan.price
 
     // A coupon sent by code is priced here from the database, so the client
-    // can't choose its own amount.
-    let couponPrice: number | null = null
+    // can't choose its own amount. Usage is counted by the webhook once the
+    // session completes, not here — creating a session must not burn a use.
+    let couponPlanPrice = planPrice
+    let stripeCouponId: string | null = null
+    let appliedCouponCode: string | null = null
     if (couponCode && !giftCardCode) {
       const { data: coupon } = await supabase
         .from("coupons")
         .select(
-          "discount_type, discount_value, max_uses, uses_count, expires_at, active"
+          "discount_type, discount_value, duration_months, max_uses, uses_count, expires_at, active"
         )
         .eq("code", String(couponCode).trim().toUpperCase())
         .maybeSingle()
@@ -113,25 +127,23 @@ Deno.serve(async (req) => {
       if (!coupon || !coupon.active || expired || exhausted) {
         throw new Error("Kodas negalioja")
       }
-      couponPrice = Math.max(
-        0,
-        coupon.discount_type === "percentage"
-          ? planPrice * (1 - Number(coupon.discount_value) / 100)
-          : planPrice - Number(coupon.discount_value)
+      const priced = await applyCoupon(
+        stripe,
+        {
+          type: coupon.discount_type,
+          value: Number(coupon.discount_value),
+          durationMonths: coupon.duration_months,
+        },
+        planPrice,
+        monthsPerInterval
       )
+      couponPlanPrice = priced.monthlyPrice
+      stripeCouponId = priced.stripeCouponId
+      appliedCouponCode = String(couponCode).trim().toUpperCase()
     }
 
-    // Gift cards are discounted server-side below; a client-sent amount is only
-    // honoured for coupons.
-    const unitAmount =
-      couponPrice != null
-        ? Math.round(couponPrice * 100) * monthsPerInterval
-        : !giftCardCode &&
-            !isAnnual &&
-            discountedAmount != null &&
-            discountedAmount > 0
-          ? Math.round(discountedAmount * 100)
-          : Math.round(planPrice * 100) * monthsPerInterval
+    // Prices always come from the database; the client never sends an amount.
+    const unitAmount = Math.round(couponPlanPrice * 100) * monthsPerInterval
 
     let giftCardDiscountCents = 0
     if (giftCardCode) {
@@ -193,7 +205,9 @@ Deno.serve(async (req) => {
             ]
           : []),
       ],
-      ...(giftCardCoupon && { discounts: [{ coupon: giftCardCoupon.id }] }),
+      ...((giftCardCoupon || stripeCouponId) && {
+        discounts: [{ coupon: (giftCardCoupon?.id ?? stripeCouponId)! }],
+      }),
       ...(customerId
         ? { customer: customerId }
         : { customer_email: userEmail ?? undefined }),
@@ -208,6 +222,7 @@ Deno.serve(async (req) => {
         ...(giftCardCoupon && {
           giftCardCode: String(giftCardCode).toUpperCase(),
         }),
+        ...(appliedCouponCode && { couponCode: appliedCouponCode }),
       },
       subscription_data: {
         metadata: {

@@ -340,6 +340,21 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Count the coupon use only once the session completes. Failure means
+        // the coupon ran out while this checkout was open; the discount was
+        // already granted, so flag it for manual review rather than failing.
+        const couponCode = session.metadata?.couponCode
+        if (couponCode) {
+          const { error: couponError } = await supabase.rpc("redeem_coupon", {
+            p_code: couponCode,
+          })
+          if (couponError) {
+            console.error(
+              `Coupon ${couponCode} not counted for session ${session.id}: ${couponError.message}`
+            )
+          }
+        }
+
         const planKey = parsePlanKey(session.metadata?.planKey)
         const homeDelivery = parseHomeDelivery(session.metadata?.homeDelivery)
         const customerId =
