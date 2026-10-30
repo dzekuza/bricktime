@@ -13,6 +13,7 @@ import {
 import { AuthForm } from "@/components/AuthForm"
 import { useState, useEffect, useMemo } from "react"
 import { supabase } from "@/lib/supabase"
+import { readFunctionError } from "@/lib/function-error"
 import { waitForSubscriberBilling } from "@/lib/wait-for-subscriber"
 import {
   getSubscriptionBrickSvg,
@@ -449,7 +450,9 @@ export default function Checkout() {
     })
     setPurchasing(false)
     if (error || !data?.url) {
-      setPurchaseError(error?.message ?? "Checkout nepavyko. Bandyk dar kartą.")
+      setPurchaseError(
+        await readFunctionError(error, "Checkout nepavyko. Bandyk dar kartą.")
+      )
       return
     }
     window.location.assign(data.url)
