@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 import { applyCoupon } from "../_shared/coupon.ts"
 import { assertNoDowngradeWhileHolding } from "../_shared/downgrade-guard.ts"
+import { flatUpgradeDiffCents } from "../_shared/plan-change.ts"
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2024-06-20",
@@ -79,6 +80,40 @@ async function resolveDiscountCode(
     throw invalid
   }
   return { kind: "gift", code: card.code, cents: card.amount_cents }
+}
+
+// Bills the upgrade gap as its own invoice and settles it before the plan is
+// swapped, so a failed payment leaves the old plan untouched.
+async function chargeUpgradeDifference(
+  customerId: string,
+  cents: number,
+  planName: string
+): Promise<Stripe.Invoice> {
+  await stripe.invoiceItems.create({
+    customer: customerId,
+    amount: cents,
+    currency: "eur",
+    description: `Plano keitimas į ${planName}: kainų skirtumas`,
+  })
+  const draft = await stripe.invoices.create({
+    customer: customerId,
+    collection_method: "charge_automatically",
+    auto_advance: false,
+    pending_invoice_items_behavior: "include",
+  })
+  try {
+    const finalized = await stripe.invoices.finalizeInvoice(draft.id)
+    // A gift-card balance can cover the whole gap, leaving nothing to pay.
+    return finalized.status === "paid"
+      ? finalized
+      : await stripe.invoices.pay(finalized.id)
+  } catch (err) {
+    await stripe.invoices
+      .voidInvoice(draft.id)
+      .catch(() => stripe.invoices.del(draft.id))
+      .catch(() => undefined)
+    throw err
+  }
 }
 
 // Swaps the plan on the caller's existing Stripe subscription instead of
@@ -218,10 +253,26 @@ Deno.serve(async (req) => {
       creditApplied = true
     }
 
-    // always_invoice bills the price difference now, and error_if_incomplete
-    // leaves the old plan in place if that payment fails — so a plan is never
-    // granted before it is paid for.
+    // A monthly upgrade bills the flat price gap now; anything else falls back
+    // to Stripe's proration with always_invoice. Either way the payment settles
+    // before the plan changes, so a plan is never granted before it is paid for.
+    const newTotalCents =
+      Math.round(chargedMonthlyPrice * 100) * monthsPerInterval +
+      (deliveryProduct ? HOME_DELIVERY_FEE_CENTS * monthsPerInterval : 0)
+    const flatDiffCents = flatUpgradeDiffCents(
+      subscription.items.data,
+      interval,
+      newTotalCents
+    )
+    let upgradeInvoice: Stripe.Invoice | null = null
     try {
+      if (flatDiffCents != null) {
+        upgradeInvoice = await chargeUpgradeDifference(
+          customerId,
+          flatDiffCents,
+          plan.name ?? planKey
+        )
+      }
       await stripe.subscriptions.update(subscription.id, {
         items: [
           ...subscription.items.data.map((item) => ({
@@ -255,12 +306,30 @@ Deno.serve(async (req) => {
         ...(priced.stripeCouponId && {
           discounts: [{ coupon: priced.stripeCouponId }],
         }),
-        proration_behavior: "always_invoice",
-        payment_behavior: "error_if_incomplete",
+        ...(flatDiffCents != null
+          ? { proration_behavior: "none" as const }
+          : {
+              proration_behavior: "always_invoice" as const,
+              payment_behavior: "error_if_incomplete" as const,
+            }),
         cancel_at_period_end: false,
         metadata,
       })
     } catch (swapErr) {
+      const paidIntent =
+        typeof upgradeInvoice?.payment_intent === "string"
+          ? upgradeInvoice.payment_intent
+          : upgradeInvoice?.payment_intent?.id
+      if (paidIntent) {
+        try {
+          await stripe.refunds.create({ payment_intent: paidIntent })
+        } catch (refundErr) {
+          console.error(
+            `change-subscription: failed to refund upgrade invoice ${upgradeInvoice?.id}:`,
+            (refundErr as Error).message
+          )
+        }
+      }
       if (creditApplied && discount?.kind === "gift") {
         try {
           await stripe.customers.createBalanceTransaction(customerId, {
