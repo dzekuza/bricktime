@@ -2,8 +2,13 @@ import Stripe from "https://esm.sh/stripe@14.21.0"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 import { applyCoupon } from "../_shared/coupon.ts"
-import { assertNoDowngradeWhileHolding } from "../_shared/downgrade-guard.ts"
 import { flatUpgradeDiffCents } from "../_shared/plan-change.ts"
+import {
+  fitsWithinCredits,
+  getHeldBrickValue,
+  releaseSchedule,
+  schedulePlanChange,
+} from "../_shared/plan-schedule.ts"
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2024-06-20",
@@ -137,7 +142,8 @@ Deno.serve(async (req) => {
     const user = userData.user
     if (!user) return json({ error: "Unauthorized" }, 401)
 
-    const { planKey, billing, homeDelivery, code } = await req.json()
+    const { planKey, billing, homeDelivery, code, withdrawPending } =
+      await req.json()
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -171,24 +177,92 @@ Deno.serve(async (req) => {
       return json({ changed: false, reason: "no_active_subscription" })
     }
 
+    if (withdrawPending) {
+      await releaseSchedule(stripe, subscription)
+      await supabase
+        .from("subscribers")
+        .update({
+          pending_plan: null,
+          pending_home_delivery: null,
+          pending_schedule_id: null,
+        })
+        .eq("id", user.id)
+      return json({ changed: false, withdrawn: true })
+    }
+
     const { data: plan, error: planError } = await supabase
       .from("plans")
-      .select("name, price, annual_price")
+      .select("name, price, annual_price, credits")
       .eq("id", planKey)
       .eq("active", true)
       .single()
     if (planError || !plan) throw new Error(`Unknown plan: ${planKey}`)
 
-    // Sets are budgeted against the plan they were rented on. Dropping to a
-    // cheaper plan while holding sets would keep them for less than they cost,
-    // so downgrades wait until everything is returned.
-    await assertNoDowngradeWhileHolding(
-      supabase,
-      user.id,
-      subscriber.plan,
-      planKey,
-      plan.price
-    )
+    // A cheaper plan never takes effect mid-cycle and never refunds: the request
+    // is stored and Stripe moves the subscription at the next renewal, but only
+    // while the sets the member holds fit the new plan's credits. If they don't,
+    // the old plan and price carry on and the request waits (process-plan-changes
+    // schedules it once the sets are back).
+    const { data: currentPlan } = await supabase
+      .from("plans")
+      .select("price")
+      .eq("id", subscriber.plan)
+      .maybeSingle()
+    if (
+      currentPlan &&
+      planKey !== subscriber.plan &&
+      plan.price < currentPlan.price
+    ) {
+      await supabase
+        .from("subscribers")
+        .update({
+          pending_plan: planKey,
+          pending_home_delivery: Boolean(homeDelivery),
+        })
+        .eq("id", user.id)
+
+      const heldValue = await getHeldBrickValue(supabase, user.id)
+      const fits = fitsWithinCredits(heldValue, plan.credits)
+      let effectiveAt = new Date(
+        subscription.current_period_end * 1000
+      ).toISOString()
+      if (fits) {
+        const scheduled = await schedulePlanChange(stripe, supabase, user.id)
+        effectiveAt = scheduled.effectiveAt
+        await supabase
+          .from("subscribers")
+          .update({ pending_schedule_id: scheduled.scheduleId })
+          .eq("id", user.id)
+      } else {
+        await releaseSchedule(stripe, subscription)
+        await supabase
+          .from("subscribers")
+          .update({ pending_schedule_id: null })
+          .eq("id", user.id)
+      }
+      return json({
+        changed: false,
+        scheduled: true,
+        fits,
+        effectiveAt,
+        heldValue,
+        credits: plan.credits,
+      })
+    }
+
+    // An immediate swap supersedes a pending downgrade, and Stripe refuses to
+    // update a subscription while a schedule controls it.
+    if (subscription.schedule) {
+      await releaseSchedule(stripe, subscription)
+      await supabase
+        .from("subscribers")
+        .update({
+          pending_plan: null,
+          pending_home_delivery: null,
+          pending_schedule_id: null,
+        })
+        .eq("id", user.id)
+    }
 
     // Legenda (mega) includes free courier delivery.
     const chargeHomeDeliveryFee = homeDelivery && planKey !== "mega"
