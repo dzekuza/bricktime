@@ -35,6 +35,24 @@ const SUBSCRIBER_STATUS_LABELS: Record<string, string> = {
   cancelled: "Atšaukta",
 }
 const HOME_DELIVERY_FEE = 3
+
+// Intl's Lithuanian short months vary by browser, so the abbreviations are fixed.
+const MONTHS_SHORT = [
+  "saus.",
+  "vas.",
+  "kov.",
+  "bal.",
+  "geg.",
+  "birž.",
+  "liep.",
+  "rugp.",
+  "rugs.",
+  "spal.",
+  "lapkr.",
+  "gruod.",
+]
+const formatMemberSince = (date: Date) =>
+  `${date.getFullYear()} m. ${MONTHS_SHORT[date.getMonth()]}`
 const DOWNGRADE_BLOCKED_MESSAGE =
   "Pereiti į pigesnį planą galėsi, kai grąžinsi visus paimtus rinkinius."
 
@@ -542,10 +560,7 @@ export default function Account() {
       achievements
     )
   const memberSince = subscriber?.joined_at
-    ? new Date(subscriber.joined_at).toLocaleDateString("lt-LT", {
-        year: "numeric",
-        month: "long",
-      })
+    ? formatMemberSince(new Date(subscriber.joined_at))
     : "–"
 
   async function saveAvatar(id: number) {
