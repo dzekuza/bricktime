@@ -80,7 +80,7 @@ export function RentedOrderCard({
 
   return (
     <div className="brick-card flex flex-col gap-4 bg-paper p-5 md:p-6">
-      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border-2 border-ink/10 bg-ink/[.03]">
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border-2 border-ink/10 bg-paper">
         {order.productImage ? (
           <img
             src={order.productImage}
