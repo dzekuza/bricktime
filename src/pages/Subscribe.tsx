@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react"
 import { useSearchParams, Link, useNavigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase"
+import { readFunctionError } from "@/lib/function-error"
 import { waitForSubscriberBilling } from "@/lib/wait-for-subscriber"
 import type { PlanTier } from "@/lib/db-enums"
 import Nav from "@/components/Nav"
@@ -175,7 +176,9 @@ export default function Subscribe() {
     })
     setPurchasing(false)
     if (error || !data?.url) {
-      setPurchaseError(error?.message ?? "Checkout nepavyko. Bandyk dar kartą.")
+      setPurchaseError(
+        await readFunctionError(error, "Checkout nepavyko. Bandyk dar kartą.")
+      )
       return
     }
     window.location.assign(data.url)
