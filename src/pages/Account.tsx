@@ -19,6 +19,7 @@ import { fetchLabelPdf, downloadPdf } from "@/lib/lpexpress"
 import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
 import { DiscountCodeField } from "@/components/account/DiscountCodeField"
+import { GiftCardTile } from "@/components/account/GiftCardTile"
 import { PaymentHistory } from "@/components/account/PaymentHistory"
 import { PlanChangeSummary } from "@/components/account/PlanChangeSummary"
 import {
@@ -1325,76 +1326,16 @@ export default function Account() {
                   <p className="font-mono text-[11px] text-ink/30">Kraunama…</p>
                 </div>
               ) : (
-                <div className="flex flex-col gap-4">
-                  {giftCards.map((gc) => {
-                    const isBuyer = gc.buyer_email === user?.email
-                    const isRecipient = gc.recipient_email === user?.email
-                    const role =
-                      isBuyer && isRecipient
-                        ? "Nupirkta sau"
-                        : isBuyer
-                          ? "Nupirkta"
-                          : "Gauta"
-                    const isActive = gc.status === "active"
-                    const isUsed = gc.status === "used"
-                    const expires = new Date(gc.expires_at).toLocaleDateString(
-                      "lt-LT",
-                      { year: "numeric", month: "short", day: "numeric" }
-                    )
-
-                    return (
-                      <div
-                        key={gc.id}
-                        className="brick-card flex flex-col gap-4 bg-paper p-5 sm:flex-row sm:items-center sm:justify-between md:p-6"
-                      >
-                        <div className="flex flex-col gap-1.5">
-                          <div className="flex items-center gap-2.5">
-                            <span className="label-mono text-ink/40">
-                              {role}
-                            </span>
-                            <span
-                              className={[
-                                "rounded-full border px-2.5 py-0.5 font-mono text-[9px] tracking-[.12em] uppercase",
-                                isActive
-                                  ? "border-green-400 bg-green-50 text-green-600"
-                                  : isUsed
-                                    ? "border-ink/20 bg-ink/5 text-ink/40"
-                                    : "border-red-300 bg-red-50 text-red-400",
-                              ].join(" ")}
-                            >
-                              {isActive
-                                ? "Aktyvus"
-                                : isUsed
-                                  ? "Panaudotas"
-                                  : "Pasibaigęs"}
-                            </span>
-                          </div>
-                          <span className="font-mono text-[22px] font-bold tracking-[.1em] text-ink">
-                            {gc.code}
-                          </span>
-                          <p className="font-mono text-[11px] text-ink/40">
-                            €{gc.amount_cents / 100} · Galioja iki {expires}
-                          </p>
-                          {gc.message && (
-                            <p className="mt-1 max-w-[40ch] text-[13px] text-ink/55 italic">
-                              "{gc.message}"
-                            </p>
-                          )}
-                        </div>
-
-                        {isActive && (
-                          <button
-                            onClick={() => copyCode(gc.code)}
-                            className="brick-hover-sm self-start rounded-xl border-2 border-ink px-4 py-2.5 font-mono text-[11px] font-bold tracking-[.1em] text-ink uppercase transition-all sm:self-auto"
-                          >
-                            {copiedCode === gc.code
-                              ? "✓ Nukopijuota"
-                              : "Kopijuoti kodą"}
-                          </button>
-                        )}
-                      </div>
-                    )
-                  })}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {giftCards.map((gc) => (
+                    <GiftCardTile
+                      key={gc.id}
+                      card={gc}
+                      userEmail={user?.email}
+                      copied={copiedCode === gc.code}
+                      onCopy={() => copyCode(gc.code)}
+                    />
+                  ))}
                 </div>
               )}
             </div>
