@@ -22,7 +22,6 @@ export function TermsAgreement({
         id={id}
         checked={checked}
         onCheckedChange={(v) => onCheckedChange(v === true)}
-        className="mt-0.5"
       />
       <span>
         <label htmlFor={id} className="cursor-pointer">

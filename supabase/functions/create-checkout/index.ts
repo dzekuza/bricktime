@@ -45,6 +45,7 @@ Deno.serve(async (req) => {
       cancelUrl,
       discountedAmount,
       giftCardCode,
+      couponCode,
       homeDelivery,
     } = await req.json()
 
@@ -94,15 +95,43 @@ Deno.serve(async (req) => {
 
     const planPrice = isAnnual ? (plan.annual_price ?? plan.price) : plan.price
 
+    // A coupon sent by code is priced here from the database, so the client
+    // can't choose its own amount.
+    let couponPrice: number | null = null
+    if (couponCode && !giftCardCode) {
+      const { data: coupon } = await supabase
+        .from("coupons")
+        .select(
+          "discount_type, discount_value, max_uses, uses_count, expires_at, active"
+        )
+        .eq("code", String(couponCode).trim().toUpperCase())
+        .maybeSingle()
+      const expired =
+        coupon?.expires_at && new Date(coupon.expires_at) < new Date()
+      const exhausted =
+        coupon?.max_uses != null && coupon.uses_count >= coupon.max_uses
+      if (!coupon || !coupon.active || expired || exhausted) {
+        throw new Error("Kodas negalioja")
+      }
+      couponPrice = Math.max(
+        0,
+        coupon.discount_type === "percentage"
+          ? planPrice * (1 - Number(coupon.discount_value) / 100)
+          : planPrice - Number(coupon.discount_value)
+      )
+    }
+
     // Gift cards are discounted server-side below; a client-sent amount is only
     // honoured for coupons.
     const unitAmount =
-      !giftCardCode &&
-      !isAnnual &&
-      discountedAmount != null &&
-      discountedAmount > 0
-        ? Math.round(discountedAmount * 100)
-        : Math.round(planPrice * 100) * monthsPerInterval
+      couponPrice != null
+        ? Math.round(couponPrice * 100) * monthsPerInterval
+        : !giftCardCode &&
+            !isAnnual &&
+            discountedAmount != null &&
+            discountedAmount > 0
+          ? Math.round(discountedAmount * 100)
+          : Math.round(planPrice * 100) * monthsPerInterval
 
     let giftCardDiscountCents = 0
     if (giftCardCode) {

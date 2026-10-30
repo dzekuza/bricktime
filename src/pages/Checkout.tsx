@@ -796,7 +796,7 @@ export default function Checkout() {
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.5fr]">
             {/* ── LEFT: Order summary ─────────────────────────────────── */}
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 lg:sticky lg:top-28 lg:self-start">
               {/* Product card — only when product exists */}
               {product ? (
                 <div className="brick-card overflow-hidden bg-white">

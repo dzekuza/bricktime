@@ -18,6 +18,34 @@ const unauthorized = () =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   })
 
+const SUBSCRIPTION_LINE = /^(\d+) × (.+) \(at (.+?) \/ (month|year)\)$/
+const REMAINING_TIME_LINE = /^Remaining time on (.+) after /
+
+// Stripe writes invoice line descriptions in English. A plan swap produces
+// "Unused time on X" (a credit) and "Remaining time on Y" (the charge) lines,
+// and the invoice total is their net, so describing it by its first line would
+// pair a credit's name with the net amount.
+function describeInvoice(inv: Stripe.Invoice): string {
+  const lines = inv.lines.data
+  if (lines.some((line) => line.proration)) {
+    const target = lines
+      .map((line) => line.description?.match(REMAINING_TIME_LINE)?.[1])
+      .find(Boolean)
+    return target
+      ? `Prenumeratos keitimas · ${target}`
+      : "Prenumeratos keitimas"
+  }
+
+  const first = lines[0]?.description
+  if (!first) return inv.id
+  const match = first.match(SUBSCRIPTION_LINE)
+  if (!match) return first
+  const [, quantity, name, price, interval] = match
+  const period = interval === "month" ? "mėn." : "m."
+  const prefix = quantity === "1" ? "" : `${quantity} × `
+  return `${prefix}${name} · ${price} / ${period}`
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders })
@@ -89,7 +117,7 @@ Deno.serve(async (req) => {
       id: inv.id,
       amount: inv.amount_paid / 100,
       currency: inv.currency,
-      description: inv.lines.data[0]?.description ?? inv.id,
+      description: describeInvoice(inv),
       date: inv.created,
       status: inv.status,
       pdf: inv.invoice_pdf,

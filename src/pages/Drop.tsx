@@ -498,8 +498,8 @@ export default function Drop() {
 
                   <p className="mt-4 text-[14px] leading-[1.6] text-ink/70">
                     {isRentedOut
-                      ? "Šiuo metu visi šio rinkinio egzemplioriai išnuomoti. Grįžk vėliau – kai tik kas nors jį grąžins, galėsi užsisakyti."
-                      : "Rinkinys atkeliaus Brick Time dėžėje: su originalia instrukcija, saugos lapeliu ir detalėmis, paruoštomis statyti. Naujas rinkinys siunčiamas gamintojo maišeliuose, jau naudotas – mūsų surūšiuotuose. Originali LEGO®️ dėžė nepridedama."}
+                      ? "Šis rinkinys šiuo metu pas kitą narį. Kol lauki, pasirink kitą iššūkį – jų turime daug."
+                      : "Rinkinys atkeliaus Brick Time dėžėje: su originalia instrukcija, saugos lapeliu ir detalėmis, paruoštomis statyti. Naujas rinkinys siunčiamas gamintojo maišeliuose, jau naudotas – mūsų surūšiuotuose. Originali LEGO® dėžė nepridedama."}
                   </p>
 
                   {isRentedOut ? (
