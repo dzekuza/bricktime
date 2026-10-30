@@ -886,14 +886,14 @@ export default function Account() {
 
                 <div className="mt-auto flex gap-3 pt-6 md:hidden">
                   <button
-                    className="flex-1 rounded-full border-2 border-ink bg-ink px-3 py-2 text-[14px] font-bold text-paper transition-all hover:opacity-80"
+                    className="flex-1 rounded-full border-2 border-ink bg-ink px-3 py-2 text-[14px] font-bold text-paper transition-colors hover:bg-paper hover:text-ink"
                     onClick={openBillingPortal}
                     disabled={portalLoading}
                   >
                     Atšaukti
                   </button>
                   <button
-                    className="flex-1 rounded-full border-2 border-ink bg-paper px-3 py-2 text-[14px] font-bold text-ink transition-all hover:bg-ink/5"
+                    className="flex-1 rounded-full border-2 border-ink bg-paper px-3 py-2 text-[14px] font-bold text-ink transition-colors hover:bg-ink hover:text-paper"
                     onClick={() => setShowUpgrade(!showUpgrade)}
                   >
                     Keisti
@@ -907,7 +907,7 @@ export default function Account() {
                     Keisti prenumeratą
                   </button>
                   <button
-                    className="rounded-full border-2 border-ink bg-paper px-3 py-2 text-[14px] font-bold text-ink transition-all hover:bg-ink/5"
+                    className="rounded-full border-2 border-ink bg-paper px-3 py-2 text-[14px] font-bold text-ink transition-colors hover:bg-ink hover:text-paper"
                     onClick={openBillingPortal}
                     disabled={portalLoading}
                   >
