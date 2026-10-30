@@ -19,6 +19,9 @@ const supabase = createClient(
 )
 
 const ACTIVE_STATUSES = new Set(["active", "trialing"])
+// A scheduled cancellation is re-checked this close to its end date, because
+// a set rented while it was pending must still be returned before it takes effect.
+const CANCEL_RECHECK_HOURS = 72
 
 type PendingRow = {
   id: string
@@ -26,6 +29,35 @@ type PendingRow = {
   pending_plan: string | null
   pending_schedule_id: string | null
   cancel_requested: boolean
+  cancel_at: string | null
+}
+
+const json = (status: number, body: unknown) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  })
+
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  let diff = 0
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  }
+  return diff === 0
+}
+
+// Only the pg_cron job knows the secret (it lives in public.cron_secrets, which
+// no API role can read), so this can't be triggered with the public anon key.
+async function isAuthorized(req: Request): Promise<boolean> {
+  const provided = req.headers.get("x-cron-secret")
+  if (!provided) return false
+  const { data } = await supabase
+    .from("cron_secrets")
+    .select("secret")
+    .eq("name", "plan_changes")
+    .maybeSingle()
+  return Boolean(data?.secret) && timingSafeEqual(provided, data!.secret)
 }
 
 async function clearPending(id: string) {
@@ -126,6 +158,27 @@ async function processRow(row: PendingRow): Promise<string> {
     return "cancel_scheduled"
   }
 
+  // A cancellation was scheduled while no sets were held, but one was rented
+  // since. The fee must carry on until it is returned, so turn the cancellation
+  // back into a request that waits for the return.
+  if (
+    !row.cancel_requested &&
+    subscription.cancel_at_period_end &&
+    heldValue > 0 &&
+    row.cancel_at &&
+    new Date(row.cancel_at).getTime() - Date.now() <=
+      CANCEL_RECHECK_HOURS * 3_600_000
+  ) {
+    await stripe.subscriptions.update(subscription.id, {
+      cancel_at_period_end: false,
+    })
+    await supabase
+      .from("subscribers")
+      .update({ cancel_requested: true })
+      .eq("id", row.id)
+    return "cancel_postponed"
+  }
+
   if (row.pending_plan) {
     const { data: target } = await supabase
       .from("plans")
@@ -155,37 +208,42 @@ async function processRow(row: PendingRow): Promise<string> {
   return actions.join(",") || "unchanged"
 }
 
-Deno.serve(async () => {
+Deno.serve(async (req) => {
+  if (!(await isAuthorized(req))) return json(401, { error: "Unauthorized" })
+
+  const recheckBefore = new Date(
+    Date.now() + CANCEL_RECHECK_HOURS * 3_600_000
+  ).toISOString()
   const { data: rows, error } = await supabase
     .from("subscribers")
     .select(
-      "id, stripe_subscription_id, pending_plan, pending_schedule_id, cancel_requested"
+      "id, stripe_subscription_id, pending_plan, pending_schedule_id, cancel_requested, cancel_at"
     )
-    .or("pending_plan.not.is.null,cancel_requested.eq.true")
+    .or(
+      `pending_plan.not.is.null,cancel_requested.eq.true,and(status.eq.active,cancel_at.not.is.null,cancel_at.lte.${recheckBefore})`
+    )
 
   if (error) {
     console.error("process-plan-changes: load failed:", error.message)
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    })
+    return json(500, { error: "Load failed" })
   }
 
-  const results: Record<string, string> = {}
+  // Counts only: per-member ids stay in the logs, not in the response.
+  const outcomes: Record<string, number> = {}
   for (const row of (rows ?? []) as PendingRow[]) {
+    let outcome: string
     try {
-      results[row.id] = await processRow(row)
+      outcome = await processRow(row)
     } catch (err) {
       // One member's failure must not stop the rest; the next run retries.
       console.error(
         `process-plan-changes: ${row.id} failed:`,
         (err as Error).message
       )
-      results[row.id] = "error"
+      outcome = "error"
     }
+    outcomes[outcome] = (outcomes[outcome] ?? 0) + 1
   }
 
-  return new Response(JSON.stringify({ processed: results }), {
-    headers: { "Content-Type": "application/json" },
-  })
+  return json(200, { checked: rows?.length ?? 0, outcomes })
 })
