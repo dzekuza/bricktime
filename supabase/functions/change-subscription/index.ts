@@ -108,7 +108,7 @@ Deno.serve(async (req) => {
 
     const { data: subscriber } = await supabase
       .from("subscribers")
-      .select("stripe_subscription_id")
+      .select("stripe_subscription_id, plan")
       .eq("id", user.id)
       .maybeSingle()
 
@@ -140,6 +140,29 @@ Deno.serve(async (req) => {
       .eq("active", true)
       .single()
     if (planError || !plan) throw new Error(`Unknown plan: ${planKey}`)
+
+    // Sets are budgeted against the plan they were rented on. Dropping to a
+    // cheaper plan while holding sets would keep them for less than they cost,
+    // so downgrades wait until everything is returned.
+    if (subscriber.plan && subscriber.plan !== planKey) {
+      const { data: currentPlan } = await supabase
+        .from("plans")
+        .select("price")
+        .eq("id", subscriber.plan)
+        .maybeSingle()
+      if (currentPlan && plan.price < currentPlan.price) {
+        const { count } = await supabase
+          .from("orders")
+          .select("id", { count: "exact", head: true })
+          .eq("subscriber_id", user.id)
+          .neq("status", "returned")
+        if ((count ?? 0) > 0) {
+          throw new Error(
+            "Pereiti į pigesnį planą galėsi, kai grąžinsi visus paimtus rinkinius."
+          )
+        }
+      }
+    }
 
     // Legenda (mega) includes free courier delivery.
     const chargeHomeDeliveryFee = homeDelivery && planKey !== "mega"

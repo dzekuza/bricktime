@@ -33,6 +33,8 @@ const HOME_DELIVERY_FEE = 3
 
 // ── predefined avatars ──────────────────────────────────────────────────────
 const avatarOptions = [
+const DOWNGRADE_BLOCKED_MESSAGE =
+  "Pereiti į pigesnį planą galėsi, kai grąžinsi visus paimtus rinkinius."
   {
     id: 0,
     src: "/avatars/avatar-classic.png",
@@ -525,6 +527,11 @@ export default function Account() {
   }
 
   const FALLBACK_TIER = {
+  // Mirrors change-subscription: no cheaper plan while sets are still out.
+  const downgradeBlocked =
+    hasSubscription &&
+    rentedOrders.length > 0 &&
+    (tierOptions[selectedTier]?.price ?? 0) < activeTier.price
     key: "" as PlanTier,
     name: "–",
     price: 0,
@@ -557,6 +564,10 @@ export default function Account() {
     setShowAvatarPicker(false)
     if (!user) return
     await supabase
+    if (downgradeBlocked) {
+      setPlanChangeError(DOWNGRADE_BLOCKED_MESSAGE)
+      return
+    }
       .from("subscribers")
       .update({ avatar_id: id, avatar_bg: avatarOptions[id].bg })
       .eq("id", user.id)
@@ -1058,7 +1069,14 @@ export default function Account() {
                     code={discount.applied}
                     isSwap={hasSubscription}
                   />
-                  <DiscountCodeField discount={discount} />
+                  {downgradeBlocked && (
+                    <p
+                      role="alert"
+                      className="rounded-2xl border-2 border-ink bg-brand-yellow px-4 py-3 font-mono text-[12px] font-bold text-ink"
+                    >
+                      {DOWNGRADE_BLOCKED_MESSAGE}
+                    </p>
+                  )}
                   {planChangeError && (
                     <p className="font-mono text-[11px] text-red-500">
                       {planChangeError}
@@ -1072,7 +1090,11 @@ export default function Account() {
                   <div className="flex gap-3">
                     <button
                       onClick={handlePlanChange}
-                      disabled={planChanging || !agreedToPlanChangeTerms}
+                      disabled={
+                        planChanging ||
+                        !agreedToPlanChangeTerms ||
+                        downgradeBlocked
+                      }
                       className="flex-1 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[14px] font-bold text-paper transition-[transform,box-shadow] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] disabled:pointer-events-none disabled:opacity-50"
                     >
                       {planChanging
