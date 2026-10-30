@@ -20,6 +20,7 @@ import { fetchLabelPdf, downloadPdf } from "@/lib/lpexpress"
 import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
 import { DiscountCodeField } from "@/components/account/DiscountCodeField"
+import { PlanChangeSummary } from "@/components/account/PlanChangeSummary"
 import { useDiscountCode } from "@/hooks/useDiscountCode"
 import { readFunctionError } from "@/lib/function-error"
 
@@ -1041,6 +1042,22 @@ export default function Account() {
                       </button>
                     ))}
                   </div>
+                  <PlanChangeSummary
+                    planName={tierOptions[selectedTier]?.name ?? ""}
+                    monthlyPrice={tierOptions[selectedTier]?.price ?? 0}
+                    annualMonthlyPrice={
+                      tierOptions[selectedTier]?.annualPrice ?? 0
+                    }
+                    billing={upgradeBilling}
+                    homeDelivery={upgradeHomeDelivery}
+                    homeDeliveryFee={
+                      tierOptions[selectedTier]?.key === "mega"
+                        ? 0
+                        : HOME_DELIVERY_FEE
+                    }
+                    code={discount.applied}
+                    isSwap={hasSubscription}
+                  />
                   <DiscountCodeField discount={discount} />
                   {planChangeError && (
                     <p className="font-mono text-[11px] text-red-500">
