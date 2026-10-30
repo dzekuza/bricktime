@@ -269,6 +269,23 @@ async function updateSubscriberByStripeIds(
   if (planKey) update.plan = planKey
   if (homeDelivery !== undefined) update.home_delivery = homeDelivery
 
+  // A scheduled downgrade has landed once the subscription carries its plan;
+  // a cancelled subscription has nothing left to wait for.
+  const { data: pending } = await supabase
+    .from("subscribers")
+    .select("pending_plan")
+    .eq("id", subscriber.id)
+    .maybeSingle()
+  if (
+    (planKey && pending?.pending_plan === planKey) ||
+    update.status === "cancelled"
+  ) {
+    update.pending_plan = null
+    update.pending_home_delivery = null
+    update.pending_schedule_id = null
+  }
+  if (update.status === "cancelled") update.cancel_requested = false
+
   await supabase.from("subscribers").update(update).eq("id", subscriber.id)
 }
 

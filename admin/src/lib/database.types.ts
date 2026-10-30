@@ -1370,6 +1370,7 @@ export type Database = {
           avatar_id: number
           avatar_url: string | null
           cancel_at: string | null
+          cancel_requested: boolean
           city: string | null
           email: string
           flat: string | null
@@ -1381,6 +1382,9 @@ export type Database = {
           name: string
           penalty_amount: number | null
           penalty_reason: string | null
+          pending_home_delivery: boolean | null
+          pending_plan: Database["public"]["Enums"]["plan_tier"] | null
+          pending_schedule_id: string | null
           phone: string | null
           plan: Database["public"]["Enums"]["plan_tier"]
           postal_code: string | null
@@ -1395,6 +1399,7 @@ export type Database = {
           avatar_id?: number
           avatar_url?: string | null
           cancel_at?: string | null
+          cancel_requested?: boolean
           city?: string | null
           email: string
           flat?: string | null
@@ -1406,6 +1411,9 @@ export type Database = {
           name: string
           penalty_amount?: number | null
           penalty_reason?: string | null
+          pending_home_delivery?: boolean | null
+          pending_plan?: Database["public"]["Enums"]["plan_tier"] | null
+          pending_schedule_id?: string | null
           phone?: string | null
           plan?: Database["public"]["Enums"]["plan_tier"]
           postal_code?: string | null
@@ -1420,6 +1428,7 @@ export type Database = {
           avatar_id?: number
           avatar_url?: string | null
           cancel_at?: string | null
+          cancel_requested?: boolean
           city?: string | null
           email?: string
           flat?: string | null
@@ -1431,6 +1440,9 @@ export type Database = {
           name?: string
           penalty_amount?: number | null
           penalty_reason?: string | null
+          pending_home_delivery?: boolean | null
+          pending_plan?: Database["public"]["Enums"]["plan_tier"] | null
+          pending_schedule_id?: string | null
           phone?: string | null
           plan?: Database["public"]["Enums"]["plan_tier"]
           postal_code?: string | null
@@ -1687,6 +1699,10 @@ export type Database = {
       }
     }
     Functions: {
+      held_brick_value: {
+        Args: { p_subscriber: string }
+        Returns: number
+      }
       evaluate_achievements: {
         Args: { p_subscriber_id: string }
         Returns: undefined

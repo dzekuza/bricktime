@@ -28,6 +28,7 @@ import {
 } from "@/components/account/RentedOrderCard"
 import { useDiscountCode } from "@/hooks/useDiscountCode"
 import { readFunctionError } from "@/lib/function-error"
+import { SubscriptionNotices } from "@/components/account/SubscriptionNotices"
 
 const SUBSCRIBER_STATUS_LABELS: Record<string, string> = {
   active: "Aktyvi",
@@ -53,8 +54,6 @@ const MONTHS_SHORT = [
 ]
 const formatMemberSince = (date: Date) =>
   `${date.getFullYear()} m. ${MONTHS_SHORT[date.getMonth()]}`
-const DOWNGRADE_BLOCKED_MESSAGE =
-  "Pereiti į pigesnį planą galėsi, kai grąžinsi visus paimtus rinkinius."
 
 // ── predefined avatars ──────────────────────────────────────────────────────
 const avatarOptions = [
@@ -96,6 +95,9 @@ interface SubscriberData {
   city?: string | null
   postal_code?: string | null
   home_delivery?: boolean
+  pending_plan?: string | null
+  cancel_requested?: boolean
+  cancel_at?: string | null
 }
 
 interface AchievementRecord {
@@ -254,6 +256,7 @@ export default function Account() {
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [planChanging, setPlanChanging] = useState(false)
   const [planChangeError, setPlanChangeError] = useState("")
+  const [subscriptionBusy, setSubscriptionBusy] = useState(false)
   const discount = useDiscountCode()
   const [agreedToPlanChangeTerms, setAgreedToPlanChangeTerms] = useState(false)
   const [rentedOrders, setRentedOrders] = useState<RentedOrder[]>([])
@@ -394,7 +397,7 @@ export default function Account() {
       supabase
         .from("subscribers")
         .select(
-          "plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code, home_delivery"
+          "plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code, home_delivery, pending_plan, cancel_requested, cancel_at"
         )
         .eq("id", user.id)
         .single(),
@@ -547,11 +550,9 @@ export default function Account() {
       tierOptions[0] ??
       FALLBACK_TIER)
     : (tierOptions[0] ?? FALLBACK_TIER)
-  // Mirrors change-subscription: no cheaper plan while sets are still out.
-  const downgradeBlocked =
-    hasSubscription &&
-    rentedOrders.length > 0 &&
-    (tierOptions[selectedTier]?.price ?? 0) < activeTier.price
+  const pendingTier = subscriber?.pending_plan
+    ? tierOptions.find((t) => t.key === subscriber.pending_plan)
+    : undefined
   const activeAvatar = avatarOptions[selectedAvatarId] ?? avatarOptions[0]
   const totalPoints =
     dbPoints ??
@@ -579,10 +580,6 @@ export default function Account() {
     const nextHomeDelivery = upgradeHomeDelivery
     if (hasSubscription && newTier.key === subscriber?.plan) {
       setPlanChangeError("Jau esi šiame plane.")
-      return
-    }
-    if (downgradeBlocked) {
-      setPlanChangeError(DOWNGRADE_BLOCKED_MESSAGE)
       return
     }
     setPlanChanging(true)
@@ -615,6 +612,13 @@ export default function Account() {
       window.location.href = successUrl
       return
     }
+    if (swap?.scheduled) {
+      // A cheaper plan waits for the next renewal; nothing changes today.
+      setPlanChanging(false)
+      setShowUpgrade(false)
+      setSubscriber((s) => (s ? { ...s, pending_plan: newTier.key } : s))
+      return
+    }
 
     const { data, error } = await supabase.functions.invoke("create-checkout", {
       body: {
@@ -641,6 +645,52 @@ export default function Account() {
       return
     }
     window.location.href = data.url
+  }
+
+  async function withdrawPendingPlan() {
+    setSubscriptionBusy(true)
+    setPortalError("")
+    const { data, error } = await supabase.functions.invoke(
+      "change-subscription",
+      { body: { withdrawPending: true } }
+    )
+    setSubscriptionBusy(false)
+    if (error || data?.error) {
+      setPortalError(
+        data?.error ??
+          (await readFunctionError(error, "Nepavyko. Bandyk dar kartą."))
+      )
+      return
+    }
+    setSubscriber((s) => (s ? { ...s, pending_plan: null } : s))
+  }
+
+  async function cancelSubscription(undo = false) {
+    setSubscriptionBusy(true)
+    setPortalError("")
+    const { data, error } = await supabase.functions.invoke(
+      "cancel-subscription",
+      { body: { undo } }
+    )
+    setSubscriptionBusy(false)
+    if (error || data?.error) {
+      setPortalError(
+        data?.error ??
+          (await readFunctionError(error, "Nepavyko. Bandyk dar kartą."))
+      )
+      return
+    }
+    setSubscriber((s) =>
+      s
+        ? {
+            ...s,
+            pending_plan: data.status === "scheduled" ? null : s.pending_plan,
+            cancel_requested: data.status === "pending_returns",
+            cancel_at:
+              data.status === "scheduled" ? (data.cancelAt as string) : null,
+          }
+        : s
+    )
   }
 
   // The plan picker lives in the profile section above; bring it into view
@@ -1066,14 +1116,6 @@ export default function Account() {
                     code={discount.applied}
                     isSwap={hasSubscription}
                   />
-                  {downgradeBlocked && (
-                    <p
-                      role="alert"
-                      className="rounded-2xl border-2 border-ink bg-brand-yellow px-4 py-3 font-mono text-[12px] font-bold text-ink"
-                    >
-                      {DOWNGRADE_BLOCKED_MESSAGE}
-                    </p>
-                  )}
                   {planChangeError && (
                     <p className="font-mono text-[11px] text-red-500">
                       {planChangeError}
@@ -1087,11 +1129,7 @@ export default function Account() {
                   <div className="flex gap-3">
                     <button
                       onClick={handlePlanChange}
-                      disabled={
-                        planChanging ||
-                        !agreedToPlanChangeTerms ||
-                        downgradeBlocked
-                      }
+                      disabled={planChanging || !agreedToPlanChangeTerms}
                       className="flex-1 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[14px] font-bold text-paper transition-[transform,box-shadow] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] disabled:pointer-events-none disabled:opacity-50"
                     >
                       {planChanging
@@ -1277,16 +1315,30 @@ export default function Account() {
                         {portalLoading ? "Kraunama…" : "Mano prenumerata →"}
                       </button>
                       <button
-                        onClick={openBillingPortal}
-                        disabled={portalLoading}
+                        onClick={() => cancelSubscription()}
+                        disabled={subscriptionBusy}
                         className="brick-hover-sm rounded-xl border-2 border-ink bg-paper px-4 py-3 font-mono text-[11px] tracking-[.14em] text-ink uppercase transition-all disabled:pointer-events-none disabled:opacity-50"
                       >
                         Atšaukti
                       </button>
                     </div>
                     <p className="text-center font-mono text-[10px] text-ink/30">
-                      Kortelė · istorija · atšaukimas
+                      Kortelė · istorija
                     </p>
+                    <SubscriptionNotices
+                      pendingPlanName={pendingTier?.name ?? null}
+                      pendingCredits={
+                        pendingTier
+                          ? (dbPlans.find((p) => p.id === pendingTier.key)
+                              ?.credits ?? null)
+                          : null
+                      }
+                      cancelRequested={subscriber?.cancel_requested ?? false}
+                      cancelAt={subscriber?.cancel_at ?? null}
+                      busy={subscriptionBusy}
+                      onWithdrawPlan={withdrawPendingPlan}
+                      onUndoCancel={() => cancelSubscription(true)}
+                    />
                   </>
                 ) : (
                   <button
