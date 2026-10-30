@@ -12,7 +12,6 @@ import { useSubscriptions } from "@/hooks/useSubscriptions"
 import { useAchievements } from "@/hooks/useAchievements"
 import { useCredits } from "@/hooks/useCredits"
 import { MissingPartDialog } from "@/components/MissingPartDialog"
-import { OrderTracking } from "@/components/OrderTracking"
 import { ReturnDialog } from "@/components/ReturnDialog"
 import { ProfileEditDialog } from "@/components/ProfileEditDialog"
 import { DeleteAccountDialog } from "@/components/DeleteAccountDialog"
@@ -21,6 +20,10 @@ import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
 import { DiscountCodeField } from "@/components/account/DiscountCodeField"
 import { PlanChangeSummary } from "@/components/account/PlanChangeSummary"
+import {
+  RentedOrderCard,
+  type RentedOrder,
+} from "@/components/account/RentedOrderCard"
 import { useDiscountCode } from "@/hooks/useDiscountCode"
 import { readFunctionError } from "@/lib/function-error"
 
@@ -30,11 +33,11 @@ const SUBSCRIBER_STATUS_LABELS: Record<string, string> = {
   cancelled: "Atšaukta",
 }
 const HOME_DELIVERY_FEE = 3
+const DOWNGRADE_BLOCKED_MESSAGE =
+  "Pereiti į pigesnį planą galėsi, kai grąžinsi visus paimtus rinkinius."
 
 // ── predefined avatars ──────────────────────────────────────────────────────
 const avatarOptions = [
-const DOWNGRADE_BLOCKED_MESSAGE =
-  "Pereiti į pigesnį planą galėsi, kai grąžinsi visus paimtus rinkinius."
   {
     id: 0,
     src: "/avatars/avatar-classic.png",
@@ -77,22 +80,6 @@ interface SubscriberData {
 
 interface AchievementRecord {
   achievement_id: string
-}
-
-interface RentedOrder {
-  id: string
-  productId: number
-  productTitle: string
-  productImage: string | null
-  status: string
-  startDate: string
-  dueDate: string
-  amount: number
-  returnNote?: string
-  homeDelivery: boolean
-  terminalName?: string | null
-  barcode?: string | null
-  returnBarcode?: string | null
 }
 
 // ── Achievements section ────────────────────────────────────────────────────
@@ -527,11 +514,6 @@ export default function Account() {
   }
 
   const FALLBACK_TIER = {
-  // Mirrors change-subscription: no cheaper plan while sets are still out.
-  const downgradeBlocked =
-    hasSubscription &&
-    rentedOrders.length > 0 &&
-    (tierOptions[selectedTier]?.price ?? 0) < activeTier.price
     key: "" as PlanTier,
     name: "–",
     price: 0,
@@ -545,6 +527,11 @@ export default function Account() {
       tierOptions[0] ??
       FALLBACK_TIER)
     : (tierOptions[0] ?? FALLBACK_TIER)
+  // Mirrors change-subscription: no cheaper plan while sets are still out.
+  const downgradeBlocked =
+    hasSubscription &&
+    rentedOrders.length > 0 &&
+    (tierOptions[selectedTier]?.price ?? 0) < activeTier.price
   const activeAvatar = avatarOptions[selectedAvatarId] ?? avatarOptions[0]
   const totalPoints =
     dbPoints ??
@@ -564,10 +551,6 @@ export default function Account() {
     setShowAvatarPicker(false)
     if (!user) return
     await supabase
-    if (downgradeBlocked) {
-      setPlanChangeError(DOWNGRADE_BLOCKED_MESSAGE)
-      return
-    }
       .from("subscribers")
       .update({ avatar_id: id, avatar_bg: avatarOptions[id].bg })
       .eq("id", user.id)
@@ -579,6 +562,10 @@ export default function Account() {
     const nextHomeDelivery = upgradeHomeDelivery
     if (hasSubscription && newTier.key === subscriber?.plan) {
       setPlanChangeError("Jau esi šiame plane.")
+      return
+    }
+    if (downgradeBlocked) {
+      setPlanChangeError(DOWNGRADE_BLOCKED_MESSAGE)
       return
     }
     setPlanChanging(true)
@@ -638,6 +625,7 @@ export default function Account() {
     }
     window.location.href = data.url
   }
+
   // The plan picker lives in the profile section above; bring it into view
   // when it is opened from the payments card further down.
   function openPlanChange() {
@@ -648,7 +636,6 @@ export default function Account() {
         ?.scrollIntoView({ behavior: "smooth", block: "start" })
     )
   }
-
 
   async function openBillingPortal() {
     if (!user?.email) return
@@ -1053,6 +1040,7 @@ export default function Account() {
                       </button>
                     ))}
                   </div>
+                  <DiscountCodeField discount={discount} />
                   <PlanChangeSummary
                     planName={tierOptions[selectedTier]?.name ?? ""}
                     monthlyPrice={tierOptions[selectedTier]?.price ?? 0}
@@ -1201,142 +1189,14 @@ export default function Account() {
           ) : (
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {rentedOrders.map((order) => (
-                <div
+                <RentedOrderCard
                   key={order.id}
-                  className="brick-card flex flex-col bg-paper p-5 md:p-6"
-                >
-                  {order.productImage && (
-                    <img
-                      src={order.productImage}
-                      alt={order.productTitle}
-                      className="mb-4 h-28 w-full rounded-xl object-contain"
-                    />
-                  )}
-                  <div className="font-display text-[20px] leading-tight text-ink uppercase">
-                    {order.productTitle}
-                  </div>
-                  <div className="mt-2.5">
-                    {order.status === "active" && (
-                      <span className="inline-block rounded-full bg-green-100 px-2.5 py-1 font-mono text-[10px] tracking-[.16em] text-green-800 uppercase">
-                        Prenumeruojama
-                      </span>
-                    )}
-                    {order.status === "processing" && (
-                      <span className="inline-block rounded-full bg-blue-100 px-2.5 py-1 font-mono text-[10px] tracking-[.16em] text-blue-800 uppercase">
-                        Ruošiama
-                      </span>
-                    )}
-                    {order.status === "overdue" && (
-                      <span className="inline-block rounded-full bg-red-100 px-2.5 py-1 font-mono text-[10px] tracking-[.16em] text-red-800 uppercase">
-                        Vėluoja
-                      </span>
-                    )}
-                    {order.status === "return_requested" && (
-                      <span className="inline-block rounded-full bg-amber-100 px-2.5 py-1 font-mono text-[10px] tracking-[.16em] text-amber-800 uppercase">
-                        Grąžinimas prašomas
-                      </span>
-                    )}
-                    {order.status === "return_declined" && (
-                      <span className="inline-block rounded-full bg-rose-100 px-2.5 py-1 font-mono text-[10px] tracking-[.16em] text-rose-800 uppercase">
-                        Grąžinimas atsisakytas
-                      </span>
-                    )}
-                  </div>
-                  {order.returnNote && order.status === "return_declined" && (
-                    <div className="mt-3 rounded-xl border-l-2 border-rose-300 bg-rose-50 px-3 py-2">
-                      <p className="font-mono text-[10px] tracking-[.14em] text-rose-500 uppercase">
-                        Priežastis
-                      </p>
-                      <p className="mt-0.5 text-[13px] text-rose-700">
-                        {order.returnNote}
-                      </p>
-                    </div>
-                  )}
-                  {/* Delivery method */}
-                  <div className="mt-3 flex items-center gap-1.5 font-mono text-[11px] text-ink/50">
-                    <span className="text-ink/30">↳</span>
-                    {order.homeDelivery
-                      ? "Pristatymas į duris"
-                      : order.terminalName
-                        ? `Paštomatas: ${order.terminalName}`
-                        : "Paštomatas"}
-                  </div>
-
-                  {/* Live LP EXPRESS tracking — outbound, then return */}
-                  {order.barcode && <OrderTracking barcode={order.barcode} />}
-                  {order.returnBarcode && (
-                    <div className="mt-2">
-                      <p className="label-mono mb-1 text-ink/40">
-                        Grąžinimo siunta
-                      </p>
-                      <OrderTracking barcode={order.returnBarcode} />
-                    </div>
-                  )}
-
-                  <div className="mt-3 font-mono text-[11px] text-ink/40">
-                    iki {order.dueDate} · €{order.amount}/mėn.
-                  </div>
-                  <div className="mt-auto pt-4">
-                    {(order.status === "active" ||
-                      order.status === "overdue" ||
-                      order.status === "return_declined") && (
-                      <button
-                        onClick={() => setReturnDialogOrder(order)}
-                        className="w-full rounded-full border-2 border-ink bg-ink px-4 py-2.5 text-[13px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
-                      >
-                        {order.status === "return_declined"
-                          ? "Prašyti dar kartą"
-                          : "Prašyti grąžinimo"}
-                      </button>
-                    )}
-                    {(order.status === "active" ||
-                      order.status === "overdue") && (
-                      <button
-                        onClick={() => setMissingPartOrder(order)}
-                        className="mt-2 w-full rounded-full border-2 border-ink/30 bg-transparent px-4 py-2.5 text-[13px] font-bold text-ink/60 transition-all hover:border-ink hover:text-ink"
-                      >
-                        Pranešti apie trūkstamą detalę
-                      </button>
-                    )}
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        onClick={openBillingPortal}
-                        disabled={portalLoading}
-                        className="brick-hover-sm rounded-xl border-2 border-ink bg-paper px-4 py-3 font-mono text-[11px] tracking-[.14em] text-ink uppercase transition-all disabled:pointer-events-none disabled:opacity-50"
-                      >
-                        {portalLoading ? "Kraunama…" : "Mano prenumerata →"}
-                      </button>
-                      <button
-                        onClick={openBillingPortal}
-                        disabled={portalLoading}
-                        className="brick-hover-sm rounded-xl border-2 border-ink bg-paper px-4 py-3 font-mono text-[11px] tracking-[.14em] text-ink uppercase transition-all disabled:pointer-events-none disabled:opacity-50"
-                      >
-                        Atšaukti
-                      </button>
-                    </div>
-                    {order.status === "return_requested" &&
-                      (order.returnBarcode ? (
-                        <button
-                          onClick={() => downloadReturnLabel(order.id)}
-                          disabled={downloadingLabel === order.id}
-                          className="w-full rounded-full border-2 border-ink bg-brand-orange px-4 py-2.5 text-[13px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] disabled:opacity-50"
-                        >
-                          {downloadingLabel === order.id
-                            ? "Ruošiama…"
-                            : "Atsisiųsti grąžinimo etiketę"}
-                        </button>
-                      ) : (
-                        <div className="w-full rounded-full border-2 border-amber-300 bg-amber-50 px-4 py-2.5 text-center text-[13px] font-bold text-amber-700">
-                          Grąžinimas prašomas
-                        </div>
-                      ))}
-                    {order.status === "processing" && (
-                      <div className="w-full rounded-full border-2 border-blue-200 bg-blue-50 px-4 py-2.5 text-center text-[13px] font-bold text-blue-700">
-                        Ruošiama siuntai
-                      </div>
-                    )}
-                  </div>
-                </div>
+                  order={order}
+                  isDownloadingLabel={downloadingLabel === order.id}
+                  onRequestReturn={() => setReturnDialogOrder(order)}
+                  onReportMissingPart={() => setMissingPartOrder(order)}
+                  onDownloadLabel={() => downloadReturnLabel(order.id)}
+                />
               ))}
             </div>
           )}
@@ -1399,6 +1259,22 @@ export default function Account() {
                     >
                       Keisti prenumeratą
                     </button>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={openBillingPortal}
+                        disabled={portalLoading}
+                        className="brick-hover-sm rounded-xl border-2 border-ink bg-paper px-4 py-3 font-mono text-[11px] tracking-[.14em] text-ink uppercase transition-all disabled:pointer-events-none disabled:opacity-50"
+                      >
+                        {portalLoading ? "Kraunama…" : "Mano prenumerata →"}
+                      </button>
+                      <button
+                        onClick={openBillingPortal}
+                        disabled={portalLoading}
+                        className="brick-hover-sm rounded-xl border-2 border-ink bg-paper px-4 py-3 font-mono text-[11px] tracking-[.14em] text-ink uppercase transition-all disabled:pointer-events-none disabled:opacity-50"
+                      >
+                        Atšaukti
+                      </button>
+                    </div>
                     <p className="text-center font-mono text-[10px] text-ink/30">
                       Kortelė · istorija · atšaukimas
                     </p>
