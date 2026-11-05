@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
     )
     const { data: item, error } = await supabase
       .from("merch_items")
-      .select("id, name, price, image_url, status, stock")
+      .select("id, name, price, image_url, status, stock, sizes")
       .eq("id", itemId)
       .single()
 
@@ -51,10 +51,19 @@ Deno.serve(async (req) => {
       ? await supabase.auth.getUser(token)
       : { data: { user: null } }
     const userId = authData.user?.id ?? ""
-    if (item.status === "draft") throw new Error("Item not available")
-    const stock = (item.stock as Record<string, number> | null) ?? {}
-    if (item.status === "active" && (stock[size] ?? 0) <= 0)
+    // Only an active item is for sale; coming-soon is browse-only. The size must
+    // be one the item lists, so a crafted value like "constructor" can't slip
+    // past the stock check.
+    if (item.status !== "active") throw new Error("Item not available")
+    const sizes = (item.sizes as string[] | null) ?? []
+    if (typeof size !== "string" || !sizes.includes(size)) {
+      throw new Error("Unknown size")
+    }
+    const stock = (item.stock as Record<string, unknown> | null) ?? {}
+    const sizeStock = Object.hasOwn(stock, size) ? stock[size] : 0
+    if (typeof sizeStock !== "number" || sizeStock <= 0) {
       throw new Error("Out of stock")
+    }
 
     const unitAmount = Math.round(Number(item.price) * 100) // cents
 

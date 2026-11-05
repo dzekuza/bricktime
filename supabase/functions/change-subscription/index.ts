@@ -316,6 +316,10 @@ Deno.serve(async (req) => {
         .eq("code", discount.code)
         .eq("status", "active")
         .gt("expires_at", new Date().toISOString())
+        // A card held by an open checkout elsewhere can't be spent here too.
+        .or(
+          `reserved_until.is.null,reserved_until.lte."${new Date().toISOString()}"`
+        )
         .select("code")
         .maybeSingle()
       if (!claimed) throw new Error("Kodas negalioja")
