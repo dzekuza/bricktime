@@ -75,6 +75,9 @@ Deno.serve(async (req) => {
       : null
     // From here on the code is held; let it go again if Stripe fails, so a
     // failed attempt doesn't lock the shopper out of their own card or use.
+    const isHoldingCode =
+      discount?.kind === "gift_card" ||
+      (discount?.kind === "coupon" && discount.holdId != null)
     try {
       const stripeCoupon =
         discount && discount.amountOffCents > 0
@@ -108,6 +111,9 @@ Deno.serve(async (req) => {
         ],
         customer_email: userEmail ?? undefined,
         invoice_creation: { enabled: true },
+        // A held code must settle inside its hold. Delayed methods can take
+        // days, long after the hold lapses and someone else claims the code.
+        ...(isHoldingCode && { payment_method_types: ["card"] }),
         success_url: successUrl,
         cancel_url: cancelUrl,
         ...(stripeCoupon && { discounts: [{ coupon: stripeCoupon.id }] }),
