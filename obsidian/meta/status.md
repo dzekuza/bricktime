@@ -21,16 +21,16 @@ which overlaps dzekuza/bricktime#96.
 
 ## In progress
 
+- Pre-launch test data wiped 2026-11-06 (SQL editor): all rentals, merch orders, gift cards, penalties, missing-part requests, coupons and coupon holds deleted; all 10 subscribers reset to no subscription (accounts kept); Stripe test data deleted from the dashboard. Catalog, plans and merch items untouched.
+
 - Nothing half-written. #96, #97 and #98 are merged into main (`b48260f`, 2026-11-05).
 - Edge functions match main: stripe-webhook v16, create-gift-card-checkout v8, lpexpress v6, pause-subscription v2, create-checkout v12 redeployed from `b48260f`; verify-gift-card v5, get-billing-history v7, create-merch-checkout v10, change-subscription v13 were already identical to main. Smoke test: protected functions return 401 without a user, public ones reject invalid input.
 
 ## Next up
 
-1. In Stripe: cancel/refund duplicate live subscriptions (Justinas at least); check gift cards bought before 2026-11-05 whose session was never paid (still `active`).
-2. Backfill `current_period_start/end` from Stripe for active members (until then used_credits counts returned sets rented in the last month).
-3. Make sure the Stripe webhook endpoint sends `checkout.session.async_payment_succeeded`.
-4. Real test purchase on production: upgrade from rental Checkout, courier rental + admin label, pause and resume.
-5. Omnisend automation for `merch order placed`; delete test order #1003.
+1. Real test purchase on production: subscribe, upgrade from rental Checkout, courier rental + admin label, pause and resume, gift card purchase.
+2. Make sure the Stripe webhook endpoint sends `checkout.session.async_payment_succeeded`.
+3. Omnisend automations for `merch order placed` and `gift card purchased`.
 
 ## Blockers & open questions
 
