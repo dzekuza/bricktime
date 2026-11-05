@@ -469,6 +469,7 @@ export type Database = {
           recipient_email: string
           redeemed_at: string | null
           redeemed_by_user_id: string | null
+          reserved_until: string | null
           status: string
           stripe_session_id: string | null
         }
@@ -483,6 +484,7 @@ export type Database = {
           recipient_email: string
           redeemed_at?: string | null
           redeemed_by_user_id?: string | null
+          reserved_until?: string | null
           status?: string
           stripe_session_id?: string | null
         }
@@ -497,6 +499,7 @@ export type Database = {
           recipient_email?: string
           redeemed_at?: string | null
           redeemed_by_user_id?: string | null
+          reserved_until?: string | null
           status?: string
           stripe_session_id?: string | null
         }
@@ -775,6 +778,7 @@ export type Database = {
           shipping_address: Json | null
           size: string
           status: string
+          stock_short: boolean
           stripe_payment_intent_id: string | null
           stripe_session_id: string
           tracking_number: string | null
@@ -795,6 +799,7 @@ export type Database = {
           shipping_address?: Json | null
           size: string
           status?: string
+          stock_short?: boolean
           stripe_payment_intent_id?: string | null
           stripe_session_id: string
           tracking_number?: string | null
@@ -815,6 +820,7 @@ export type Database = {
           shipping_address?: Json | null
           size?: string
           status?: string
+          stock_short?: boolean
           stripe_payment_intent_id?: string | null
           stripe_session_id?: string
           tracking_number?: string | null
