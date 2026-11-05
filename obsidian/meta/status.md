@@ -21,16 +21,16 @@ which overlaps dzekuza/bricktime#96.
 
 ## In progress
 
-- Edge functions deployed 2026-11-05 ~19:05 UTC from local branch `deploy/combined` = merge of #96 `5325a36`, #97 `d376cd7` and #98 at `0cb2214`: stripe-webhook v15, verify-gift-card v5, create-gift-card-checkout v7, get-billing-history v7, lpexpress v5, create-merch-checkout v10, create-checkout v11, change-subscription v13, pause-subscription v1. Smoke test: all boot; protected functions return 401 without a user, public ones (verify-gift-card, create-gift-card-checkout, lpexpress, create-merch-checkout, stripe-webhook) reject invalid input with 400/404.
-- NOT live yet — #98 review fixes after `0cb2214`: create-checkout, stripe-webhook, create-gift-card-checkout, lpexpress, pause-subscription need redeploying (the migrations they rely on are already live).
+- Nothing half-written. #96, #97 and #98 are merged into main (`b48260f`, 2026-11-05).
+- Edge functions match main: stripe-webhook v16, create-gift-card-checkout v8, lpexpress v6, pause-subscription v2, create-checkout v12 redeployed from `b48260f`; verify-gift-card v5, get-billing-history v7, create-merch-checkout v10, change-subscription v13 were already identical to main. Smoke test: protected functions return 401 without a user, public ones reject invalid input.
 
 ## Next up
 
-1. Redeploy create-checkout, stripe-webhook, create-gift-card-checkout, lpexpress, pause-subscription from #98 head (merged with #96/#97 as before).
-2. Merge #96, then #97, then #98 (retarget to main). Resolve the #96/#97 overlap as in `deploy/combined`: create-merch-checkout keeps #96's whole-unit stock check and #97's generic gift-card error; stripe-webhook keeps the async gift-card activation; types from the live schema.
-3. In Stripe: cancel/refund duplicate live subscriptions (Justinas at least); check gift cards bought before 2026-11-05 whose session was never paid (still `active`).
-4. Backfill `current_period_start/end` from Stripe for active members (until then used_credits counts returned sets rented in the last month).
-5. Deploy storefront and admin; real test purchase (upgrade, courier rental, pause).
+1. In Stripe: cancel/refund duplicate live subscriptions (Justinas at least); check gift cards bought before 2026-11-05 whose session was never paid (still `active`).
+2. Backfill `current_period_start/end` from Stripe for active members (until then used_credits counts returned sets rented in the last month).
+3. Make sure the Stripe webhook endpoint sends `checkout.session.async_payment_succeeded`.
+4. Real test purchase on production: upgrade from rental Checkout, courier rental + admin label, pause and resume.
+5. Omnisend automation for `merch order placed`; delete test order #1003.
 
 ## Blockers & open questions
 

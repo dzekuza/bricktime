@@ -1,3 +1,8 @@
+## 2026-11-05 — #96, #97, #98 merged; functions redeployed from main
+- **Changed:** merged #97 (after resolving its conflict with #96) and #98 (retargeted to main) into main at `b48260f`. Compared every deployed function with main and redeployed the five that differed: stripe-webhook v16, create-gift-card-checkout v8, lpexpress v6, pause-subscription v2, create-checkout v12.
+- **Status:** live functions match main; smoke-tested. Not tested end to end with a real payment.
+- **Next:** Stripe cleanup (duplicate subscriptions, older unpaid gift cards), billing-period backfill, a real test purchase.
+
 ## 2026-11-05 — #98 cubic review rounds
 - **Checkout guard:** create-checkout fails closed (stored subscription checked, Stripe errors rethrown, all pages listed, `incomplete` counted), payment-problem message, 10 s idempotency key.
 - **Webhook:** stored-subscription guard on every path and throws on a failed read; billing period never moves back; longer pause block kept; invoice fetched only after a pause; Omnisend retried only on 429/5xx.
