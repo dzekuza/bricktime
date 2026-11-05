@@ -287,6 +287,8 @@ export default function Account() {
     Array<{
       id: string
       amount: number
+      total?: number
+      creditApplied?: number
       currency: string
       description: string
       date: number

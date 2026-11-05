@@ -425,6 +425,30 @@ Deno.serve(async (req) => {
           )
         }
       }
+      // Customer credit the gap invoice consumed isn't covered by the refund.
+      // Give it back first; otherwise undoing the gift card below would push
+      // the balance into debt and the next invoice would charge it.
+      const creditUsedCents = upgradeInvoice
+        ? Math.max(
+            0,
+            (upgradeInvoice.ending_balance ?? upgradeInvoice.starting_balance) -
+              upgradeInvoice.starting_balance
+          )
+        : 0
+      if (creditUsedCents > 0) {
+        try {
+          await stripe.customers.createBalanceTransaction(customerId, {
+            amount: -creditUsedCents,
+            currency: "eur",
+            description: `Plano keitimas nepavyko: grąžintas kreditas (${upgradeInvoice?.id})`,
+          })
+        } catch (creditErr) {
+          console.error(
+            `change-subscription: failed to restore credit used by ${upgradeInvoice?.id}:`,
+            (creditErr as Error).message
+          )
+        }
+      }
       if (creditApplied && discount?.kind === "gift") {
         try {
           await stripe.customers.createBalanceTransaction(customerId, {
