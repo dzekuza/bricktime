@@ -118,6 +118,15 @@ async function handleGiftCardCheckout(session: Stripe.Checkout.Session) {
 // Errors throw so Stripe retries the event; record_merch_order is idempotent
 // on the session id, so a retry never double-counts stock.
 async function handleMerchCheckout(session: Stripe.Checkout.Session) {
+  // Delayed methods complete the session unpaid; the order is recorded when
+  // async_payment_succeeded arrives. A fully discounted order needs no payment.
+  if (
+    session.payment_status !== "paid" &&
+    session.payment_status !== "no_payment_required"
+  ) {
+    return
+  }
+
   const itemId = session.metadata?.itemId
   const size = session.metadata?.size
   if (!itemId || !size) {
@@ -512,6 +521,9 @@ Deno.serve(async (req) => {
         const session = event.data.object as Stripe.Checkout.Session
         if (session.metadata?.type === "penalty") {
           await handlePenaltyCheckout(session)
+        }
+        if (session.metadata?.type === "merch") {
+          await handleMerchCheckout(session)
         }
         break
       }
