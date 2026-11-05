@@ -267,7 +267,6 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
                 )
               }
             />
-            <Row label="Amount" value={`€${order.amount}`} />
           </div>
 
           <Separator className="my-5" />

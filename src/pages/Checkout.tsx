@@ -33,6 +33,7 @@ import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
 import { PlanFitConfigurator } from "@/components/PlanFitConfigurator"
 import { getDisplayPlan } from "@/lib/product-filters"
+import { UpgradePriceNotes } from "@/components/checkout/UpgradePriceNotes"
 import type { Tier } from "@/components/ProductCard"
 
 const HOME_DELIVERY_FEE = 3
@@ -149,10 +150,13 @@ export default function Checkout() {
   // Whether the member's subscription includes the monthly door-delivery item,
   // as opposed to `homeDelivery`, the delivery picked for this one order.
   const [hasPlanHomeDelivery, setHasPlanHomeDelivery] = useState(false)
-  // Legenda (mega) includes free courier delivery.
-  const homeDeliveryFee = userSub?.key === "mega" ? 0 : HOME_DELIVERY_FEE
-  const homeDeliveryLabel =
-    homeDeliveryFee > 0 ? `+€${homeDeliveryFee}` : "Nemokamas"
+  // Door delivery is billed once a month as part of the plan (Legenda
+  // includes it), never per order. Without it in the plan the server rejects
+  // a courier rental, so the option is shown as unavailable instead of priced.
+  const isDoorDeliveryInPlan = userSub?.key === "mega" || hasPlanHomeDelivery
+  const homeDeliveryLabel = isDoorDeliveryInPlan
+    ? "Įskaičiuota"
+    : "Nėra tavo plane"
   const [terminal, setTerminal] = useState<LpTerminal | null>(null)
   const [profileData, setProfileData] = useState<Partial<
     Record<keyof ProfileValues, string | null>
@@ -782,9 +786,7 @@ export default function Checkout() {
                     <span
                       className={[
                         "rounded-full border-2 border-ink px-3 py-1.5 font-mono text-[11px] font-bold tracking-[.1em] uppercase",
-                        homeDelivery && homeDeliveryFee > 0
-                          ? "bg-brand-yellow text-ink"
-                          : "bg-brand-mint text-ink",
+                        "bg-brand-mint text-ink",
                       ].join(" ")}
                     >
                       {homeDelivery ? homeDeliveryLabel : "Nemokamas"}
@@ -1017,18 +1019,18 @@ export default function Checkout() {
                             value: true,
                             label: "Pristatymas kurjeriu",
                             note: homeDeliveryLabel,
-                            accent:
-                              homeDeliveryFee > 0
-                                ? "bg-brand-yellow"
-                                : "bg-brand-mint",
+                            accent: isDoorDeliveryInPlan
+                              ? "bg-brand-mint"
+                              : "bg-ink/10",
                           },
                         ].map(({ value, label, note, accent }) => (
                           <button
                             key={String(value)}
                             type="button"
+                            disabled={value && !isDoorDeliveryInPlan}
                             onClick={() => setHomeDelivery(value)}
                             className={[
-                              "flex items-center justify-between rounded-2xl border-2 px-5 py-4 text-left transition-all",
+                              "flex items-center justify-between rounded-2xl border-2 px-5 py-4 text-left transition-all disabled:cursor-not-allowed disabled:opacity-50",
                               homeDelivery === value
                                 ? "border-ink shadow-[3px_3px_0_#001B21]"
                                 : "border-ink/20 hover:border-ink/50",
@@ -1126,12 +1128,12 @@ export default function Checkout() {
                         Šio užsakymo suma
                       </p>
                       <p className="mt-0.5 font-display text-[26px] leading-none text-ink">
-                        {homeDelivery && userSub ? `€${homeDeliveryFee}` : "€0"}
+                        €0
                       </p>
                     </div>
                     <p className="label-mono max-w-[140px] text-right text-ink/40">
                       {homeDelivery
-                        ? "Pristatymas į duris"
+                        ? "Pristatymas į duris įskaičiuotas prenumeratoje"
                         : "Produktas + paštomatas"}
                     </p>
                   </div>
@@ -1308,6 +1310,18 @@ export default function Checkout() {
                       </span>
                     </div>
                   </div>
+                  <UpgradePriceNotes
+                    monthlyPrice={
+                      discountedPrice < basePrice ? discountedPrice : basePrice
+                    }
+                    isAnnual={billing === "annual"}
+                    deliveryFee={
+                      hasPlanHomeDelivery && requiredTier.key !== "mega"
+                        ? HOME_DELIVERY_FEE
+                        : 0
+                    }
+                    isSwap={userSub != null}
+                  />
 
                   {/* Coupon + Gift card */}
                   <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">

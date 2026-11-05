@@ -117,7 +117,6 @@ export function RentedOrderCard({
       <dl>
         <MetaRow label="Pristatymas" value={delivery} />
         <MetaRow label="Grąžinti iki" value={formatDate(order.dueDate)} />
-        <MetaRow label="Mokestis" value={`€${order.amount}/mėn.`} />
       </dl>
 
       {/* Live LP EXPRESS tracking — outbound, then return */}
