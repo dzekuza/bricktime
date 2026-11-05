@@ -118,7 +118,7 @@ Deno.serve(async (req) => {
           userId,
           ...(discount?.kind === "coupon" && {
             couponCode: discount.code,
-            couponHoldId: discount.holdId,
+            ...(discount.holdId && { couponHoldId: discount.holdId }),
           }),
           ...(discount?.kind === "gift_card" && {
             giftCardCode: discount.code,
@@ -147,7 +147,7 @@ Deno.serve(async (req) => {
     } catch (stripeError) {
       if (discount?.kind === "gift_card") {
         await releaseGiftCard(supabase, discount.code, userId)
-      } else if (discount?.kind === "coupon") {
+      } else if (discount?.kind === "coupon" && discount.holdId) {
         await releaseCouponHold(supabase, discount.holdId)
       }
       throw stripeError
@@ -161,13 +161,20 @@ Deno.serve(async (req) => {
 })
 
 type Discount =
-  | { kind: "coupon"; code: string; amountOffCents: number; holdId: string }
+  | {
+      kind: "coupon"
+      code: string
+      amountOffCents: number
+      holdId: string | null
+    }
   | { kind: "gift_card"; code: string; amountOffCents: number }
 
 // One message for every rejected gift card, so the response never reveals
 // whether a typed code exists or is held by someone else.
 const GIFT_CARD_REJECTED =
   "Kodas nerastas, nebegalioja arba šiuo metu naudojamas"
+const OWN_OPEN_CHECKOUT =
+  "Šį kodą jau naudoji kitame neužbaigtame užsakyme. Pabandyk po 30 min."
 
 // Coupons are checked first; a code that isn't one is tried as a gift card.
 // A gift card is single-use, so any value above the item price is not kept.
@@ -181,20 +188,36 @@ async function resolveDiscount(
 
   const { data: coupon } = await supabase
     .from("coupons")
-    .select("discount_type, discount_value")
+    .select("discount_type, discount_value, max_uses, active, expires_at")
     .eq("code", code)
     .maybeSingle()
   if (coupon) {
-    // Reserves one use against max_uses while the checkout is open.
-    const { data: holdId, error: holdError } = await supabase.rpc(
-      "claim_coupon_hold",
-      { p_code: code, p_minutes: GIFT_CARD_HOLD_MINUTES }
-    )
-    if (holdError) {
-      console.error(`Coupon hold failed for ${code}: ${holdError.message}`)
-      throw new Error("Kodo patikrinti nepavyko. Bandyk dar kartą.")
+    let holdId: string | null = null
+    if (coupon.max_uses == null) {
+      // Unlimited: nothing to run out of, so nothing to reserve.
+      const expired =
+        coupon.expires_at && new Date(coupon.expires_at) <= new Date()
+      if (!coupon.active || expired) throw new Error("Kodas negalioja")
+    } else {
+      // Reserving a limited use needs an account, one live hold each, so
+      // nobody can drain the remaining uses by opening checkouts.
+      if (!userId) {
+        throw new Error("Prisijunk, kad galėtum panaudoti šį nuolaidos kodą")
+      }
+      const { data, error: holdError } = await supabase.rpc(
+        "claim_coupon_hold",
+        { p_code: code, p_minutes: GIFT_CARD_HOLD_MINUTES, p_user_id: userId }
+      )
+      if (holdError?.message.includes("own_hold_open")) {
+        throw new Error(OWN_OPEN_CHECKOUT)
+      }
+      if (holdError) {
+        console.error(`Coupon hold failed for ${code}: ${holdError.message}`)
+        throw new Error("Kodo patikrinti nepavyko. Bandyk dar kartą.")
+      }
+      if (!data) throw new Error("Kodas negalioja")
+      holdId = String(data)
     }
-    if (!holdId) throw new Error("Kodas negalioja")
     const value = Number(coupon.discount_value)
     const off =
       coupon.discount_type === "percentage"
@@ -204,7 +227,7 @@ async function resolveDiscount(
       kind: "coupon",
       code,
       amountOffCents: Math.min(off, priceCents),
-      holdId: String(holdId),
+      holdId,
     }
   }
 
@@ -215,7 +238,8 @@ async function resolveDiscount(
   }
 
   // Check and claim in one conditional UPDATE, so two checkouts racing for the
-  // same card can't both get it. The holder may re-hold their own card.
+  // same card can't both get it. A live hold blocks its own holder too: a
+  // second session for the same card would let one card pay twice.
   const now = new Date()
   const holdUntil = new Date(now.getTime() + GIFT_CARD_HOLD_MINUTES * 60_000)
   const { data: card, error: holdError } = await supabase
@@ -224,16 +248,24 @@ async function resolveDiscount(
     .eq("code", code)
     .eq("status", "active")
     .gt("expires_at", now.toISOString())
-    .or(
-      `reserved_until.is.null,reserved_until.lte."${now.toISOString()}",reserved_by.eq.${userId}`
-    )
+    .or(`reserved_until.is.null,reserved_until.lte."${now.toISOString()}"`)
     .select("amount_cents")
     .maybeSingle()
   if (holdError) {
     console.error(`Gift card hold failed: ${holdError.message}`)
     throw new Error("Dovanų kupono patikrinti nepavyko. Bandyk dar kartą.")
   }
-  if (!card) throw new Error(GIFT_CARD_REJECTED)
+  if (!card) {
+    // Telling holders about their own open checkout reveals nothing new.
+    const { data: ownHold } = await supabase
+      .from("gift_cards")
+      .select("code")
+      .eq("code", code)
+      .eq("reserved_by", userId)
+      .gt("reserved_until", now.toISOString())
+      .maybeSingle()
+    throw new Error(ownHold ? OWN_OPEN_CHECKOUT : GIFT_CARD_REJECTED)
+  }
   return {
     kind: "gift_card",
     code,

@@ -124,6 +124,13 @@ async function checkCode(
       return { error: "Kodas nebegalioja" }
     if (coupon.max_uses != null && coupon.uses_count >= coupon.max_uses)
       return { error: "Kodas jau panaudotas" }
+    // Checkout reserves a use of a limited code against an account.
+    if (coupon.max_uses != null) {
+      const { data: sessionData } = await supabase.auth.getSession()
+      if (!sessionData.session) {
+        return { error: "Prisijunk, kad galėtum panaudoti šį nuolaidos kodą" }
+      }
+    }
     const value = Number(coupon.discount_value)
     const off =
       coupon.discount_type === "percentage"
