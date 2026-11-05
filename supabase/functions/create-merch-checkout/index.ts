@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
     const sizeStock = Object.hasOwn(stock, size) ? stock[size] : 0
     // Whole units only. record_merch_order also counts non-whole or non-numeric
     // stock as none, flagging the order stock_short instead of taking a unit.
-    if (!Number.isInteger(sizeStock) || (sizeStock as number) < 1) {
+    if (!Number.isSafeInteger(sizeStock) || (sizeStock as number) < 1) {
       throw new Error("Out of stock")
     }
 

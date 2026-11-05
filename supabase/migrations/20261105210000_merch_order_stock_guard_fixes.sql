@@ -9,6 +9,8 @@
 --   2. Fractional stock such as 1.5 floored to 1 and was taken as a unit. Stock
 --      now counts only when it is a whole number; anything else is no stock,
 --      matching create-merch-checkout.
+--   3. The decrement cast stock to int, which raises above 2147483647 and
+--      rolled back the paid order. It now stays numeric.
 -- Correction to the earlier header: a stored "5" (a JSON string) did not make
 -- `::int` raise — `->>` returns 5, which casts. Non-numeric text and
 -- fractions did.
@@ -59,13 +61,14 @@ begin
 
   -- Only a whole JSON number counts as stock; anything else reads as none, so
   -- a bad value can't make this function raise and block the order from saving.
+  -- The decrement stays numeric: an int cast would raise above 2147483647.
   -- CASE guards the cast: Postgres doesn't promise AND evaluates left first.
   -- The row lock taken by UPDATE serialises concurrent webhooks.
   update public.merch_items
      set stock = jsonb_set(
            stock,
            array[p_size],
-           to_jsonb((stock ->> p_size)::numeric::int - 1)
+           to_jsonb((stock ->> p_size)::numeric - 1)
          )
    where id = p_merch_item_id
      and case
