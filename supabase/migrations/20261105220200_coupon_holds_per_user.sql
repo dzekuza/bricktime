@@ -6,7 +6,7 @@
 -- Unlimited coupons are never held (create-merch-checkout skips the call).
 --
 -- Rollback: remove claim_coupon_hold(text, integer, uuid), restore the
--- two-argument claim_coupon_hold from 20261105200000_merch_checkout_hardening.sql
+-- two-argument claim_coupon_hold from 20261105220000_merch_checkout_hardening.sql
 -- and remove coupon_holds.user_id.
 -- =============================================================================
 
