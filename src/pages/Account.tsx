@@ -794,13 +794,17 @@ export default function Account() {
   // The return label + status change is handled server-side by the lpexpress
   // `create-return-label` action (via ReturnDialog). This just syncs local state.
   function onReturnComplete(orderId: string, barcode: string | null) {
-    setRentedOrders((prev) =>
-      prev.map((o) =>
-        o.id === orderId
-          ? { ...o, status: "return_requested", returnBarcode: barcode }
-          : o
-      )
-    )
+    const markRequested = (o: RentedOrder) =>
+      o.id === orderId
+        ? {
+            ...o,
+            status: "return_requested",
+            returnBarcode: barcode,
+            returnRequestedAt: new Date().toISOString(),
+          }
+        : o
+    setRentedOrders((prev) => prev.map(markRequested))
+    setRentalHistory((prev) => prev.map(markRequested))
   }
 
   const [downloadingLabel, setDownloadingLabel] = useState<string | null>(null)

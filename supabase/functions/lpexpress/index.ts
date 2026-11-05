@@ -117,12 +117,12 @@ Deno.serve(async (req) => {
         if (method === "terminal" && !order.lp_terminal_id)
           return json({ error: "Order has no terminal selected" }, 400)
 
-        // The courier address comes from the snapshot taken when the order
-        // was placed, never from the request; name and phone default to it.
+        // Receiver details come from the snapshot taken when the order was
+        // placed; the request only fills in for older orders without one.
         const receiver = {
           ...payload.receiver,
-          name: payload.receiver?.name || order.delivery_name,
-          phone: payload.receiver?.phone || order.delivery_phone,
+          name: order.delivery_name || payload.receiver?.name,
+          phone: order.delivery_phone || payload.receiver?.phone,
           ...(method === "courier" && {
             street: order.delivery_street,
             building: order.delivery_house_no,

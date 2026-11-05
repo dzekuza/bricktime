@@ -61,14 +61,16 @@ function parsePlanKey(value: string | null | undefined) {
   return value && planKeys.has(value) ? value : undefined
 }
 
+// Returns false only when Omnisend refused the event, so a caller that must
+// deliver it (the gift card email) can have Stripe retry.
 async function pushOmnisendEvent(
   eventName: string,
   email: string,
   properties: Record<string, unknown>
-) {
+): Promise<boolean> {
   if (!omnisendApiKey) {
     console.error("OMNISEND_API_KEY is not configured; skipping event push")
-    return
+    return true
   }
 
   const res = await fetch("https://api.omnisend.com/v5/events", {
@@ -89,7 +91,9 @@ async function pushOmnisendEvent(
     console.error(
       `Omnisend event push failed for "${eventName}": ${res.status} ${await res.text()}`
     )
+    return false
   }
+  return true
 }
 
 // A bought card is inserted as pending; it becomes spendable only once paid.
@@ -103,40 +107,56 @@ async function handleGiftCardCheckout(session: Stripe.Checkout.Session) {
     return
   }
 
-  const { data: activated, error: activateError } = await supabase
+  const { data: giftCard, error: loadError } = await supabase
+    .from("gift_cards")
+    .select(
+      "code, status, amount_cents, recipient_email, buyer_email, message, expires_at, created_at"
+    )
+    .eq("stripe_session_id", session.id)
+    .maybeSingle()
+  if (loadError) {
+    throw new Error(
+      `Gift card for session ${session.id} not loaded: ${loadError.message}`
+    )
+  }
+  // The row is saved before the buyer reaches Stripe, so a missing one is a
+  // real fault: throw so Stripe retries rather than lose a paid card.
+  if (!giftCard) {
+    throw new Error(`No gift card row for paid session ${session.id}`)
+  }
+  // Already active means an earlier delivery sent the email.
+  if (giftCard.status !== "pending") return
+
+  // Email first, then activate: a failed email leaves the card pending and
+  // the event is retried, so the recipient is never left without the code.
+  const isSent = await pushOmnisendEvent(
+    "gift card purchased",
+    giftCard.recipient_email,
+    {
+      code: giftCard.code,
+      amount: giftCard.amount_cents / 100,
+      buyerEmail: giftCard.buyer_email,
+      recipientEmail: giftCard.recipient_email,
+      message: giftCard.message ?? "",
+      expiresAt: giftCard.expires_at,
+      purchasedAt: giftCard.created_at,
+      redeemUrl: `https://www.bricktime.lt/gift-cards?code=${encodeURIComponent(giftCard.code)}`,
+    }
+  )
+  if (!isSent) {
+    throw new Error(`Gift card email for session ${session.id} not sent`)
+  }
+
+  const { error: activateError } = await supabase
     .from("gift_cards")
     .update({ status: "active" })
     .eq("stripe_session_id", session.id)
     .eq("status", "pending")
-    .select("code")
   if (activateError) {
     throw new Error(
       `Gift card for session ${session.id} not activated: ${activateError.message}`
     )
   }
-  // Already active means an earlier delivery sent the email.
-  if (!activated?.length) return
-
-  const { data: giftCard } = await supabase
-    .from("gift_cards")
-    .select(
-      "code, amount_cents, recipient_email, buyer_email, message, expires_at, created_at"
-    )
-    .eq("stripe_session_id", session.id)
-    .maybeSingle()
-
-  if (!giftCard) return
-
-  await pushOmnisendEvent("gift card purchased", giftCard.recipient_email, {
-    code: giftCard.code,
-    amount: giftCard.amount_cents / 100,
-    buyerEmail: giftCard.buyer_email,
-    recipientEmail: giftCard.recipient_email,
-    message: giftCard.message ?? "",
-    expiresAt: giftCard.expires_at,
-    purchasedAt: giftCard.created_at,
-    redeemUrl: `https://www.bricktime.lt/gift-cards?code=${encodeURIComponent(giftCard.code)}`,
-  })
 }
 
 // Errors throw so Stripe retries the event; record_merch_order is idempotent
@@ -402,6 +422,30 @@ async function findSubscriber(args: {
   return null
 }
 
+// True when the subscriber's stored subscription is a different, still-live
+// one: then an event for `subscriptionId` (a duplicate) must not change the row.
+async function isStoredSubscriptionOtherLive(
+  subscriberId: string,
+  subscriptionId: string
+): Promise<boolean> {
+  const { data: current } = await supabase
+    .from("subscribers")
+    .select("stripe_subscription_id, status")
+    .eq("id", subscriberId)
+    .maybeSingle()
+  const isOtherLive = Boolean(
+    current?.stripe_subscription_id &&
+    current.stripe_subscription_id !== subscriptionId &&
+    (current.status === "active" || current.status === "paused")
+  )
+  if (isOtherLive) {
+    console.error(
+      `Ignoring subscription ${subscriptionId} for subscriber ${subscriberId}: stored subscription ${current?.stripe_subscription_id} is still live. Check for a duplicate subscription in Stripe.`
+    )
+  }
+  return isOtherLive
+}
+
 async function updateSubscriberByStripeIds(
   subscription: Stripe.Subscription,
   fallbackEmail?: string | null
@@ -425,19 +469,7 @@ async function updateSubscriberByStripeIds(
   // A member with two live subscriptions (created before create-checkout
   // refused duplicates) would otherwise flip between them on every event.
   // While the stored one is live, only its own events may change the row.
-  const { data: current } = await supabase
-    .from("subscribers")
-    .select("stripe_subscription_id, status")
-    .eq("id", subscriber.id)
-    .maybeSingle()
-  if (
-    current?.stripe_subscription_id &&
-    current.stripe_subscription_id !== subscription.id &&
-    (current.status === "active" || current.status === "paused")
-  ) {
-    console.error(
-      `Ignoring ${subscription.status} subscription ${subscription.id} for subscriber ${subscriber.id}: stored subscription ${current.stripe_subscription_id} is still live. Check for a duplicate subscription in Stripe.`
-    )
+  if (await isStoredSubscriptionOtherLive(subscriber.id, subscription.id)) {
     return
   }
 
@@ -609,7 +641,13 @@ Deno.serve(async (req) => {
           subscriptionId,
         })
 
-        if (subscriber) {
+        // Same rule as updateSubscriberByStripeIds: while the stored
+        // subscription is live, a different one must not take over the row.
+        const isOtherLive =
+          subscriber &&
+          subscriptionId &&
+          (await isStoredSubscriptionOtherLive(subscriber.id, subscriptionId))
+        if (subscriber && !isOtherLive) {
           const update: Record<string, unknown> = {
             status: "active",
             stripe_customer_id: customerId ?? null,
@@ -691,7 +729,11 @@ Deno.serve(async (req) => {
           subscriptionId,
         })
 
-        if (subscriber) {
+        const isOtherLive =
+          subscriber &&
+          subscriptionId &&
+          (await isStoredSubscriptionOtherLive(subscriber.id, subscriptionId))
+        if (subscriber && !isOtherLive) {
           await supabase
             .from("subscribers")
             .update({ status: "paused" })

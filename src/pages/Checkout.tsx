@@ -456,6 +456,15 @@ export default function Checkout() {
     // A member's existing subscription is swapped in place. A new Checkout
     // Session would start a second subscription and bill both.
     if (userSub) {
+      // change-subscription takes one code; sending only one of two would
+      // charge more than the price shown.
+      if (appliedGiftCard && appliedCoupon) {
+        setPurchasing(false)
+        setPurchaseError(
+          "Keičiant planą galima naudoti vieną kodą – pašalink nuolaidos kodą arba dovanų kortelę."
+        )
+        return
+      }
       const code = appliedGiftCard?.code ?? appliedCoupon?.code
       const { data: swap, error: swapError } = await supabase.functions.invoke(
         "change-subscription",
@@ -468,7 +477,11 @@ export default function Checkout() {
           },
         }
       )
-      if (swapError || swap?.error || !swap?.changed) {
+      // No subscription to swap after all (a stale row): a fresh checkout is
+      // safe, and create-checkout refuses if a live one does exist.
+      const isNothingToSwap =
+        !swapError && swap?.reason === "no_active_subscription"
+      if (!isNothingToSwap && (swapError || swap?.error || !swap?.changed)) {
         setPurchasing(false)
         setPurchaseError(
           swap?.error ??
@@ -481,8 +494,10 @@ export default function Checkout() {
         )
         return
       }
-      window.location.assign(successUrl)
-      return
+      if (!isNothingToSwap) {
+        window.location.assign(successUrl)
+        return
+      }
     }
 
     const { data, error } = await supabase.functions.invoke("create-checkout", {

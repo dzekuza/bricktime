@@ -110,7 +110,8 @@ export function Orders() {
   const pendingReturns = items.filter((o) => o.status === 'return_requested').length
   // Rentals carry no charge of their own (the subscription pays), so the old
   // per-order "amount" was the plan's list price and summed to a fake revenue.
-  const courierToShip = items.filter((o) => o.homeDelivery && o.status === 'processing').length
+  // Still waiting for a label; a labelled order stays processing while in transit.
+  const courierToShip = items.filter((o) => o.homeDelivery && o.status === 'processing' && !o.barcode).length
 
   function openDetail(order: Order) {
     setDetailTarget(order)

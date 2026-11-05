@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
 
     const { data: subscriber } = await supabase
       .from("subscribers")
-      .select("stripe_customer_id, plan")
+      .select("stripe_customer_id, stripe_subscription_id, plan")
       .eq("id", userId)
       .maybeSingle()
 
@@ -98,39 +98,71 @@ Deno.serve(async (req) => {
           subscriber.stripe_customer_id
         )
         if (!customer.deleted) customerId = customer.id
-      } catch {
+      } catch (err) {
+        // Only a customer Stripe no longer knows falls back to a fresh one; any
+        // other failure must not skip the duplicate-subscription check below.
+        if ((err as { code?: string }).code !== "resource_missing") throw err
         customerId = null
       }
     }
 
     // A second subscription on the same customer would bill both. Plan
-    // changes for members go through change-subscription instead.
-    if (customerId) {
-      const existing = await stripe.subscriptions.list({
+    // changes for members go through change-subscription instead. The stored
+    // subscription is checked too, so a missing customer id can't skip it.
+    const LIVE_STATUSES = [
+      "active",
+      "trialing",
+      "past_due",
+      "unpaid",
+      "paused",
+      "incomplete",
+    ]
+    let liveStatus: string | null = null
+    if (subscriber?.stripe_subscription_id) {
+      try {
+        const stored = await stripe.subscriptions.retrieve(
+          subscriber.stripe_subscription_id
+        )
+        if (LIVE_STATUSES.includes(stored.status)) liveStatus = stored.status
+      } catch (err) {
+        // A stored id Stripe no longer knows is a stale row; anything else
+        // fails closed rather than risk a second subscription.
+        if ((err as { code?: string }).code !== "resource_missing") throw err
+      }
+    }
+    if (customerId && !liveStatus) {
+      for await (const existing of stripe.subscriptions.list({
         customer: customerId,
         status: "all",
-        limit: 20,
-      })
-      const live = existing.data.find((s: Stripe.Subscription) =>
-        ["active", "trialing", "past_due", "unpaid", "paused"].includes(
-          s.status
-        )
-      )
-      if (live) {
-        console.error(
-          `create-checkout refused for ${userId}: subscription ${live.id} is ${live.status}`
-        )
-        return new Response(
-          JSON.stringify({
-            error:
-              "Jau turi aktyvią prenumeratą. Planą pakeisk paskyroje – nauja prenumerata nebus kuriama.",
-          }),
-          {
-            status: 409,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
-        )
+        limit: 100,
+      })) {
+        if (LIVE_STATUSES.includes(existing.status)) {
+          liveStatus = existing.status
+          break
+        }
       }
+    }
+    if (liveStatus) {
+      console.error(
+        `create-checkout refused for ${userId}: a ${liveStatus} subscription exists`
+      )
+      const isPaymentProblem = [
+        "past_due",
+        "unpaid",
+        "incomplete",
+        "paused",
+      ].includes(liveStatus)
+      return new Response(
+        JSON.stringify({
+          error: isPaymentProblem
+            ? "Tavo prenumeratos mokėjimas neužbaigtas. Atnaujink mokėjimo kortelę paskyroje („Mano prenumerata“) arba susisiek su mumis."
+            : "Jau turi aktyvią prenumeratą. Planą pakeisk paskyroje – nauja prenumerata nebus kuriama.",
+        }),
+        {
+          status: 409,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      )
     }
 
     // Legenda (mega) includes free courier delivery — never charge the add-on fee for it.

@@ -60,8 +60,11 @@ export function useCredits(): CreditsState {
       )
       if (used.error) console.error("used_credits failed:", used.error.message)
       // Fall back to held sets only, so a failed RPC never blocks renting.
-      setUsedCredits(used.error ? heldSum : Number(used.data ?? 0))
-      setHeldCredits(heldSum)
+      const usedTotal = used.error ? heldSum : Number(used.data ?? 0)
+      setUsedCredits(usedTotal)
+      // Without the held breakdown, don't claim any budget is waiting to free.
+      if (held.error) console.error("Held orders failed:", held.error.message)
+      setHeldCredits(held.error ? usedTotal : heldSum)
       setBudgetFreesAt(sub.data?.current_period_end ?? null)
       setLoading(false)
     })

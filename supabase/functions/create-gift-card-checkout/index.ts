@@ -98,30 +98,27 @@ Deno.serve(async (req) => {
       metadata: { code, recipientEmail, buyerEmail },
     })
 
-    // The client only needs the checkout URL to redirect — record the gift
-    // card row after responding instead of making the user wait on it too.
-    EdgeRuntime.waitUntil(
-      supabase
-        .from("gift_cards")
-        .insert({
-          code,
-          amount_cents: amountCents,
-          recipient_email: recipientEmail,
-          buyer_email: buyerEmail,
-          message: message ?? null,
-          // Activated by stripe-webhook once the purchase is paid.
-          status: "pending",
-          stripe_session_id: session.id,
-        })
-        .then(({ error: insertError }) => {
-          if (insertError) {
-            console.error(
-              "create-gift-card-checkout: gift_cards insert failed",
-              { code, sessionId: session.id, error: insertError }
-            )
-          }
-        })
-    )
+    // Saved before the URL is returned, so the webhook always finds the row
+    // it activates; without it a paid card could stay pending for good.
+    const { error: insertError } = await supabase.from("gift_cards").insert({
+      code,
+      amount_cents: amountCents,
+      recipient_email: recipientEmail,
+      buyer_email: buyerEmail,
+      message: message ?? null,
+      // Activated by stripe-webhook once the purchase is paid.
+      status: "pending",
+      stripe_session_id: session.id,
+    })
+    if (insertError) {
+      console.error("create-gift-card-checkout: gift_cards insert failed", {
+        code,
+        sessionId: session.id,
+        error: insertError,
+      })
+      await stripe.checkout.sessions.expire(session.id).catch(() => undefined)
+      throw new Error("Dovanų kortelės sukurti nepavyko. Bandyk dar kartą.")
+    }
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

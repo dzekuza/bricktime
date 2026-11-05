@@ -214,8 +214,6 @@ export function SubscriberProfileSheet({
 
   if (!subscriber) return null
 
-  const totalSpent = sheetOrders.reduce((sum, o) => sum + o.amount, 0)
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="flex flex-col gap-0 overflow-y-auto sm:max-w-md">
@@ -275,16 +273,6 @@ export function SubscriberProfileSheet({
                 )
               }
             />
-            <Row
-              label="Total spent"
-              value={
-                totalSpent > 0 ? (
-                  `€${totalSpent}`
-                ) : (
-                  <span className="text-muted-foreground">—</span>
-                )
-              }
-            />
           </div>
 
           {/* Rental history */}
@@ -317,9 +305,6 @@ export function SubscriberProfileSheet({
                       >
                         {order.status}
                       </Badge>
-                      <span className="text-xs text-muted-foreground tabular-nums">
-                        €{order.amount}
-                      </span>
                     </div>
                   </div>
                 ))}
