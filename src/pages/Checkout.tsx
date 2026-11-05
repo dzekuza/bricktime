@@ -146,6 +146,9 @@ export default function Checkout() {
   const [showModal, setShowModal] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [homeDelivery, setHomeDelivery] = useState(false)
+  // Whether the member's subscription includes the monthly door-delivery item,
+  // as opposed to `homeDelivery`, the delivery picked for this one order.
+  const [hasPlanHomeDelivery, setHasPlanHomeDelivery] = useState(false)
   // Legenda (mega) includes free courier delivery.
   const homeDeliveryFee = userSub?.key === "mega" ? 0 : HOME_DELIVERY_FEE
   const homeDeliveryLabel =
@@ -212,9 +215,11 @@ export default function Checkout() {
           setUserSub(tierByName[data.plan] ?? null)
           setCancelAt(data.cancel_at ?? null)
           setHomeDelivery(data.home_delivery ?? false)
+          setHasPlanHomeDelivery(data.home_delivery ?? false)
         } else {
           setUserSub(null)
           setCancelAt(null)
+          setHasPlanHomeDelivery(false)
         }
         if (data) {
           setProfileData({
@@ -434,15 +439,49 @@ export default function Checkout() {
     setPurchasing(true)
     setPurchaseError("")
     const origin = window.location.origin
+    const successUrl = productId
+      ? `${origin}/checkout?product=${productId}&success=true&plan=${requiredTier.key}`
+      : `${origin}/checkout?plan=${requiredTier.key}&success=true`
+
+    // A member's existing subscription is swapped in place. A new Checkout
+    // Session would start a second subscription and bill both.
+    if (userSub) {
+      const code = appliedGiftCard?.code ?? appliedCoupon?.code
+      const { data: swap, error: swapError } = await supabase.functions.invoke(
+        "change-subscription",
+        {
+          body: {
+            planKey: requiredTier.key,
+            billing,
+            homeDelivery: hasPlanHomeDelivery,
+            ...(code && { code }),
+          },
+        }
+      )
+      if (swapError || swap?.error || !swap?.changed) {
+        setPurchasing(false)
+        setPurchaseError(
+          swap?.error ??
+            (swapError
+              ? await readFunctionError(
+                  swapError,
+                  "Plano pakeisti nepavyko. Bandyk dar kartą."
+                )
+              : "Plano pakeisti nepavyko. Pabandyk paskyroje.")
+        )
+        return
+      }
+      window.location.assign(successUrl)
+      return
+    }
+
     const { data, error } = await supabase.functions.invoke("create-checkout", {
       body: {
         planKey: requiredTier.key,
         billing,
         userId: user.id,
         userEmail: user.email ?? "",
-        successUrl: productId
-          ? `${origin}/checkout?product=${productId}&success=true&plan=${requiredTier.key}`
-          : `${origin}/checkout?plan=${requiredTier.key}&success=true`,
+        successUrl,
         cancelUrl: productId
           ? `${origin}/checkout?product=${productId}`
           : `${origin}/subscribe`,

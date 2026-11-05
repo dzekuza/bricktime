@@ -245,7 +245,10 @@ async function countMerchCoupon(session: Stripe.Checkout.Session) {
 
 // A hold left behind would block the coupon's last use until it lapses.
 async function deleteCouponHold(holdId: string, sessionId: string) {
-  const { error } = await supabase.from("coupon_holds").delete().eq("id", holdId)
+  const { error } = await supabase
+    .from("coupon_holds")
+    .delete()
+    .eq("id", holdId)
   if (error) {
     throw new Error(
       `Coupon hold ${holdId} not released for merch session ${sessionId}: ${error.message}`
@@ -394,6 +397,25 @@ async function updateSubscriberByStripeIds(
   })
 
   if (!subscriber) return
+
+  // A member with two live subscriptions (created before create-checkout
+  // refused duplicates) would otherwise flip between them on every event.
+  // While the stored one is live, only its own events may change the row.
+  const { data: current } = await supabase
+    .from("subscribers")
+    .select("stripe_subscription_id, status")
+    .eq("id", subscriber.id)
+    .maybeSingle()
+  if (
+    current?.stripe_subscription_id &&
+    current.stripe_subscription_id !== subscription.id &&
+    (current.status === "active" || current.status === "paused")
+  ) {
+    console.error(
+      `Ignoring ${subscription.status} subscription ${subscription.id} for subscriber ${subscriber.id}: stored subscription ${current.stripe_subscription_id} is still live. Check for a duplicate subscription in Stripe.`
+    )
+    return
+  }
 
   const update: Record<string, unknown> = {
     stripe_customer_id: customerId ?? null,
@@ -564,7 +586,6 @@ Deno.serve(async (req) => {
         }
         break
       }
-
 
       case "customer.subscription.created":
       case "customer.subscription.updated":

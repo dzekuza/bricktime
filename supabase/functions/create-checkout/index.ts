@@ -103,6 +103,36 @@ Deno.serve(async (req) => {
       }
     }
 
+    // A second subscription on the same customer would bill both. Plan
+    // changes for members go through change-subscription instead.
+    if (customerId) {
+      const existing = await stripe.subscriptions.list({
+        customer: customerId,
+        status: "all",
+        limit: 20,
+      })
+      const live = existing.data.find((s: Stripe.Subscription) =>
+        ["active", "trialing", "past_due", "unpaid", "paused"].includes(
+          s.status
+        )
+      )
+      if (live) {
+        console.error(
+          `create-checkout refused for ${userId}: subscription ${live.id} is ${live.status}`
+        )
+        return new Response(
+          JSON.stringify({
+            error:
+              "Jau turi aktyvią prenumeratą. Planą pakeisk paskyroje – nauja prenumerata nebus kuriama.",
+          }),
+          {
+            status: 409,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        )
+      }
+    }
+
     // Legenda (mega) includes free courier delivery — never charge the add-on fee for it.
     const chargeHomeDeliveryFee = homeDelivery && planKey !== "mega"
 
