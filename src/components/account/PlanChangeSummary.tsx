@@ -149,11 +149,13 @@ export function PlanChangeSummary({
           </Note>
         </>
       )}
-      {isDowngrade && requestedCode && (
+      {isDowngrade && requestedCode?.kind === "gift" && (
         <Note>
-          Mažinant planą nuolaidos kodas ir dovanų kortelė netaikomi – kortelė
-          lieka nepanaudota.
+          Mažinant planą dovanų kortelė netaikoma – kortelė lieka nepanaudota.
         </Note>
+      )}
+      {isDowngrade && requestedCode?.kind === "coupon" && (
+        <Note>Mažinant planą nuolaidos kodas netaikomas.</Note>
       )}
       {isAnnual && yearlySavings > 0 && (
         <p className="w-fit rounded-full border-2 border-ink bg-brand-mint px-3 py-1 font-mono text-[11px] font-bold text-ink">

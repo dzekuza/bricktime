@@ -550,6 +550,9 @@ export default function Account() {
       tierOptions[0] ??
       FALLBACK_TIER)
     : (tierOptions[0] ?? FALLBACK_TIER)
+  const isTierDowngrade =
+    hasSubscription &&
+    (tierOptions[selectedTier]?.price ?? 0) < activeTier.price
   const pendingTier = subscriber?.pending_plan
     ? tierOptions.find((t) => t.key === subscriber.pending_plan)
     : undefined
@@ -1142,11 +1145,8 @@ export default function Account() {
                         : HOME_DELIVERY_FEE
                     }
                     code={discount.applied}
-                    isSwap={hasSubscription}
-                    isDowngrade={
-                      hasSubscription &&
-                      (tierOptions[selectedTier]?.price ?? 0) < activeTier.price
-                    }
+                    isSwap={hasSubscription && !isTierDowngrade}
+                    isDowngrade={isTierDowngrade}
                   />
                   {planChangeError && (
                     <p className="font-mono text-[11px] text-red-500">

@@ -16,7 +16,7 @@ export interface CreditsState {
 
 export function useCredits(): CreditsState {
   const { user, profile } = useAuth()
-  const { subscriptions } = useSubscriptions()
+  const { subscriptions, loading: plansLoading } = useSubscriptions()
   const [usedCredits, setUsedCredits] = useState(0)
   const [loading, setLoading] = useState(true)
 
@@ -47,11 +47,17 @@ export function useCredits(): CreditsState {
       })
   }, [user])
 
+  // Until the profile and plans arrive the budget reads as 0, which would
+  // briefly flag every held set as over budget.
+  const isBudgetResolved = !user || (profile != null && !plansLoading)
+
   return {
     totalCredits,
     usedCredits,
     remainingCredits: Math.max(0, totalCredits - usedCredits),
-    overBudgetCredits: Math.max(0, usedCredits - totalCredits),
-    loading,
+    overBudgetCredits: isBudgetResolved
+      ? Math.max(0, usedCredits - totalCredits)
+      : 0,
+    loading: loading || !isBudgetResolved,
   }
 }
