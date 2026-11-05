@@ -13,6 +13,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { supabase } from "@/lib/supabase"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -45,6 +46,7 @@ const STATUS_LABEL: Record<MerchStatus, string> = {
 interface FormState {
   name: string
   slug: string
+  description: string
   type: MerchType
   price: string
   sizes: string[]
@@ -58,6 +60,7 @@ interface FormState {
 const emptyForm = (): FormState => ({
   name: "",
   slug: "",
+  description: "",
   type: "t-shirt",
   price: "",
   sizes: ["S", "M", "L", "XL"],
@@ -144,6 +147,7 @@ export function Merch() {
     setForm({
       name: item.name,
       slug: item.slug,
+      description: item.description ?? "",
       type: item.type,
       price: String(item.price),
       sizes: item.sizes,
@@ -210,6 +214,7 @@ export function Merch() {
     const payload = {
       name: form.name.trim(),
       slug: form.slug || slugify(form.name),
+      description: form.description.trim(),
       type: form.type,
       price: Number(form.price) || 0,
       sizes: form.sizes,
@@ -455,6 +460,19 @@ export function Merch() {
                   setForm((p) => ({ ...p, name: e.target.value }))
                 }
                 placeholder="e.g. BRICKTIME Classic Hoodie"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="merch-description">Description</Label>
+              <Textarea
+                id="merch-description"
+                className="min-h-[100px] resize-y"
+                value={form.description}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, description: e.target.value }))
+                }
+                placeholder="e.g. Unisex marškinėliai, 100% medvilnė, BRICKTIME logo ant krūtinės."
               />
             </div>
 
