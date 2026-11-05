@@ -248,7 +248,58 @@ export default function Checkout() {
           })
         }
       })
+    supabase
+      .from("subscribers")
+      .select("lp_terminal_id, lp_terminal_name")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.lp_terminal_id && data?.lp_terminal_name) {
+          setTerminal({
+            id: data.lp_terminal_id,
+            name: data.lp_terminal_name,
+            city: "",
+            address: "",
+            postalCode: "",
+          })
+        }
+      })
+    supabase
+      .from("orders")
+      .select("lp_terminal_id, lp_terminal_name")
+      .eq("subscriber_id", user.id)
+      .not("lp_terminal_id", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.lp_terminal_id && data?.lp_terminal_name) {
+          setTerminal(
+            (prev) =>
+              prev ?? {
+                id: data.lp_terminal_id!,
+                name: data.lp_terminal_name!,
+                city: "",
+                address: "",
+                postalCode: "",
+              }
+          )
+        }
+      })
   }, [user])
+
+  async function handleTerminalChange(t: LpTerminal | null) {
+    setTerminal(t)
+    setPurchaseError("")
+    if (!user) return
+    await supabase
+      .from("subscribers")
+      .update({
+        lp_terminal_id: t?.id ?? null,
+        lp_terminal_name: t?.name ?? null,
+      })
+      .eq("id", user.id)
+  }
 
   const requiredTier = useMemo(
     () =>
@@ -464,6 +515,22 @@ export default function Checkout() {
       )
       return
     }
+    if (!hasPhone) {
+      setPurchaseError(
+        "Įvesk telefono numerį skiltyje „Kontaktai“, kad galėtume išsiųsti siuntą."
+      )
+      return
+    }
+    if (homeDelivery && !hasAddress) {
+      setPurchaseError(
+        "Pristatymui kurjeriu reikia vardo ir pilno adreso. Papildyk juos skiltyje „Kontaktai ir adresas“."
+      )
+      return
+    }
+    if (!homeDelivery && !terminal) {
+      setPurchaseError("Pasirink paštomatą pristatymui.")
+      return
+    }
     setPurchasing(true)
     setPurchaseError("")
     const origin = window.location.origin
@@ -490,7 +557,7 @@ export default function Checkout() {
           body: {
             planKey: requiredTier.key,
             billing,
-            homeDelivery: hasPlanHomeDelivery,
+            homeDelivery,
             ...(code && { code }),
           },
         }
@@ -522,6 +589,7 @@ export default function Checkout() {
       body: {
         planKey: requiredTier.key,
         billing,
+        homeDelivery,
         userId: user.id,
         userEmail: user.email ?? "",
         successUrl,
@@ -1145,7 +1213,10 @@ export default function Checkout() {
                       <p className="label-mono mb-1 text-ink/40">
                         Pasirink paštomatą
                       </p>
-                      <TerminalPicker value={terminal} onChange={setTerminal} />
+                      <TerminalPicker
+                        value={terminal}
+                        onChange={handleTerminalChange}
+                      />
                     </div>
                   )}
 
@@ -1445,12 +1516,129 @@ export default function Checkout() {
                     monthlyPrice={basePrice}
                     isAnnual={billing === "annual"}
                     deliveryFee={
-                      hasPlanHomeDelivery && requiredTier.key !== "mega"
+                      homeDelivery && requiredTier.key !== "mega"
                         ? HOME_DELIVERY_FEE
                         : 0
                     }
                     isSwap={userSub != null}
                   />
+
+                  {/* Delivery selector */}
+                  <div className="mt-5">
+                    <p className="label-mono mb-2 text-ink/40">
+                      Pristatymo būdas
+                    </p>
+                    <div className="flex flex-col gap-2">
+                      {[
+                        {
+                          value: false,
+                          label: "Paštomatas",
+                          note: "Nemokamas",
+                        },
+                        {
+                          value: true,
+                          label: "Pristatymas kurjeriu",
+                          note:
+                            requiredTier.key === "mega"
+                              ? "Nemokamas"
+                              : `+€${HOME_DELIVERY_FEE}/mėn.`,
+                        },
+                      ].map(({ value, label, note }) => (
+                        <button
+                          key={String(value)}
+                          type="button"
+                          onClick={() => setHomeDelivery(value)}
+                          className={[
+                            "flex items-center justify-between rounded-2xl border-2 px-4 py-3 text-left transition-all",
+                            homeDelivery === value
+                              ? "border-ink bg-ink/[.03] shadow-[3px_3px_0_#001B21]"
+                              : "border-ink/15 hover:border-ink/40",
+                          ].join(" ")}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span
+                              className={[
+                                "flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+                                homeDelivery === value
+                                  ? "border-ink bg-ink"
+                                  : "border-ink/30",
+                              ].join(" ")}
+                            >
+                              {homeDelivery === value && (
+                                <span className="size-2 rounded-full bg-paper" />
+                              )}
+                            </span>
+                            <span className="font-semibold text-ink">
+                              {label}
+                            </span>
+                          </div>
+                          <span className="font-mono text-[11px] text-ink/55">
+                            {note}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {!homeDelivery && (
+                    <div className="mt-4">
+                      <p className="label-mono mb-1 text-ink/40">
+                        Pasirink paštomatą
+                      </p>
+                      <TerminalPicker
+                        value={terminal}
+                        onChange={handleTerminalChange}
+                      />
+                    </div>
+                  )}
+
+                  {user && (
+                    <div className="mt-4">
+                      <p className="label-mono mb-2 text-ink/40">
+                        Kontaktai{homeDelivery ? " ir adresas" : ""}
+                      </p>
+                      <div
+                        className={[
+                          "flex items-start justify-between gap-3 rounded-2xl border-2 px-5 py-4",
+                          hasPhone && (!homeDelivery || hasAddress)
+                            ? "border-ink/15 bg-ink/[.02]"
+                            : "border-brand-orange bg-brand-orange/5",
+                        ].join(" ")}
+                      >
+                        <div className="min-w-0 space-y-1">
+                          <p className="font-mono text-[13px] text-ink">
+                            <span className="text-ink/40">Tel.:</span>{" "}
+                            {hasPhone ? (
+                              profileData?.phone
+                            ) : (
+                              <span className="font-bold text-brand-orange">
+                                Įvesk telefono nr.
+                              </span>
+                            )}
+                          </p>
+                          {homeDelivery && (
+                            <p className="font-mono text-[13px] text-ink">
+                              <span className="text-ink/40">Adresas:</span>{" "}
+                              {hasAddress ? (
+                                `${profileData?.street} ${profileData?.house_no}${profileData?.flat ? `-${profileData.flat}` : ""}, ${profileData?.city} ${profileData?.postal_code}`
+                              ) : (
+                                <span className="font-bold text-brand-orange">
+                                  Užpildyk vardą ir pristatymo adresą
+                                </span>
+                              )}
+                            </p>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setProfileOpen(true)}
+                          className="brick-hover-sm shrink-0 rounded-full border-2 border-ink bg-paper px-4 py-1.5 font-mono text-[11px] font-bold text-ink transition-all"
+                        >
+                          Redaguoti
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Coupon + Gift card */}
                   <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">

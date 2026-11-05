@@ -15,7 +15,8 @@ import { MissingPartDialog } from "@/components/MissingPartDialog"
 import { ReturnDialog } from "@/components/ReturnDialog"
 import { ProfileEditDialog } from "@/components/ProfileEditDialog"
 import { DeleteAccountDialog } from "@/components/DeleteAccountDialog"
-import { fetchLabelPdf, downloadPdf } from "@/lib/lpexpress"
+import { TerminalPicker } from "@/components/TerminalPicker"
+import { fetchLabelPdf, downloadPdf, type LpTerminal } from "@/lib/lpexpress"
 import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
 import { DiscountCodeField } from "@/components/account/DiscountCodeField"
@@ -96,6 +97,8 @@ interface SubscriberData {
   flat?: string | null
   city?: string | null
   postal_code?: string | null
+  lp_terminal_id?: string | null
+  lp_terminal_name?: string | null
   home_delivery?: boolean
   pending_plan?: string | null
   cancel_requested?: boolean
@@ -305,6 +308,9 @@ export default function Account() {
   const [portalError, setPortalError] = useState("")
   const [selectedTier, setSelectedTier] = useState(2)
   const [upgradeHomeDelivery, setUpgradeHomeDelivery] = useState(false)
+  const [upgradeTerminal, setUpgradeTerminal] = useState<LpTerminal | null>(
+    null
+  )
   const [upgradeBilling, setUpgradeBilling] = useState<"monthly" | "annual">(
     "monthly"
   )
@@ -445,6 +451,22 @@ export default function Account() {
         )
       setPostCount(count ?? 0)
     })
+    supabase
+      .from("subscribers")
+      .select("lp_terminal_id, lp_terminal_name")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.lp_terminal_id && data?.lp_terminal_name) {
+          setUpgradeTerminal({
+            id: data.lp_terminal_id,
+            name: data.lp_terminal_name,
+            city: "",
+            address: "",
+            postalCode: "",
+          })
+        }
+      })
   }, [user])
 
   useEffect(() => {
@@ -528,6 +550,24 @@ export default function Account() {
       setRentedOrders(allOrders.filter((o) => o.status !== "returned"))
       setRentalHistory(allOrders)
       setOrdersLoading(false)
+      const latestWithTerminal = (orders ?? []).find(
+        (o) => o.lp_terminal_id && o.lp_terminal_name
+      )
+      if (
+        latestWithTerminal?.lp_terminal_id &&
+        latestWithTerminal.lp_terminal_name
+      ) {
+        setUpgradeTerminal(
+          (prev) =>
+            prev ?? {
+              id: latestWithTerminal.lp_terminal_id!,
+              name: latestWithTerminal.lp_terminal_name!,
+              city: "",
+              address: "",
+              postalCode: "",
+            }
+        )
+      }
     })
   }, [user])
 
@@ -607,6 +647,42 @@ export default function Account() {
     ? formatMemberSince(new Date(subscriber.joined_at))
     : "–"
 
+  const hasPhone = !!subscriber?.phone?.trim()
+  const hasName = !!(
+    profile?.name?.trim() ||
+    subscriber?.name?.trim() ||
+    subscriber?.last_name?.trim()
+  )
+  const hasAddress = !!(
+    hasName &&
+    subscriber?.street?.trim() &&
+    subscriber?.house_no?.trim() &&
+    subscriber?.city?.trim() &&
+    subscriber?.postal_code?.trim()
+  )
+
+  async function handleUpgradeTerminalChange(t: LpTerminal | null) {
+    setUpgradeTerminal(t)
+    setPlanChangeError("")
+    setSubscriber((s) =>
+      s
+        ? {
+            ...s,
+            lp_terminal_id: t?.id ?? null,
+            lp_terminal_name: t?.name ?? null,
+          }
+        : s
+    )
+    if (!user) return
+    await supabase
+      .from("subscribers")
+      .update({
+        lp_terminal_id: t?.id ?? null,
+        lp_terminal_name: t?.name ?? null,
+      })
+      .eq("id", user.id)
+  }
+
   async function saveAvatar(id: number) {
     setSelectedAvatarId(id)
     setShowAvatarPicker(false)
@@ -621,8 +697,28 @@ export default function Account() {
     if (!user) return
     const newTier = tierOptions[selectedTier] ?? FALLBACK_TIER
     const nextHomeDelivery = upgradeHomeDelivery
-    if (hasSubscription && newTier.key === subscriber?.plan) {
+    if (
+      hasSubscription &&
+      newTier.key === subscriber?.plan &&
+      nextHomeDelivery === (subscriber?.home_delivery ?? false)
+    ) {
       setPlanChangeError("Jau esi šiame plane.")
+      return
+    }
+    if (!hasPhone) {
+      setPlanChangeError(
+        "Įvesk telefono numerį skiltyje „Kontaktai“, kad galėtume išsiųsti siuntą."
+      )
+      return
+    }
+    if (nextHomeDelivery && !hasAddress) {
+      setPlanChangeError(
+        "Pristatymui kurjeriu reikia vardo ir pilno adreso. Papildyk juos skiltyje „Kontaktai ir adresas“."
+      )
+      return
+    }
+    if (!nextHomeDelivery && !upgradeTerminal) {
+      setPlanChangeError("Pasirink paštomatą pristatymui.")
       return
     }
     setPlanChanging(true)
@@ -1203,6 +1299,62 @@ export default function Account() {
                         </span>
                       </button>
                     ))}
+                  </div>
+                  {!upgradeHomeDelivery && (
+                    <div>
+                      <p className="label-mono mb-1 text-ink/40">
+                        Pasirink paštomatą
+                      </p>
+                      <TerminalPicker
+                        value={upgradeTerminal}
+                        onChange={handleUpgradeTerminalChange}
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <p className="label-mono mb-2 text-ink/40">
+                      Kontaktai{upgradeHomeDelivery ? " ir adresas" : ""}
+                    </p>
+                    <div
+                      className={[
+                        "flex items-start justify-between gap-3 rounded-2xl border-2 px-5 py-4",
+                        hasPhone && (!upgradeHomeDelivery || hasAddress)
+                          ? "border-ink/15 bg-ink/[.02]"
+                          : "border-brand-orange bg-brand-orange/5",
+                      ].join(" ")}
+                    >
+                      <div className="min-w-0 space-y-1">
+                        <p className="font-mono text-[13px] text-ink">
+                          <span className="text-ink/40">Tel.:</span>{" "}
+                          {hasPhone ? (
+                            subscriber?.phone
+                          ) : (
+                            <span className="font-bold text-brand-orange">
+                              Įvesk telefono nr.
+                            </span>
+                          )}
+                        </p>
+                        {upgradeHomeDelivery && (
+                          <p className="font-mono text-[13px] text-ink">
+                            <span className="text-ink/40">Adresas:</span>{" "}
+                            {hasAddress ? (
+                              `${subscriber?.street} ${subscriber?.house_no}${subscriber?.flat ? `-${subscriber.flat}` : ""}, ${subscriber?.city} ${subscriber?.postal_code}`
+                            ) : (
+                              <span className="font-bold text-brand-orange">
+                                Užpildyk vardą ir pristatymo adresą
+                              </span>
+                            )}
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setProfileOpen(true)}
+                        className="brick-hover-sm shrink-0 rounded-full border-2 border-ink bg-paper px-4 py-1.5 font-mono text-[11px] font-bold text-ink transition-all"
+                      >
+                        Redaguoti
+                      </button>
+                    </div>
                   </div>
                   <DiscountCodeField discount={discount} />
                   <PlanChangeSummary
