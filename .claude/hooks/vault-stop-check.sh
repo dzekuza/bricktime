@@ -74,9 +74,10 @@ PY
 )
 EOF
 
-now="$(date +%s)"
 should_block="$(python3 -c "print('1' if float('$last_code') > float('$last_checked') and float('$last_code') > float('$last_vault') else '0')")"
-echo "$now" > "$marker"
+# Record the newest edit seen, not the wall clock: a whole-second timestamp can
+# sit below an edit made earlier in the same second and block again.
+echo "$last_code" > "$marker"
 
 if [ "$should_block" = "1" ]; then
   echo '{"decision":"block","reason":"Project files were edited and obsidian/ has not been updated since. Update the matching vault docs now: catalog notes under obsidian/frontend/ for components/hooks/utils, obsidian/meta/changelog.md for notable changes, obsidian/meta/decisions-log.md for new architectural decisions, and always obsidian/meta/status.md (rewrite the live snapshot: current focus, in progress, next) plus a short entry at the top of obsidian/meta/session-log.md (what changed, status, next)."}'

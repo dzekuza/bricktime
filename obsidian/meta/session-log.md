@@ -1,3 +1,8 @@
+## 2026-11-05 — PR #97 opened; cubic review addressed
+- **Changed:** branch rebased onto main after #95; PR dzekuza/bricktime#97 opened (head b734b77 before review fixes). Review fixes: webhook keeps coupon/gift card holds for 14 days on delayed payments and releases them on `async_payment_failed`, keeps the coupon hold if `redeem_coupon` fails; useCredits waits for plan load; downgrade summary wording and no swap note on downgrades; 35-min retry message; migrations renamed 200000→220000 to avoid colliding with #96's `20261105200000_merch_order_stock_guard.sql`; new 220300 fixes the `reserved_by` column comment (applied live); vault hook marker stores the last edit time.
+- **Status:** review fixes committed on feat/merch-orders-and-fixes; edge functions for #97 not deployed.
+- **Next:** merge #96, rebase #97, deploy the three functions, enable `async_payment_failed` on the Stripe endpoint.
+
 ## 2026-11-05 — merch checkout security fixes
 - **Changed:** create-merch-checkout (gift card needs login, hold tied to `reserved_by`, one generic error; coupon uses reserved via `claim_coupon_hold`), stripe-webhook (releases coupon hold after redeem), MerchDiscountCode (guest gift-card message), migrations 20261105200000 + 20261105200100 (`reserved_by`, `coupon_holds`, owner-only buyer PII in `get_merch_order_by_session`).
 - **Status:** commits 5e72da3 + dafac67 on feat/merch-orders-and-fixes. Migrations 20261105200000/200100/200200 applied by hand in the SQL editor and verified live (reserved_by, coupon_holds+RLS+index, 3-arg claim_coupon_hold not callable by anon, order lookup hides buyer details for guest orders older than 1h). Edge functions not deployed.
