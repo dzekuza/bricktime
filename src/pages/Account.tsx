@@ -1416,7 +1416,7 @@ export default function Account() {
                     <PauseSubscription
                       pausedUntil={
                         subscriber?.paused_until &&
-                        new Date(subscriber.paused_until) > new Date()
+                        !(Date.parse(subscriber.paused_until) <= Date.now())
                           ? subscriber.paused_until
                           : null
                       }

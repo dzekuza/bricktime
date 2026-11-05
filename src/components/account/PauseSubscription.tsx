@@ -2,12 +2,17 @@ import { useState } from "react"
 
 const PAUSE_OPTIONS = [1, 2, 3] as const
 
-const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString("lt-LT", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
+// An open-ended pause is stored as 'infinity', which isn't a real date.
+const formatDate = (iso: string) => {
+  const date = new Date(iso)
+  return Number.isNaN(date.getTime())
+    ? "atnaujinimo"
+    : date.toLocaleDateString("lt-LT", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+}
 
 const BUTTON =
   "brick-hover-sm rounded-xl border-2 border-ink px-4 py-3 font-mono text-[11px] tracking-[.14em] uppercase transition-all disabled:pointer-events-none disabled:opacity-50"

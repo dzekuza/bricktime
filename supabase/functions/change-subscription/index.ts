@@ -162,9 +162,13 @@ Deno.serve(async (req) => {
 
     // A plan change while paused would bill a proration invoice that could
     // stand in for the skipped (voided) renewal and lift the rental block.
+    // 'infinity' or anything unparseable counts as paused (fails closed).
+    const pausedUntilMs = subscriber.paused_until
+      ? Date.parse(subscriber.paused_until)
+      : null
     if (
-      subscriber.paused_until &&
-      new Date(subscriber.paused_until) > new Date()
+      pausedUntilMs !== null &&
+      (Number.isNaN(pausedUntilMs) || pausedUntilMs > Date.now())
     ) {
       return json(
         { error: "Prenumerata pristabdyta – pirmiausia ją atnaujink." },
@@ -187,6 +191,13 @@ Deno.serve(async (req) => {
     }
     if (!SWAPPABLE_STATUSES.has(subscription.status)) {
       return json({ changed: false, reason: "no_active_subscription" })
+    }
+    // Stripe is the source of truth if paused_until hasn't synced yet.
+    if (subscription.pause_collection) {
+      return json(
+        { error: "Prenumerata pristabdyta – pirmiausia ją atnaujink." },
+        400
+      )
     }
 
     if (withdrawPending) {
