@@ -549,6 +549,7 @@ export default function Checkout() {
     // The server copies this address onto the order for the courier label
     // and refuses a courier rental without it.
     const isAddressComplete = [
+      profileData?.name,
       profileData?.phone,
       profileData?.street,
       profileData?.house_no,
@@ -557,7 +558,7 @@ export default function Checkout() {
     ].every((v) => v != null && v.trim() !== "")
     if (homeDelivery && !isAddressComplete) {
       setConfirmError(
-        "Pristatymui į duris reikia telefono ir pilno adreso. Papildyk juos skiltyje „Kontaktai ir adresas“."
+        "Pristatymui į duris reikia vardo, telefono ir pilno adreso. Papildyk juos skiltyje „Kontaktai ir adresas“."
       )
       return false
     }
@@ -588,7 +589,7 @@ export default function Checkout() {
           : reason.includes("exceeds the plan budget")
             ? "Šiam rinkiniui neužtenka briksių šiam atsiskaitymo laikotarpiui."
             : reason.includes("full address")
-              ? "Pristatymui į duris reikia telefono ir pilno adreso."
+              ? "Pristatymui į duris reikia vardo, telefono ir pilno adreso."
               : "Užsakymo pateikti nepavyko. Bandyk dar kartą arba susisiek su mumis."
       )
       return false

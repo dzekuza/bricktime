@@ -61,8 +61,8 @@ function parsePlanKey(value: string | null | undefined) {
   return value && planKeys.has(value) ? value : undefined
 }
 
-// Returns false only when Omnisend refused the event, so a caller that must
-// deliver it (the gift card email) can have Stripe retry.
+// Returns false only for a failure worth retrying (rate limit, server error),
+// so a caller that must deliver the event can have Stripe retry.
 async function pushOmnisendEvent(
   eventName: string,
   email: string,
@@ -91,7 +91,9 @@ async function pushOmnisendEvent(
     console.error(
       `Omnisend event push failed for "${eventName}": ${res.status} ${await res.text()}`
     )
-    return false
+    // Only a rate limit or server error is worth a Stripe retry; a rejected
+    // request (bad address, invalid payload) would fail the same way forever.
+    return res.status !== 429 && res.status < 500
   }
   return true
 }
@@ -428,11 +430,18 @@ async function isStoredSubscriptionOtherLive(
   subscriberId: string,
   subscriptionId: string
 ): Promise<boolean> {
-  const { data: current } = await supabase
+  const { data: current, error } = await supabase
     .from("subscribers")
     .select("stripe_subscription_id, status")
     .eq("id", subscriberId)
     .maybeSingle()
+  // Fail closed: Stripe retries the event rather than risk a duplicate's
+  // data overwriting the row.
+  if (error) {
+    throw new Error(
+      `Loading stored subscription for ${subscriberId} failed: ${error.message}`
+    )
+  }
   const isOtherLive = Boolean(
     current?.stripe_subscription_id &&
     current.stripe_subscription_id !== subscriptionId &&

@@ -15,7 +15,7 @@ which overlaps dzekuza/bricktime#96.
 
 ## Done recently
 
-- Live DB migrations for #98, applied 2026-11-05 via Supabase MCP `apply_migration` (recorded) unless noted: `gift_card_pending_status`, `orders_returned_at` (its backfill ran separately via `execute_sql`), `orders_delivery_snapshot` (backfill of 1 open courier order via `execute_sql`), `budget_period_and_pause`, `used_credits_timestamp_compare`, `begin_subscription_pause`, `mega_courier_rentals`, `budget_fallback_and_pause_reentry`. A `touch_updated_at` side effect of the returned_at backfill was undone for the 3 affected orders.
+- Live DB migrations for #98, applied 2026-11-05 via Supabase MCP `apply_migration` (recorded) unless noted: `gift_card_pending_status`, `orders_returned_at` (its backfill ran separately via `execute_sql`), `orders_delivery_snapshot` (backfill of 1 open courier order via `execute_sql`), `budget_period_and_pause`, `used_credits_timestamp_compare`, `begin_subscription_pause`, `mega_courier_rentals`, `budget_fallback_and_pause_reentry`, `courier_requires_name`. A `touch_updated_at` side effect of the returned_at backfill was undone for the 3 affected orders.
 - #97's migrations `20261105220000`–`220400` applied by hand in the SQL editor (not recorded in schema_migrations).
 - #96's migrations (`merch_order_stock_guard`, `_fixes`) are applied live.
 
