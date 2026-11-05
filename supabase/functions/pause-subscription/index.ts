@@ -71,6 +71,21 @@ Deno.serve(async (req) => {
     }
 
     if (undo) {
+      // A renewal that fell inside the pause was voided, so the period now
+      // running is unpaid: billing resumes from the next renewal and rentals
+      // stay blocked until then.
+      const latestInvoiceId =
+        typeof subscription.latest_invoice === "string"
+          ? subscription.latest_invoice
+          : subscription.latest_invoice?.id
+      const latestInvoice = latestInvoiceId
+        ? await stripe.invoices.retrieve(latestInvoiceId)
+        : null
+      const rentalsFrom =
+        latestInvoice?.status === "void"
+          ? new Date(subscription.current_period_end * 1000).toISOString()
+          : null
+
       if (subscription.pause_collection) {
         await stripe.subscriptions.update(subscription.id, {
           pause_collection: "",
@@ -78,9 +93,9 @@ Deno.serve(async (req) => {
       }
       await supabase
         .from("subscribers")
-        .update({ paused_until: null })
+        .update({ paused_until: rentalsFrom })
         .eq("id", user.id)
-      return json({ status: "resumed" })
+      return json({ status: "resumed", rentalsFrom })
     }
 
     if (!Number.isInteger(months) || months < 1 || months > MAX_PAUSE_MONTHS) {
@@ -123,16 +138,39 @@ Deno.serve(async (req) => {
     resumesAt.setMonth(resumesAt.getMonth() + months)
     resumesAt.setHours(resumesAt.getHours() + 1)
 
-    await stripe.subscriptions.update(subscription.id, {
-      pause_collection: {
-        behavior: "void",
-        resumes_at: Math.floor(resumesAt.getTime() / 1000),
-      },
-    })
-    await supabase
-      .from("subscribers")
-      .update({ paused_until: resumesAt.toISOString() })
-      .eq("id", user.id)
+    // Blocks new rentals first, under the same lock the rental trigger takes,
+    // and refuses if a set is still at home; Stripe is only paused after.
+    const { data: isStarted, error: startError } = await supabase.rpc(
+      "begin_subscription_pause",
+      { p_subscriber: user.id, p_until: resumesAt.toISOString() }
+    )
+    if (startError) {
+      throw new Error(`begin_subscription_pause: ${startError.message}`)
+    }
+    if (!isStarted) {
+      return json(
+        {
+          error:
+            "Pirmiausia grąžink turimus rinkinius – tada galėsi pristabdyti.",
+        },
+        400
+      )
+    }
+
+    try {
+      await stripe.subscriptions.update(subscription.id, {
+        pause_collection: {
+          behavior: "void",
+          resumes_at: Math.floor(resumesAt.getTime() / 1000),
+        },
+      })
+    } catch (stripeErr) {
+      await supabase
+        .from("subscribers")
+        .update({ paused_until: null })
+        .eq("id", user.id)
+      throw stripeErr
+    }
 
     return json({ status: "paused", pausedUntil: resumesAt.toISOString() })
   } catch (err) {

@@ -745,8 +745,12 @@ export default function Account() {
       s
         ? {
             ...s,
+            // After resuming, a skipped (voided) month still blocks rentals
+            // until the next paid renewal, rentalsFrom.
             paused_until:
-              data.status === "paused" ? (data.pausedUntil as string) : null,
+              data.status === "paused"
+                ? (data.pausedUntil as string)
+                : ((data.rentalsFrom as string | null) ?? null),
           }
         : s
     )
