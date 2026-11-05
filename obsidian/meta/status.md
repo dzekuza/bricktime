@@ -21,12 +21,12 @@ which overlaps dzekuza/bricktime#96.
 
 ## In progress
 
-- Nothing half-written. Edge functions on fix/billing-safety and #97 are NOT deployed.
+- Nothing half-written. Edge functions DEPLOYED 2026-11-05 from a local merge of #96 + #97 + #98 (branch `deploy/combined`, kept local): stripe-webhook v15, verify-gift-card v5, create-gift-card-checkout v7, get-billing-history v7, lpexpress v5, create-merch-checkout v10, create-checkout v11, change-subscription v13, pause-subscription v1 (new). Smoke-tested unauthenticated (boot + expected 400/401/404).
 
 ## Next up
 
-1. Merge #96, then #97, then the fix/billing-safety PR (retarget to main).
-2. Deploy edge functions: create-checkout, stripe-webhook, change-subscription, create-gift-card-checkout, verify-gift-card, lpexpress, get-billing-history, create-merch-checkout, pause-subscription (new).
+1. Merge #96, then #97, then #98 (retarget to main). Resolve #96/#97 overlap like `deploy/combined`: create-merch-checkout keeps #96's whole-unit stock check and #97's generic gift-card error; stripe-webhook keeps the async gift-card activation; types from the live schema.
+2. Live functions already match that merge — redeploy only if the merged main differs.
 3. In Stripe: find customers with more than one live subscription (Justinas at least) and cancel/refund the extra; check gift cards bought before today whose session was never paid (still `active`).
 4. Budget rule needs `current_period_start` — filled by the next subscription/invoice webhook per member; backfill from Stripe for active members if it shouldn't wait.
 5. Deploy the storefront and admin; real test purchase (upgrade, courier rental, pause).

@@ -1,3 +1,8 @@
+## 2026-11-05 — edge functions deployed (combined #96 + #97 + #98)
+- **Changed:** deployed 9 functions via Supabase MCP from local branch `deploy/combined` (merge of fix/merch-payment-hardening, feat/merch-orders-and-fixes, fix/billing-safety). Pause hardening from security reviews landed first on #98 (atomic start, resume keeps unpaid month blocked, webhook keeps the block, timeout-safe, no plan change while paused, 'infinity' fails closed).
+- **Status:** all 9 boot and refuse unauthenticated calls correctly. No end-to-end Stripe test yet.
+- **Next:** merge the three PRs in order; Stripe duplicate-subscription cleanup.
+
 ## 2026-11-05 — tester feedback: billing safety, rentals, courier, budget period, pause
 - **Changed:** branch fix/billing-safety (9 commits, see status.md) + #97 card-only fix b676a16. Five migrations applied live via MCP and renamed locally to their recorded versions.
 - **Status:** storefront + admin typecheck; deno check clean except pre-existing TS7006/EdgeRuntime errors; used_credits verified in a rolled-back transaction. Not tested end to end in the browser or against Stripe test mode. Edge functions not deployed.
