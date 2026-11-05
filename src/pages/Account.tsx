@@ -26,6 +26,8 @@ import {
   RentedOrderCard,
   type RentedOrder,
 } from "@/components/account/RentedOrderCard"
+import { RentalHistory } from "@/components/account/RentalHistory"
+import { PauseSubscription } from "@/components/account/PauseSubscription"
 import { useDiscountCode } from "@/hooks/useDiscountCode"
 import { readFunctionError } from "@/lib/function-error"
 import { SubscriptionNotices } from "@/components/account/SubscriptionNotices"
@@ -98,6 +100,9 @@ interface SubscriberData {
   pending_plan?: string | null
   cancel_requested?: boolean
   cancel_at?: string | null
+  paused_until?: string | null
+  current_period_start?: string | null
+  current_period_end?: string | null
 }
 
 interface AchievementRecord {
@@ -233,7 +238,13 @@ export default function Account() {
   const { user, profile, signOut, refreshProfile } = useAuth()
   const [deleteAccountOpen, setDeleteAccountOpen] = useState(false)
   const { subscriptions: dbPlans } = useSubscriptions()
-  const { totalCredits, remainingCredits, overBudgetCredits } = useCredits()
+  const {
+    totalCredits,
+    remainingCredits,
+    overBudgetCredits,
+    returnedHeldCredits,
+    budgetFreesAt,
+  } = useCredits()
   const { achievements } = useAchievements()
   const tierOptions = useMemo(
     () =>
@@ -260,6 +271,8 @@ export default function Account() {
   const discount = useDiscountCode()
   const [agreedToPlanChangeTerms, setAgreedToPlanChangeTerms] = useState(false)
   const [rentedOrders, setRentedOrders] = useState<RentedOrder[]>([])
+  // Every rental incl. returned ones, newest first.
+  const [rentalHistory, setRentalHistory] = useState<RentedOrder[]>([])
   const [ordersLoading, setOrdersLoading] = useState(true)
   const [returnDialogOrder, setReturnDialogOrder] =
     useState<RentedOrder | null>(null)
@@ -278,6 +291,8 @@ export default function Account() {
     Array<{
       id: string
       amount: number
+      total?: number
+      creditApplied?: number
       currency: string
       description: string
       date: number
@@ -397,7 +412,7 @@ export default function Account() {
       supabase
         .from("subscribers")
         .select(
-          "plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code, home_delivery, pending_plan, cancel_requested, cancel_at"
+          "plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code, home_delivery, pending_plan, cancel_requested, cancel_at, paused_until, current_period_start, current_period_end"
         )
         .eq("id", user.id)
         .single(),
@@ -484,32 +499,34 @@ export default function Account() {
         .from("orders")
         .select("*")
         .eq("subscriber_id", user.id)
-        .not("status", "eq", "returned"),
+        .order("created_at", { ascending: false }),
       supabase.from("products").select("id, title, image_url"),
     ]).then(([{ data: orders }, { data: products }]) => {
       const productMap = Object.fromEntries(
         (products ?? []).map((p) => [p.id, p])
       )
-      setRentedOrders(
-        (orders ?? []).map((o) => ({
-          id: o.id,
-          productId: o.product_id,
-          productTitle:
-            productMap[o.product_id]?.title ?? `Produktas #${o.product_id}`,
-          productImage: productMap[o.product_id]?.image_url ?? null,
-          status: o.status,
-          startDate: o.start_date,
-          dueDate: o.due_date,
-          amount: o.amount,
-          returnNote: (o as Record<string, unknown>).return_note as
-            | string
-            | undefined,
-          homeDelivery: o.home_delivery ?? false,
-          terminalName: o.lp_terminal_name,
-          barcode: o.lp_barcode,
-          returnBarcode: o.lp_return_barcode,
-        }))
-      )
+      const allOrders: RentedOrder[] = (orders ?? []).map((o) => ({
+        id: o.id,
+        productId: o.product_id,
+        productTitle:
+          productMap[o.product_id]?.title ?? `Produktas #${o.product_id}`,
+        productImage: productMap[o.product_id]?.image_url ?? null,
+        status: o.status,
+        startDate: o.start_date,
+        dueDate: o.due_date,
+        amount: o.amount,
+        returnNote: (o as Record<string, unknown>).return_note as
+          | string
+          | undefined,
+        homeDelivery: o.home_delivery ?? false,
+        terminalName: o.lp_terminal_name,
+        barcode: o.lp_barcode,
+        returnBarcode: o.lp_return_barcode,
+        returnRequestedAt: o.return_requested_at,
+        returnedAt: o.returned_at,
+      }))
+      setRentedOrders(allOrders.filter((o) => o.status !== "returned"))
+      setRentalHistory(allOrders)
       setOrdersLoading(false)
     })
   }, [user])
@@ -550,6 +567,14 @@ export default function Account() {
       tierOptions[0] ??
       FALLBACK_TIER)
     : (tierOptions[0] ?? FALLBACK_TIER)
+  // Stripe's billing period tells monthly from annual; a period over ~40 days
+  // is a yearly one. Unknown (not synced yet) counts as monthly.
+  const isAnnualBilling =
+    subscriber?.current_period_start != null &&
+    subscriber.current_period_end != null &&
+    Date.parse(subscriber.current_period_end) -
+      Date.parse(subscriber.current_period_start) >
+      40 * 86_400_000
   const isTierDowngrade =
     hasSubscription &&
     (tierOptions[selectedTier]?.price ?? 0) < activeTier.price
@@ -711,6 +736,36 @@ export default function Account() {
     )
   }
 
+  async function pauseSubscription(months: number | null) {
+    setSubscriptionBusy(true)
+    setPortalError("")
+    const { data, error } = await supabase.functions.invoke(
+      "pause-subscription",
+      { body: months == null ? { undo: true } : { months } }
+    )
+    setSubscriptionBusy(false)
+    if (error || data?.error) {
+      setPortalError(
+        data?.error ??
+          (await readFunctionError(error, "Nepavyko. Bandyk dar kartą."))
+      )
+      return
+    }
+    setSubscriber((s) =>
+      s
+        ? {
+            ...s,
+            // After resuming, a skipped (voided) month still blocks rentals
+            // until the next paid renewal, rentalsFrom.
+            paused_until:
+              data.status === "paused"
+                ? (data.pausedUntil as string)
+                : ((data.rentalsFrom as string | null) ?? null),
+          }
+        : s
+    )
+  }
+
   // The plan picker lives in the profile section above; bring it into view
   // when it is opened from the payments card further down.
   function openPlanChange() {
@@ -749,13 +804,17 @@ export default function Account() {
   // The return label + status change is handled server-side by the lpexpress
   // `create-return-label` action (via ReturnDialog). This just syncs local state.
   function onReturnComplete(orderId: string, barcode: string | null) {
-    setRentedOrders((prev) =>
-      prev.map((o) =>
-        o.id === orderId
-          ? { ...o, status: "return_requested", returnBarcode: barcode }
-          : o
-      )
-    )
+    const markRequested = (o: RentedOrder) =>
+      o.id === orderId
+        ? {
+            ...o,
+            status: "return_requested",
+            returnBarcode: barcode,
+            returnRequestedAt: new Date().toISOString(),
+          }
+        : o
+    setRentedOrders((prev) => prev.map(markRequested))
+    setRentalHistory((prev) => prev.map(markRequested))
   }
 
   const [downloadingLabel, setDownloadingLabel] = useState<string | null>(null)
@@ -897,6 +956,16 @@ export default function Account() {
                   Turimi rinkiniai viršija tavo plano biudžetą{" "}
                   {overBudgetCredits} briksių. Grąžink rinkinį, kad galėtum
                   pasirinkti naują.
+                </p>
+              )}
+              {returnedHeldCredits > 0 && budgetFreesAt && (
+                <p className="mt-4 text-[13px] text-ink/60">
+                  {`Grąžintų rinkinių briksiai (${returnedHeldCredits}) atsilaisvins ${new Date(
+                    budgetFreesAt
+                  ).toLocaleDateString("lt-LT", {
+                    month: "long",
+                    day: "numeric",
+                  })} – briksiai skiriami atsiskaitymo laikotarpiui, o ne vienam rinkiniui.`}
                 </p>
               )}
 
@@ -1279,6 +1348,10 @@ export default function Account() {
               ))}
             </div>
           )}
+
+          {!ordersLoading && rentalHistory.length > 0 && (
+            <RentalHistory orders={rentalHistory} />
+          )}
         </div>
       </section>
 
@@ -1309,7 +1382,8 @@ export default function Account() {
                       {activeTier.name}
                     </p>
                     <p className="mt-1 font-mono text-[13px] text-ink/60">
-                      €{activeTier.price}/mėn. · kasmet atnaujinama
+                      €{activeTier.price}/mėn. ·{" "}
+                      {isAnnualBilling ? "kasmet" : "kas mėnesį"} atnaujinama
                     </p>
                   </div>
                   <span className="rounded-full border-2 border-ink bg-green-400 px-3 py-1 font-mono text-[10px] tracking-[.14em] text-ink uppercase">
@@ -1354,6 +1428,19 @@ export default function Account() {
                         Atšaukti
                       </button>
                     </div>
+                    {!isAnnualBilling && (
+                      <PauseSubscription
+                        pausedUntil={
+                          subscriber?.paused_until &&
+                          !(Date.parse(subscriber.paused_until) <= Date.now())
+                            ? subscriber.paused_until
+                            : null
+                        }
+                        busy={subscriptionBusy}
+                        onPause={(months) => pauseSubscription(months)}
+                        onResume={() => pauseSubscription(null)}
+                      />
+                    )}
                     <p className="text-center font-mono text-[10px] text-ink/30">
                       Kortelė · istorija
                     </p>

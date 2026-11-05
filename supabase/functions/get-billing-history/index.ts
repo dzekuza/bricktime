@@ -116,6 +116,14 @@ Deno.serve(async (req) => {
     const result = invoices.data.map((inv) => ({
       id: inv.id,
       amount: inv.amount_paid / 100,
+      // amount_paid is 0 when customer credit (a gift card, unused plan time)
+      // covered the invoice; total and creditApplied show what happened.
+      total: inv.total / 100,
+      creditApplied:
+        Math.max(
+          0,
+          (inv.ending_balance ?? inv.starting_balance) - inv.starting_balance
+        ) / 100,
       currency: inv.currency,
       description: describeInvoice(inv),
       date: inv.created,

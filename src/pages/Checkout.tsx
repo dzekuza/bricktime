@@ -33,6 +33,7 @@ import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
 import { PlanFitConfigurator } from "@/components/PlanFitConfigurator"
 import { getDisplayPlan } from "@/lib/product-filters"
+import { UpgradePriceNotes } from "@/components/checkout/UpgradePriceNotes"
 import type { Tier } from "@/components/ProductCard"
 
 const HOME_DELIVERY_FEE = 3
@@ -143,13 +144,20 @@ export default function Checkout() {
   const [portalError, setPortalError] = useState("")
   const [confirmed, setConfirmed] = useState(false)
   const [confirming, setConfirming] = useState(false)
+  const [confirmError, setConfirmError] = useState("")
   const [showModal, setShowModal] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [homeDelivery, setHomeDelivery] = useState(false)
-  // Legenda (mega) includes free courier delivery.
-  const homeDeliveryFee = userSub?.key === "mega" ? 0 : HOME_DELIVERY_FEE
-  const homeDeliveryLabel =
-    homeDeliveryFee > 0 ? `+€${homeDeliveryFee}` : "Nemokamas"
+  // Whether the member's subscription includes the monthly door-delivery item,
+  // as opposed to `homeDelivery`, the delivery picked for this one order.
+  const [hasPlanHomeDelivery, setHasPlanHomeDelivery] = useState(false)
+  // Door delivery is billed once a month as part of the plan (Legenda
+  // includes it), never per order. Without it in the plan the server rejects
+  // a courier rental, so the option is shown as unavailable instead of priced.
+  const isDoorDeliveryInPlan = userSub?.key === "mega" || hasPlanHomeDelivery
+  const homeDeliveryLabel = isDoorDeliveryInPlan
+    ? "Įskaičiuota"
+    : "Nėra tavo plane"
   const [terminal, setTerminal] = useState<LpTerminal | null>(null)
   const [profileData, setProfileData] = useState<Partial<
     Record<keyof ProfileValues, string | null>
@@ -212,9 +220,11 @@ export default function Checkout() {
           setUserSub(tierByName[data.plan] ?? null)
           setCancelAt(data.cancel_at ?? null)
           setHomeDelivery(data.home_delivery ?? false)
+          setHasPlanHomeDelivery(data.home_delivery ?? false)
         } else {
           setUserSub(null)
           setCancelAt(null)
+          setHasPlanHomeDelivery(false)
         }
         if (data) {
           setProfileData({
@@ -240,7 +250,12 @@ export default function Checkout() {
       ] ?? tierByName.standard,
     [product, tierParam]
   )
-  const { remainingCredits, overBudgetCredits } = useCredits()
+  const {
+    remainingCredits,
+    overBudgetCredits,
+    returnedHeldCredits,
+    budgetFreesAt,
+  } = useCredits()
   const { available: productAvailability } = useProductAvailability()
   const hasTier = useMemo(
     () =>
@@ -434,15 +449,64 @@ export default function Checkout() {
     setPurchasing(true)
     setPurchaseError("")
     const origin = window.location.origin
+    const successUrl = productId
+      ? `${origin}/checkout?product=${productId}&success=true&plan=${requiredTier.key}`
+      : `${origin}/checkout?plan=${requiredTier.key}&success=true`
+
+    // A member's existing subscription is swapped in place. A new Checkout
+    // Session would start a second subscription and bill both.
+    if (userSub) {
+      // change-subscription takes one code; sending only one of two would
+      // charge more than the price shown.
+      if (appliedGiftCard && appliedCoupon) {
+        setPurchasing(false)
+        setPurchaseError(
+          "Keičiant planą galima naudoti vieną kodą – pašalink nuolaidos kodą arba dovanų kortelę."
+        )
+        return
+      }
+      const code = appliedGiftCard?.code ?? appliedCoupon?.code
+      const { data: swap, error: swapError } = await supabase.functions.invoke(
+        "change-subscription",
+        {
+          body: {
+            planKey: requiredTier.key,
+            billing,
+            homeDelivery: hasPlanHomeDelivery,
+            ...(code && { code }),
+          },
+        }
+      )
+      // No subscription to swap after all (a stale row): a fresh checkout is
+      // safe, and create-checkout refuses if a live one does exist.
+      const isNothingToSwap =
+        !swapError && swap?.reason === "no_active_subscription"
+      if (!isNothingToSwap && (swapError || swap?.error || !swap?.changed)) {
+        setPurchasing(false)
+        setPurchaseError(
+          swap?.error ??
+            (swapError
+              ? await readFunctionError(
+                  swapError,
+                  "Plano pakeisti nepavyko. Bandyk dar kartą."
+                )
+              : "Plano pakeisti nepavyko. Pabandyk paskyroje.")
+        )
+        return
+      }
+      if (!isNothingToSwap) {
+        window.location.assign(successUrl)
+        return
+      }
+    }
+
     const { data, error } = await supabase.functions.invoke("create-checkout", {
       body: {
         planKey: requiredTier.key,
         billing,
         userId: user.id,
         userEmail: user.email ?? "",
-        successUrl: productId
-          ? `${origin}/checkout?product=${productId}&success=true&plan=${requiredTier.key}`
-          : `${origin}/checkout?plan=${requiredTier.key}&success=true`,
+        successUrl,
         cancelUrl: productId
           ? `${origin}/checkout?product=${productId}`
           : `${origin}/subscribe`,
@@ -478,8 +542,26 @@ export default function Checkout() {
     return () => controller.abort()
   }, [user, params])
 
-  async function handleConfirm() {
-    if (!user || !product) return
+  // Returns whether the rental was placed, so the dialog stays open on error.
+  async function handleConfirm(): Promise<boolean> {
+    if (!user || !product) return false
+    setConfirmError("")
+    // The server copies this address onto the order for the courier label
+    // and refuses a courier rental without it.
+    const isAddressComplete = [
+      profileData?.name,
+      profileData?.phone,
+      profileData?.street,
+      profileData?.house_no,
+      profileData?.city,
+      profileData?.postal_code,
+    ].every((v) => v != null && v.trim() !== "")
+    if (homeDelivery && !isAddressComplete) {
+      setConfirmError(
+        "Pristatymui į duris reikia vardo, telefono ir pilno adreso. Papildyk juos skiltyje „Kontaktai ir adresas“."
+      )
+      return false
+    }
     setConfirming(true)
     const today = new Date()
     const due = new Date(today)
@@ -488,7 +570,7 @@ export default function Checkout() {
     const { error } = await supabase.from("orders").insert({
       subscriber_id: user.id,
       product_id: product.id,
-      amount: userSub?.price ?? 0,
+      amount: 0,
       start_date: fmt(today),
       due_date: fmt(due),
       status: "processing",
@@ -497,8 +579,23 @@ export default function Checkout() {
       lp_terminal_name: homeDelivery ? null : (terminal?.name ?? null),
     })
     setConfirming(false)
-    if (!error) setConfirmed(true)
-    else console.error("Order insert failed:", error.message)
+    if (error) {
+      console.error("Order insert failed:", error.message)
+      // The insert trigger's reasons, in the member's words.
+      const reason = error.message
+      setConfirmError(
+        reason.includes("paused")
+          ? "Prenumerata pristabdyta – atnaujink ją paskyroje, kad galėtum nuomotis."
+          : reason.includes("exceeds the plan budget")
+            ? "Šiam rinkiniui neužtenka briksių šiam atsiskaitymo laikotarpiui."
+            : reason.includes("full address")
+              ? "Pristatymui į duris reikia vardo, telefono ir pilno adreso."
+              : "Užsakymo pateikti nepavyko. Bandyk dar kartą arba susisiek su mumis."
+      )
+      return false
+    }
+    setConfirmed(true)
+    return true
   }
 
   // ── loading ──────────────────────────────────────────────────────────────
@@ -743,9 +840,7 @@ export default function Checkout() {
                     <span
                       className={[
                         "rounded-full border-2 border-ink px-3 py-1.5 font-mono text-[11px] font-bold tracking-[.1em] uppercase",
-                        homeDelivery && homeDeliveryFee > 0
-                          ? "bg-brand-yellow text-ink"
-                          : "bg-brand-mint text-ink",
+                        "bg-brand-mint text-ink",
                       ].join(" ")}
                     >
                       {homeDelivery ? homeDeliveryLabel : "Nemokamas"}
@@ -978,18 +1073,18 @@ export default function Checkout() {
                             value: true,
                             label: "Pristatymas kurjeriu",
                             note: homeDeliveryLabel,
-                            accent:
-                              homeDeliveryFee > 0
-                                ? "bg-brand-yellow"
-                                : "bg-brand-mint",
+                            accent: isDoorDeliveryInPlan
+                              ? "bg-brand-mint"
+                              : "bg-ink/10",
                           },
                         ].map(({ value, label, note, accent }) => (
                           <button
                             key={String(value)}
                             type="button"
+                            disabled={value && !isDoorDeliveryInPlan}
                             onClick={() => setHomeDelivery(value)}
                             className={[
-                              "flex items-center justify-between rounded-2xl border-2 px-5 py-4 text-left transition-all",
+                              "flex items-center justify-between rounded-2xl border-2 px-5 py-4 text-left transition-all disabled:cursor-not-allowed disabled:opacity-50",
                               homeDelivery === value
                                 ? "border-ink shadow-[3px_3px_0_#001B21]"
                                 : "border-ink/20 hover:border-ink/50",
@@ -1087,12 +1182,12 @@ export default function Checkout() {
                         Šio užsakymo suma
                       </p>
                       <p className="mt-0.5 font-display text-[26px] leading-none text-ink">
-                        {homeDelivery && userSub ? `€${homeDeliveryFee}` : "€0"}
+                        €0
                       </p>
                     </div>
                     <p className="label-mono max-w-[140px] text-right text-ink/40">
                       {homeDelivery
-                        ? "Pristatymas į duris"
+                        ? "Pristatymas į duris įskaičiuotas prenumeratoje"
                         : "Produktas + paštomatas"}
                     </p>
                   </div>
@@ -1116,7 +1211,10 @@ export default function Checkout() {
                       className="mb-4"
                     />
                     <button
-                      onClick={() => setShowModal(true)}
+                      onClick={() => {
+                        setConfirmError("")
+                        setShowModal(true)
+                      }}
                       disabled={!canConfirm}
                       className="brick-hover-sm flex w-full items-center justify-between rounded-[28px] border-2 border-ink bg-brand-orange px-6 py-4 text-paper transition-all disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                     >
@@ -1199,8 +1297,15 @@ export default function Checkout() {
                     </h2>
                     <p className="mt-1 text-[13px] text-ink/50">
                       Šiam produktui reikia {product?.value ?? 0} Kr., o tau
-                      liko {remainingCredits} Kr. Grąžink turimą produktą, kad
-                      atlaisvintum kreditų.
+                      liko {remainingCredits} Kr.{" "}
+                      {returnedHeldCredits > 0 && budgetFreesAt
+                        ? `Grąžintų rinkinių briksiai (${returnedHeldCredits} Kr.) atsilaisvins ${new Date(
+                            budgetFreesAt
+                          ).toLocaleDateString("lt-LT", {
+                            month: "long",
+                            day: "numeric",
+                          })}, kai prasidės naujas atsiskaitymo laikotarpis.`
+                        : "Grąžink turimą produktą – briksiai atsilaisvins nuo kito atsiskaitymo laikotarpio."}
                     </p>
                   </div>
 
@@ -1269,6 +1374,16 @@ export default function Checkout() {
                       </span>
                     </div>
                   </div>
+                  <UpgradePriceNotes
+                    monthlyPrice={basePrice}
+                    isAnnual={billing === "annual"}
+                    deliveryFee={
+                      hasPlanHomeDelivery && requiredTier.key !== "mega"
+                        ? HOME_DELIVERY_FEE
+                        : 0
+                    }
+                    isSwap={userSub != null}
+                  />
 
                   {/* Coupon + Gift card */}
                   <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -1472,7 +1587,10 @@ export default function Checkout() {
           <div className="brick-card bg-paper px-4 py-3">
             {isEligible ? (
               <button
-                onClick={() => setShowModal(true)}
+                onClick={() => {
+                  setConfirmError("")
+                  setShowModal(true)
+                }}
                 disabled={!canConfirm}
                 className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-brand-orange px-5 py-3.5 text-paper disabled:cursor-not-allowed disabled:opacity-60"
               >
@@ -1570,12 +1688,16 @@ export default function Checkout() {
                 className="brick-hover-sm w-full rounded-full border-2 border-ink bg-brand-orange text-[15px] font-bold text-paper"
                 disabled={confirming}
                 onClick={async () => {
-                  await handleConfirm()
-                  setShowModal(false)
+                  if (await handleConfirm()) setShowModal(false)
                 }}
               >
                 {confirming ? "Apdorojama…" : "Taip, patvirtinti →"}
               </Button>
+              {confirmError && (
+                <p className="font-mono text-[11px] leading-relaxed text-brand-orange">
+                  {confirmError}
+                </p>
+              )}
               <Button
                 variant="outline"
                 size="lg"

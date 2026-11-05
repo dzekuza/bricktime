@@ -65,6 +65,14 @@ export function Orders() {
         returnNote: o.return_note ?? undefined,
         homeDelivery: o.home_delivery ?? false,
         terminalName: o.lp_terminal_name,
+        deliveryAddress: o.delivery_street
+          ? [
+              [o.delivery_street, o.delivery_house_no].filter(Boolean).join(' ') +
+                (o.delivery_flat ? `-${o.delivery_flat}` : ''),
+              [o.delivery_postal_code, o.delivery_city].filter(Boolean).join(' '),
+            ].join(', ')
+          : null,
+        deliveryPhone: o.delivery_phone,
         barcode: o.lp_barcode,
         trackingState: o.lp_tracking_state,
         returnBarcode: o.lp_return_barcode,
@@ -100,7 +108,10 @@ export function Orders() {
   const active = items.filter((o) => o.status === 'active').length
   const overdue = items.filter((o) => o.status === 'overdue').length
   const pendingReturns = items.filter((o) => o.status === 'return_requested').length
-  const revenue = items.filter((o) => o.status !== 'returned').reduce((sum, o) => sum + o.amount, 0)
+  // Rentals carry no charge of their own (the subscription pays), so the old
+  // per-order "amount" was the plan's list price and summed to a fake revenue.
+  // Still waiting for a label; a labelled order stays processing while in transit.
+  const courierToShip = items.filter((o) => o.homeDelivery && o.status === 'processing' && !o.barcode).length
 
   function openDetail(order: Order) {
     setDetailTarget(order)
@@ -178,14 +189,6 @@ export function Orders() {
         )
       },
       size: 110,
-    },
-    {
-      accessorKey: 'amount',
-      header: ({ column }) => <SortableHeader column={column} className="justify-end w-full">Amount</SortableHeader>,
-      cell: ({ getValue }) => (
-        <span className="text-sm tabular-nums block text-right">€{getValue<number>()}</span>
-      ),
-      size: 80,
     },
     {
       id: 'actions',
@@ -282,9 +285,9 @@ export function Orders() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Revenue (active)</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Courier to ship</CardTitle>
           </CardHeader>
-          <CardContent><div className="text-2xl font-bold">€{revenue}</div></CardContent>
+          <CardContent><div className="text-2xl font-bold">{courierToShip}</div></CardContent>
         </Card>
       </div>
 

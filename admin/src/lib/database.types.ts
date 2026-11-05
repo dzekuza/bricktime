@@ -960,6 +960,13 @@ export type Database = {
         Row: {
           amount: number
           created_at: string
+          delivery_city: string | null
+          delivery_flat: string | null
+          delivery_house_no: string | null
+          delivery_name: string | null
+          delivery_phone: string | null
+          delivery_postal_code: string | null
+          delivery_street: string | null
           due_date: string
           home_delivery: boolean
           id: string
@@ -977,6 +984,7 @@ export type Database = {
           product_id: number
           return_note: string | null
           return_requested_at: string | null
+          returned_at: string | null
           start_date: string
           status: Database["public"]["Enums"]["order_status"]
           subscriber_id: string
@@ -985,6 +993,13 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string
+          delivery_city?: string | null
+          delivery_flat?: string | null
+          delivery_house_no?: string | null
+          delivery_name?: string | null
+          delivery_phone?: string | null
+          delivery_postal_code?: string | null
+          delivery_street?: string | null
           due_date: string
           home_delivery?: boolean
           id?: string
@@ -1002,6 +1017,7 @@ export type Database = {
           product_id: number
           return_note?: string | null
           return_requested_at?: string | null
+          returned_at?: string | null
           start_date: string
           status?: Database["public"]["Enums"]["order_status"]
           subscriber_id: string
@@ -1010,6 +1026,13 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string
+          delivery_city?: string | null
+          delivery_flat?: string | null
+          delivery_house_no?: string | null
+          delivery_name?: string | null
+          delivery_phone?: string | null
+          delivery_postal_code?: string | null
+          delivery_street?: string | null
           due_date?: string
           home_delivery?: boolean
           id?: string
@@ -1027,6 +1050,7 @@ export type Database = {
           product_id?: number
           return_note?: string | null
           return_requested_at?: string | null
+          returned_at?: string | null
           start_date?: string
           status?: Database["public"]["Enums"]["order_status"]
           subscriber_id?: string
@@ -1494,6 +1518,8 @@ export type Database = {
           cancel_at: string | null
           cancel_requested: boolean
           city: string | null
+          current_period_end: string | null
+          current_period_start: string | null
           email: string
           flat: string | null
           home_delivery: boolean
@@ -1502,6 +1528,7 @@ export type Database = {
           joined_at: string
           last_name: string | null
           name: string
+          paused_until: string | null
           penalty_amount: number | null
           penalty_reason: string | null
           pending_home_delivery: boolean | null
@@ -1523,6 +1550,8 @@ export type Database = {
           cancel_at?: string | null
           cancel_requested?: boolean
           city?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
           email: string
           flat?: string | null
           home_delivery?: boolean
@@ -1531,6 +1560,7 @@ export type Database = {
           joined_at?: string
           last_name?: string | null
           name: string
+          paused_until?: string | null
           penalty_amount?: number | null
           penalty_reason?: string | null
           pending_home_delivery?: boolean | null
@@ -1552,6 +1582,8 @@ export type Database = {
           cancel_at?: string | null
           cancel_requested?: boolean
           city?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
           email?: string
           flat?: string | null
           home_delivery?: boolean
@@ -1560,6 +1592,7 @@ export type Database = {
           joined_at?: string
           last_name?: string | null
           name?: string
+          paused_until?: string | null
           penalty_amount?: number | null
           penalty_reason?: string | null
           pending_home_delivery?: boolean | null
@@ -1872,6 +1905,7 @@ export type Database = {
         Args: { p_feed_item_id: string; p_session_id: string }
         Returns: undefined
       }
+      used_credits: { Args: { p_subscriber_id: string }; Returns: number }
     }
     Enums: {
       achievement_category: "activity" | "social" | "collector" | "loyalty"

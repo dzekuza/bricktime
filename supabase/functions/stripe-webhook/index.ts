@@ -61,14 +61,16 @@ function parsePlanKey(value: string | null | undefined) {
   return value && planKeys.has(value) ? value : undefined
 }
 
+// Returns false only for a failure worth retrying (rate limit, server error),
+// so a caller that must deliver the event can have Stripe retry.
 async function pushOmnisendEvent(
   eventName: string,
   email: string,
   properties: Record<string, unknown>
-) {
+): Promise<boolean> {
   if (!omnisendApiKey) {
     console.error("OMNISEND_API_KEY is not configured; skipping event push")
-    return
+    return true
   }
 
   const res = await fetch("https://api.omnisend.com/v5/events", {
@@ -89,30 +91,74 @@ async function pushOmnisendEvent(
     console.error(
       `Omnisend event push failed for "${eventName}": ${res.status} ${await res.text()}`
     )
+    // Only a rate limit or server error is worth a Stripe retry; a rejected
+    // request (bad address, invalid payload) would fail the same way forever.
+    return res.status !== 429 && res.status < 500
   }
+  return true
 }
 
+// A bought card is inserted as pending; it becomes spendable only once paid.
+// Delayed methods complete the session unpaid and are activated on
+// async_payment_succeeded instead.
 async function handleGiftCardCheckout(session: Stripe.Checkout.Session) {
-  const { data: giftCard } = await supabase
+  if (
+    session.payment_status !== "paid" &&
+    session.payment_status !== "no_payment_required"
+  ) {
+    return
+  }
+
+  const { data: giftCard, error: loadError } = await supabase
     .from("gift_cards")
     .select(
-      "code, amount_cents, recipient_email, buyer_email, message, expires_at, created_at"
+      "code, status, amount_cents, recipient_email, buyer_email, message, expires_at, created_at"
     )
     .eq("stripe_session_id", session.id)
     .maybeSingle()
+  if (loadError) {
+    throw new Error(
+      `Gift card for session ${session.id} not loaded: ${loadError.message}`
+    )
+  }
+  // The row is saved before the buyer reaches Stripe, so a missing one is a
+  // real fault: throw so Stripe retries rather than lose a paid card.
+  if (!giftCard) {
+    throw new Error(`No gift card row for paid session ${session.id}`)
+  }
+  // Already active means an earlier delivery sent the email.
+  if (giftCard.status !== "pending") return
 
-  if (!giftCard) return
+  // Email first, then activate: a failed email leaves the card pending and
+  // the event is retried, so the recipient is never left without the code.
+  const isSent = await pushOmnisendEvent(
+    "gift card purchased",
+    giftCard.recipient_email,
+    {
+      code: giftCard.code,
+      amount: giftCard.amount_cents / 100,
+      buyerEmail: giftCard.buyer_email,
+      recipientEmail: giftCard.recipient_email,
+      message: giftCard.message ?? "",
+      expiresAt: giftCard.expires_at,
+      purchasedAt: giftCard.created_at,
+      redeemUrl: `https://www.bricktime.lt/gift-cards?code=${encodeURIComponent(giftCard.code)}`,
+    }
+  )
+  if (!isSent) {
+    throw new Error(`Gift card email for session ${session.id} not sent`)
+  }
 
-  await pushOmnisendEvent("gift card purchased", giftCard.recipient_email, {
-    code: giftCard.code,
-    amount: giftCard.amount_cents / 100,
-    buyerEmail: giftCard.buyer_email,
-    recipientEmail: giftCard.recipient_email,
-    message: giftCard.message ?? "",
-    expiresAt: giftCard.expires_at,
-    purchasedAt: giftCard.created_at,
-    redeemUrl: `https://www.bricktime.lt/gift-cards?code=${encodeURIComponent(giftCard.code)}`,
-  })
+  const { error: activateError } = await supabase
+    .from("gift_cards")
+    .update({ status: "active" })
+    .eq("stripe_session_id", session.id)
+    .eq("status", "pending")
+  if (activateError) {
+    throw new Error(
+      `Gift card for session ${session.id} not activated: ${activateError.message}`
+    )
+  }
 }
 
 // Errors throw so Stripe retries the event; record_merch_order is idempotent
@@ -245,7 +291,10 @@ async function countMerchCoupon(session: Stripe.Checkout.Session) {
 
 // A hold left behind would block the coupon's last use until it lapses.
 async function deleteCouponHold(holdId: string, sessionId: string) {
-  const { error } = await supabase.from("coupon_holds").delete().eq("id", holdId)
+  const { error } = await supabase
+    .from("coupon_holds")
+    .delete()
+    .eq("id", holdId)
   if (error) {
     throw new Error(
       `Coupon hold ${holdId} not released for merch session ${sessionId}: ${error.message}`
@@ -375,6 +424,37 @@ async function findSubscriber(args: {
   return null
 }
 
+// True when the subscriber's stored subscription is a different, still-live
+// one: then an event for `subscriptionId` (a duplicate) must not change the row.
+async function isStoredSubscriptionOtherLive(
+  subscriberId: string,
+  subscriptionId: string
+): Promise<boolean> {
+  const { data: current, error } = await supabase
+    .from("subscribers")
+    .select("stripe_subscription_id, status")
+    .eq("id", subscriberId)
+    .maybeSingle()
+  // Fail closed: Stripe retries the event rather than risk a duplicate's
+  // data overwriting the row.
+  if (error) {
+    throw new Error(
+      `Loading stored subscription for ${subscriberId} failed: ${error.message}`
+    )
+  }
+  const isOtherLive = Boolean(
+    current?.stripe_subscription_id &&
+    current.stripe_subscription_id !== subscriptionId &&
+    (current.status === "active" || current.status === "paused")
+  )
+  if (isOtherLive) {
+    console.error(
+      `Ignoring subscription ${subscriptionId} for subscriber ${subscriberId}: stored subscription ${current?.stripe_subscription_id} is still live. Check for a duplicate subscription in Stripe.`
+    )
+  }
+  return isOtherLive
+}
+
 async function updateSubscriberByStripeIds(
   subscription: Stripe.Subscription,
   fallbackEmail?: string | null
@@ -395,6 +475,19 @@ async function updateSubscriberByStripeIds(
 
   if (!subscriber) return
 
+  // A member with two live subscriptions (created before create-checkout
+  // refused duplicates) would otherwise flip between them on every event.
+  // While the stored one is live, only its own events may change the row.
+  if (await isStoredSubscriptionOtherLive(subscriber.id, subscription.id)) {
+    return
+  }
+
+  const { data: stored } = await supabase
+    .from("subscribers")
+    .select("current_period_start, paused_until")
+    .eq("id", subscriber.id)
+    .maybeSingle()
+
   const update: Record<string, unknown> = {
     stripe_customer_id: customerId ?? null,
     stripe_subscription_id: subscription.id,
@@ -402,6 +495,56 @@ async function updateSubscriberByStripeIds(
     cancel_at: subscription.cancel_at
       ? new Date(subscription.cancel_at * 1000).toISOString()
       : null,
+  }
+
+  // Anchor for the budget rule (see public.used_credits). Stripe doesn't
+  // order webhooks, so an older snapshot must not move the period back.
+  const periodStartMs = subscription.current_period_start * 1000
+  const storedPeriodStartMs = stored?.current_period_start
+    ? Date.parse(stored.current_period_start)
+    : Number.NEGATIVE_INFINITY
+  if (periodStartMs >= storedPeriodStartMs) {
+    update.current_period_start = new Date(periodStartMs).toISOString()
+    update.current_period_end = new Date(
+      subscription.current_period_end * 1000
+    ).toISOString()
+  }
+
+  // pause-subscription stores when rentals may start again, which is later
+  // than Stripe's resumes_at (the skipped months are unpaid); keep the later.
+  const storedPausedUntilMs = stored?.paused_until
+    ? Date.parse(stored.paused_until)
+    : null
+  if (subscription.pause_collection) {
+    const resumesAtMs = subscription.pause_collection.resumes_at
+      ? subscription.pause_collection.resumes_at * 1000
+      : Number.POSITIVE_INFINITY
+    const isStoredLater =
+      storedPausedUntilMs !== null &&
+      (Number.isNaN(storedPausedUntilMs) || storedPausedUntilMs >= resumesAtMs)
+    if (!isStoredLater) {
+      update.paused_until = Number.isFinite(resumesAtMs)
+        ? new Date(resumesAtMs).toISOString()
+        : "infinity"
+    }
+  } else if (storedPausedUntilMs !== null) {
+    // Only after a pause that reached this period: a voided latest invoice
+    // then means a skipped, unpaid month, so the block lasts until it ends.
+    const isPauseInThisPeriod =
+      Number.isNaN(storedPausedUntilMs) ||
+      storedPausedUntilMs >= subscription.current_period_start * 1000
+    const latestInvoiceId =
+      typeof subscription.latest_invoice === "string"
+        ? subscription.latest_invoice
+        : subscription.latest_invoice?.id
+    const latestInvoice =
+      isPauseInThisPeriod && latestInvoiceId
+        ? await stripe.invoices.retrieve(latestInvoiceId)
+        : null
+    update.paused_until =
+      latestInvoice?.status === "void"
+        ? new Date(subscription.current_period_end * 1000).toISOString()
+        : null
   }
 
   if (planKey) update.plan = planKey
@@ -534,7 +677,13 @@ Deno.serve(async (req) => {
           subscriptionId,
         })
 
-        if (subscriber) {
+        // Same rule as updateSubscriberByStripeIds: while the stored
+        // subscription is live, a different one must not take over the row.
+        const isOtherLive =
+          subscriber &&
+          subscriptionId &&
+          (await isStoredSubscriptionOtherLive(subscriber.id, subscriptionId))
+        if (subscriber && !isOtherLive) {
           const update: Record<string, unknown> = {
             status: "active",
             stripe_customer_id: customerId ?? null,
@@ -562,9 +711,11 @@ Deno.serve(async (req) => {
         if (session.metadata?.type === "merch") {
           await handleMerchCheckout(session)
         }
+        if (session.mode === "payment" && session.metadata?.code) {
+          await handleGiftCardCheckout(session)
+        }
         break
       }
-
 
       case "customer.subscription.created":
       case "customer.subscription.updated":
@@ -614,7 +765,11 @@ Deno.serve(async (req) => {
           subscriptionId,
         })
 
-        if (subscriber) {
+        const isOtherLive =
+          subscriber &&
+          subscriptionId &&
+          (await isStoredSubscriptionOtherLive(subscriber.id, subscriptionId))
+        if (subscriber && !isOtherLive) {
           await supabase
             .from("subscribers")
             .update({ status: "paused" })

@@ -1,3 +1,22 @@
+## 2026-11-05 — #98 cubic review rounds
+- **Checkout guard:** create-checkout fails closed (stored subscription checked, Stripe errors rethrown, all pages listed, `incomplete` counted), payment-problem message, 10 s idempotency key.
+- **Webhook:** stored-subscription guard on every path and throws on a failed read; billing period never moves back; longer pause block kept; invoice fetched only after a pause; Omnisend retried only on 429/5xx.
+- **Gift cards:** row saved before the checkout URL; email first, then activate; pending shown as awaiting payment; admin counts used/pending/expired correctly.
+- **Pause:** dates fixed (months-1, clamped day), re-entry guarded, undo save checked, per-request idempotency key, hidden on annual plans.
+- **Rentals:** Legenda courier allowed; courier needs name, phone and address; two-code swap blocked; stale-row fallback to checkout; history refresh; monthly/annual renewal label.
+- **Status:** pushed to #98; migrations applied live; five changed functions (create-checkout, stripe-webhook, create-gift-card-checkout, lpexpress, pause-subscription) NOT redeployed — waiting for #96/#97/#98 to merge, then compare live with main.
+- **Next:** merge #96 → #97 → #98 (retarget to main); redeploy what differs; Stripe cleanup (duplicate subscriptions, older unpaid gift cards); backfill billing periods.
+
+## 2026-11-05 — edge functions deployed (combined #96 + #97 + #98)
+- **Changed:** deployed 9 functions via Supabase MCP from local branch `deploy/combined` (merge of fix/merch-payment-hardening, feat/merch-orders-and-fixes, fix/billing-safety). Pause hardening from security reviews landed first on #98 (atomic start, resume keeps unpaid month blocked, webhook keeps the block, timeout-safe, no plan change while paused, 'infinity' fails closed).
+- **Status:** all 9 boot and refuse unauthenticated calls correctly. No end-to-end Stripe test yet.
+- **Next:** merge the three PRs in order; Stripe duplicate-subscription cleanup.
+
+## 2026-11-05 — tester feedback: billing safety, rentals, courier, budget period, pause
+- **Changed:** branch fix/billing-safety (9 commits, see status.md) + #97 card-only fix b676a16. Five migrations applied live via MCP and renamed locally to their recorded versions.
+- **Status:** storefront + admin typecheck; deno check clean except pre-existing TS7006/EdgeRuntime errors; used_credits verified in a rolled-back transaction. Not tested end to end in the browser or against Stripe test mode. Edge functions not deployed.
+- **Next:** open stacked PR, merge order #96 → #97 → this, deploy functions, clean up duplicate Stripe subscriptions.
+
 ## 2026-11-05 — PR #97 opened; cubic review addressed
 - **Changed:** branch rebased onto main after #95; PR dzekuza/bricktime#97 opened (head b734b77 before review fixes). Review fixes: webhook keeps coupon/gift card holds for 14 days on delayed payments and releases them on `async_payment_failed`, keeps the coupon hold if `redeem_coupon` fails; useCredits waits for plan load; downgrade summary wording and no swap note on downgrades; 35-min retry message; migrations renamed 200000→220000 to avoid colliding with #96's `20261105200000_merch_order_stock_guard.sql`; new 220300 fixes the `reserved_by` column comment (applied live); vault hook marker stores the last edit time.
 - **Status:** review fixes committed on feat/merch-orders-and-fixes; edge functions for #97 not deployed.

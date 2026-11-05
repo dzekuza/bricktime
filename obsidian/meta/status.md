@@ -9,36 +9,35 @@
 
 ## Current focus
 
-Merch checkout hardening across two open PRs that touch the same edge functions:
-dzekuza/bricktime#96 (`fix/merch-payment-hardening`: paid-only order recording,
-stock guard, card-only payment with gift cards) and dzekuza/bricktime#97
-(`feat/merch-orders-and-fixes`: login-bound gift card holds, per-user coupon holds,
-owner-only order lookup, plus briksiai/plan-summary/analytics fixes).
+Tester (Justinas) feedback round on billing, rentals and shipping — branch
+`fix/billing-safety`, stacked on dzekuza/bricktime#97 (`feat/merch-orders-and-fixes`),
+which overlaps dzekuza/bricktime#96.
 
 ## Done recently
 
-- #97's migrations (20261105220000–220300) are applied live and verified: `gift_cards.reserved_by`, `coupon_holds` (RLS, index, per-user), 3-arg `claim_coupon_hold` (service role only), order lookup hides buyer details for guest orders older than 1h.
-- #96's migrations (`merch_order_stock_guard`, `_fixes`) are applied live; `merch_orders.stock_short` exists.
-- Database types regenerated in both apps from the live schema.
-- Gift cards held for 35 min at any checkout. Live before #97: create-checkout v9, create-merch-checkout v7, stripe-webhook v13.
+- Live DB migrations for #98, applied 2026-11-05 via Supabase MCP `apply_migration` (recorded) unless noted: `gift_card_pending_status`, `orders_returned_at` (its backfill ran separately via `execute_sql`), `orders_delivery_snapshot` (backfill of 1 open courier order via `execute_sql`), `budget_period_and_pause`, `used_credits_timestamp_compare`, `begin_subscription_pause`, `mega_courier_rentals`, `budget_fallback_and_pause_reentry`, `courier_requires_name`. A `touch_updated_at` side effect of the returned_at backfill was undone for the 3 affected orders.
+- #97's migrations `20261105220000`–`220400` applied by hand in the SQL editor (not recorded in schema_migrations).
+- #96's migrations (`merch_order_stock_guard`, `_fixes`) are applied live.
 
 ## In progress
 
-- #97 addressing cubic review: merch checkouts that hold a coupon or gift card allow card payment only (holds never outlive their 35 min), coupon hold kept if `redeem_coupon` fails, briksiai warning waits for the plan to load, downgrade wording fixes.
+- Edge functions deployed 2026-11-05 ~19:05 UTC from local branch `deploy/combined` = merge of #96 `5325a36`, #97 `d376cd7` and #98 at `0cb2214`: stripe-webhook v15, verify-gift-card v5, create-gift-card-checkout v7, get-billing-history v7, lpexpress v5, create-merch-checkout v10, create-checkout v11, change-subscription v13, pause-subscription v1. Smoke test: all boot; protected functions return 401 without a user, public ones (verify-gift-card, create-gift-card-checkout, lpexpress, create-merch-checkout, stripe-webhook) reject invalid input with 400/404.
+- NOT live yet — #98 review fixes after `0cb2214`: create-checkout, stripe-webhook, create-gift-card-checkout, lpexpress, pause-subscription need redeploying (the migrations they rely on are already live).
 
 ## Next up
 
-1. Merge #96 first, then rebase #97 onto main and resolve the overlap in `create-merch-checkout`, `stripe-webhook`, `change-subscription`.
-2. Deploy `create-merch-checkout`, `stripe-webhook`, `change-subscription` after both merge, and make sure `checkout.session.async_payment_succeeded` is enabled on the Stripe webhook endpoint — delayed merch payments without a code are recorded from it.
-3. Deploy the storefront (`/merch/aciu`, code field, briksiai and summary fixes).
-4. Omnisend automation for `merch order placed`; delete test order #1003; one real gift-card purchase end to end.
-5. Backfill merch payments taken before 2026-11-05 from Stripe (needs Stripe MCP auth).
+1. Redeploy create-checkout, stripe-webhook, create-gift-card-checkout, lpexpress, pause-subscription from #98 head (merged with #96/#97 as before).
+2. Merge #96, then #97, then #98 (retarget to main). Resolve the #96/#97 overlap as in `deploy/combined`: create-merch-checkout keeps #96's whole-unit stock check and #97's generic gift-card error; stripe-webhook keeps the async gift-card activation; types from the live schema.
+3. In Stripe: cancel/refund duplicate live subscriptions (Justinas at least); check gift cards bought before 2026-11-05 whose session was never paid (still `active`).
+4. Backfill `current_period_start/end` from Stripe for active members (until then used_credits counts returned sets rented in the last month).
+5. Deploy storefront and admin; real test purchase (upgrade, courier rental, pause).
 
 ## Blockers & open questions
 
-- `.claude/hooks/vault-stop-check.sh` is not registered in `.claude/settings.json`, so it never runs. Register it under `hooks.Stop` or remove it — owner's call.
-- Gift cards are single-use: value above the item/first-invoice price is lost. A balance would need a schema change — undecided.
-- Supabase CLI token here lacks deploy/db privileges; the Supabase MCP declines `apply_migration`, so migrations go through the SQL editor by hand.
+- "Per metus iki 3 mėnesių" pause cap is not enforced across separate pauses (each pause is max 3 months).
+- Pausing blocks rentals immediately; the already-paid current month isn't refunded.
+- `.claude/hooks/vault-stop-check.sh` is not registered in `.claude/settings.json` — owner's call.
+- Supabase MCP declines migrations that contain data UPDATEs; backfills go through `execute_sql`.
 
 ## Environment
 

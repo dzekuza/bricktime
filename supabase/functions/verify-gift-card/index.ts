@@ -32,6 +32,14 @@ Deno.serve(async (req) => {
       })
     }
 
+    // An unpaid purchase stays pending and must not validate.
+    if (card.status === "pending") {
+      return new Response(JSON.stringify({ valid: false, error: "Code not found" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      })
+    }
+
     if (card.status === "used") {
       return new Response(JSON.stringify({ valid: false, error: "Code already used" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

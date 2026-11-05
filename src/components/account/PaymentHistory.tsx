@@ -1,6 +1,8 @@
 interface Invoice {
   id: string
   amount: number
+  total?: number
+  creditApplied?: number
   currency: string
   description: string
   date: number
@@ -30,6 +32,8 @@ interface HistoryRow {
   title: string
   timestamp: number
   amount: string
+  // Shown under the date, e.g. how much credit covered the invoice.
+  note?: string
   badge: Badge
 }
 
@@ -56,19 +60,28 @@ const formatDate = (timestamp: number) =>
   })
 
 function toRows(invoices: Invoice[], penalties: Penalty[]): HistoryRow[] {
-  const invoiceRows = invoices.map<HistoryRow>((inv) => ({
-    id: inv.id,
-    title: inv.description,
-    timestamp: inv.date * 1000,
-    amount: `${inv.currency.toUpperCase() === "EUR" ? "€" : inv.currency.toUpperCase()}${inv.amount.toFixed(2)}`,
-    badge: inv.pdf
-      ? { kind: "pdf", href: inv.pdf }
-      : {
-          kind: "status",
-          label: "Sumokėta",
-          className: "bg-brand-mint text-ink",
-        },
-  }))
+  const invoiceRows = invoices.map<HistoryRow>((inv) => {
+    const symbol =
+      inv.currency.toUpperCase() === "EUR" ? "€" : inv.currency.toUpperCase()
+    const credit = inv.creditApplied ?? 0
+    return {
+      id: inv.id,
+      title: inv.description,
+      timestamp: inv.date * 1000,
+      amount: `${symbol}${inv.amount.toFixed(2)}`,
+      note:
+        credit > 0
+          ? `Sąskaita ${symbol}${(inv.total ?? inv.amount + credit).toFixed(2)}, padengta kreditu ${symbol}${credit.toFixed(2)}`
+          : undefined,
+      badge: inv.pdf
+        ? { kind: "pdf", href: inv.pdf }
+        : {
+            kind: "status",
+            label: "Sumokėta",
+            className: "bg-brand-mint text-ink",
+          },
+    }
+  })
   const penaltyRows = penalties.map<HistoryRow>((p) => ({
     id: p.id,
     title: p.reason ?? "Bauda",
@@ -122,6 +135,11 @@ export function PaymentHistory({
             <p className="mt-0.5 font-mono text-[12px] text-ink/50">
               {formatDate(row.timestamp)}
             </p>
+            {row.note && (
+              <p className="mt-0.5 font-mono text-[11px] text-ink/40">
+                {row.note}
+              </p>
+            )}
           </div>
           <div className="flex shrink-0 items-center gap-3">
             <span className="font-display text-[22px] leading-none text-ink">

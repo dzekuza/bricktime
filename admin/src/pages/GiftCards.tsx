@@ -18,7 +18,12 @@ function statusBadge(
   status: string,
   expiresAt: string
 ): { label: string; variant: StatusVariant } {
-  if (status === "redeemed") return { label: "Išnaudota", variant: "secondary" }
+  // The database writes "used"; "redeemed" is kept for older rows.
+  if (status === "used" || status === "redeemed")
+    return { label: "Išnaudota", variant: "secondary" }
+  if (status === "pending") return { label: "Neapmokėta", variant: "outline" }
+  if (status === "expired")
+    return { label: "Pasibaigusi", variant: "destructive" }
   if (new Date(expiresAt) < new Date())
     return { label: "Pasibaigusi", variant: "destructive" }
   return { label: "Aktyvi", variant: "default" }
@@ -120,7 +125,8 @@ function buildColumns(
       cell: ({ row }) => {
         const expired =
           new Date(row.original.expires_at) < new Date() &&
-          row.original.status !== "redeemed"
+          row.original.status !== "redeemed" &&
+          row.original.status !== "used"
         return (
           <span
             className={`text-sm ${expired ? "text-destructive" : "text-muted-foreground"}`}
@@ -213,11 +219,15 @@ export function GiftCards() {
   }, [items, query])
 
   const total = items.length
+  const isUsed = (status: string) => status === "used" || status === "redeemed"
   const active = items.filter(
-    (c) => c.status !== "redeemed" && new Date(c.expires_at) >= new Date()
+    (c) => c.status === "active" && new Date(c.expires_at) >= new Date()
   ).length
-  const redeemed = items.filter((c) => c.status === "redeemed").length
-  const totalRevenue = items.reduce((sum, c) => sum + c.amount_cents, 0)
+  const redeemed = items.filter((c) => isUsed(c.status)).length
+  // A pending card was never paid for, so it isn't revenue.
+  const totalRevenue = items
+    .filter((c) => c.status !== "pending")
+    .reduce((sum, c) => sum + c.amount_cents, 0)
 
   return (
     <div className="space-y-6 p-6">
