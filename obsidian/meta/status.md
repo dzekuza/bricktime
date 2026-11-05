@@ -15,21 +15,22 @@ which overlaps dzekuza/bricktime#96.
 
 ## Done recently
 
-- Live DB migrations (applied via Supabase MCP 2026-11-05): `gift_card_pending_status`, `orders_returned_at` (+ backfill), `orders_delivery_snapshot` (+ backfill of 1 open courier order), `budget_period_and_pause`, `used_credits_timestamp_compare`.
-- fix/billing-safety commits: no second subscription on upgrade (Checkout uses change-subscription; create-checkout 409s; webhook ignores non-stored subs), gift cards pending until paid, delivery shown as included / fake order amount removed, rental history with dates, courier address snapshot + admin labels, budget frees at next Stripe period (`used_credits`), billing history shows credit applied + swap rollback restores credit, subscription pause (new `pause-subscription`).
-- #97: card-only payment while a merch code is held.
+- Live DB migrations for #98, applied 2026-11-05 via Supabase MCP `apply_migration` (recorded) unless noted: `gift_card_pending_status`, `orders_returned_at` (its backfill ran separately via `execute_sql`), `orders_delivery_snapshot` (backfill of 1 open courier order via `execute_sql`), `budget_period_and_pause`, `used_credits_timestamp_compare`, `begin_subscription_pause`, `mega_courier_rentals`, `budget_fallback_and_pause_reentry`. A `touch_updated_at` side effect of the returned_at backfill was undone for the 3 affected orders.
+- #97's migrations `20261105220000`–`220400` applied by hand in the SQL editor (not recorded in schema_migrations).
+- #96's migrations (`merch_order_stock_guard`, `_fixes`) are applied live.
 
 ## In progress
 
-- Nothing half-written. Edge functions DEPLOYED 2026-11-05 from a local merge of #96 + #97 + #98 (branch `deploy/combined`, kept local): stripe-webhook v15, verify-gift-card v5, create-gift-card-checkout v7, get-billing-history v7, lpexpress v5, create-merch-checkout v10, create-checkout v11, change-subscription v13, pause-subscription v1 (new). Smoke-tested unauthenticated (boot + expected 400/401/404).
+- Edge functions deployed 2026-11-05 ~19:05 UTC from local branch `deploy/combined` = merge of #96 `5325a36`, #97 `d376cd7` and #98 at `0cb2214`: stripe-webhook v15, verify-gift-card v5, create-gift-card-checkout v7, get-billing-history v7, lpexpress v5, create-merch-checkout v10, create-checkout v11, change-subscription v13, pause-subscription v1. Smoke test: all boot; protected functions return 401 without a user, public ones (verify-gift-card, create-gift-card-checkout, lpexpress, create-merch-checkout, stripe-webhook) reject invalid input with 400/404.
+- NOT live yet — #98 review fixes after `0cb2214`: create-checkout, stripe-webhook, create-gift-card-checkout, lpexpress, pause-subscription need redeploying (the migrations they rely on are already live).
 
 ## Next up
 
-1. Merge #96, then #97, then #98 (retarget to main). Resolve #96/#97 overlap like `deploy/combined`: create-merch-checkout keeps #96's whole-unit stock check and #97's generic gift-card error; stripe-webhook keeps the async gift-card activation; types from the live schema.
-2. Live functions already match that merge — redeploy only if the merged main differs.
-3. In Stripe: find customers with more than one live subscription (Justinas at least) and cancel/refund the extra; check gift cards bought before today whose session was never paid (still `active`).
-4. Budget rule needs `current_period_start` — filled by the next subscription/invoice webhook per member; backfill from Stripe for active members if it shouldn't wait.
-5. Deploy the storefront and admin; real test purchase (upgrade, courier rental, pause).
+1. Redeploy create-checkout, stripe-webhook, create-gift-card-checkout, lpexpress, pause-subscription from #98 head (merged with #96/#97 as before).
+2. Merge #96, then #97, then #98 (retarget to main). Resolve the #96/#97 overlap as in `deploy/combined`: create-merch-checkout keeps #96's whole-unit stock check and #97's generic gift-card error; stripe-webhook keeps the async gift-card activation; types from the live schema.
+3. In Stripe: cancel/refund duplicate live subscriptions (Justinas at least); check gift cards bought before 2026-11-05 whose session was never paid (still `active`).
+4. Backfill `current_period_start/end` from Stripe for active members (until then used_credits counts returned sets rented in the last month).
+5. Deploy storefront and admin; real test purchase (upgrade, courier rental, pause).
 
 ## Blockers & open questions
 

@@ -1210,7 +1210,10 @@ export default function Checkout() {
                       className="mb-4"
                     />
                     <button
-                      onClick={() => setShowModal(true)}
+                      onClick={() => {
+                        setConfirmError("")
+                        setShowModal(true)
+                      }}
                       disabled={!canConfirm}
                       className="brick-hover-sm flex w-full items-center justify-between rounded-[28px] border-2 border-ink bg-brand-orange px-6 py-4 text-paper transition-all disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                     >
@@ -1371,9 +1374,7 @@ export default function Checkout() {
                     </div>
                   </div>
                   <UpgradePriceNotes
-                    monthlyPrice={
-                      discountedPrice < basePrice ? discountedPrice : basePrice
-                    }
+                    monthlyPrice={basePrice}
                     isAnnual={billing === "annual"}
                     deliveryFee={
                       hasPlanHomeDelivery && requiredTier.key !== "mega"
@@ -1585,7 +1586,10 @@ export default function Checkout() {
           <div className="brick-card bg-paper px-4 py-3">
             {isEligible ? (
               <button
-                onClick={() => setShowModal(true)}
+                onClick={() => {
+                  setConfirmError("")
+                  setShowModal(true)
+                }}
                 disabled={!canConfirm}
                 className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-brand-orange px-5 py-3.5 text-paper disabled:cursor-not-allowed disabled:opacity-60"
               >

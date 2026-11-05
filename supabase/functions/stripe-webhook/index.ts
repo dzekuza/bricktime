@@ -473,6 +473,12 @@ async function updateSubscriberByStripeIds(
     return
   }
 
+  const { data: stored } = await supabase
+    .from("subscribers")
+    .select("current_period_start, paused_until")
+    .eq("id", subscriber.id)
+    .maybeSingle()
+
   const update: Record<string, unknown> = {
     stripe_customer_id: customerId ?? null,
     stripe_subscription_id: subscription.id,
@@ -480,31 +486,52 @@ async function updateSubscriberByStripeIds(
     cancel_at: subscription.cancel_at
       ? new Date(subscription.cancel_at * 1000).toISOString()
       : null,
-    // Anchor for the budget rule: a set rented in this period keeps using
-    // budget until the next one starts (see public.used_credits).
-    current_period_start: new Date(
-      subscription.current_period_start * 1000
-    ).toISOString(),
-    current_period_end: new Date(
-      subscription.current_period_end * 1000
-    ).toISOString(),
   }
 
-  // While paused, rentals are blocked until collection resumes. After a
-  // resume, a period whose renewal was voided during the pause is unpaid, so
-  // the block holds until it ends (same rule as pause-subscription undo).
+  // Anchor for the budget rule (see public.used_credits). Stripe doesn't
+  // order webhooks, so an older snapshot must not move the period back.
+  const periodStartMs = subscription.current_period_start * 1000
+  const storedPeriodStartMs = stored?.current_period_start
+    ? Date.parse(stored.current_period_start)
+    : Number.NEGATIVE_INFINITY
+  if (periodStartMs >= storedPeriodStartMs) {
+    update.current_period_start = new Date(periodStartMs).toISOString()
+    update.current_period_end = new Date(
+      subscription.current_period_end * 1000
+    ).toISOString()
+  }
+
+  // pause-subscription stores when rentals may start again, which is later
+  // than Stripe's resumes_at (the skipped months are unpaid); keep the later.
+  const storedPausedUntilMs = stored?.paused_until
+    ? Date.parse(stored.paused_until)
+    : null
   if (subscription.pause_collection) {
-    update.paused_until = subscription.pause_collection.resumes_at
-      ? new Date(subscription.pause_collection.resumes_at * 1000).toISOString()
-      : "infinity"
-  } else {
+    const resumesAtMs = subscription.pause_collection.resumes_at
+      ? subscription.pause_collection.resumes_at * 1000
+      : Number.POSITIVE_INFINITY
+    const isStoredLater =
+      storedPausedUntilMs !== null &&
+      (Number.isNaN(storedPausedUntilMs) || storedPausedUntilMs >= resumesAtMs)
+    if (!isStoredLater) {
+      update.paused_until = Number.isFinite(resumesAtMs)
+        ? new Date(resumesAtMs).toISOString()
+        : "infinity"
+    }
+  } else if (storedPausedUntilMs !== null) {
+    // Only after a pause that reached this period: a voided latest invoice
+    // then means a skipped, unpaid month, so the block lasts until it ends.
+    const isPauseInThisPeriod =
+      Number.isNaN(storedPausedUntilMs) ||
+      storedPausedUntilMs >= subscription.current_period_start * 1000
     const latestInvoiceId =
       typeof subscription.latest_invoice === "string"
         ? subscription.latest_invoice
         : subscription.latest_invoice?.id
-    const latestInvoice = latestInvoiceId
-      ? await stripe.invoices.retrieve(latestInvoiceId)
-      : null
+    const latestInvoice =
+      isPauseInThisPeriod && latestInvoiceId
+        ? await stripe.invoices.retrieve(latestInvoiceId)
+        : null
     update.paused_until =
       latestInvoice?.status === "void"
         ? new Date(subscription.current_period_end * 1000).toISOString()

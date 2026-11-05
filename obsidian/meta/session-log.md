@@ -1,3 +1,8 @@
+## 2026-11-05 — #98 cubic review round
+- **Changed:** create-checkout fails closed (stored subscription checked, Stripe errors rethrown, all pages, incomplete counted, payment-problem message, 10 s idempotency key); webhook guard on every path, period never moves back, pause block kept, invoice fetched only after a pause; gift card row saved before checkout URL, email then activate; pause dates fixed (months-1, clamped), re-entry guarded; Legenda courier allowed; UI fixes (two-code swap block, stale-row fallback, history refresh, monthly/annual label, pause a11y + wording, pending gift cards, admin used/pending cards).
+- **Status:** pushed to #98; 3 migrations applied live; five functions changed since the deploy are NOT redeployed.
+- **Next:** redeploy those five; merge #96 → #97 → #98; Stripe cleanup (duplicate subscriptions, older unpaid gift cards); backfill billing periods.
+
 ## 2026-11-05 — edge functions deployed (combined #96 + #97 + #98)
 - **Changed:** deployed 9 functions via Supabase MCP from local branch `deploy/combined` (merge of fix/merch-payment-hardening, feat/merch-orders-and-fixes, fix/billing-safety). Pause hardening from security reviews landed first on #98 (atomic start, resume keeps unpaid month blocked, webhook keeps the block, timeout-safe, no plan change while paused, 'infinity' fails closed).
 - **Status:** all 9 boot and refuse unauthenticated calls correctly. No end-to-end Stripe test yet.

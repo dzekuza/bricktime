@@ -243,67 +243,81 @@ Deno.serve(async (req) => {
             })
           : null
 
-      const session = await stripe.checkout.sessions.create({
-        expires_at: Math.floor(Date.now() / 1000) + SESSION_TTL_MINUTES * 60,
-        mode: "subscription",
-        line_items: [
-          {
-            price_data: {
-              currency: "eur",
-              product_data: { name: plan.name ?? `BRICKTIME ${planKey}` },
-              unit_amount: unitAmount,
-              recurring: { interval },
+      const session = await stripe.checkout.sessions.create(
+        {
+          expires_at: Math.floor(Date.now() / 1000) + SESSION_TTL_MINUTES * 60,
+          mode: "subscription",
+          line_items: [
+            {
+              price_data: {
+                currency: "eur",
+                product_data: { name: plan.name ?? `BRICKTIME ${planKey}` },
+                unit_amount: unitAmount,
+                recurring: { interval },
+              },
+              quantity: 1,
             },
-            quantity: 1,
-          },
-          ...(chargeHomeDeliveryFee
-            ? [
-                {
-                  price_data: {
-                    currency: "eur",
-                    product_data: { name: "Pristatymas į duris" },
-                    unit_amount: 300 * monthsPerInterval,
-                    recurring: { interval },
+            ...(chargeHomeDeliveryFee
+              ? [
+                  {
+                    price_data: {
+                      currency: "eur",
+                      product_data: { name: "Pristatymas į duris" },
+                      unit_amount: 300 * monthsPerInterval,
+                      recurring: { interval },
+                    },
+                    quantity: 1,
                   },
-                  quantity: 1,
-                },
-              ]
-            : []),
-        ],
-        ...((giftCardCoupon || stripeCouponId) && {
-          discounts: [{ coupon: (giftCardCoupon?.id ?? stripeCouponId)! }],
-        }),
-        ...(customerId
-          ? { customer: customerId }
-          : { customer_email: userEmail ?? undefined }),
-        client_reference_id: userId,
-        success_url: successUrl,
-        cancel_url: cancelUrl,
-        metadata: {
-          userId,
-          planKey,
-          billing: billing ?? "monthly",
-          homeDelivery: homeDelivery ? "true" : "false",
-          ...(giftCardCoupon && {
-            giftCardCode: String(giftCardCode).toUpperCase(),
+                ]
+              : []),
+          ],
+          ...((giftCardCoupon || stripeCouponId) && {
+            discounts: [{ coupon: (giftCardCoupon?.id ?? stripeCouponId)! }],
           }),
-          ...(appliedCouponCode && { couponCode: appliedCouponCode }),
-        },
-        subscription_data: {
+          ...(customerId
+            ? { customer: customerId }
+            : { customer_email: userEmail ?? undefined }),
+          client_reference_id: userId,
+          success_url: successUrl,
+          cancel_url: cancelUrl,
           metadata: {
             userId,
             planKey,
             billing: billing ?? "monthly",
             homeDelivery: homeDelivery ? "true" : "false",
+            ...(giftCardCoupon && {
+              giftCardCode: String(giftCardCode).toUpperCase(),
+            }),
+            ...(appliedCouponCode && { couponCode: appliedCouponCode }),
+          },
+          subscription_data: {
+            metadata: {
+              userId,
+              planKey,
+              billing: billing ?? "monthly",
+              homeDelivery: homeDelivery ? "true" : "false",
+            },
           },
         },
-      })
+        // Two checkouts racing past the duplicate check above (a double
+        // click) share this key, so Stripe opens one session, not two.
+        {
+          idempotencyKey: `checkout-${userId}-${planKey}-${billing ?? "monthly"}-${Math.floor(Date.now() / 10_000)}`,
+        }
+      )
 
       return new Response(JSON.stringify({ url: session.url }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       })
     } catch (stripeError) {
       if (heldGiftCardCode) await releaseGiftCard(supabase, heldGiftCardCode)
+      if (
+        (stripeError as { type?: string }).type === "StripeIdempotencyError"
+      ) {
+        throw new Error(
+          "Mokėjimas jau ruošiamas – palauk kelias sekundes ir bandyk dar kartą."
+        )
+      }
       throw stripeError
     }
   } catch (err) {

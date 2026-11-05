@@ -39,11 +39,14 @@ export function PauseSubscription({
     return (
       <div className="flex flex-col gap-2 rounded-xl border-2 border-ink/10 bg-cream p-4">
         <p className="text-[13px] text-ink">
-          Prenumerata pristabdyta iki {formatDate(pausedUntil)}. Mokėjimai
-          nevyksta, nauji rinkiniai nenuomojami.
+          Nauji rinkiniai nenuomojami iki {formatDate(pausedUntil)} – tada
+          prasideda kitas apmokėtas laikotarpis.
         </p>
         <button
-          onClick={onResume}
+          onClick={() => {
+            setIsChoosing(false)
+            onResume()
+          }}
           disabled={busy}
           className={`${BUTTON} bg-paper text-ink`}
         >
@@ -72,6 +75,7 @@ export function PauseSubscription({
         {PAUSE_OPTIONS.map((option) => (
           <button
             key={option}
+            aria-pressed={months === option}
             onClick={() => setMonths(option)}
             className={[
               BUTTON,
@@ -83,13 +87,16 @@ export function PauseSubscription({
         ))}
       </div>
       <p className="font-mono text-[11px] leading-relaxed text-ink/50">
-        Šis mėnuo jau apmokėtas ir negrąžinamas. Kiti {months} mokėjimai
-        praleidžiami, nauji rinkiniai tuo metu nenuomojami. Pristabdyti galima
-        tik grąžinus visus rinkinius.
+        Šis mėnuo jau apmokėtas ir negrąžinamas. Praleidžiama mokėjimų: {months}
+        . Tuo metu nauji rinkiniai nenuomojami. Pristabdyti galima tik grąžinus
+        visus rinkinius.
       </p>
       <div className="grid grid-cols-2 gap-2">
         <button
-          onClick={() => onPause(months)}
+          onClick={() => {
+            setIsChoosing(false)
+            onPause(months)
+          }}
           disabled={busy}
           className={`${BUTTON} bg-ink text-paper`}
         >

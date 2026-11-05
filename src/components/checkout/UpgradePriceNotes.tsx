@@ -1,6 +1,7 @@
 const euro = (value: number) => `€${value.toFixed(2)}`
 
 type UpgradePriceNotesProps = {
+  // List price per month; a coupon is shown separately and may not recur.
   monthlyPrice: number
   isAnnual: boolean
   // Monthly door-delivery fee kept on the plan; 0 when not on the plan.
@@ -22,10 +23,12 @@ export function UpgradePriceNotes({
   const notes = [
     deliveryFee > 0 &&
       `+ ${euro(deliveryFee)}/mėn. pristatymas į duris (jau yra tavo plane).`,
-    isAnnual && `Iš viso ${euro(periodTotal)} – mokama iš karto už 12 mėnesių.`,
+    isAnnual && `Metinė plano kaina – ${euro(periodTotal)}.`,
     !isAnnual && deliveryFee > 0 && `Iš viso ${euro(periodTotal)}/mėn.`,
     isSwap &&
-      "Keičiant planą nepanaudota dabartinio plano dalis įskaičiuojama, todėl pirmas mokėjimas bus mažesnis. Antra prenumerata nekuriama.",
+      (isAnnual
+        ? "Nepanaudota dabartinio plano dalis įskaičiuojama į pirmą metinį mokėjimą. Antra prenumerata nekuriama."
+        : "Dabar sumokėsi tik kainų skirtumą, vėliau – pilną mėnesio kainą. Antra prenumerata nekuriama."),
   ].filter((note): note is string => typeof note === "string")
 
   if (notes.length === 0) return null

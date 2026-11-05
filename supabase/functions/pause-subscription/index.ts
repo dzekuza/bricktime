@@ -91,10 +91,13 @@ Deno.serve(async (req) => {
           pause_collection: "",
         })
       }
-      await supabase
+      const { error: resumeError } = await supabase
         .from("subscribers")
         .update({ paused_until: rentalsFrom })
         .eq("id", user.id)
+      if (resumeError) {
+        throw new Error(`Resume not saved: ${resumeError.message}`)
+      }
       // A pause request racing this one may have won in Stripe; mirror it.
       const after = await stripe.subscriptions.retrieve(subscription.id)
       if (after.pause_collection) {
@@ -138,17 +141,19 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Runs past `months` renewals after the paid period, so exactly that
-    // many invoices are voided.
-    const resumesAt = new Date(subscription.current_period_end * 1000)
-    resumesAt.setMonth(resumesAt.getMonth() + months)
-    resumesAt.setHours(resumesAt.getHours() + 1)
+    // The renewal at the end of the paid period and the next `months - 1`
+    // are voided; collection resumes an hour after the last skipped one.
+    // Rentals stay blocked until the first paid renewal, `months` later.
+    const periodEnd = new Date(subscription.current_period_end * 1000)
+    const resumesAt = addMonthsClamped(periodEnd, months - 1)
+    resumesAt.setUTCHours(resumesAt.getUTCHours() + 1)
+    const rentalsBlockedUntil = addMonthsClamped(periodEnd, months)
 
     // Blocks new rentals first, under the same lock the rental trigger takes,
     // and refuses if a set is still at home; Stripe is only paused after.
     const { data: isStarted, error: startError } = await supabase.rpc(
       "begin_subscription_pause",
-      { p_subscriber: user.id, p_until: resumesAt.toISOString() }
+      { p_subscriber: user.id, p_until: rentalsBlockedUntil.toISOString() }
     )
     if (startError) {
       throw new Error(`begin_subscription_pause: ${startError.message}`)
@@ -172,7 +177,8 @@ Deno.serve(async (req) => {
             resumes_at: Math.floor(resumesAt.getTime() / 1000),
           },
         },
-        { idempotencyKey: `pause-${subscription.id}-${resumesAt.getTime()}` }
+        // Per request, so a pause after an undo isn't replayed as the old one.
+        { idempotencyKey: `pause-${crypto.randomUUID()}` }
       )
     } catch (stripeErr) {
       // A timeout can still have paused the subscription, so set the flag
@@ -186,12 +192,28 @@ Deno.serve(async (req) => {
       throw stripeErr
     }
 
-    return json({ status: "paused", pausedUntil: resumesAt.toISOString() })
+    return json({
+      status: "paused",
+      pausedUntil: rentalsBlockedUntil.toISOString(),
+    })
   } catch (err) {
     console.error("pause-subscription failed:", (err as Error).message)
     return json({ error: "Nepavyko. Bandyk dar kartą." }, 400)
   }
 })
+
+// Same day next month(s), clamped to the month's last day (Jan 31 -> Feb 28).
+function addMonthsClamped(date: Date, months: number): Date {
+  const target = new Date(date)
+  const day = target.getUTCDate()
+  target.setUTCDate(1)
+  target.setUTCMonth(target.getUTCMonth() + months)
+  const lastDay = new Date(
+    Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)
+  ).getUTCDate()
+  target.setUTCDate(Math.min(day, lastDay))
+  return target
+}
 
 // paused_until from Stripe's pause_collection; cleared when not paused.
 async function syncPausedUntil(

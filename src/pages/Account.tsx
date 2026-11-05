@@ -101,6 +101,8 @@ interface SubscriberData {
   cancel_requested?: boolean
   cancel_at?: string | null
   paused_until?: string | null
+  current_period_start?: string | null
+  current_period_end?: string | null
 }
 
 interface AchievementRecord {
@@ -410,7 +412,7 @@ export default function Account() {
       supabase
         .from("subscribers")
         .select(
-          "plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code, home_delivery, pending_plan, cancel_requested, cancel_at, paused_until"
+          "plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code, home_delivery, pending_plan, cancel_requested, cancel_at, paused_until, current_period_start, current_period_end"
         )
         .eq("id", user.id)
         .single(),
@@ -565,6 +567,14 @@ export default function Account() {
       tierOptions[0] ??
       FALLBACK_TIER)
     : (tierOptions[0] ?? FALLBACK_TIER)
+  // Stripe's billing period tells monthly from annual; a period over ~40 days
+  // is a yearly one. Unknown (not synced yet) counts as monthly.
+  const isAnnualBilling =
+    subscriber?.current_period_start != null &&
+    subscriber.current_period_end != null &&
+    Date.parse(subscriber.current_period_end) -
+      Date.parse(subscriber.current_period_start) >
+      40 * 86_400_000
   const isTierDowngrade =
     hasSubscription &&
     (tierOptions[selectedTier]?.price ?? 0) < activeTier.price
@@ -1372,7 +1382,8 @@ export default function Account() {
                       {activeTier.name}
                     </p>
                     <p className="mt-1 font-mono text-[13px] text-ink/60">
-                      €{activeTier.price}/mėn. · kasmet atnaujinama
+                      €{activeTier.price}/mėn. ·{" "}
+                      {isAnnualBilling ? "kasmet" : "kas mėnesį"} atnaujinama
                     </p>
                   </div>
                   <span className="rounded-full border-2 border-ink bg-green-400 px-3 py-1 font-mono text-[10px] tracking-[.14em] text-ink uppercase">
@@ -1417,17 +1428,19 @@ export default function Account() {
                         Atšaukti
                       </button>
                     </div>
-                    <PauseSubscription
-                      pausedUntil={
-                        subscriber?.paused_until &&
-                        !(Date.parse(subscriber.paused_until) <= Date.now())
-                          ? subscriber.paused_until
-                          : null
-                      }
-                      busy={subscriptionBusy}
-                      onPause={(months) => pauseSubscription(months)}
-                      onResume={() => pauseSubscription(null)}
-                    />
+                    {!isAnnualBilling && (
+                      <PauseSubscription
+                        pausedUntil={
+                          subscriber?.paused_until &&
+                          !(Date.parse(subscriber.paused_until) <= Date.now())
+                            ? subscriber.paused_until
+                            : null
+                        }
+                        busy={subscriptionBusy}
+                        onPause={(months) => pauseSubscription(months)}
+                        onResume={() => pauseSubscription(null)}
+                      />
+                    )}
                     <p className="text-center font-mono text-[10px] text-ink/30">
                       Kortelė · istorija
                     </p>

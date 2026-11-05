@@ -22,6 +22,10 @@ const STATUS_BADGES: Record<string, { label: string; className: string }> = {
     label: "Panaudotas",
     className: "border-ink/30 bg-cream text-ink/60",
   },
+  pending: {
+    label: "Laukia apmokėjimo",
+    className: "bg-brand-yellow text-ink",
+  },
 }
 const STATUS_EXPIRED = {
   label: "Pasibaigęs",
