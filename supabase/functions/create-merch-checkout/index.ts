@@ -174,7 +174,7 @@ type Discount =
 const GIFT_CARD_REJECTED =
   "Kodas nerastas, nebegalioja arba šiuo metu naudojamas"
 const OWN_OPEN_CHECKOUT =
-  "Šį kodą jau naudoji kitame neužbaigtame užsakyme. Pabandyk po 30 min."
+  "Šį kodą jau naudoji kitame neužbaigtame užsakyme. Pabandyk po 35 min."
 
 // Coupons are checked first; a code that isn't one is tried as a gift card.
 // A gift card is single-use, so any value above the item price is not kept.

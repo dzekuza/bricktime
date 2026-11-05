@@ -124,6 +124,7 @@ async function handleMerchCheckout(session: Stripe.Checkout.Session) {
     session.payment_status !== "paid" &&
     session.payment_status !== "no_payment_required"
   ) {
+    await extendMerchHolds(session)
     return
   }
 
@@ -223,24 +224,88 @@ async function countMerchCoupon(session: Stripe.Checkout.Session) {
       p_code: couponCode,
     })
     if (error) {
+      // Keep the hold: it still stands in for this use until it lapses, so
+      // max_uses is not exceeded while the miscount is looked into.
       console.error(
         `Coupon ${couponCode} not counted for merch session ${session.id}: ${error.message}`
       )
+      return
     }
     // The use is now in uses_count, so the checkout's reservation must stop
     // counting against max_uses as well.
+    // Only logged: this runs on the first delivery only, and throwing would
+    // skip the order email on the retry. A leftover hold lapses on its own.
     const holdId = session.metadata?.couponHoldId
     if (holdId) {
-      const { error: holdError } = await supabase
-        .from("coupon_holds")
-        .delete()
-        .eq("id", holdId)
-      if (holdError) {
-        console.error(
-          `Coupon hold ${holdId} not released for merch session ${session.id}: ${holdError.message}`
-        )
-      }
+      await deleteCouponHold(holdId, session.id).catch((e: Error) =>
+        console.error(e.message)
+      )
     }
+  }
+}
+
+// A delayed payment can take days to settle, far past the checkout hold, so
+// the code stays reserved until Stripe reports success or failure.
+const DELAYED_PAYMENT_HOLD_DAYS = 14
+
+async function extendMerchHolds(session: Stripe.Checkout.Session) {
+  const holdUntil = new Date(
+    Date.now() + DELAYED_PAYMENT_HOLD_DAYS * 86_400_000
+  ).toISOString()
+  const holdId = session.metadata?.couponHoldId
+  if (holdId) {
+    const { error } = await supabase
+      .from("coupon_holds")
+      .update({ held_until: holdUntil })
+      .eq("id", holdId)
+    if (error) {
+      throw new Error(
+        `Coupon hold ${holdId} not extended for merch session ${session.id}: ${error.message}`
+      )
+    }
+  }
+  const giftCardCode = session.metadata?.giftCardCode
+  if (giftCardCode) {
+    const { error } = await supabase
+      .from("gift_cards")
+      .update({ reserved_until: holdUntil })
+      .eq("code", giftCardCode)
+      .eq("status", "active")
+    if (error) {
+      throw new Error(
+        `Gift card hold not extended for merch session ${session.id}: ${error.message}`
+      )
+    }
+  }
+}
+
+// A failed delayed payment frees the code straight away rather than after
+// the extended hold.
+async function releaseMerchHolds(session: Stripe.Checkout.Session) {
+  const holdId = session.metadata?.couponHoldId
+  if (holdId) await deleteCouponHold(holdId, session.id)
+  const giftCardCode = session.metadata?.giftCardCode
+  if (giftCardCode) {
+    const { error } = await supabase
+      .from("gift_cards")
+      .update({ reserved_until: null, reserved_by: null })
+      .eq("code", giftCardCode)
+      .eq("status", "active")
+    if (error) {
+      throw new Error(
+        `Gift card hold not released for merch session ${session.id}: ${error.message}`
+      )
+    }
+  }
+}
+
+// A hold left behind would block the coupon's last use until it lapses.
+async function deleteCouponHold(holdId: string, sessionId: string) {
+  const { error } = await supabase.from("coupon_holds").delete().eq("id", holdId)
+  if (error) {
+    throw new Error(
+      `Coupon hold ${holdId} not released for merch session ${sessionId}: ${error.message}`
+    )
   }
 }
 
@@ -552,6 +617,14 @@ Deno.serve(async (req) => {
         }
         if (session.metadata?.type === "merch") {
           await handleMerchCheckout(session)
+        }
+        break
+      }
+
+      case "checkout.session.async_payment_failed": {
+        const session = event.data.object as Stripe.Checkout.Session
+        if (session.metadata?.type === "merch") {
+          await releaseMerchHolds(session)
         }
         break
       }
