@@ -1,3 +1,8 @@
+## 2026-11-06 — pre-launch test data wiped
+- **Changed:** live DB via the SQL editor (the Supabase connector refuses bulk deletes): deleted 5 rentals, 1 merch order (stock unit restored), 21 gift cards, 2 penalties, 1 missing-part request, 1 coupon; reset all 10 subscribers to no subscription. Stripe test data deleted from the Stripe dashboard by the owner.
+- **Status:** verified — all transactional tables empty, subscribers reset, 97 products / 6 plans / 4 merch items intact. Duplicate-subscription and unpaid-gift-card follow-ups are moot.
+- **Next:** a real end-to-end test purchase on production.
+
 ## 2026-11-05 — #96, #97, #98 merged; functions redeployed from main
 - **Changed:** merged #97 (after resolving its conflict with #96) and #98 (retargeted to main) into main at `b48260f`. Compared every deployed function with main and redeployed the five that differed: stripe-webhook v16, create-gift-card-checkout v8, lpexpress v6, pause-subscription v2, create-checkout v12.
 - **Status:** live functions match main; smoke-tested. Not tested end to end with a real payment.
