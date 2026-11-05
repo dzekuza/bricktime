@@ -29,3 +29,7 @@ export const MERCH_ORDER_STATUS_VARIANT: Record<
   cancelled: "destructive",
   refunded: "destructive",
 }
+
+export const STOCK_SHORT_LABEL = "Out of stock"
+export const STOCK_SHORT_HINT =
+  "Paid, but no unit of this size was left when the order came in. Restock, offer another size, or refund."
