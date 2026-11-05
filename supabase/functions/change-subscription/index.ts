@@ -152,12 +152,24 @@ Deno.serve(async (req) => {
 
     const { data: subscriber } = await supabase
       .from("subscribers")
-      .select("stripe_subscription_id, plan")
+      .select("stripe_subscription_id, plan, paused_until")
       .eq("id", user.id)
       .maybeSingle()
 
     if (!subscriber?.stripe_subscription_id) {
       return json({ changed: false, reason: "no_active_subscription" })
+    }
+
+    // A plan change while paused would bill a proration invoice that could
+    // stand in for the skipped (voided) renewal and lift the rental block.
+    if (
+      subscriber.paused_until &&
+      new Date(subscriber.paused_until) > new Date()
+    ) {
+      return json(
+        { error: "Prenumerata pristabdyta – pirmiausia ją atnaujink." },
+        400
+      )
     }
 
     // A stored id Stripe no longer knows (deleted, or from the other Stripe

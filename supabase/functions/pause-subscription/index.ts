@@ -95,6 +95,12 @@ Deno.serve(async (req) => {
         .from("subscribers")
         .update({ paused_until: rentalsFrom })
         .eq("id", user.id)
+      // A pause request racing this one may have won in Stripe; mirror it.
+      const after = await stripe.subscriptions.retrieve(subscription.id)
+      if (after.pause_collection) {
+        await syncPausedUntil(supabase, user.id, after)
+        return json({ error: "Prenumerata vis dar pristabdyta." }, 409)
+      }
       return json({ status: "resumed", rentalsFrom })
     }
 
@@ -158,17 +164,25 @@ Deno.serve(async (req) => {
     }
 
     try {
-      await stripe.subscriptions.update(subscription.id, {
-        pause_collection: {
-          behavior: "void",
-          resumes_at: Math.floor(resumesAt.getTime() / 1000),
+      await stripe.subscriptions.update(
+        subscription.id,
+        {
+          pause_collection: {
+            behavior: "void",
+            resumes_at: Math.floor(resumesAt.getTime() / 1000),
+          },
         },
-      })
+        { idempotencyKey: `pause-${subscription.id}-${resumesAt.getTime()}` }
+      )
     } catch (stripeErr) {
-      await supabase
-        .from("subscribers")
-        .update({ paused_until: null })
-        .eq("id", user.id)
+      // A timeout can still have paused the subscription, so set the flag
+      // from what Stripe actually holds instead of assuming it failed.
+      const actual = await stripe.subscriptions
+        .retrieve(subscription.id)
+        .catch(() => null)
+      if (actual) {
+        await syncPausedUntil(supabase, user.id, actual)
+      }
       throw stripeErr
     }
 
@@ -178,3 +192,23 @@ Deno.serve(async (req) => {
     return json({ error: "Nepavyko. Bandyk dar kartą." }, 400)
   }
 })
+
+// paused_until from Stripe's pause_collection; cleared when not paused.
+async function syncPausedUntil(
+  // deno-lint-ignore no-explicit-any
+  supabase: any,
+  userId: string,
+  subscription: Stripe.Subscription
+) {
+  const pause = subscription.pause_collection
+  await supabase
+    .from("subscribers")
+    .update({
+      paused_until: pause
+        ? pause.resumes_at
+          ? new Date(pause.resumes_at * 1000).toISOString()
+          : "infinity"
+        : null,
+    })
+    .eq("id", userId)
+}
