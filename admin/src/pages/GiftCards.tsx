@@ -22,6 +22,8 @@ function statusBadge(
   if (status === "used" || status === "redeemed")
     return { label: "Išnaudota", variant: "secondary" }
   if (status === "pending") return { label: "Neapmokėta", variant: "outline" }
+  if (status === "expired")
+    return { label: "Pasibaigusi", variant: "destructive" }
   if (new Date(expiresAt) < new Date())
     return { label: "Pasibaigusi", variant: "destructive" }
   return { label: "Aktyvi", variant: "default" }

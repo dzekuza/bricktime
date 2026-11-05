@@ -1,7 +1,11 @@
-## 2026-11-05 — #98 cubic review round
-- **Changed:** create-checkout fails closed (stored subscription checked, Stripe errors rethrown, all pages, incomplete counted, payment-problem message, 10 s idempotency key); webhook guard on every path, period never moves back, pause block kept, invoice fetched only after a pause; gift card row saved before checkout URL, email then activate; pause dates fixed (months-1, clamped), re-entry guarded; Legenda courier allowed; UI fixes (two-code swap block, stale-row fallback, history refresh, monthly/annual label, pause a11y + wording, pending gift cards, admin used/pending cards).
-- **Status:** pushed to #98; 3 migrations applied live; five functions changed since the deploy are NOT redeployed.
-- **Next:** redeploy those five; merge #96 → #97 → #98; Stripe cleanup (duplicate subscriptions, older unpaid gift cards); backfill billing periods.
+## 2026-11-05 — #98 cubic review rounds
+- **Checkout guard:** create-checkout fails closed (stored subscription checked, Stripe errors rethrown, all pages listed, `incomplete` counted), payment-problem message, 10 s idempotency key.
+- **Webhook:** stored-subscription guard on every path and throws on a failed read; billing period never moves back; longer pause block kept; invoice fetched only after a pause; Omnisend retried only on 429/5xx.
+- **Gift cards:** row saved before the checkout URL; email first, then activate; pending shown as awaiting payment; admin counts used/pending/expired correctly.
+- **Pause:** dates fixed (months-1, clamped day), re-entry guarded, undo save checked, per-request idempotency key, hidden on annual plans.
+- **Rentals:** Legenda courier allowed; courier needs name, phone and address; two-code swap blocked; stale-row fallback to checkout; history refresh; monthly/annual renewal label.
+- **Status:** pushed to #98; migrations applied live; six changed functions (create-checkout, stripe-webhook, create-gift-card-checkout, lpexpress, pause-subscription, change-subscription) NOT redeployed — waiting for #96/#97/#98 to merge, then compare live with main.
+- **Next:** merge #96 → #97 → #98 (retarget to main); redeploy what differs; Stripe cleanup (duplicate subscriptions, older unpaid gift cards); backfill billing periods.
 
 ## 2026-11-05 — edge functions deployed (combined #96 + #97 + #98)
 - **Changed:** deployed 9 functions via Supabase MCP from local branch `deploy/combined` (merge of fix/merch-payment-hardening, feat/merch-orders-and-fixes, fix/billing-safety). Pause hardening from security reviews landed first on #98 (atomic start, resume keeps unpaid month blocked, webhook keeps the block, timeout-safe, no plan change while paused, 'infinity' fails closed).
