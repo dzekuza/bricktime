@@ -24,12 +24,12 @@ owner-only order lookup, plus briksiai/plan-summary/analytics fixes).
 
 ## In progress
 
-- #97 addressing cubic review: delayed payments keep coupon/gift card holds for 14 days (new `checkout.session.async_payment_failed` handler releases them), coupon hold kept if `redeem_coupon` fails, briksiai warning waits for the plan to load, downgrade wording fixes.
+- #97 addressing cubic review: merch checkouts that hold a coupon or gift card allow card payment only (holds never outlive their 35 min), coupon hold kept if `redeem_coupon` fails, briksiai warning waits for the plan to load, downgrade wording fixes.
 
 ## Next up
 
 1. Merge #96 first, then rebase #97 onto main and resolve the overlap in `create-merch-checkout`, `stripe-webhook`, `change-subscription`.
-2. Deploy `create-merch-checkout`, `stripe-webhook`, `change-subscription` after both merge, and enable `checkout.session.async_payment_failed` on the Stripe webhook endpoint.
+2. Deploy `create-merch-checkout`, `stripe-webhook`, `change-subscription` after both merge, and make sure `checkout.session.async_payment_succeeded` is enabled on the Stripe webhook endpoint — delayed merch payments without a code are recorded from it.
 3. Deploy the storefront (`/merch/aciu`, code field, briksiai and summary fixes).
 4. Omnisend automation for `merch order placed`; delete test order #1003; one real gift-card purchase end to end.
 5. Backfill merch payments taken before 2026-11-05 from Stripe (needs Stripe MCP auth).
