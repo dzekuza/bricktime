@@ -256,7 +256,7 @@ async function resolveDiscount(
     .eq("code", code)
     .eq("status", "active")
     .gt("expires_at", now.toISOString())
-    .or(`reserved_until.is.null,reserved_until.lte."${now.toISOString()}"`)
+    .or(`reserved_until.is.null,reserved_until.lte.${now.toISOString()}`)
     .select("amount_cents")
     .maybeSingle()
   if (holdError) {

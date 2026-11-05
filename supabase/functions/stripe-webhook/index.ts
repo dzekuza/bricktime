@@ -565,9 +565,100 @@ async function updateSubscriberByStripeIds(
     update.pending_home_delivery = null
     update.pending_schedule_id = null
   }
-  if (update.status === "cancelled") update.cancel_requested = false
+  if (update.status === "cancelled") {
+    update.cancel_requested = false
+    update.paused_until = null
+  }
 
   await supabase.from("subscribers").update(update).eq("id", subscriber.id)
+}
+
+async function handleSubscriptionCheckout(session: Stripe.Checkout.Session) {
+  if (
+    session.payment_status !== "paid" &&
+    session.payment_status !== "no_payment_required"
+  ) {
+    return
+  }
+
+  // Redeem only once the session completes — creating it must not burn the card.
+  const giftCardCode = session.metadata?.giftCardCode
+  if (giftCardCode) {
+    const { data: redeemed, error: redeemError } = await supabase
+      .from("gift_cards")
+      .update({
+        status: "used",
+        redeemed_at: new Date().toISOString(),
+        redeemed_by_user_id: session.client_reference_id,
+        reserved_until: null,
+        reserved_by: null,
+      })
+      .eq("code", giftCardCode)
+      .eq("status", "active")
+      .select("code")
+    if (redeemError) throw redeemError
+    // Zero rows means another checkout redeemed the card first; the
+    // discount was already granted, so flag it for manual review.
+    if (!redeemed?.length) {
+      console.error(
+        `Gift card ${giftCardCode} already redeemed; session ${session.id} was discounted`
+      )
+    }
+  }
+
+  // Count the coupon use only once the session completes. Failure means
+  // the coupon ran out while this checkout was open; the discount was
+  // already granted, so flag it for manual review rather than failing.
+  const couponCode = session.metadata?.couponCode
+  if (couponCode) {
+    const { error: couponError } = await supabase.rpc("redeem_coupon", {
+      p_code: couponCode,
+    })
+    if (couponError) {
+      console.error(
+        `Coupon ${couponCode} not counted for session ${session.id}: ${couponError.message}`
+      )
+    }
+  }
+
+  const planKey = parsePlanKey(session.metadata?.planKey)
+  const homeDelivery = parseHomeDelivery(session.metadata?.homeDelivery)
+  const customerId =
+    typeof session.customer === "string"
+      ? session.customer
+      : session.customer?.id
+  const subscriptionId =
+    typeof session.subscription === "string"
+      ? session.subscription
+      : session.subscription?.id
+
+  const subscriber = await findSubscriber({
+    userId: session.client_reference_id,
+    email: session.customer_details?.email ?? session.customer_email,
+    customerId,
+    subscriptionId,
+  })
+
+  // Same rule as updateSubscriberByStripeIds: while the stored
+  // subscription is live, a different one must not take over the row.
+  const isOtherLive =
+    subscriber &&
+    subscriptionId &&
+    (await isStoredSubscriptionOtherLive(subscriber.id, subscriptionId))
+  if (subscriber && !isOtherLive) {
+    const update: Record<string, unknown> = {
+      status: "active",
+      stripe_customer_id: customerId ?? null,
+      stripe_subscription_id: subscriptionId ?? null,
+      cancel_at: null,
+      paused_until: null,
+    }
+
+    if (planKey) update.plan = planKey
+    if (homeDelivery !== undefined) update.home_delivery = homeDelivery
+
+    await supabase.from("subscribers").update(update).eq("id", subscriber.id)
+  }
 }
 
 Deno.serve(async (req) => {
@@ -618,86 +709,8 @@ Deno.serve(async (req) => {
           break
         }
 
-        if (session.mode !== "subscription") break
-
-        // Redeem only once the session completes — creating it must not burn the card.
-        const giftCardCode = session.metadata?.giftCardCode
-        if (giftCardCode) {
-          const { data: redeemed, error: redeemError } = await supabase
-            .from("gift_cards")
-            .update({
-              status: "used",
-              redeemed_at: new Date().toISOString(),
-              redeemed_by_user_id: session.client_reference_id,
-              reserved_until: null,
-            })
-            .eq("code", giftCardCode)
-            .eq("status", "active")
-            .select("code")
-          if (redeemError) throw redeemError
-          // Zero rows means another checkout redeemed the card first; the
-          // discount was already granted, so flag it for manual review.
-          if (!redeemed?.length) {
-            console.error(
-              `Gift card ${giftCardCode} already redeemed; session ${session.id} was discounted`
-            )
-          }
-        }
-
-        // Count the coupon use only once the session completes. Failure means
-        // the coupon ran out while this checkout was open; the discount was
-        // already granted, so flag it for manual review rather than failing.
-        const couponCode = session.metadata?.couponCode
-        if (couponCode) {
-          const { error: couponError } = await supabase.rpc("redeem_coupon", {
-            p_code: couponCode,
-          })
-          if (couponError) {
-            console.error(
-              `Coupon ${couponCode} not counted for session ${session.id}: ${couponError.message}`
-            )
-          }
-        }
-
-        const planKey = parsePlanKey(session.metadata?.planKey)
-        const homeDelivery = parseHomeDelivery(session.metadata?.homeDelivery)
-        const customerId =
-          typeof session.customer === "string"
-            ? session.customer
-            : session.customer?.id
-        const subscriptionId =
-          typeof session.subscription === "string"
-            ? session.subscription
-            : session.subscription?.id
-
-        const subscriber = await findSubscriber({
-          userId: session.client_reference_id,
-          email: session.customer_details?.email ?? session.customer_email,
-          customerId,
-          subscriptionId,
-        })
-
-        // Same rule as updateSubscriberByStripeIds: while the stored
-        // subscription is live, a different one must not take over the row.
-        const isOtherLive =
-          subscriber &&
-          subscriptionId &&
-          (await isStoredSubscriptionOtherLive(subscriber.id, subscriptionId))
-        if (subscriber && !isOtherLive) {
-          const update: Record<string, unknown> = {
-            status: "active",
-            stripe_customer_id: customerId ?? null,
-            stripe_subscription_id: subscriptionId ?? null,
-            cancel_at: null,
-          }
-
-          if (planKey) update.plan = planKey
-          if (homeDelivery !== undefined) update.home_delivery = homeDelivery
-
-          await supabase
-            .from("subscribers")
-            .update(update)
-            .eq("id", subscriber.id)
+        if (session.mode === "subscription") {
+          await handleSubscriptionCheckout(session)
         }
         break
       }
@@ -713,6 +726,9 @@ Deno.serve(async (req) => {
         }
         if (session.mode === "payment" && session.metadata?.code) {
           await handleGiftCardCheckout(session)
+        }
+        if (session.mode === "subscription") {
+          await handleSubscriptionCheckout(session)
         }
         break
       }

@@ -19,6 +19,7 @@ const BUTTON =
 
 interface PauseSubscriptionProps {
   pausedUntil: string | null
+  currentPeriodEnd?: string | null
   busy: boolean
   onPause: (months: number) => void
   onResume: () => void
@@ -28,6 +29,7 @@ interface PauseSubscriptionProps {
 // edge function refuses a pause while sets are still at home.
 export function PauseSubscription({
   pausedUntil,
+  currentPeriodEnd,
   busy,
   onPause,
   onResume,
@@ -36,22 +38,34 @@ export function PauseSubscription({
   const [months, setMonths] = useState<number>(1)
 
   if (pausedUntil) {
+    const pausedUntilMs = Date.parse(pausedUntil)
+    const periodEndMs = currentPeriodEnd
+      ? Date.parse(currentPeriodEnd)
+      : Number.NaN
+    // Once pausedUntil is within the current (already voided) period, Stripe
+    // will already bill at the next renewal; only the unpaid month remains.
+    const canResume =
+      Number.isNaN(pausedUntilMs) ||
+      Number.isNaN(periodEndMs) ||
+      pausedUntilMs > periodEndMs
     return (
       <div className="flex flex-col gap-2 rounded-xl border-2 border-ink/10 bg-cream p-4">
         <p className="text-[13px] text-ink">
           Nauji rinkiniai nenuomojami iki {formatDate(pausedUntil)} – tada
           prasideda kitas apmokėtas laikotarpis.
         </p>
-        <button
-          onClick={() => {
-            setIsChoosing(false)
-            onResume()
-          }}
-          disabled={busy}
-          className={`${BUTTON} bg-paper text-ink`}
-        >
-          Atnaujinti dabar
-        </button>
+        {canResume && (
+          <button
+            onClick={() => {
+              setIsChoosing(false)
+              onResume()
+            }}
+            disabled={busy}
+            className={`${BUTTON} bg-paper text-ink`}
+          >
+            Atnaujinti dabar
+          </button>
+        )}
       </div>
     )
   }

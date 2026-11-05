@@ -140,6 +140,7 @@ export default function Checkout() {
   const [loading, setLoading] = useState(true)
   const [userSub, setUserSub] = useState<(typeof tiers)[0] | null>(null)
   const [cancelAt, setCancelAt] = useState<string | null>(null)
+  const [pausedUntil, setPausedUntil] = useState<string | null>(null)
   const [portalLoading, setPortalLoading] = useState(false)
   const [portalError, setPortalError] = useState("")
   const [confirmed, setConfirmed] = useState(false)
@@ -206,24 +207,32 @@ export default function Checkout() {
     if (!user) {
       setUserSub(null)
       setCancelAt(null)
+      setPausedUntil(null)
       return
     }
     supabase
       .from("subscribers")
       .select(
-        "plan, status, cancel_at, home_delivery, name, last_name, phone, street, house_no, flat, city, postal_code"
+        "plan, status, cancel_at, paused_until, home_delivery, name, last_name, phone, street, house_no, flat, city, postal_code"
       )
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
         if (data?.status === "active") {
+          const rawPaused = data.paused_until ?? null
           setUserSub(tierByName[data.plan] ?? null)
           setCancelAt(data.cancel_at ?? null)
+          setPausedUntil(
+            rawPaused && !(Date.parse(rawPaused) <= Date.now())
+              ? rawPaused
+              : null
+          )
           setHomeDelivery(data.home_delivery ?? false)
           setHasPlanHomeDelivery(data.home_delivery ?? false)
         } else {
           setUserSub(null)
           setCancelAt(null)
+          setPausedUntil(null)
           setHasPlanHomeDelivery(false)
         }
         if (data) {
@@ -278,12 +287,17 @@ export default function Checkout() {
   }, [cancelAt])
   const withinCancellationGrace =
     daysUntilCancel === null || daysUntilCancel >= CANCELLATION_GRACE_DAYS
+  const isPaused = pausedUntil != null
   // Mirrors the `orders_assert_product_available` trigger so a member is told
   // up front instead of hitting a failed insert at the end of checkout.
   const isRentedOut =
     product != null && productAvailability.get(product.id) === 0
   const isEligible =
-    hasTier && hasCredits && withinCancellationGrace && !isRentedOut
+    hasTier &&
+    hasCredits &&
+    withinCancellationGrace &&
+    !isPaused &&
+    !isRentedOut
 
   async function openBillingPortal() {
     if (!user?.email) return
@@ -311,7 +325,11 @@ export default function Checkout() {
 
   // ── contact / delivery readiness ─────────────────────────────────────────
   const hasPhone = !!profileData?.phone?.trim()
+  const hasName = !!(
+    profileData?.name?.trim() || profileData?.last_name?.trim()
+  )
   const hasAddress = !!(
+    hasName &&
     profileData?.street?.trim() &&
     profileData?.house_no?.trim() &&
     profileData?.city?.trim() &&
@@ -538,6 +556,8 @@ export default function Checkout() {
       if (!row) return
       setUserSub(tierByName[row.plan] ?? null)
       setHomeDelivery(row.home_delivery ?? false)
+      setHasPlanHomeDelivery(row.home_delivery ?? false)
+      setPausedUntil(null)
     })
     return () => controller.abort()
   }, [user, params])
@@ -548,14 +568,15 @@ export default function Checkout() {
     setConfirmError("")
     // The server copies this address onto the order for the courier label
     // and refuses a courier rental without it.
-    const isAddressComplete = [
-      profileData?.name,
-      profileData?.phone,
-      profileData?.street,
-      profileData?.house_no,
-      profileData?.city,
-      profileData?.postal_code,
-    ].every((v) => v != null && v.trim() !== "")
+    const isAddressComplete =
+      hasName &&
+      [
+        profileData?.phone,
+        profileData?.street,
+        profileData?.house_no,
+        profileData?.city,
+        profileData?.postal_code,
+      ].every((v) => v != null && v.trim() !== "")
     if (homeDelivery && !isAddressComplete) {
       setConfirmError(
         "Pristatymui į duris reikia vardo, telefono ir pilno adreso. Papildyk juos skiltyje „Kontaktai ir adresas“."
@@ -1159,7 +1180,7 @@ export default function Checkout() {
                               `${profileData?.street} ${profileData?.house_no}${profileData?.flat ? `-${profileData.flat}` : ""}, ${profileData?.city} ${profileData?.postal_code}`
                             ) : (
                               <span className="font-bold text-brand-orange">
-                                Užpildyk pristatymo adresą
+                                Užpildyk vardą ir pristatymo adresą
                               </span>
                             )}
                           </p>
@@ -1230,7 +1251,7 @@ export default function Checkout() {
                         {!hasPhone
                           ? "Įvesk telefono numerį, kad galėtum tęsti"
                           : homeDelivery && !hasAddress
-                            ? "Užpildyk pristatymo adresą, kad galėtum tęsti"
+                            ? "Užpildyk vardą ir pristatymo adresą, kad galėtum tęsti"
                             : !homeDelivery && !terminal
                               ? "Pasirink paštomatą, kad galėtum tęsti"
                               : "Sutik su parduotuvės taisyklėmis, kad galėtum tęsti"}
@@ -1247,6 +1268,52 @@ export default function Checkout() {
                         </span>
                       ))}
                     </div>
+                  </div>
+                </>
+              ) : hasTier && isPaused ? (
+                <>
+                  {/* Subscription is paused */}
+                  <div className="border-b-2 border-ink/10 pb-5">
+                    <h2 className="heading-display text-d-md text-ink">
+                      Prenumerata pristabdyta
+                    </h2>
+                    <p className="mt-1 text-[13px] text-ink/50">
+                      Kol prenumerata pristabdyta, nauji rinkiniai nenuomojami.
+                      Atnaujink ją savo paskyroje, kad galėtum tęsti.
+                    </p>
+                  </div>
+
+                  <div className="mt-auto pt-6">
+                    <Button
+                      asChild
+                      size="lg"
+                      className="brick-hover-sm h-12 w-full rounded-full border-2 border-ink bg-ink text-[15px] font-bold text-paper"
+                    >
+                      <Link to="/account">Valdyti prenumeratą →</Link>
+                    </Button>
+                  </div>
+                </>
+              ) : hasTier && isRentedOut ? (
+                <>
+                  {/* Product is currently rented out */}
+                  <div className="border-b-2 border-ink/10 pb-5">
+                    <h2 className="heading-display text-d-md text-ink">
+                      Rinkinys išnuomotas
+                    </h2>
+                    <p className="mt-1 text-[13px] text-ink/50">
+                      Šis rinkinys šiuo metu yra išnuomotas kitam nariui.
+                      Pasirink kitą rinkinį iš katalogo.
+                    </p>
+                  </div>
+
+                  <div className="mt-auto pt-6">
+                    <Button
+                      asChild
+                      size="lg"
+                      className="brick-hover-sm h-12 w-full rounded-full border-2 border-ink bg-ink text-[15px] font-bold text-paper"
+                    >
+                      <Link to="/archive">Naršyti rinkinius →</Link>
+                    </Button>
                   </div>
                 </>
               ) : hasTier && !withinCancellationGrace ? (
@@ -1599,6 +1666,26 @@ export default function Checkout() {
                 </span>
                 <span className="font-display text-[20px] leading-none">→</span>
               </button>
+            ) : hasTier && isPaused ? (
+              <Link
+                to="/account"
+                className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-ink px-5 py-3.5 text-paper"
+              >
+                <span className="font-display text-[18px] leading-none">
+                  Prenumerata pristabdyta — valdyti paskyroje
+                </span>
+                <span className="font-display text-[24px] leading-none">→</span>
+              </Link>
+            ) : hasTier && isRentedOut ? (
+              <Link
+                to="/archive"
+                className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-ink px-5 py-3.5 text-paper"
+              >
+                <span className="font-display text-[18px] leading-none">
+                  Rinkinys išnuomotas — naršyti katalogą
+                </span>
+                <span className="font-display text-[24px] leading-none">→</span>
+              </Link>
             ) : hasTier && !withinCancellationGrace ? (
               <button
                 onClick={openBillingPortal}

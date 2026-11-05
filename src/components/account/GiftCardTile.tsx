@@ -33,8 +33,9 @@ const STATUS_EXPIRED = {
 }
 
 function getRole(card: GiftCard, userEmail: string | undefined): string {
-  const isBuyer = card.buyer_email === userEmail
-  const isRecipient = card.recipient_email === userEmail
+  const email = userEmail?.toLowerCase()
+  const isBuyer = card.buyer_email?.toLowerCase() === email
+  const isRecipient = card.recipient_email?.toLowerCase() === email
   if (isBuyer && isRecipient) return "Nupirkta sau"
   return isBuyer ? "Nupirkta" : "Gauta"
 }
@@ -45,8 +46,12 @@ export function GiftCardTile({
   copied,
   onCopy,
 }: GiftCardTileProps) {
-  const isActive = card.status === "active"
-  const badge = STATUS_BADGES[card.status] ?? STATUS_EXPIRED
+  const isExpired =
+    card.status === "active" && new Date(card.expires_at) < new Date()
+  const isActive = card.status === "active" && !isExpired
+  const badge = isExpired
+    ? STATUS_EXPIRED
+    : (STATUS_BADGES[card.status] ?? STATUS_EXPIRED)
   const expires = new Date(card.expires_at).toLocaleDateString("lt-LT", {
     year: "numeric",
     month: "long",

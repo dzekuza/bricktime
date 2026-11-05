@@ -18,6 +18,61 @@ export interface CreditsState {
   loading: boolean
 }
 
+const ANNUAL_PERIOD_THRESHOLD_MS = 40 * 86_400_000
+
+function addUtcMonths(startMs: number, months: number): number {
+  const d = new Date(startMs)
+  const year = d.getUTCFullYear()
+  const month = d.getUTCMonth() + months
+  const day = d.getUTCDate()
+  const targetMonthEnd = new Date(
+    Date.UTC(
+      year,
+      month + 1,
+      0,
+      d.getUTCHours(),
+      d.getUTCMinutes(),
+      d.getUTCSeconds(),
+      d.getUTCMilliseconds()
+    )
+  )
+  return Date.UTC(
+    year,
+    month,
+    Math.min(day, targetMonthEnd.getUTCDate()),
+    d.getUTCHours(),
+    d.getUTCMinutes(),
+    d.getUTCSeconds(),
+    d.getUTCMilliseconds()
+  )
+}
+
+// Annual plans carry a 12-month Stripe period, but returned sets free on each
+// monthly anniversary of current_period_start (matching public.used_credits).
+function resolveBudgetFreesAt(
+  periodStart: string | null | undefined,
+  periodEnd: string | null | undefined
+): string | null {
+  if (!periodEnd) return null
+  const startMs = periodStart ? Date.parse(periodStart) : Number.NaN
+  const endMs = Date.parse(periodEnd)
+  if (
+    Number.isNaN(startMs) ||
+    Number.isNaN(endMs) ||
+    endMs - startMs <= ANNUAL_PERIOD_THRESHOLD_MS
+  ) {
+    return periodEnd
+  }
+  const nowMs = Date.now()
+  for (let m = 1; m <= 12; m++) {
+    const stepMs = addUtcMonths(startMs, m)
+    if (stepMs > nowMs) {
+      return new Date(Math.min(stepMs, endMs)).toISOString()
+    }
+  }
+  return periodEnd
+}
+
 export function useCredits(): CreditsState {
   const { user, profile } = useAuth()
   const { subscriptions, loading: plansLoading } = useSubscriptions()
@@ -50,7 +105,7 @@ export function useCredits(): CreditsState {
         .not("status", "eq", "returned"),
       supabase
         .from("subscribers")
-        .select("current_period_end")
+        .select("current_period_start, current_period_end")
         .eq("id", user.id)
         .maybeSingle(),
     ]).then(([used, held, sub]) => {
@@ -65,7 +120,12 @@ export function useCredits(): CreditsState {
       // Without the held breakdown, don't claim any budget is waiting to free.
       if (held.error) console.error("Held orders failed:", held.error.message)
       setHeldCredits(held.error ? usedTotal : heldSum)
-      setBudgetFreesAt(sub.data?.current_period_end ?? null)
+      setBudgetFreesAt(
+        resolveBudgetFreesAt(
+          sub.data?.current_period_start,
+          sub.data?.current_period_end
+        )
+      )
       setLoading(false)
     })
   }, [user])

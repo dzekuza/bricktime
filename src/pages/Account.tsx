@@ -538,7 +538,7 @@ export default function Account() {
       .select(
         "id, code, amount_cents, recipient_email, buyer_email, message, status, expires_at, created_at"
       )
-      .or(`recipient_email.eq.${user.email},buyer_email.eq.${user.email}`)
+      .or(`recipient_email.ilike.${user.email},buyer_email.ilike.${user.email}`)
       .order("created_at", { ascending: false })
       .then(({ data }) => {
         setGiftCards((data as typeof giftCards) ?? [])
@@ -855,6 +855,11 @@ export default function Account() {
           {hasSubscription && (
             <div className="mb-4 flex flex-col gap-3">
               {subscriptionNotices}
+              {portalError && (
+                <p className="font-mono text-[11px] text-red-500">
+                  {portalError}
+                </p>
+              )}
             </div>
           )}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
@@ -1435,6 +1440,9 @@ export default function Account() {
                           !(Date.parse(subscriber.paused_until) <= Date.now())
                             ? subscriber.paused_until
                             : null
+                        }
+                        currentPeriodEnd={
+                          subscriber?.current_period_end ?? null
                         }
                         busy={subscriptionBusy}
                         onPause={(months) => pauseSubscription(months)}

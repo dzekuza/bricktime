@@ -220,7 +220,7 @@ Deno.serve(async (req) => {
       ? String(giftCardCode).toUpperCase()
       : null
     if (heldGiftCardCode) {
-      const amountCents = await holdGiftCard(supabase, heldGiftCardCode)
+      const amountCents = await holdGiftCard(supabase, heldGiftCardCode, userId)
 
       // Cap at the first invoice so Stripe never sees an oversized coupon.
       const firstInvoiceCents =
@@ -310,7 +310,8 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       })
     } catch (stripeError) {
-      if (heldGiftCardCode) await releaseGiftCard(supabase, heldGiftCardCode)
+      if (heldGiftCardCode)
+        await releaseGiftCard(supabase, heldGiftCardCode, userId)
       if (
         (stripeError as { type?: string }).type === "StripeIdempotencyError"
       ) {
@@ -332,17 +333,18 @@ Deno.serve(async (req) => {
 // same card can't both get it. Returns the card's value in cents.
 async function holdGiftCard(
   supabase: SupabaseClient,
-  code: string
+  code: string,
+  userId: string
 ): Promise<number> {
   const now = new Date()
   const holdUntil = new Date(now.getTime() + GIFT_CARD_HOLD_MINUTES * 60_000)
   const { data: card, error } = await supabase
     .from("gift_cards")
-    .update({ reserved_until: holdUntil.toISOString() })
+    .update({ reserved_until: holdUntil.toISOString(), reserved_by: userId })
     .eq("code", code)
     .eq("status", "active")
     .gt("expires_at", now.toISOString())
-    .or(`reserved_until.is.null,reserved_until.lte."${now.toISOString()}"`)
+    .or(`reserved_until.is.null,reserved_until.lte.${now.toISOString()}`)
     .select("amount_cents")
     .maybeSingle()
   if (error) {
@@ -368,12 +370,17 @@ async function holdGiftCard(
   )
 }
 
-async function releaseGiftCard(supabase: SupabaseClient, code: string) {
+async function releaseGiftCard(
+  supabase: SupabaseClient,
+  code: string,
+  userId: string
+) {
   const { error } = await supabase
     .from("gift_cards")
-    .update({ reserved_until: null })
+    .update({ reserved_until: null, reserved_by: null })
     .eq("code", code)
     .eq("status", "active")
+    .eq("reserved_by", userId)
   if (error) {
     console.error(`Releasing gift card ${code} failed: ${error.message}`)
   }
