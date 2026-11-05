@@ -26,6 +26,7 @@ import {
   RentedOrderCard,
   type RentedOrder,
 } from "@/components/account/RentedOrderCard"
+import { RentalHistory } from "@/components/account/RentalHistory"
 import { useDiscountCode } from "@/hooks/useDiscountCode"
 import { readFunctionError } from "@/lib/function-error"
 import { SubscriptionNotices } from "@/components/account/SubscriptionNotices"
@@ -260,6 +261,8 @@ export default function Account() {
   const discount = useDiscountCode()
   const [agreedToPlanChangeTerms, setAgreedToPlanChangeTerms] = useState(false)
   const [rentedOrders, setRentedOrders] = useState<RentedOrder[]>([])
+  // Every rental incl. returned ones, newest first.
+  const [rentalHistory, setRentalHistory] = useState<RentedOrder[]>([])
   const [ordersLoading, setOrdersLoading] = useState(true)
   const [returnDialogOrder, setReturnDialogOrder] =
     useState<RentedOrder | null>(null)
@@ -484,14 +487,13 @@ export default function Account() {
         .from("orders")
         .select("*")
         .eq("subscriber_id", user.id)
-        .not("status", "eq", "returned"),
+        .order("created_at", { ascending: false }),
       supabase.from("products").select("id, title, image_url"),
     ]).then(([{ data: orders }, { data: products }]) => {
       const productMap = Object.fromEntries(
         (products ?? []).map((p) => [p.id, p])
       )
-      setRentedOrders(
-        (orders ?? []).map((o) => ({
+      const allOrders: RentedOrder[] = (orders ?? []).map((o) => ({
           id: o.id,
           productId: o.product_id,
           productTitle:
@@ -508,8 +510,11 @@ export default function Account() {
           terminalName: o.lp_terminal_name,
           barcode: o.lp_barcode,
           returnBarcode: o.lp_return_barcode,
+          returnRequestedAt: o.return_requested_at,
+          returnedAt: o.returned_at,
         }))
-      )
+      setRentedOrders(allOrders.filter((o) => o.status !== "returned"))
+      setRentalHistory(allOrders)
       setOrdersLoading(false)
     })
   }, [user])
@@ -1278,6 +1283,10 @@ export default function Account() {
                 />
               ))}
             </div>
+          )}
+
+          {!ordersLoading && rentalHistory.length > 0 && (
+            <RentalHistory orders={rentalHistory} />
           )}
         </div>
       </section>

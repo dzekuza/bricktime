@@ -977,6 +977,7 @@ export type Database = {
           product_id: number
           return_note: string | null
           return_requested_at: string | null
+          returned_at: string | null
           start_date: string
           status: Database["public"]["Enums"]["order_status"]
           subscriber_id: string
@@ -1002,6 +1003,7 @@ export type Database = {
           product_id: number
           return_note?: string | null
           return_requested_at?: string | null
+          returned_at?: string | null
           start_date: string
           status?: Database["public"]["Enums"]["order_status"]
           subscriber_id: string
@@ -1027,6 +1029,7 @@ export type Database = {
           product_id?: number
           return_note?: string | null
           return_requested_at?: string | null
+          returned_at?: string | null
           start_date?: string
           status?: Database["public"]["Enums"]["order_status"]
           subscriber_id?: string

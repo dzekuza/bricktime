@@ -1,5 +1,6 @@
 import { OrderTracking } from "@/components/OrderTracking"
 import { ImagePlaceholder } from "@/components/ImagePlaceholder"
+import { STATUS_BADGES } from "@/components/account/order-status"
 
 export interface RentedOrder {
   id: string
@@ -15,6 +16,8 @@ export interface RentedOrder {
   terminalName?: string | null
   barcode?: string | null
   returnBarcode?: string | null
+  returnRequestedAt?: string | null
+  returnedAt?: string | null
 }
 
 interface RentedOrderCardProps {
@@ -25,19 +28,6 @@ interface RentedOrderCardProps {
   onDownloadLabel: () => void
 }
 
-const STATUS_BADGES: Record<string, { label: string; className: string }> = {
-  active: { label: "Pas tave", className: "bg-brand-mint text-ink" },
-  processing: { label: "Ruošiama", className: "bg-brand-sky text-ink" },
-  overdue: { label: "Vėluoja", className: "bg-brand-orange text-paper" },
-  return_requested: {
-    label: "Grąžinimas prašomas",
-    className: "bg-brand-yellow text-ink",
-  },
-  return_declined: {
-    label: "Grąžinimas atsisakytas",
-    className: "bg-brand-pink text-ink",
-  },
-}
 
 const formatDate = (iso: string) =>
   new Date(`${iso}T00:00:00`).toLocaleDateString("lt-LT", {
