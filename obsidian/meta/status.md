@@ -9,36 +9,34 @@
 
 ## Current focus
 
-Merch checkout hardening across two open PRs that touch the same edge functions:
-dzekuza/bricktime#96 (`fix/merch-payment-hardening`: paid-only order recording,
-stock guard, card-only payment with gift cards) and dzekuza/bricktime#97
-(`feat/merch-orders-and-fixes`: login-bound gift card holds, per-user coupon holds,
-owner-only order lookup, plus briksiai/plan-summary/analytics fixes).
+Tester (Justinas) feedback round on billing, rentals and shipping — branch
+`fix/billing-safety`, stacked on dzekuza/bricktime#97 (`feat/merch-orders-and-fixes`),
+which overlaps dzekuza/bricktime#96.
 
 ## Done recently
 
-- #97's migrations (20261105220000–220300) are applied live and verified: `gift_cards.reserved_by`, `coupon_holds` (RLS, index, per-user), 3-arg `claim_coupon_hold` (service role only), order lookup hides buyer details for guest orders older than 1h.
-- #96's migrations (`merch_order_stock_guard`, `_fixes`) are applied live; `merch_orders.stock_short` exists.
-- Database types regenerated in both apps from the live schema.
-- Gift cards held for 35 min at any checkout. Live before #97: create-checkout v9, create-merch-checkout v7, stripe-webhook v13.
+- Live DB migrations (applied via Supabase MCP 2026-11-05): `gift_card_pending_status`, `orders_returned_at` (+ backfill), `orders_delivery_snapshot` (+ backfill of 1 open courier order), `budget_period_and_pause`, `used_credits_timestamp_compare`.
+- fix/billing-safety commits: no second subscription on upgrade (Checkout uses change-subscription; create-checkout 409s; webhook ignores non-stored subs), gift cards pending until paid, delivery shown as included / fake order amount removed, rental history with dates, courier address snapshot + admin labels, budget frees at next Stripe period (`used_credits`), billing history shows credit applied + swap rollback restores credit, subscription pause (new `pause-subscription`).
+- #97: card-only payment while a merch code is held.
 
 ## In progress
 
-- #97 addressing cubic review: delayed payments keep coupon/gift card holds for 14 days (new `checkout.session.async_payment_failed` handler releases them), coupon hold kept if `redeem_coupon` fails, briksiai warning waits for the plan to load, downgrade wording fixes.
+- Nothing half-written. Edge functions on fix/billing-safety and #97 are NOT deployed.
 
 ## Next up
 
-1. Merge #96 first, then rebase #97 onto main and resolve the overlap in `create-merch-checkout`, `stripe-webhook`, `change-subscription`.
-2. Deploy `create-merch-checkout`, `stripe-webhook`, `change-subscription` after both merge, and enable `checkout.session.async_payment_failed` on the Stripe webhook endpoint.
-3. Deploy the storefront (`/merch/aciu`, code field, briksiai and summary fixes).
-4. Omnisend automation for `merch order placed`; delete test order #1003; one real gift-card purchase end to end.
-5. Backfill merch payments taken before 2026-11-05 from Stripe (needs Stripe MCP auth).
+1. Merge #96, then #97, then the fix/billing-safety PR (retarget to main).
+2. Deploy edge functions: create-checkout, stripe-webhook, change-subscription, create-gift-card-checkout, verify-gift-card, lpexpress, get-billing-history, create-merch-checkout, pause-subscription (new).
+3. In Stripe: find customers with more than one live subscription (Justinas at least) and cancel/refund the extra; check gift cards bought before today whose session was never paid (still `active`).
+4. Budget rule needs `current_period_start` — filled by the next subscription/invoice webhook per member; backfill from Stripe for active members if it shouldn't wait.
+5. Deploy the storefront and admin; real test purchase (upgrade, courier rental, pause).
 
 ## Blockers & open questions
 
-- `.claude/hooks/vault-stop-check.sh` is not registered in `.claude/settings.json`, so it never runs. Register it under `hooks.Stop` or remove it — owner's call.
-- Gift cards are single-use: value above the item/first-invoice price is lost. A balance would need a schema change — undecided.
-- Supabase CLI token here lacks deploy/db privileges; the Supabase MCP declines `apply_migration`, so migrations go through the SQL editor by hand.
+- "Per metus iki 3 mėnesių" pause cap is not enforced across separate pauses (each pause is max 3 months).
+- Pausing blocks rentals immediately; the already-paid current month isn't refunded.
+- `.claude/hooks/vault-stop-check.sh` is not registered in `.claude/settings.json` — owner's call.
+- Supabase MCP declines migrations that contain data UPDATEs; backfills go through `execute_sql`.
 
 ## Environment
 

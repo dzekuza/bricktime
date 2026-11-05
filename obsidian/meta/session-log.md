@@ -1,3 +1,8 @@
+## 2026-11-05 — tester feedback: billing safety, rentals, courier, budget period, pause
+- **Changed:** branch fix/billing-safety (9 commits, see status.md) + #97 card-only fix b676a16. Five migrations applied live via MCP and renamed locally to their recorded versions.
+- **Status:** storefront + admin typecheck; deno check clean except pre-existing TS7006/EdgeRuntime errors; used_credits verified in a rolled-back transaction. Not tested end to end in the browser or against Stripe test mode. Edge functions not deployed.
+- **Next:** open stacked PR, merge order #96 → #97 → this, deploy functions, clean up duplicate Stripe subscriptions.
+
 ## 2026-11-05 — PR #97 opened; cubic review addressed
 - **Changed:** branch rebased onto main after #95; PR dzekuza/bricktime#97 opened (head b734b77 before review fixes). Review fixes: webhook keeps coupon/gift card holds for 14 days on delayed payments and releases them on `async_payment_failed`, keeps the coupon hold if `redeem_coupon` fails; useCredits waits for plan load; downgrade summary wording and no swap note on downgrades; 35-min retry message; migrations renamed 200000→220000 to avoid colliding with #96's `20261105200000_merch_order_stock_guard.sql`; new 220300 fixes the `reserved_by` column comment (applied live); vault hook marker stores the last edit time.
 - **Status:** review fixes committed on feat/merch-orders-and-fixes; edge functions for #97 not deployed.
