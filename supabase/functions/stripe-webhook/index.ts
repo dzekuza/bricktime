@@ -92,7 +92,31 @@ async function pushOmnisendEvent(
   }
 }
 
+// A bought card is inserted as pending; it becomes spendable only once paid.
+// Delayed methods complete the session unpaid and are activated on
+// async_payment_succeeded instead.
 async function handleGiftCardCheckout(session: Stripe.Checkout.Session) {
+  if (
+    session.payment_status !== "paid" &&
+    session.payment_status !== "no_payment_required"
+  ) {
+    return
+  }
+
+  const { data: activated, error: activateError } = await supabase
+    .from("gift_cards")
+    .update({ status: "active" })
+    .eq("stripe_session_id", session.id)
+    .eq("status", "pending")
+    .select("code")
+  if (activateError) {
+    throw new Error(
+      `Gift card for session ${session.id} not activated: ${activateError.message}`
+    )
+  }
+  // Already active means an earlier delivery sent the email.
+  if (!activated?.length) return
+
   const { data: giftCard } = await supabase
     .from("gift_cards")
     .select(
@@ -583,6 +607,9 @@ Deno.serve(async (req) => {
         }
         if (session.metadata?.type === "merch") {
           await handleMerchCheckout(session)
+        }
+        if (session.mode === "payment" && session.metadata?.code) {
+          await handleGiftCardCheckout(session)
         }
         break
       }

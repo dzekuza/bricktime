@@ -109,7 +109,8 @@ Deno.serve(async (req) => {
           recipient_email: recipientEmail,
           buyer_email: buyerEmail,
           message: message ?? null,
-          status: "active",
+          // Activated by stripe-webhook once the purchase is paid.
+          status: "pending",
           stripe_session_id: session.id,
         })
         .then(({ error: insertError }) => {
