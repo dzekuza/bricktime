@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select"
 import {
   MERCH_ORDER_STATUS_LABEL,
+  STOCK_SHORT_HINT,
   MERCH_ORDER_STATUS_VARIANT,
   type MerchOrder,
   type MerchOrderPatch,
@@ -109,6 +110,9 @@ export function MerchOrderDetailSheet({
             >
               {MERCH_ORDER_STATUS_LABEL[order.status as MerchOrderStatus]}
             </Badge>
+            {order.stock_short && (
+              <p className="text-sm text-destructive">{STOCK_SHORT_HINT}</p>
+            )}
           </DetailSection>
 
           <Separator />

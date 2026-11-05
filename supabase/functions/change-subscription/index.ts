@@ -362,7 +362,22 @@ Deno.serve(async (req) => {
         )
         .select("code")
         .maybeSingle()
-      if (!claimed) throw new Error("Kodas negalioja")
+      if (!claimed) {
+        // Tell a held card apart from a bad one: it frees up on its own, so
+        // the member should retry rather than think the card is worthless.
+        const { data: held } = await supabase
+          .from("gift_cards")
+          .select("code")
+          .eq("code", discount.code)
+          .eq("status", "active")
+          .gt("reserved_until", new Date().toISOString())
+          .maybeSingle()
+        throw new Error(
+          held
+            ? "Ši dovanų kortelė jau naudojama kitame neužbaigtame užsakyme. Pabandyk po 35 min."
+            : "Kodas negalioja"
+        )
+      }
       await stripe.customers.createBalanceTransaction(customerId, {
         amount: -discount.cents,
         currency: "eur",

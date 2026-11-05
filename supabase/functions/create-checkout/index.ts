@@ -363,7 +363,7 @@ async function holdGiftCard(
     new Date(existing.reserved_until) > now
   throw new Error(
     isHeld
-      ? "Ši dovanų kortelė jau naudojama kitame neužbaigtame užsakyme. Pabandyk po 30 min."
+      ? "Ši dovanų kortelė jau naudojama kitame neužbaigtame užsakyme. Pabandyk po 35 min."
       : "Dovanų kortelė negalioja"
   )
 }
