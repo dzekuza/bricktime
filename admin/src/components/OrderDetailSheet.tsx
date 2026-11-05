@@ -57,7 +57,7 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
     setCustomerMessage('')
     setAdminNote(order ? (localStorage.getItem(noteKey(order.id)) ?? '') : '')
     setNoteSaved(false)
-    setPhone('')
+    setPhone(order?.deliveryPhone ?? '')
     setShipErr(null)
     setShipBusy(null)
   }, [order?.id])
@@ -292,6 +292,12 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
                 )
               }
             />
+            {order.homeDelivery && (
+              <Row
+                label="Address"
+                value={order.deliveryAddress ?? <span className="text-muted-foreground">Not on file</span>}
+              />
+            )}
             {order.trackingState && <Row label="Status" value={<Badge variant="secondary">{order.trackingState}</Badge>} />}
             {order.returnBarcode && (
               <Row label="Return" value={<span className="font-mono text-xs">{order.returnBarcode}</span>} />
@@ -303,9 +309,13 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
 
           <div className="mt-3 flex flex-col gap-2">
             {/* Generate outbound label */}
-            {!order.barcode && !order.homeDelivery && order.terminalName && (
+            {!order.barcode && (order.homeDelivery ? !!order.deliveryAddress : !!order.terminalName) && (
               <div className="flex flex-col gap-2 rounded-lg border p-3">
-                <p className="text-xs text-muted-foreground">Generate outbound label (customer phone required)</p>
+                <p className="text-xs text-muted-foreground">
+                  {order.homeDelivery
+                    ? 'Generate courier label to the address above (customer phone required)'
+                    : 'Generate outbound label (customer phone required)'}
+                </p>
                 <div className="flex gap-2">
                   <Input
                     placeholder="+37060000000"
@@ -322,9 +332,9 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
             {!order.barcode && !order.homeDelivery && !order.terminalName && (
               <p className="text-xs text-muted-foreground">Customer hasn't selected a paštomatas yet.</p>
             )}
-            {!order.barcode && order.homeDelivery && (
+            {!order.barcode && order.homeDelivery && !order.deliveryAddress && (
               <p className="text-xs text-muted-foreground">
-                Courier delivery — the customer's address isn't stored. Create this label in LP self-service.
+                Courier order placed before addresses were saved on orders — create this label in LP self-service.
               </p>
             )}
 

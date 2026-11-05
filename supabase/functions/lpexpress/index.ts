@@ -75,7 +75,7 @@ async function requireOwnedOrder(req: Request, orderId: string) {
   if (!admin && !user) throw new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders })
   const { data: order, error } = await service()
     .from("orders")
-    .select("id, subscriber_id, home_delivery, lp_terminal_id, lp_terminal_name, lp_parcel_id, lp_barcode, lp_return_parcel_id, lp_return_barcode, product_id")
+    .select("id, subscriber_id, home_delivery, lp_terminal_id, lp_terminal_name, lp_parcel_id, lp_barcode, lp_return_parcel_id, lp_return_barcode, product_id, delivery_name, delivery_phone, delivery_street, delivery_house_no, delivery_flat, delivery_city, delivery_postal_code")
     .eq("id", orderId)
     .single()
   if (error || !order) throw new Response(JSON.stringify({ error: "Order not found" }), { status: 404, headers: corsHeaders })
@@ -117,10 +117,32 @@ Deno.serve(async (req) => {
         if (method === "terminal" && !order.lp_terminal_id)
           return json({ error: "Order has no terminal selected" }, 400)
 
+        // The courier address comes from the snapshot taken when the order
+        // was placed, never from the request; name and phone default to it.
+        const receiver = {
+          ...payload.receiver,
+          name: payload.receiver?.name || order.delivery_name,
+          phone: payload.receiver?.phone || order.delivery_phone,
+          ...(method === "courier" && {
+            street: order.delivery_street,
+            building: order.delivery_house_no,
+            flat: order.delivery_flat ?? undefined,
+            locality: order.delivery_city,
+            postalCode: order.delivery_postal_code,
+          }),
+        }
+        if (!receiver.name || !receiver.phone)
+          return json({ error: "Receiver name and phone required" }, 400)
+        if (
+          method === "courier" &&
+          (!receiver.street || !receiver.building || !receiver.locality || !receiver.postalCode)
+        )
+          return json({ error: "Order has no delivery address" }, 400)
+
         const result = await createLabel({
           method,
           terminalId: order.lp_terminal_id ?? undefined,
-          receiver: payload.receiver, // { name, phone, email, + address for courier }
+          receiver,
           size: payload.size,
           weight: payload.weight,
         })

@@ -14,6 +14,9 @@ export interface Order {
   // LP EXPRESS shipping
   homeDelivery?: boolean
   terminalName?: string | null
+  // Snapshot taken when the order was placed; courier orders only.
+  deliveryAddress?: string | null
+  deliveryPhone?: string | null
   barcode?: string | null // outbound
   trackingState?: string | null
   returnBarcode?: string | null

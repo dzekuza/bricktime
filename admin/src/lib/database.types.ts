@@ -960,6 +960,13 @@ export type Database = {
         Row: {
           amount: number
           created_at: string
+          delivery_city: string | null
+          delivery_flat: string | null
+          delivery_house_no: string | null
+          delivery_name: string | null
+          delivery_phone: string | null
+          delivery_postal_code: string | null
+          delivery_street: string | null
           due_date: string
           home_delivery: boolean
           id: string
@@ -986,6 +993,13 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string
+          delivery_city?: string | null
+          delivery_flat?: string | null
+          delivery_house_no?: string | null
+          delivery_name?: string | null
+          delivery_phone?: string | null
+          delivery_postal_code?: string | null
+          delivery_street?: string | null
           due_date: string
           home_delivery?: boolean
           id?: string
@@ -1012,6 +1026,13 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string
+          delivery_city?: string | null
+          delivery_flat?: string | null
+          delivery_house_no?: string | null
+          delivery_name?: string | null
+          delivery_phone?: string | null
+          delivery_postal_code?: string | null
+          delivery_street?: string | null
           due_date?: string
           home_delivery?: boolean
           id?: string

@@ -65,6 +65,14 @@ export function Orders() {
         returnNote: o.return_note ?? undefined,
         homeDelivery: o.home_delivery ?? false,
         terminalName: o.lp_terminal_name,
+        deliveryAddress: o.delivery_street
+          ? [
+              [o.delivery_street, o.delivery_house_no].filter(Boolean).join(' ') +
+                (o.delivery_flat ? `-${o.delivery_flat}` : ''),
+              [o.delivery_postal_code, o.delivery_city].filter(Boolean).join(' '),
+            ].join(', ')
+          : null,
+        deliveryPhone: o.delivery_phone,
         barcode: o.lp_barcode,
         trackingState: o.lp_tracking_state,
         returnBarcode: o.lp_return_barcode,

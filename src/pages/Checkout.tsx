@@ -144,6 +144,7 @@ export default function Checkout() {
   const [portalError, setPortalError] = useState("")
   const [confirmed, setConfirmed] = useState(false)
   const [confirming, setConfirming] = useState(false)
+  const [confirmError, setConfirmError] = useState("")
   const [showModal, setShowModal] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [homeDelivery, setHomeDelivery] = useState(false)
@@ -521,8 +522,25 @@ export default function Checkout() {
     return () => controller.abort()
   }, [user, params])
 
-  async function handleConfirm() {
-    if (!user || !product) return
+  // Returns whether the rental was placed, so the dialog stays open on error.
+  async function handleConfirm(): Promise<boolean> {
+    if (!user || !product) return false
+    setConfirmError("")
+    // The server copies this address onto the order for the courier label
+    // and refuses a courier rental without it.
+    const isAddressComplete = [
+      profileData?.phone,
+      profileData?.street,
+      profileData?.house_no,
+      profileData?.city,
+      profileData?.postal_code,
+    ].every((v) => v != null && v.trim() !== "")
+    if (homeDelivery && !isAddressComplete) {
+      setConfirmError(
+        "Pristatymui į duris reikia telefono ir pilno adreso. Papildyk juos skiltyje „Kontaktai ir adresas“."
+      )
+      return false
+    }
     setConfirming(true)
     const today = new Date()
     const due = new Date(today)
@@ -531,7 +549,7 @@ export default function Checkout() {
     const { error } = await supabase.from("orders").insert({
       subscriber_id: user.id,
       product_id: product.id,
-      amount: userSub?.price ?? 0,
+      amount: 0,
       start_date: fmt(today),
       due_date: fmt(due),
       status: "processing",
@@ -540,8 +558,13 @@ export default function Checkout() {
       lp_terminal_name: homeDelivery ? null : (terminal?.name ?? null),
     })
     setConfirming(false)
-    if (!error) setConfirmed(true)
-    else console.error("Order insert failed:", error.message)
+    if (error) {
+      console.error("Order insert failed:", error.message)
+      setConfirmError("Užsakymo pateikti nepavyko. Bandyk dar kartą arba susisiek su mumis.")
+      return false
+    }
+    setConfirmed(true)
+    return true
   }
 
   // ── loading ──────────────────────────────────────────────────────────────
@@ -1623,12 +1646,16 @@ export default function Checkout() {
                 className="brick-hover-sm w-full rounded-full border-2 border-ink bg-brand-orange text-[15px] font-bold text-paper"
                 disabled={confirming}
                 onClick={async () => {
-                  await handleConfirm()
-                  setShowModal(false)
+                  if (await handleConfirm()) setShowModal(false)
                 }}
               >
                 {confirming ? "Apdorojama…" : "Taip, patvirtinti →"}
               </Button>
+              {confirmError && (
+                <p className="font-mono text-[11px] leading-relaxed text-brand-orange">
+                  {confirmError}
+                </p>
+              )}
               <Button
                 variant="outline"
                 size="lg"
