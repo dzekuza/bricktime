@@ -130,7 +130,9 @@ async function handleMerchCheckout(session: Stripe.Checkout.Session) {
   const itemId = session.metadata?.itemId
   const size = session.metadata?.size
   if (!itemId || !size) {
-    throw new Error(`Merch session ${session.id} is missing itemId/size metadata`)
+    throw new Error(
+      `Merch session ${session.id} is missing itemId/size metadata`
+    )
   }
 
   const shipping = session.shipping_details ?? null
@@ -149,10 +151,14 @@ async function handleMerchCheckout(session: Stripe.Checkout.Session) {
     p_user_id: userId,
     p_stripe_session_id: session.id,
     p_stripe_payment_intent_id:
-      typeof session.payment_intent === "string" ? session.payment_intent : null,
+      typeof session.payment_intent === "string"
+        ? session.payment_intent
+        : null,
   })
   if (error) {
-    throw new Error(`record_merch_order failed for session ${session.id}: ${error.message}`)
+    throw new Error(
+      `record_merch_order failed for session ${session.id}: ${error.message}`
+    )
   }
   // Runs on every delivery: if marking the card used failed last time, the
   // retry still gets it. Safe to repeat — it only touches an active card.
@@ -195,10 +201,14 @@ async function redeemMerchGiftCard(session: Stripe.Checkout.Session) {
       .eq("status", "active")
       .select("code")
     if (error) {
-      throw new Error(`Gift card ${giftCardCode} not redeemed for merch session ${session.id}: ${error.message}`)
+      throw new Error(
+        `Gift card ${giftCardCode} not redeemed for merch session ${session.id}: ${error.message}`
+      )
     }
     if (!redeemed?.length) {
-      console.error(`Gift card ${giftCardCode} was not active when merch session ${session.id} completed`)
+      console.error(
+        `Gift card ${giftCardCode} was not active when merch session ${session.id} completed`
+      )
     }
   }
 }
@@ -209,10 +219,37 @@ async function redeemMerchGiftCard(session: Stripe.Checkout.Session) {
 async function countMerchCoupon(session: Stripe.Checkout.Session) {
   const couponCode = session.metadata?.couponCode
   if (couponCode) {
-    const { error } = await supabase.rpc("redeem_coupon", { p_code: couponCode })
+    const { error } = await supabase.rpc("redeem_coupon", {
+      p_code: couponCode,
+    })
     if (error) {
-      console.error(`Coupon ${couponCode} not counted for merch session ${session.id}: ${error.message}`)
+      // Keep the hold: it still stands in for this use until it lapses, so
+      // max_uses is not exceeded while the miscount is looked into.
+      console.error(
+        `Coupon ${couponCode} not counted for merch session ${session.id}: ${error.message}`
+      )
+      return
     }
+    // The use is now in uses_count, so the checkout's reservation must stop
+    // counting against max_uses as well.
+    // Only logged: this runs on the first delivery only, and throwing would
+    // skip the order email on the retry. A leftover hold lapses on its own.
+    const holdId = session.metadata?.couponHoldId
+    if (holdId) {
+      await deleteCouponHold(holdId, session.id).catch((e: Error) =>
+        console.error(e.message)
+      )
+    }
+  }
+}
+
+// A hold left behind would block the coupon's last use until it lapses.
+async function deleteCouponHold(holdId: string, sessionId: string) {
+  const { error } = await supabase.from("coupon_holds").delete().eq("id", holdId)
+  if (error) {
+    throw new Error(
+      `Coupon hold ${holdId} not released for merch session ${sessionId}: ${error.message}`
+    )
   }
 }
 
@@ -527,6 +564,7 @@ Deno.serve(async (req) => {
         }
         break
       }
+
 
       case "customer.subscription.created":
       case "customer.subscription.updated":

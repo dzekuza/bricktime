@@ -9,9 +9,29 @@ interface PlanChangeSummaryProps {
   homeDeliveryFee: number
   code: AppliedCode | null
   isSwap: boolean
+  isDowngrade: boolean
 }
 
 const euro = (value: number) => `€${value.toFixed(2)}`
+
+function TotalRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-4">
+      <span className="label-mono text-ink">{label}</span>
+      <span className="font-display text-[26px] leading-none text-ink">
+        {value}
+      </span>
+    </div>
+  )
+}
+
+function Note({ children }: { children: string }) {
+  return (
+    <p className="font-mono text-[11px] leading-relaxed text-ink/40">
+      {children}
+    </p>
+  )
+}
 
 function Row({
   label,
@@ -37,16 +57,22 @@ export function PlanChangeSummary({
   billing,
   homeDelivery,
   homeDeliveryFee,
-  code,
+  code: requestedCode,
   isSwap,
+  isDowngrade,
 }: PlanChangeSummaryProps) {
+  // change-subscription stores a downgrade for the next renewal before it
+  // reads any code, so neither a coupon nor a gift card is applied to it.
+  const code = isDowngrade ? null : requestedCode
   const isAnnual = billing === "annual"
   const months = isAnnual ? 12 : 1
   const period = isAnnual ? "per metus" : "per mėnesį"
   const rate = isAnnual ? annualMonthlyPrice : monthlyPrice
 
-  // Mirrors the server: a coupon cuts the recurring price, a gift card is a
-  // credit against the first invoice.
+  // Mirrors the server: a coupon cuts the recurring price. A gift card on a new
+  // subscription is a one-off coupon capped at the first invoice (the rest is
+  // forfeited); on a swap it becomes Stripe customer balance, spent on the swap
+  // invoice first and carried over to later invoices.
   const couponRate =
     code?.kind === "coupon"
       ? Math.max(
@@ -60,6 +86,7 @@ export function PlanChangeSummary({
   const deliveryTotal = homeDelivery ? homeDeliveryFee * months : 0
   const total = planTotal + deliveryTotal
   const giftCredit = code?.kind === "gift" ? Math.min(code.amount, total) : 0
+  const giftForfeit = code?.kind === "gift" ? code.amount - giftCredit : 0
   const yearlySavings = isAnnual ? (monthlyPrice - annualMonthlyPrice) * 12 : 0
 
   return (
@@ -90,18 +117,45 @@ export function PlanChangeSummary({
         />
       )}
       <div className="border-t-2 border-dashed border-ink/10 pt-2.5">
-        <div className="flex items-baseline justify-between gap-4">
-          <span className="label-mono text-ink">Iš viso {period}</span>
-          <span className="font-display text-[26px] leading-none text-ink">
-            {euro(total)}
-          </span>
-        </div>
+        <TotalRow label={`Iš viso ${period}`} value={euro(total)} />
       </div>
-      {code?.kind === "gift" && (
-        <Row
-          label={`Dovanų kortelė ${code.code}`}
-          value={`−${euro(giftCredit)}`}
-        />
+      {code?.kind === "gift" && !isSwap && (
+        <>
+          <Row
+            label={`Dovanų kortelė ${code.code}`}
+            value={`−${euro(giftCredit)}`}
+          />
+          <div className="border-t-2 border-dashed border-ink/10 pt-2.5">
+            <TotalRow label="Mokėsi dabar" value={euro(total - giftCredit)} />
+          </div>
+          <Note>
+            {`Dovanų kortelė taikoma tik pirmam mokėjimui, vėliau – ${euro(total)} ${period}.${
+              giftForfeit > 0
+                ? ` Nepanaudotas kortelės likutis (${euro(giftForfeit)}) neperkeliamas.`
+                : ""
+            }`}
+          </Note>
+        </>
+      )}
+      {code?.kind === "gift" && isSwap && (
+        <>
+          <Row
+            label={`Dovanų kortelės ${code.code} kreditas`}
+            value={`−${euro(code.amount)}`}
+          />
+          <Note>
+            Kreditas pirmiausia padengia plano keitimo sąskaitą, o likutis
+            nurašomas nuo kitų mokėjimų.
+          </Note>
+        </>
+      )}
+      {isDowngrade && requestedCode?.kind === "gift" && (
+        <Note>
+          Mažinant planą dovanų kortelė netaikoma – kortelė lieka nepanaudota.
+        </Note>
+      )}
+      {isDowngrade && requestedCode?.kind === "coupon" && (
+        <Note>Mažinant planą nuolaidos kodas netaikomas.</Note>
       )}
       {isAnnual && yearlySavings > 0 && (
         <p className="w-fit rounded-full border-2 border-ink bg-brand-mint px-3 py-1 font-mono text-[11px] font-bold text-ink">
@@ -110,10 +164,10 @@ export function PlanChangeSummary({
         </p>
       )}
       {isSwap && (
-        <p className="font-mono text-[11px] leading-relaxed text-ink/40">
+        <Note>
           Keičiant planą nepanaudota dabartinio plano dalis įskaičiuojama, todėl
           pirma sąskaita gali skirtis.
-        </p>
+        </Note>
       )}
     </div>
   )

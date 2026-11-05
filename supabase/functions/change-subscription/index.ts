@@ -250,6 +250,24 @@ Deno.serve(async (req) => {
       })
     }
 
+    // Validate the code before touching the schedule: a rejected code must not
+    // cost the member their scheduled downgrade. The gift card is still
+    // claimed atomically further down; this only catches a live hold early.
+    const discount = code ? await resolveDiscountCode(supabase, code) : null
+    if (discount?.kind === "gift") {
+      const { data: held } = await supabase
+        .from("gift_cards")
+        .select("code")
+        .eq("code", discount.code)
+        .gt("reserved_until", new Date().toISOString())
+        .maybeSingle()
+      if (held) {
+        throw new Error(
+          "Ši dovanų kortelė jau naudojama kitame neužbaigtame užsakyme. Pabandyk po 35 min."
+        )
+      }
+    }
+
     // An immediate swap supersedes a pending downgrade, and Stripe refuses to
     // update a subscription while a schedule controls it.
     if (subscription.schedule) {
@@ -276,7 +294,6 @@ Deno.serve(async (req) => {
       ? (plan.annual_price ?? plan.price)
       : plan.price
 
-    const discount = code ? await resolveDiscountCode(supabase, code) : null
     const priced =
       discount?.kind === "coupon"
         ? await applyCoupon(stripe, discount, monthlyPrice, monthsPerInterval)

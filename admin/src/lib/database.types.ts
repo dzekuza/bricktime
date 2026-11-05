@@ -173,6 +173,30 @@ export type Database = {
         }
         Relationships: []
       }
+      coupon_holds: {
+        Row: {
+          coupon_code: string
+          created_at: string
+          held_until: string
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          coupon_code: string
+          created_at?: string
+          held_until: string
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          coupon_code?: string
+          created_at?: string
+          held_until?: string
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       coupons: {
         Row: {
           active: boolean
@@ -469,6 +493,7 @@ export type Database = {
           recipient_email: string
           redeemed_at: string | null
           redeemed_by_user_id: string | null
+          reserved_by: string | null
           reserved_until: string | null
           status: string
           stripe_session_id: string | null
@@ -484,6 +509,7 @@ export type Database = {
           recipient_email: string
           redeemed_at?: string | null
           redeemed_by_user_id?: string | null
+          reserved_by?: string | null
           reserved_until?: string | null
           status?: string
           stripe_session_id?: string | null
@@ -499,6 +525,7 @@ export type Database = {
           recipient_email?: string
           redeemed_at?: string | null
           redeemed_by_user_id?: string | null
+          reserved_by?: string | null
           reserved_until?: string | null
           status?: string
           stripe_session_id?: string | null
@@ -1795,6 +1822,10 @@ export type Database = {
     }
     Functions: {
       auth_email_confirmed: { Args: never; Returns: boolean }
+      claim_coupon_hold: {
+        Args: { p_code: string; p_minutes: number; p_user_id: string }
+        Returns: string
+      }
       evaluate_achievements: {
         Args: { p_subscriber_id: string }
         Returns: undefined
