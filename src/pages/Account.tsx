@@ -234,7 +234,13 @@ export default function Account() {
   const { user, profile, signOut, refreshProfile } = useAuth()
   const [deleteAccountOpen, setDeleteAccountOpen] = useState(false)
   const { subscriptions: dbPlans } = useSubscriptions()
-  const { totalCredits, remainingCredits, overBudgetCredits } = useCredits()
+  const {
+    totalCredits,
+    remainingCredits,
+    overBudgetCredits,
+    returnedHeldCredits,
+    budgetFreesAt,
+  } = useCredits()
   const { achievements } = useAchievements()
   const tierOptions = useMemo(
     () =>
@@ -902,6 +908,16 @@ export default function Account() {
                   Turimi rinkiniai viršija tavo plano biudžetą{" "}
                   {overBudgetCredits} briksių. Grąžink rinkinį, kad galėtum
                   pasirinkti naują.
+                </p>
+              )}
+              {returnedHeldCredits > 0 && budgetFreesAt && (
+                <p className="mt-4 text-[13px] text-ink/60">
+                  {`Grąžintų rinkinių briksiai (${returnedHeldCredits}) atsilaisvins ${new Date(
+                    budgetFreesAt
+                  ).toLocaleDateString("lt-LT", {
+                    month: "long",
+                    day: "numeric",
+                  })} – briksiai skiriami atsiskaitymo laikotarpiui, o ne vienam rinkiniui.`}
                 </p>
               )}
 

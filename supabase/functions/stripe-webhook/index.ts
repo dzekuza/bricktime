@@ -448,6 +448,20 @@ async function updateSubscriberByStripeIds(
     cancel_at: subscription.cancel_at
       ? new Date(subscription.cancel_at * 1000).toISOString()
       : null,
+    // Anchor for the budget rule: a set rented in this period keeps using
+    // budget until the next one starts (see public.used_credits).
+    current_period_start: new Date(
+      subscription.current_period_start * 1000
+    ).toISOString(),
+    current_period_end: new Date(
+      subscription.current_period_end * 1000
+    ).toISOString(),
+    // Set by pause-subscription; cleared when Stripe resumes collection.
+    paused_until: subscription.pause_collection
+      ? subscription.pause_collection.resumes_at
+        ? new Date(subscription.pause_collection.resumes_at * 1000).toISOString()
+        : "infinity"
+      : null,
   }
 
   if (planKey) update.plan = planKey

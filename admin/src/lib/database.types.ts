@@ -1518,6 +1518,8 @@ export type Database = {
           cancel_at: string | null
           cancel_requested: boolean
           city: string | null
+          current_period_end: string | null
+          current_period_start: string | null
           email: string
           flat: string | null
           home_delivery: boolean
@@ -1526,6 +1528,7 @@ export type Database = {
           joined_at: string
           last_name: string | null
           name: string
+          paused_until: string | null
           penalty_amount: number | null
           penalty_reason: string | null
           pending_home_delivery: boolean | null
@@ -1547,6 +1550,8 @@ export type Database = {
           cancel_at?: string | null
           cancel_requested?: boolean
           city?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
           email: string
           flat?: string | null
           home_delivery?: boolean
@@ -1555,6 +1560,7 @@ export type Database = {
           joined_at?: string
           last_name?: string | null
           name: string
+          paused_until?: string | null
           penalty_amount?: number | null
           penalty_reason?: string | null
           pending_home_delivery?: boolean | null
@@ -1576,6 +1582,8 @@ export type Database = {
           cancel_at?: string | null
           cancel_requested?: boolean
           city?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
           email?: string
           flat?: string | null
           home_delivery?: boolean
@@ -1584,6 +1592,7 @@ export type Database = {
           joined_at?: string
           last_name?: string | null
           name?: string
+          paused_until?: string | null
           penalty_amount?: number | null
           penalty_reason?: string | null
           pending_home_delivery?: boolean | null
@@ -1896,6 +1905,7 @@ export type Database = {
         Args: { p_feed_item_id: string; p_session_id: string }
         Returns: undefined
       }
+      used_credits: { Args: { p_subscriber_id: string }; Returns: number }
     }
     Enums: {
       achievement_category: "activity" | "social" | "collector" | "loyalty"

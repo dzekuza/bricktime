@@ -250,7 +250,8 @@ export default function Checkout() {
       ] ?? tierByName.standard,
     [product, tierParam]
   )
-  const { remainingCredits, overBudgetCredits } = useCredits()
+  const { remainingCredits, overBudgetCredits, returnedHeldCredits, budgetFreesAt } =
+    useCredits()
   const { available: productAvailability } = useProductAvailability()
   const hasTier = useMemo(
     () =>
@@ -1263,8 +1264,15 @@ export default function Checkout() {
                     </h2>
                     <p className="mt-1 text-[13px] text-ink/50">
                       Šiam produktui reikia {product?.value ?? 0} Kr., o tau
-                      liko {remainingCredits} Kr. Grąžink turimą produktą, kad
-                      atlaisvintum kreditų.
+                      liko {remainingCredits} Kr.{" "}
+                      {returnedHeldCredits > 0 && budgetFreesAt
+                        ? `Grąžintų rinkinių briksiai (${returnedHeldCredits} Kr.) atsilaisvins ${new Date(
+                            budgetFreesAt
+                          ).toLocaleDateString("lt-LT", {
+                            month: "long",
+                            day: "numeric",
+                          })}, kai prasidės naujas atsiskaitymo laikotarpis.`
+                        : "Grąžink turimą produktą – briksiai atsilaisvins nuo kito atsiskaitymo laikotarpio."}
                     </p>
                   </div>
 
