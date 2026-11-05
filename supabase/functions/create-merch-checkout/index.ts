@@ -121,6 +121,13 @@ Deno.serve(async (req) => {
             giftCardCode: discount.code,
           }),
         },
+        // The gift card hold lasts minutes, but a delayed method (bank debit,
+        // transfer) can settle days later — long enough to spend the card
+        // elsewhere first. Cards settle at once, so they're the only option
+        // when a gift card is applied.
+        ...(discount?.kind === "gift_card" && {
+          payment_method_types: ["card"],
+        }),
         phone_number_collection: { enabled: true },
         shipping_address_collection: {
           allowed_countries: [
