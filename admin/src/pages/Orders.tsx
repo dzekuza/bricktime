@@ -25,6 +25,8 @@ import { orderStatusColors, type Order, type OrderStatus } from '@/data/orders'
 import { supabase } from '@/lib/supabase'
 import { DataTable, SortableHeader, selectionColumn } from '@/components/DataTable'
 import { OrderDetailSheet } from '@/components/OrderDetailSheet'
+import { MerchOrdersPanel } from '@/components/MerchOrdersPanel'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export function Orders() {
   const [items, setItems] = useState<Order[]>([])
@@ -247,6 +249,13 @@ export function Orders() {
         </Button>
       </div>
 
+      <Tabs defaultValue="rentals" className="flex flex-col gap-6">
+        <TabsList>
+          <TabsTrigger value="rentals">Rentals</TabsTrigger>
+          <TabsTrigger value="merch">Merch</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="rentals" className="flex flex-col gap-6">
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -334,6 +343,12 @@ export function Orders() {
         onStatusChange={(order, status, note) => handleSetStatus([order.id], status, note)}
         onShippingUpdate={handleShippingUpdate}
       />
+        </TabsContent>
+
+        <TabsContent value="merch">
+          <MerchOrdersPanel />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

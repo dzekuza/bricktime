@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom"
+import { Link, useParams, useNavigate } from "react-router-dom"
 import Nav from "@/components/Nav"
 import { useBreadcrumbLabel } from "@/contexts/BreadcrumbContext"
 import Footer from "@/components/Footer"
@@ -11,6 +11,11 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ExpandableHtml } from "@/components/ExpandableHtml"
 import { ImagePlaceholder } from "@/components/ImagePlaceholder"
+import {
+  MerchDiscountCode,
+  type AppliedMerchCode,
+} from "@/components/merch/MerchDiscountCode"
+import { readFunctionError } from "@/lib/function-error"
 
 const TYPE_LABEL: Record<string, string> = {
   hoodie: "Džemperis",
@@ -19,7 +24,6 @@ const TYPE_LABEL: Record<string, string> = {
 
 export default function MerchDrop() {
   const { slug } = useParams<{ slug: string }>()
-  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const { user } = useAuth()
   const { setLabel } = useBreadcrumbLabel()
@@ -27,6 +31,8 @@ export default function MerchDrop() {
   const [loading, setLoading] = useState(true)
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const [buying, setBuying] = useState(false)
+  const [buyError, setBuyError] = useState<string | null>(null)
+  const [appliedCode, setAppliedCode] = useState<AppliedMerchCode | null>(null)
   const [activeImage, setActiveImage] = useState<string | null>(null)
 
   // image_url is the hero; image_urls are the extra shots behind it.
@@ -35,8 +41,6 @@ export default function MerchDrop() {
         (url): url is string => Boolean(url)
       )
     : []
-
-  const paymentSuccess = searchParams.get("payment") === "success"
 
   useEffect(() => {
     if (!slug) return
@@ -88,9 +92,13 @@ export default function MerchDrop() {
     item.status === "coming-soon" ||
     Object.values(item.stock).every((qty) => qty <= 0)
 
+  const priceCents = Math.round(Number(item.price) * 100)
+  const totalCents = priceCents - (appliedCode?.amountOffCents ?? 0)
+
   async function handleBuy() {
     if (!selectedSize || !item) return
     setBuying(true)
+    setBuyError(null)
     const origin = window.location.origin
     const { data, error } = await supabase.functions.invoke(
       "create-merch-checkout",
@@ -99,12 +107,19 @@ export default function MerchDrop() {
           itemId: item.id,
           size: selectedSize,
           userEmail: user?.email ?? undefined,
-          successUrl: `${origin}/merch/${item.slug}?payment=success`,
+          successUrl: `${origin}/merch/aciu?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: `${origin}/merch/${item.slug}`,
+          ...(appliedCode && { code: appliedCode.code }),
         },
       }
     )
     if (error || !data?.url) {
+      setBuyError(
+        await readFunctionError(
+          error,
+          "Mokėjimo nepavyko pradėti. Bandyk dar kartą."
+        )
+      )
       setBuying(false)
       return
     }
@@ -225,33 +240,28 @@ export default function MerchDrop() {
                   </div>
                 </div>
 
-                {/* Success banner */}
-                {paymentSuccess && (
-                  <div className="brick-card mt-5 flex flex-col gap-2 bg-brand-mint p-5">
-                    <p className="font-display text-[22px] font-bold text-ink uppercase">
-                      ✓ Užsakymas gautas!
+                {/* CTA */}
+                {isComingSoon ? (
+                  <div className="mt-5 flex flex-col gap-3 rounded-2xl border-2 border-ink/15 bg-ink/[.02] px-4 py-3.5">
+                    <p className="label-mono text-ink/40">
+                      Dar ne parduotuvėje
                     </p>
-                    <p className="text-[14px] leading-relaxed text-ink/70">
-                      Ačiū! Patvirtinimą gausite el. paštu. Produktas bus
-                      išsiųstas per 3–5 d. d.
+                    <p className="text-[14px] leading-[1.6] text-ink/55">
+                      Šis produktas kol kas ruošiamas. Seki BRICKTIME naujienoms
+                      ir sužinok pirmasis, kai merch atsiras parduotuvėje.
                     </p>
                   </div>
-                )}
-
-                {/* CTA */}
-                {!paymentSuccess &&
-                  (isComingSoon ? (
-                    <div className="mt-5 flex flex-col gap-3 rounded-2xl border-2 border-ink/15 bg-ink/[.02] px-4 py-3.5">
-                      <p className="label-mono text-ink/40">
-                        Dar ne parduotuvėje
-                      </p>
-                      <p className="text-[14px] leading-[1.6] text-ink/55">
-                        Šis produktas kol kas ruošiamas. Seki BRICKTIME
-                        naujienoms ir sužinok pirmasis, kai merch atsiras
-                        parduotuvėje.
-                      </p>
-                    </div>
-                  ) : (
+                ) : (
+                  <>
+                    <MerchDiscountCode
+                      priceCents={priceCents}
+                      applied={appliedCode}
+                      onApply={(code) => {
+                        setAppliedCode(code)
+                        setBuyError(null)
+                      }}
+                      onClear={() => setAppliedCode(null)}
+                    />
                     <Button
                       size="lg"
                       disabled={!selectedSize || buying}
@@ -261,10 +271,16 @@ export default function MerchDrop() {
                       {buying
                         ? "Kraunama…"
                         : selectedSize
-                          ? `Pirkti — ${selectedSize} →`
+                          ? `Pirkti — ${selectedSize} · €${(totalCents / 100).toFixed(2)} →`
                           : "Pasirink dydį"}
                     </Button>
-                  ))}
+                    {buyError && (
+                      <p className="mt-2 font-mono text-[12px] text-red-500">
+                        {buyError}
+                      </p>
+                    )}
+                  </>
+                )}
 
                 <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] tracking-[.16em] text-ink/40 uppercase">
                   {["Saugus mokėjimas", "Pristatymas per 3–5 d. d."].map(

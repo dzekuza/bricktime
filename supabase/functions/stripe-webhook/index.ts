@@ -115,6 +115,98 @@ async function handleGiftCardCheckout(session: Stripe.Checkout.Session) {
   })
 }
 
+// Errors throw so Stripe retries the event; record_merch_order is idempotent
+// on the session id, so a retry never double-counts stock.
+async function handleMerchCheckout(session: Stripe.Checkout.Session) {
+  const itemId = session.metadata?.itemId
+  const size = session.metadata?.size
+  if (!itemId || !size) {
+    throw new Error(`Merch session ${session.id} is missing itemId/size metadata`)
+  }
+
+  const shipping = session.shipping_details ?? null
+  const customer = session.customer_details ?? null
+  const email = customer?.email ?? session.customer_email ?? null
+  const userId = session.metadata?.userId || null
+
+  const { data: isNew, error } = await supabase.rpc("record_merch_order", {
+    p_merch_item_id: itemId,
+    p_size: size,
+    p_amount: (session.amount_total ?? 0) / 100,
+    p_buyer_email: email,
+    p_buyer_name: shipping?.name ?? customer?.name ?? null,
+    p_buyer_phone: customer?.phone ?? null,
+    p_shipping_address: shipping?.address ?? customer?.address ?? null,
+    p_user_id: userId,
+    p_stripe_session_id: session.id,
+    p_stripe_payment_intent_id:
+      typeof session.payment_intent === "string" ? session.payment_intent : null,
+  })
+  if (error) {
+    throw new Error(`record_merch_order failed for session ${session.id}: ${error.message}`)
+  }
+  // Runs on every delivery: if marking the card used failed last time, the
+  // retry still gets it. Safe to repeat — it only touches an active card.
+  await redeemMerchGiftCard(session)
+  if (!isNew) return
+
+  await countMerchCoupon(session)
+  if (!email) return
+
+  const { data: order } = await supabase
+    .from("merch_orders")
+    .select("order_number, item_name, size, amount, shipping_address")
+    .eq("stripe_session_id", session.id)
+    .single()
+  if (!order) return
+
+  await pushOmnisendEvent("merch order placed", email, {
+    orderNumber: order.order_number,
+    itemName: order.item_name,
+    size: order.size,
+    amount: Number(order.amount),
+    shippingAddress: order.shipping_address ?? {},
+  })
+}
+
+// The card was held for this session at checkout, so finding it already used
+// means something bypassed the hold — flag it for review rather than retry.
+async function redeemMerchGiftCard(session: Stripe.Checkout.Session) {
+  const giftCardCode = session.metadata?.giftCardCode
+  if (giftCardCode) {
+    const { data: redeemed, error } = await supabase
+      .from("gift_cards")
+      .update({
+        status: "used",
+        redeemed_at: new Date().toISOString(),
+        redeemed_by_user_id: session.metadata?.userId || null,
+        reserved_until: null,
+      })
+      .eq("code", giftCardCode)
+      .eq("status", "active")
+      .select("code")
+    if (error) {
+      throw new Error(`Gift card ${giftCardCode} not redeemed for merch session ${session.id}: ${error.message}`)
+    }
+    if (!redeemed?.length) {
+      console.error(`Gift card ${giftCardCode} was not active when merch session ${session.id} completed`)
+    }
+  }
+}
+
+// Counted once, on the first delivery only — redeem_coupon is not idempotent.
+// A coupon that ran out while checkout was open was already discounted, so
+// it is flagged rather than retried.
+async function countMerchCoupon(session: Stripe.Checkout.Session) {
+  const couponCode = session.metadata?.couponCode
+  if (couponCode) {
+    const { error } = await supabase.rpc("redeem_coupon", { p_code: couponCode })
+    if (error) {
+      console.error(`Coupon ${couponCode} not counted for merch session ${session.id}: ${error.message}`)
+    }
+  }
+}
+
 // Members can no longer write penalty columns themselves, so the paid
 // penalty is cleared here. Errors throw so Stripe retries the event.
 async function handlePenaltyCheckout(session: Stripe.Checkout.Session) {
@@ -332,6 +424,11 @@ Deno.serve(async (req) => {
           break
         }
 
+        if (session.mode === "payment" && session.metadata?.type === "merch") {
+          await handleMerchCheckout(session)
+          break
+        }
+
         if (session.mode !== "subscription") break
 
         // Redeem only once the session completes — creating it must not burn the card.
@@ -343,6 +440,7 @@ Deno.serve(async (req) => {
               status: "used",
               redeemed_at: new Date().toISOString(),
               redeemed_by_user_id: session.client_reference_id,
+              reserved_until: null,
             })
             .eq("code", giftCardCode)
             .eq("status", "active")

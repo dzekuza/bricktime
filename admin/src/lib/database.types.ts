@@ -212,6 +212,24 @@ export type Database = {
         }
         Relationships: []
       }
+      cron_secrets: {
+        Row: {
+          created_at: string
+          name: string
+          secret: string
+        }
+        Insert: {
+          created_at?: string
+          name: string
+          secret: string
+        }
+        Update: {
+          created_at?: string
+          name?: string
+          secret?: string
+        }
+        Relationships: []
+      }
       faq_items: {
         Row: {
           answer: string
@@ -741,6 +759,77 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      merch_orders: {
+        Row: {
+          amount: number
+          buyer_email: string | null
+          buyer_name: string | null
+          buyer_phone: string | null
+          created_at: string
+          id: string
+          item_name: string
+          merch_item_id: string | null
+          order_number: number
+          shipped_at: string | null
+          shipping_address: Json | null
+          size: string
+          status: string
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string
+          tracking_number: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          buyer_email?: string | null
+          buyer_name?: string | null
+          buyer_phone?: string | null
+          created_at?: string
+          id?: string
+          item_name: string
+          merch_item_id?: string | null
+          order_number?: never
+          shipped_at?: string | null
+          shipping_address?: Json | null
+          size: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id: string
+          tracking_number?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          buyer_email?: string | null
+          buyer_name?: string | null
+          buyer_phone?: string | null
+          created_at?: string
+          id?: string
+          item_name?: string
+          merch_item_id?: string | null
+          order_number?: never
+          shipped_at?: string | null
+          shipping_address?: Json | null
+          size?: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string
+          tracking_number?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merch_orders_merch_item_id_fkey"
+            columns: ["merch_item_id"]
+            isOneToOne: false
+            referencedRelation: "merch_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       missing_part_requests: {
         Row: {
@@ -1699,13 +1788,42 @@ export type Database = {
       }
     }
     Functions: {
-      held_brick_value: {
-        Args: { p_subscriber: string }
-        Returns: number
-      }
+      auth_email_confirmed: { Args: never; Returns: boolean }
       evaluate_achievements: {
         Args: { p_subscriber_id: string }
         Returns: undefined
+      }
+      get_merch_order_by_session: {
+        Args: { p_session_id: string }
+        Returns: {
+          amount: number
+          buyer_email: string
+          buyer_name: string
+          created_at: string
+          image_url: string
+          item_name: string
+          item_slug: string
+          order_number: number
+          shipping_address: Json
+          size: string
+          status: string
+        }[]
+      }
+      held_brick_value: { Args: { p_subscriber: string }; Returns: number }
+      record_merch_order: {
+        Args: {
+          p_amount: number
+          p_buyer_email: string
+          p_buyer_name: string
+          p_buyer_phone: string
+          p_merch_item_id: string
+          p_shipping_address: Json
+          p_size: string
+          p_stripe_payment_intent_id: string
+          p_stripe_session_id: string
+          p_user_id: string
+        }
+        Returns: boolean
       }
       redeem_coupon: { Args: { p_code: string }; Returns: undefined }
       refresh_my_achievements: { Args: never; Returns: undefined }
@@ -1760,12 +1878,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1789,11 +1907,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1814,11 +1932,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1839,11 +1957,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1856,11 +1974,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

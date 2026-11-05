@@ -1,5 +1,8 @@
 import Stripe from "https://esm.sh/stripe@14.21.0"
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+import {
+  createClient,
+  type SupabaseClient,
+} from "https://esm.sh/@supabase/supabase-js@2"
 
 import { applyCoupon } from "../_shared/coupon.ts"
 import { assertNoDowngradeWhileHolding } from "../_shared/downgrade-guard.ts"
@@ -8,6 +11,11 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2024-06-20",
   httpClient: Stripe.createFetchHttpClient(),
 })
+
+// Stripe's shortest allowed session lifetime. The gift card hold runs a little
+// longer so the card can't be freed while the session can still be paid.
+const SESSION_TTL_MINUTES = 30
+const GIFT_CARD_HOLD_MINUTES = 35
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -146,97 +154,96 @@ Deno.serve(async (req) => {
     const unitAmount = Math.round(couponPlanPrice * 100) * monthsPerInterval
 
     let giftCardDiscountCents = 0
-    if (giftCardCode) {
-      const { data: card } = await supabase
-        .from("gift_cards")
-        .select("amount_cents, status, expires_at")
-        .eq("code", String(giftCardCode).toUpperCase())
-        .maybeSingle()
-
-      if (
-        !card ||
-        card.status !== "active" ||
-        new Date(card.expires_at) < new Date()
-      ) {
-        throw new Error("Dovanų kortelė negalioja")
-      }
+    const heldGiftCardCode = giftCardCode
+      ? String(giftCardCode).toUpperCase()
+      : null
+    if (heldGiftCardCode) {
+      const amountCents = await holdGiftCard(supabase, heldGiftCardCode)
 
       // Cap at the first invoice so Stripe never sees an oversized coupon.
       const firstInvoiceCents =
         unitAmount + (chargeHomeDeliveryFee ? 300 * monthsPerInterval : 0)
-      giftCardDiscountCents = Math.min(card.amount_cents, firstInvoiceCents)
+      giftCardDiscountCents = Math.min(amountCents, firstInvoiceCents)
     }
 
-    // `once` keeps the credit on the first invoice only; later months bill in full.
-    const giftCardCoupon =
-      giftCardDiscountCents > 0
-        ? await stripe.coupons.create({
-            amount_off: giftCardDiscountCents,
-            currency: "eur",
-            duration: "once",
-            max_redemptions: 1,
-            name: "Dovanų kortelė",
-          })
-        : null
+    // From here on a gift card is held; let it go again if Stripe fails, so a
+    // failed attempt doesn't lock the member out of their own card.
+    try {
+      // `once` keeps the credit on the first invoice only; later months bill in full.
+      const giftCardCoupon =
+        giftCardDiscountCents > 0
+          ? await stripe.coupons.create({
+              amount_off: giftCardDiscountCents,
+              currency: "eur",
+              duration: "once",
+              max_redemptions: 1,
+              name: "Dovanų kortelė",
+            })
+          : null
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      line_items: [
-        {
-          price_data: {
-            currency: "eur",
-            product_data: { name: plan.name ?? `BRICKTIME ${planKey}` },
-            unit_amount: unitAmount,
-            recurring: { interval },
+      const session = await stripe.checkout.sessions.create({
+        expires_at: Math.floor(Date.now() / 1000) + SESSION_TTL_MINUTES * 60,
+        mode: "subscription",
+        line_items: [
+          {
+            price_data: {
+              currency: "eur",
+              product_data: { name: plan.name ?? `BRICKTIME ${planKey}` },
+              unit_amount: unitAmount,
+              recurring: { interval },
+            },
+            quantity: 1,
           },
-          quantity: 1,
-        },
-        ...(chargeHomeDeliveryFee
-          ? [
-              {
-                price_data: {
-                  currency: "eur",
-                  product_data: { name: "Pristatymas į duris" },
-                  unit_amount: 300 * monthsPerInterval,
-                  recurring: { interval },
+          ...(chargeHomeDeliveryFee
+            ? [
+                {
+                  price_data: {
+                    currency: "eur",
+                    product_data: { name: "Pristatymas į duris" },
+                    unit_amount: 300 * monthsPerInterval,
+                    recurring: { interval },
+                  },
+                  quantity: 1,
                 },
-                quantity: 1,
-              },
-            ]
-          : []),
-      ],
-      ...((giftCardCoupon || stripeCouponId) && {
-        discounts: [{ coupon: (giftCardCoupon?.id ?? stripeCouponId)! }],
-      }),
-      ...(customerId
-        ? { customer: customerId }
-        : { customer_email: userEmail ?? undefined }),
-      client_reference_id: userId,
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      metadata: {
-        userId,
-        planKey,
-        billing: billing ?? "monthly",
-        homeDelivery: homeDelivery ? "true" : "false",
-        ...(giftCardCoupon && {
-          giftCardCode: String(giftCardCode).toUpperCase(),
+              ]
+            : []),
+        ],
+        ...((giftCardCoupon || stripeCouponId) && {
+          discounts: [{ coupon: (giftCardCoupon?.id ?? stripeCouponId)! }],
         }),
-        ...(appliedCouponCode && { couponCode: appliedCouponCode }),
-      },
-      subscription_data: {
+        ...(customerId
+          ? { customer: customerId }
+          : { customer_email: userEmail ?? undefined }),
+        client_reference_id: userId,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
         metadata: {
           userId,
           planKey,
           billing: billing ?? "monthly",
           homeDelivery: homeDelivery ? "true" : "false",
+          ...(giftCardCoupon && {
+            giftCardCode: String(giftCardCode).toUpperCase(),
+          }),
+          ...(appliedCouponCode && { couponCode: appliedCouponCode }),
         },
-      },
-    })
+        subscription_data: {
+          metadata: {
+            userId,
+            planKey,
+            billing: billing ?? "monthly",
+            homeDelivery: homeDelivery ? "true" : "false",
+          },
+        },
+      })
 
-    return new Response(JSON.stringify({ url: session.url }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    })
+      return new Response(JSON.stringify({ url: session.url }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      })
+    } catch (stripeError) {
+      if (heldGiftCardCode) await releaseGiftCard(supabase, heldGiftCardCode)
+      throw stripeError
+    }
   } catch (err) {
     return new Response(JSON.stringify({ error: (err as Error).message }), {
       status: 400,
@@ -244,3 +251,54 @@ Deno.serve(async (req) => {
     })
   }
 })
+
+// Check and claim in one conditional UPDATE, so two checkouts racing for the
+// same card can't both get it. Returns the card's value in cents.
+async function holdGiftCard(
+  supabase: SupabaseClient,
+  code: string
+): Promise<number> {
+  const now = new Date()
+  const holdUntil = new Date(now.getTime() + GIFT_CARD_HOLD_MINUTES * 60_000)
+  const { data: card, error } = await supabase
+    .from("gift_cards")
+    .update({ reserved_until: holdUntil.toISOString() })
+    .eq("code", code)
+    .eq("status", "active")
+    .gt("expires_at", now.toISOString())
+    .or(`reserved_until.is.null,reserved_until.lte."${now.toISOString()}"`)
+    .select("amount_cents")
+    .maybeSingle()
+  if (error) {
+    console.error(`Gift card hold failed for ${code}: ${error.message}`)
+    throw new Error("Dovanų kortelės patikrinti nepavyko. Bandyk dar kartą.")
+  }
+  if (card) return card.amount_cents
+
+  const { data: existing } = await supabase
+    .from("gift_cards")
+    .select("status, expires_at, reserved_until")
+    .eq("code", code)
+    .maybeSingle()
+  const isHeld =
+    existing?.status === "active" &&
+    new Date(existing.expires_at) > now &&
+    existing.reserved_until != null &&
+    new Date(existing.reserved_until) > now
+  throw new Error(
+    isHeld
+      ? "Ši dovanų kortelė jau naudojama kitame neužbaigtame užsakyme. Pabandyk po 30 min."
+      : "Dovanų kortelė negalioja"
+  )
+}
+
+async function releaseGiftCard(supabase: SupabaseClient, code: string) {
+  const { error } = await supabase
+    .from("gift_cards")
+    .update({ reserved_until: null })
+    .eq("code", code)
+    .eq("status", "active")
+  if (error) {
+    console.error(`Releasing gift card ${code} failed: ${error.message}`)
+  }
+}
