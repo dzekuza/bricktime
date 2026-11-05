@@ -27,6 +27,7 @@ import {
   type RentedOrder,
 } from "@/components/account/RentedOrderCard"
 import { RentalHistory } from "@/components/account/RentalHistory"
+import { PauseSubscription } from "@/components/account/PauseSubscription"
 import { useDiscountCode } from "@/hooks/useDiscountCode"
 import { readFunctionError } from "@/lib/function-error"
 import { SubscriptionNotices } from "@/components/account/SubscriptionNotices"
@@ -99,6 +100,7 @@ interface SubscriberData {
   pending_plan?: string | null
   cancel_requested?: boolean
   cancel_at?: string | null
+  paused_until?: string | null
 }
 
 interface AchievementRecord {
@@ -408,7 +410,7 @@ export default function Account() {
       supabase
         .from("subscribers")
         .select(
-          "plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code, home_delivery, pending_plan, cancel_requested, cancel_at"
+          "plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code, home_delivery, pending_plan, cancel_requested, cancel_at, paused_until"
         )
         .eq("id", user.id)
         .single(),
@@ -502,25 +504,25 @@ export default function Account() {
         (products ?? []).map((p) => [p.id, p])
       )
       const allOrders: RentedOrder[] = (orders ?? []).map((o) => ({
-          id: o.id,
-          productId: o.product_id,
-          productTitle:
-            productMap[o.product_id]?.title ?? `Produktas #${o.product_id}`,
-          productImage: productMap[o.product_id]?.image_url ?? null,
-          status: o.status,
-          startDate: o.start_date,
-          dueDate: o.due_date,
-          amount: o.amount,
-          returnNote: (o as Record<string, unknown>).return_note as
-            | string
-            | undefined,
-          homeDelivery: o.home_delivery ?? false,
-          terminalName: o.lp_terminal_name,
-          barcode: o.lp_barcode,
-          returnBarcode: o.lp_return_barcode,
-          returnRequestedAt: o.return_requested_at,
-          returnedAt: o.returned_at,
-        }))
+        id: o.id,
+        productId: o.product_id,
+        productTitle:
+          productMap[o.product_id]?.title ?? `Produktas #${o.product_id}`,
+        productImage: productMap[o.product_id]?.image_url ?? null,
+        status: o.status,
+        startDate: o.start_date,
+        dueDate: o.due_date,
+        amount: o.amount,
+        returnNote: (o as Record<string, unknown>).return_note as
+          | string
+          | undefined,
+        homeDelivery: o.home_delivery ?? false,
+        terminalName: o.lp_terminal_name,
+        barcode: o.lp_barcode,
+        returnBarcode: o.lp_return_barcode,
+        returnRequestedAt: o.return_requested_at,
+        returnedAt: o.returned_at,
+      }))
       setRentedOrders(allOrders.filter((o) => o.status !== "returned"))
       setRentalHistory(allOrders)
       setOrdersLoading(false)
@@ -719,6 +721,32 @@ export default function Account() {
             cancel_requested: data.status === "pending_returns",
             cancel_at:
               data.status === "scheduled" ? (data.cancelAt as string) : null,
+          }
+        : s
+    )
+  }
+
+  async function pauseSubscription(months: number | null) {
+    setSubscriptionBusy(true)
+    setPortalError("")
+    const { data, error } = await supabase.functions.invoke(
+      "pause-subscription",
+      { body: months == null ? { undo: true } : { months } }
+    )
+    setSubscriptionBusy(false)
+    if (error || data?.error) {
+      setPortalError(
+        data?.error ??
+          (await readFunctionError(error, "Nepavyko. Bandyk dar kartą."))
+      )
+      return
+    }
+    setSubscriber((s) =>
+      s
+        ? {
+            ...s,
+            paused_until:
+              data.status === "paused" ? (data.pausedUntil as string) : null,
           }
         : s
     )
@@ -1381,6 +1409,17 @@ export default function Account() {
                         Atšaukti
                       </button>
                     </div>
+                    <PauseSubscription
+                      pausedUntil={
+                        subscriber?.paused_until &&
+                        new Date(subscriber.paused_until) > new Date()
+                          ? subscriber.paused_until
+                          : null
+                      }
+                      busy={subscriptionBusy}
+                      onPause={(months) => pauseSubscription(months)}
+                      onResume={() => pauseSubscription(null)}
+                    />
                     <p className="text-center font-mono text-[10px] text-ink/30">
                       Kortelė · istorija
                     </p>

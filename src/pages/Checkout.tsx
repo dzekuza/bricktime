@@ -250,8 +250,12 @@ export default function Checkout() {
       ] ?? tierByName.standard,
     [product, tierParam]
   )
-  const { remainingCredits, overBudgetCredits, returnedHeldCredits, budgetFreesAt } =
-    useCredits()
+  const {
+    remainingCredits,
+    overBudgetCredits,
+    returnedHeldCredits,
+    budgetFreesAt,
+  } = useCredits()
   const { available: productAvailability } = useProductAvailability()
   const hasTier = useMemo(
     () =>
@@ -561,7 +565,17 @@ export default function Checkout() {
     setConfirming(false)
     if (error) {
       console.error("Order insert failed:", error.message)
-      setConfirmError("Užsakymo pateikti nepavyko. Bandyk dar kartą arba susisiek su mumis.")
+      // The insert trigger's reasons, in the member's words.
+      const reason = error.message
+      setConfirmError(
+        reason.includes("paused")
+          ? "Prenumerata pristabdyta – atnaujink ją paskyroje, kad galėtum nuomotis."
+          : reason.includes("exceeds the plan budget")
+            ? "Šiam rinkiniui neužtenka briksių šiam atsiskaitymo laikotarpiui."
+            : reason.includes("full address")
+              ? "Pristatymui į duris reikia telefono ir pilno adreso."
+              : "Užsakymo pateikti nepavyko. Bandyk dar kartą arba susisiek su mumis."
+      )
       return false
     }
     setConfirmed(true)
