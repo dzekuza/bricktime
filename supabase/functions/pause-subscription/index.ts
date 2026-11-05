@@ -188,6 +188,18 @@ Deno.serve(async (req) => {
         .catch(() => null)
       if (actual) {
         await syncPausedUntil(supabase, user.id, actual)
+      } else {
+        // If retrieve failed and it was a client error that definitely
+        // didn't pause Stripe, clear the lock from begin_subscription_pause.
+        const isClientError =
+          (stripeErr as { type?: string }).type === "invalid_request_error" ||
+          (stripeErr as { statusCode?: number }).statusCode === 400
+        if (isClientError) {
+          await supabase
+            .from("subscribers")
+            .update({ paused_until: null })
+            .eq("id", user.id)
+        }
       }
       throw stripeErr
     }
@@ -223,14 +235,43 @@ async function syncPausedUntil(
   subscription: Stripe.Subscription
 ) {
   const pause = subscription.pause_collection
-  await supabase
+  if (!pause) {
+    await supabase
+      .from("subscribers")
+      .update({ paused_until: null })
+      .eq("id", userId)
+    return
+  }
+
+  const resumesAtMs = pause.resumes_at
+    ? pause.resumes_at * 1000
+    : Number.POSITIVE_INFINITY
+
+  const { data: stored } = await supabase
     .from("subscribers")
-    .update({
-      paused_until: pause
-        ? pause.resumes_at
-          ? new Date(pause.resumes_at * 1000).toISOString()
-          : "infinity"
-        : null,
-    })
+    .select("paused_until")
     .eq("id", userId)
+    .maybeSingle()
+
+  const storedPausedUntilMs = stored?.paused_until
+    ? Date.parse(stored.paused_until)
+    : null
+
+  // Keep the stored date if it is already later: pause-subscription stores
+  // when rentals may start again (rentalsBlockedUntil), which is later
+  // than Stripe's resumes_at (the skipped months are unpaid).
+  const isStoredLater =
+    storedPausedUntilMs !== null &&
+    (Number.isNaN(storedPausedUntilMs) || storedPausedUntilMs >= resumesAtMs)
+
+  if (!isStoredLater) {
+    await supabase
+      .from("subscribers")
+      .update({
+        paused_until: Number.isFinite(resumesAtMs)
+          ? new Date(resumesAtMs).toISOString()
+          : "infinity",
+      })
+      .eq("id", userId)
+  }
 }

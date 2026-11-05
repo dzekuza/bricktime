@@ -358,7 +358,7 @@ Deno.serve(async (req) => {
         .gt("expires_at", new Date().toISOString())
         // A card held by an open checkout elsewhere can't be spent here too.
         .or(
-          `reserved_until.is.null,reserved_until.lte."${new Date().toISOString()}"`
+          `reserved_until.is.null,reserved_until.lte.${new Date().toISOString()}`
         )
         .select("code")
         .maybeSingle()
@@ -408,7 +408,7 @@ Deno.serve(async (req) => {
       }
       await stripe.subscriptions.update(subscription.id, {
         items: [
-          ...subscription.items.data.map((item) => ({
+          ...subscription.items.data.map((item: Stripe.SubscriptionItem) => ({
             id: item.id,
             deleted: true,
           })),

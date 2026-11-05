@@ -124,11 +124,11 @@ Deno.serve(async (req) => {
           name: order.delivery_name || payload.receiver?.name,
           phone: order.delivery_phone || payload.receiver?.phone,
           ...(method === "courier" && {
-            street: order.delivery_street,
-            building: order.delivery_house_no,
-            flat: order.delivery_flat ?? undefined,
-            locality: order.delivery_city,
-            postalCode: order.delivery_postal_code,
+            street: order.delivery_street || payload.receiver?.street,
+            building: order.delivery_house_no || payload.receiver?.building,
+            flat: (order.delivery_flat ?? payload.receiver?.flat) ?? undefined,
+            locality: order.delivery_city || payload.receiver?.locality,
+            postalCode: order.delivery_postal_code || payload.receiver?.postalCode,
           }),
         }
         if (!receiver.name || !receiver.phone)
