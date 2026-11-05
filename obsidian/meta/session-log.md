@@ -1,3 +1,8 @@
+## 2026-11-05 — merch checkout security fixes
+- **Changed:** create-merch-checkout (gift card needs login, hold tied to `reserved_by`, one generic error; coupon uses reserved via `claim_coupon_hold`), stripe-webhook (releases coupon hold after redeem), MerchDiscountCode (guest gift-card message), migrations 20261105200000 + 20261105200100 (`reserved_by`, `coupon_holds`, owner-only buyer PII in `get_merch_order_by_session`).
+- **Status:** commits 5e72da3 + dafac67 on feat/merch-orders-and-fixes. Migrations 20261105200000/200100/200200 applied by hand in the SQL editor and verified live (reserved_by, coupon_holds+RLS+index, 3-arg claim_coupon_hold not callable by anon, order lookup hides buyer details for guest orders older than 1h). Edge functions not deployed.
+- **Next:** regenerate database.types.ts (both apps), deploy create-merch-checkout + stripe-webhook, open the PR.
+
 ## 2026-11-05 — gift card hold extended to subscription checkout
 - **Changed:** create-checkout holds the gift card with the same conditional UPDATE (35 min), sets a 30-min session expiry, releases the hold if Stripe fails, hides raw DB errors; stripe-webhook clears `reserved_until` when a subscription redeems a card.
 - **Status:** deployed — create-checkout v9 (with `_shared/coupon.ts` + `_shared/downgrade-guard.ts`), stripe-webhook v13. Smoke tests: create-checkout boots and returns its own 401 for anon; merch bogus code → 400 "Kodas nerastas…"; webhook rejects unsigned. Gift-card hold in the subscription path not exercised with a real signed-in checkout.
