@@ -136,6 +136,12 @@ async function checkCode(
     }
   }
 
+  // Merch checkout holds a gift card against an account, so guests can't use one.
+  const { data: sessionData } = await supabase.auth.getSession()
+  if (!sessionData.session) {
+    return { error: "Prisijunk, kad galėtum panaudoti dovanų kuponą" }
+  }
+
   const { data, error } = await supabase.functions.invoke("verify-gift-card", {
     body: { code },
   })

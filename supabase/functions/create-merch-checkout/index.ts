@@ -71,10 +71,10 @@ Deno.serve(async (req) => {
     // pick its own discount. Usage is counted by the webhook once payment
     // completes — creating a session must not burn a coupon or gift card.
     const discount = code
-      ? await resolveDiscount(supabase, String(code), unitAmount)
+      ? await resolveDiscount(supabase, String(code), unitAmount, userId)
       : null
-    // From here on a gift card is held; let it go again if Stripe fails, so a
-    // failed attempt doesn't lock the shopper out of their own card.
+    // From here on the code is held; let it go again if Stripe fails, so a
+    // failed attempt doesn't lock the shopper out of their own card or use.
     try {
       const stripeCoupon =
         discount && discount.amountOffCents > 0
@@ -116,7 +116,10 @@ Deno.serve(async (req) => {
           itemId,
           size,
           userId,
-          ...(discount?.kind === "coupon" && { couponCode: discount.code }),
+          ...(discount?.kind === "coupon" && {
+            couponCode: discount.code,
+            couponHoldId: discount.holdId,
+          }),
           ...(discount?.kind === "gift_card" && {
             giftCardCode: discount.code,
           }),
@@ -143,7 +146,9 @@ Deno.serve(async (req) => {
       })
     } catch (stripeError) {
       if (discount?.kind === "gift_card") {
-        await releaseGiftCard(supabase, discount.code)
+        await releaseGiftCard(supabase, discount.code, userId)
+      } else if (discount?.kind === "coupon") {
+        await releaseCouponHold(supabase, discount.holdId)
       }
       throw stripeError
     }
@@ -155,77 +160,80 @@ Deno.serve(async (req) => {
   }
 })
 
-type Discount = {
-  kind: "coupon" | "gift_card"
-  code: string
-  amountOffCents: number
-}
+type Discount =
+  | { kind: "coupon"; code: string; amountOffCents: number; holdId: string }
+  | { kind: "gift_card"; code: string; amountOffCents: number }
+
+// One message for every rejected gift card, so the response never reveals
+// whether a typed code exists or is held by someone else.
+const GIFT_CARD_REJECTED =
+  "Kodas nerastas, nebegalioja arba šiuo metu naudojamas"
 
 // Coupons are checked first; a code that isn't one is tried as a gift card.
 // A gift card is single-use, so any value above the item price is not kept.
 async function resolveDiscount(
   supabase: SupabaseClient,
   rawCode: string,
-  priceCents: number
+  priceCents: number,
+  userId: string
 ): Promise<Discount> {
   const code = rawCode.trim().toUpperCase()
 
   const { data: coupon } = await supabase
     .from("coupons")
-    .select(
-      "discount_type, discount_value, max_uses, uses_count, expires_at, active"
-    )
+    .select("discount_type, discount_value")
     .eq("code", code)
     .maybeSingle()
   if (coupon) {
-    const expired =
-      coupon.expires_at && new Date(coupon.expires_at) < new Date()
-    const exhausted =
-      coupon.max_uses != null && coupon.uses_count >= coupon.max_uses
-    if (!coupon.active || expired || exhausted)
-      throw new Error("Kodas negalioja")
+    // Reserves one use against max_uses while the checkout is open.
+    const { data: holdId, error: holdError } = await supabase.rpc(
+      "claim_coupon_hold",
+      { p_code: code, p_minutes: GIFT_CARD_HOLD_MINUTES }
+    )
+    if (holdError) {
+      console.error(`Coupon hold failed for ${code}: ${holdError.message}`)
+      throw new Error("Kodo patikrinti nepavyko. Bandyk dar kartą.")
+    }
+    if (!holdId) throw new Error("Kodas negalioja")
     const value = Number(coupon.discount_value)
     const off =
       coupon.discount_type === "percentage"
         ? Math.round((priceCents * value) / 100)
         : Math.round(value * 100)
-    return { kind: "coupon", code, amountOffCents: Math.min(off, priceCents) }
+    return {
+      kind: "coupon",
+      code,
+      amountOffCents: Math.min(off, priceCents),
+      holdId: String(holdId),
+    }
+  }
+
+  // A hold needs an owner, otherwise anyone who saw a code could keep it
+  // locked away from the person it was bought for.
+  if (!userId) {
+    throw new Error("Prisijunk, kad galėtum panaudoti dovanų kuponą")
   }
 
   // Check and claim in one conditional UPDATE, so two checkouts racing for the
-  // same card can't both get it.
+  // same card can't both get it. The holder may re-hold their own card.
   const now = new Date()
   const holdUntil = new Date(now.getTime() + GIFT_CARD_HOLD_MINUTES * 60_000)
   const { data: card, error: holdError } = await supabase
     .from("gift_cards")
-    .update({ reserved_until: holdUntil.toISOString() })
+    .update({ reserved_until: holdUntil.toISOString(), reserved_by: userId })
     .eq("code", code)
     .eq("status", "active")
     .gt("expires_at", now.toISOString())
-    .or(`reserved_until.is.null,reserved_until.lte."${now.toISOString()}"`)
+    .or(
+      `reserved_until.is.null,reserved_until.lte."${now.toISOString()}",reserved_by.eq.${userId}`
+    )
     .select("amount_cents")
     .maybeSingle()
   if (holdError) {
-    console.error(`Gift card hold failed for ${code}: ${holdError.message}`)
+    console.error(`Gift card hold failed: ${holdError.message}`)
     throw new Error("Dovanų kupono patikrinti nepavyko. Bandyk dar kartą.")
   }
-  if (!card) {
-    const { data: existing } = await supabase
-      .from("gift_cards")
-      .select("status, expires_at, reserved_until")
-      .eq("code", code)
-      .maybeSingle()
-    const isHeld =
-      existing?.status === "active" &&
-      new Date(existing.expires_at) > now &&
-      existing.reserved_until != null &&
-      new Date(existing.reserved_until) > now
-    throw new Error(
-      isHeld
-        ? "Šis dovanų kuponas jau naudojamas kitame neužbaigtame užsakyme. Pabandyk po 30 min."
-        : "Kodas nerastas arba nebegalioja"
-    )
-  }
+  if (!card) throw new Error(GIFT_CARD_REJECTED)
   return {
     kind: "gift_card",
     code,
@@ -233,12 +241,25 @@ async function resolveDiscount(
   }
 }
 
-async function releaseGiftCard(supabase: SupabaseClient, code: string) {
+async function releaseGiftCard(
+  supabase: SupabaseClient,
+  code: string,
+  userId: string
+) {
   const { error } = await supabase
     .from("gift_cards")
-    .update({ reserved_until: null })
+    .update({ reserved_until: null, reserved_by: null })
     .eq("code", code)
     .eq("status", "active")
+    .eq("reserved_by", userId)
+  if (error) console.error(`Releasing gift card hold failed: ${error.message}`)
+}
+
+async function releaseCouponHold(supabase: SupabaseClient, holdId: string) {
+  const { error } = await supabase
+    .from("coupon_holds")
+    .delete()
+    .eq("id", holdId)
   if (error)
-    console.error(`Releasing gift card ${code} failed: ${error.message}`)
+    console.error(`Releasing coupon hold ${holdId} failed: ${error.message}`)
 }
