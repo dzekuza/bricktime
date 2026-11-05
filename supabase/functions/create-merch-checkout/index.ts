@@ -61,7 +61,8 @@ Deno.serve(async (req) => {
     }
     const stock = (item.stock as Record<string, unknown> | null) ?? {}
     const sizeStock = Object.hasOwn(stock, size) ? stock[size] : 0
-    // Whole units only — record_merch_order treats anything else as no stock.
+    // Whole units only. record_merch_order also counts non-whole or non-numeric
+    // stock as none, flagging the order stock_short instead of taking a unit.
     if (!Number.isInteger(sizeStock) || (sizeStock as number) < 1) {
       throw new Error("Out of stock")
     }
@@ -230,7 +231,7 @@ async function resolveDiscount(
       new Date(existing.reserved_until) > now
     throw new Error(
       isHeld
-        ? "Šis dovanų kuponas jau naudojamas kitame neužbaigtame užsakyme. Pabandyk po 30 min."
+        ? "Šis dovanų kuponas jau naudojamas kitame neužbaigtame užsakyme. Pabandyk po 35 min."
         : "Kodas nerastas arba nebegalioja"
     )
   }

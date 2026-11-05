@@ -334,7 +334,7 @@ Deno.serve(async (req) => {
           .maybeSingle()
         throw new Error(
           held
-            ? "Ši dovanų kortelė jau naudojama kitame neužbaigtame užsakyme. Pabandyk po 30 min."
+            ? "Ši dovanų kortelė jau naudojama kitame neužbaigtame užsakyme. Pabandyk po 35 min."
             : "Kodas negalioja"
         )
       }
