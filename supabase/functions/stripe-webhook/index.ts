@@ -456,12 +456,27 @@ async function updateSubscriberByStripeIds(
     current_period_end: new Date(
       subscription.current_period_end * 1000
     ).toISOString(),
-    // Set by pause-subscription; cleared when Stripe resumes collection.
-    paused_until: subscription.pause_collection
-      ? subscription.pause_collection.resumes_at
-        ? new Date(subscription.pause_collection.resumes_at * 1000).toISOString()
-        : "infinity"
-      : null,
+  }
+
+  // While paused, rentals are blocked until collection resumes. After a
+  // resume, a period whose renewal was voided during the pause is unpaid, so
+  // the block holds until it ends (same rule as pause-subscription undo).
+  if (subscription.pause_collection) {
+    update.paused_until = subscription.pause_collection.resumes_at
+      ? new Date(subscription.pause_collection.resumes_at * 1000).toISOString()
+      : "infinity"
+  } else {
+    const latestInvoiceId =
+      typeof subscription.latest_invoice === "string"
+        ? subscription.latest_invoice
+        : subscription.latest_invoice?.id
+    const latestInvoice = latestInvoiceId
+      ? await stripe.invoices.retrieve(latestInvoiceId)
+      : null
+    update.paused_until =
+      latestInvoice?.status === "void"
+        ? new Date(subscription.current_period_end * 1000).toISOString()
+        : null
   }
 
   if (planKey) update.plan = planKey
