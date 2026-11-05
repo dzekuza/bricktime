@@ -6,7 +6,11 @@ import { supabase } from "@/lib/supabase"
 export interface CreditsState {
   totalCredits: number
   usedCredits: number
+  // Never below 0. Held sets can outweigh the budget (sets rented before the
+  // server-side budget check, admin-created orders, a plan that dropped while
+  // sets were held); the excess is reported separately in overBudgetCredits.
   remainingCredits: number
+  overBudgetCredits: number
   loading: boolean
 }
 
@@ -46,7 +50,8 @@ export function useCredits(): CreditsState {
   return {
     totalCredits,
     usedCredits,
-    remainingCredits: totalCredits - usedCredits,
+    remainingCredits: Math.max(0, totalCredits - usedCredits),
+    overBudgetCredits: Math.max(0, usedCredits - totalCredits),
     loading,
   }
 }

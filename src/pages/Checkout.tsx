@@ -240,7 +240,7 @@ export default function Checkout() {
       ] ?? tierByName.standard,
     [product, tierParam]
   )
-  const { remainingCredits } = useCredits()
+  const { remainingCredits, overBudgetCredits } = useCredits()
   const { available: productAvailability } = useProductAvailability()
   const hasTier = useMemo(
     () =>
@@ -249,7 +249,9 @@ export default function Checkout() {
       (product?.allowed_tiers ?? []).includes(userSub.key),
     [productId, userSub, product?.allowed_tiers]
   )
-  const hasCredits = remainingCredits >= (product?.value ?? 0)
+  // The orders insert trigger rejects any rental while over budget, even a 0-value one.
+  const hasCredits =
+    overBudgetCredits === 0 && remainingCredits >= (product?.value ?? 0)
   const [daysUntilCancel, setDaysUntilCancel] = useState<number | null>(null)
   useEffect(() => {
     if (!cancelAt) {

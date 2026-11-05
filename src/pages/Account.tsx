@@ -233,7 +233,7 @@ export default function Account() {
   const { user, profile, signOut, refreshProfile } = useAuth()
   const [deleteAccountOpen, setDeleteAccountOpen] = useState(false)
   const { subscriptions: dbPlans } = useSubscriptions()
-  const { totalCredits, remainingCredits } = useCredits()
+  const { totalCredits, remainingCredits, overBudgetCredits } = useCredits()
   const { achievements } = useAchievements()
   const tierOptions = useMemo(
     () =>
@@ -889,6 +889,14 @@ export default function Account() {
                 ))}
               </div>
 
+              {overBudgetCredits > 0 && (
+                <p className="mt-4 text-[13px] text-ink/60">
+                  Turimi rinkiniai viršija tavo plano biudžetą{" "}
+                  {overBudgetCredits} briksių. Grąžink rinkinį, kad galėtum
+                  pasirinkti naują.
+                </p>
+              )}
+
               <div className="mt-auto flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t-2 border-ink/10 pt-5">
                 <button
                   onClick={signOut}
@@ -1135,6 +1143,10 @@ export default function Account() {
                     }
                     code={discount.applied}
                     isSwap={hasSubscription}
+                    isDowngrade={
+                      hasSubscription &&
+                      (tierOptions[selectedTier]?.price ?? 0) < activeTier.price
+                    }
                   />
                   {planChangeError && (
                     <p className="font-mono text-[11px] text-red-500">
