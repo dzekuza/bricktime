@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button"
 import { supabase } from "@/lib/supabase"
 import {
   MERCH_ORDER_STATUS_LABEL,
+  STOCK_SHORT_LABEL,
   MERCH_ORDER_STATUS_VARIANT,
   type MerchOrder,
   type MerchOrderPatch,
@@ -141,15 +142,20 @@ export function MerchOrdersPanel() {
       {
         accessorKey: "status",
         header: "Status",
-        cell: ({ getValue }) => {
+        cell: ({ row, getValue }) => {
           const status = getValue<MerchOrderStatus>()
           return (
-            <Badge variant={MERCH_ORDER_STATUS_VARIANT[status]}>
-              {MERCH_ORDER_STATUS_LABEL[status]}
-            </Badge>
+            <div className="flex flex-wrap gap-1">
+              <Badge variant={MERCH_ORDER_STATUS_VARIANT[status]}>
+                {MERCH_ORDER_STATUS_LABEL[status]}
+              </Badge>
+              {row.original.stock_short && (
+                <Badge variant="destructive">{STOCK_SHORT_LABEL}</Badge>
+              )}
+            </div>
           )
         },
-        size: 130,
+        size: 160,
       },
       {
         accessorKey: "created_at",
