@@ -553,6 +553,21 @@ export default function Account() {
   const pendingTier = subscriber?.pending_plan
     ? tierOptions.find((t) => t.key === subscriber.pending_plan)
     : undefined
+  const subscriptionNotices = (
+    <SubscriptionNotices
+      pendingPlanName={pendingTier?.name ?? null}
+      pendingCredits={
+        pendingTier
+          ? (dbPlans.find((p) => p.id === pendingTier.key)?.credits ?? null)
+          : null
+      }
+      cancelRequested={subscriber?.cancel_requested ?? false}
+      cancelAt={subscriber?.cancel_at ?? null}
+      busy={subscriptionBusy}
+      onWithdrawPlan={withdrawPendingPlan}
+      onUndoCancel={() => cancelSubscription(true)}
+    />
+  )
   const activeAvatar = avatarOptions[selectedAvatarId] ?? avatarOptions[0]
   const totalPoints =
     dbPoints ??
@@ -775,6 +790,11 @@ export default function Account() {
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="bg-paper pb-4">
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
+          {hasSubscription && (
+            <div className="mb-4 flex flex-col gap-3">
+              {subscriptionNotices}
+            </div>
+          )}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
             {/* User tile */}
             <div className="brick-card flex flex-col gap-7 bg-paper p-6 md:min-h-[340px] md:p-9 lg:col-span-8">
@@ -929,8 +949,8 @@ export default function Account() {
                 <div className="mt-auto flex gap-3 pt-6 md:hidden">
                   <button
                     className="flex-1 rounded-full border-2 border-ink bg-ink px-3 py-2 text-[14px] font-bold text-paper transition-colors hover:bg-paper hover:text-ink"
-                    onClick={openBillingPortal}
-                    disabled={portalLoading}
+                    onClick={() => cancelSubscription()}
+                    disabled={subscriptionBusy}
                   >
                     Atšaukti
                   </button>
@@ -950,8 +970,8 @@ export default function Account() {
                   </button>
                   <button
                     className="rounded-full border-2 border-ink bg-paper px-3 py-2 text-[14px] font-bold text-ink transition-colors hover:bg-ink hover:text-paper"
-                    onClick={openBillingPortal}
-                    disabled={portalLoading}
+                    onClick={() => cancelSubscription()}
+                    disabled={subscriptionBusy}
                   >
                     Atšaukti
                   </button>
@@ -1325,20 +1345,7 @@ export default function Account() {
                     <p className="text-center font-mono text-[10px] text-ink/30">
                       Kortelė · istorija
                     </p>
-                    <SubscriptionNotices
-                      pendingPlanName={pendingTier?.name ?? null}
-                      pendingCredits={
-                        pendingTier
-                          ? (dbPlans.find((p) => p.id === pendingTier.key)
-                              ?.credits ?? null)
-                          : null
-                      }
-                      cancelRequested={subscriber?.cancel_requested ?? false}
-                      cancelAt={subscriber?.cancel_at ?? null}
-                      busy={subscriptionBusy}
-                      onWithdrawPlan={withdrawPendingPlan}
-                      onUndoCancel={() => cancelSubscription(true)}
-                    />
+                    {subscriptionNotices}
                   </>
                 ) : (
                   <button

@@ -33,27 +33,51 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-  SidebarSeparator,
 } from "@/components/ui/sidebar"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
-const navMain = [
-  { label: "Dashboard", to: "/", icon: LayoutDashboardIcon },
-  { label: "Analytics", to: "/analytics", icon: LineChartIcon },
-  { label: "Products", to: "/products", icon: PackageIcon },
-  { label: "Content", to: "/content", icon: FileTextIcon },
-  { label: "Customers & Subscribers", to: "/subscribers", icon: UsersIcon },
-  { label: "Plans", to: "/plans", icon: CreditCardIcon },
-  { label: "Orders", to: "/orders", icon: ShoppingCartIcon },
-  { label: "Coupons", to: "/coupons", icon: TicketIcon },
-  { label: "Rewards", to: "/achievements", icon: TrophyIcon },
-  { label: "Points", to: "/points", icon: AwardIcon },
-  { label: "Community", to: "/community", icon: MessageSquareIcon },
-  { label: "Reviews", to: "/reviews", icon: StarIcon },
-  { label: "Challenges", to: "/challenges", icon: FlagIcon },
-  { label: "Missing Parts", to: "/missing-parts", icon: WrenchIcon },
-  { label: "Merch", to: "/merch", icon: ShirtIcon },
-  { label: "Gift Cards", to: "/gift-cards", icon: GiftIcon },
+const navGroups = [
+  {
+    label: "Overview",
+    items: [
+      { label: "Dashboard", to: "/", icon: LayoutDashboardIcon },
+      { label: "Analytics", to: "/analytics", icon: LineChartIcon },
+    ],
+  },
+  {
+    label: "Catalog",
+    items: [
+      { label: "Products", to: "/products", icon: PackageIcon },
+      { label: "Merch", to: "/merch", icon: ShirtIcon },
+      { label: "Content", to: "/content", icon: FileTextIcon },
+    ],
+  },
+  {
+    label: "Sales",
+    items: [
+      { label: "Orders", to: "/orders", icon: ShoppingCartIcon },
+      { label: "Plans", to: "/plans", icon: CreditCardIcon },
+      { label: "Coupons", to: "/coupons", icon: TicketIcon },
+      { label: "Gift Cards", to: "/gift-cards", icon: GiftIcon },
+    ],
+  },
+  {
+    label: "Customers",
+    items: [
+      { label: "Customers & Subscribers", to: "/subscribers", icon: UsersIcon },
+      { label: "Reviews", to: "/reviews", icon: StarIcon },
+      { label: "Missing Parts", to: "/missing-parts", icon: WrenchIcon },
+    ],
+  },
+  {
+    label: "Engagement",
+    items: [
+      { label: "Rewards", to: "/achievements", icon: TrophyIcon },
+      { label: "Points", to: "/points", icon: AwardIcon },
+      { label: "Challenges", to: "/challenges", icon: FlagIcon },
+      { label: "Community", to: "/community", icon: MessageSquareIcon },
+    ],
+  },
 ]
 
 const navSecondary = [
@@ -89,31 +113,31 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navMain.map((item) => (
-                <SidebarMenuItem key={item.to}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.to)}
-                    tooltip={item.label}
-                  >
-                    <NavLink to={item.to}>
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {navGroups.map((group) => (
+          <SidebarGroup key={group.label}>
+            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item) => (
+                  <SidebarMenuItem key={item.to}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive(item.to)}
+                      tooltip={item.label}
+                    >
+                      <NavLink to={item.to}>
+                        <item.icon />
+                        <span>{item.label}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
 
-        <SidebarSeparator />
-
-        <SidebarGroup>
+        <SidebarGroup className="mt-auto">
           <SidebarGroupContent>
             <SidebarMenu>
               {navSecondary.map((item) => (

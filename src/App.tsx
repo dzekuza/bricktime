@@ -17,6 +17,7 @@ import {
 } from "@/pages/HelpPages"
 import MerchPage from "@/pages/Merch"
 import MerchDrop from "@/pages/MerchDrop"
+import MerchThankYou from "@/pages/MerchThankYou"
 import GiftCards from "@/pages/GiftCards"
 import About from "@/pages/About"
 import Contacts from "@/pages/Contacts"
@@ -66,6 +67,7 @@ export default function App() {
         <Route path="/drop/:id" element={<Drop />} />
         <Route path="/profile/:userId" element={<UserProfile />} />
         <Route path="/merch" element={<MerchPage />} />
+        <Route path="/merch/aciu" element={<MerchThankYou />} />
         <Route path="/merch/:slug" element={<MerchDrop />} />
         <Route path="/gift-cards" element={<GiftCards />} />
         <Route path="/duk" element={<FAQPage />} />
