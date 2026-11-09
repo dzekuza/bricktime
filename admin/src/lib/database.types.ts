@@ -797,8 +797,11 @@ export type Database = {
           buyer_name: string | null
           buyer_phone: string | null
           created_at: string
+          delivery_method: string
           id: string
           item_name: string
+          lp_terminal_id: string | null
+          lp_terminal_name: string | null
           merch_item_id: string | null
           order_number: number
           shipped_at: string | null
@@ -818,8 +821,11 @@ export type Database = {
           buyer_name?: string | null
           buyer_phone?: string | null
           created_at?: string
+          delivery_method?: string
           id?: string
           item_name: string
+          lp_terminal_id?: string | null
+          lp_terminal_name?: string | null
           merch_item_id?: string | null
           order_number?: never
           shipped_at?: string | null
@@ -839,8 +845,11 @@ export type Database = {
           buyer_name?: string | null
           buyer_phone?: string | null
           created_at?: string
+          delivery_method?: string
           id?: string
           item_name?: string
+          lp_terminal_id?: string | null
+          lp_terminal_name?: string | null
           merch_item_id?: string | null
           order_number?: never
           shipped_at?: string | null
@@ -1886,6 +1895,9 @@ export type Database = {
           p_buyer_email: string
           p_buyer_name: string
           p_buyer_phone: string
+          p_delivery_method?: string
+          p_lp_terminal_id?: string
+          p_lp_terminal_name?: string
           p_merch_item_id: string
           p_shipping_address: Json
           p_size: string
