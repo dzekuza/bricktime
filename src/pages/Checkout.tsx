@@ -410,7 +410,7 @@ export default function Checkout() {
           recipientEmail: gcRecipient,
           buyerEmail: gcBuyer,
           message: gcMessage || null,
-          successUrl: `${origin}/gift-cards?payment=success&code={CODE}&session={SESSION_ID}&recipient=${encodeURIComponent(gcRecipient)}&buyer=${encodeURIComponent(gcBuyer)}&amount=${gcAmount}`,
+          successUrl: `${origin}/gift-cards?payment=success&code={CODE}&session={SESSION_ID}&recipient=${encodeURIComponent(gcRecipient)}&buyer=${encodeURIComponent(gcBuyer)}&amount=${gcAmount}${gcMessage ? `&message=${encodeURIComponent(gcMessage)}` : ""}`,
           cancelUrl: `${origin}/gift-cards`,
         },
       }
@@ -1521,6 +1521,8 @@ export default function Checkout() {
                         : 0
                     }
                     isSwap={userSub != null}
+                    chargePrice={discountedPrice}
+                    giftCardCredit={(appliedGiftCard?.amountCents ?? 0) / 100}
                   />
 
                   {/* Delivery selector */}

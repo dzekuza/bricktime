@@ -38,11 +38,13 @@ function SuccessBanner({
   recipientEmail,
   buyerEmail,
   amountCents,
+  message,
 }: {
   code: string
   recipientEmail: string
   buyerEmail: string
   amountCents: number
+  message: string
 }) {
   const expiresAt = new Date()
   expiresAt.setFullYear(expiresAt.getFullYear() + 1)
@@ -82,6 +84,7 @@ function SuccessBanner({
               recipientEmail,
               buyerEmail: buyerEmail || undefined,
               expiresAt,
+              message: message || undefined,
             })
           }
           className="shrink-0 rounded-[22px] border-2 border-ink bg-ink px-5 py-3 font-mono text-[12px] font-bold tracking-[.08em] text-paper uppercase transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[4px_4px_0_#001B21]"
@@ -101,6 +104,7 @@ export default function GiftCards() {
   const recipientEmailFromUrl = searchParams.get("recipient") ?? ""
   const buyerEmailFromUrl = searchParams.get("buyer") ?? ""
   const successAmountCents = Number(searchParams.get("amount") ?? 0)
+  const successMessage = searchParams.get("message") ?? ""
 
   const navigate = useNavigate()
   const [selected, setSelected] = useState<number | null>(null)
@@ -169,6 +173,7 @@ export default function GiftCards() {
               recipientEmail={recipientEmailFromUrl}
               buyerEmail={buyerEmailFromUrl}
               amountCents={successAmountCents}
+              message={successMessage}
             />
           ) : (
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-[auto_1fr] lg:items-start">

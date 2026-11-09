@@ -8,6 +8,10 @@ type UpgradePriceNotesProps = {
   deliveryFee: number
   // The member already has a subscription that is swapped, not a new one.
   isSwap: boolean
+  // Price per month after a promo code; equals monthlyPrice without one.
+  chargePrice: number
+  // Gift card credit in euros; it only reduces the first invoice.
+  giftCardCredit: number
 }
 
 // Spells out what the headline per-month price turns into, so the amount
@@ -17,9 +21,14 @@ export function UpgradePriceNotes({
   isAnnual,
   deliveryFee,
   isSwap,
+  chargePrice,
+  giftCardCredit,
 }: UpgradePriceNotesProps) {
   const months = isAnnual ? 12 : 1
   const periodTotal = (monthlyPrice + deliveryFee) * months
+  const firstInvoice = (chargePrice + deliveryFee) * months
+  const todayTotal = Math.max(0, firstInvoice - giftCardCredit)
+  const showToday = giftCardCredit > 0 && !isSwap
   const notes = [
     deliveryFee > 0 &&
       `+ ${euro(deliveryFee)}/mėn. pristatymas į duris (jau yra tavo plane).`,
@@ -31,9 +40,14 @@ export function UpgradePriceNotes({
         : "Dabar sumokėsi tik kainų skirtumą, vėliau – pilną mėnesio kainą. Antra prenumerata nekuriama."),
   ].filter((note): note is string => typeof note === "string")
 
-  if (notes.length === 0) return null
+  if (notes.length === 0 && !showToday) return null
   return (
     <div className="mt-2 flex flex-col gap-1">
+      {showToday && (
+        <p className="font-mono text-[13px] font-bold leading-relaxed text-ink">
+          Šiandien mokėsi {euro(todayTotal)} (po {euro(giftCardCredit)} kupono).
+        </p>
+      )}
       {notes.map((note) => (
         <p
           key={note}
