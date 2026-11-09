@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 import { applyCoupon } from "../_shared/coupon.ts"
 import { flatUpgradeDiffCents } from "../_shared/plan-change.ts"
+import { getVatTaxRateId } from "../_shared/vat.ts"
 import {
   fitsWithinCredits,
   getHeldBrickValue,
@@ -105,6 +106,7 @@ async function chargeUpgradeDifference(
     collection_method: "charge_automatically",
     auto_advance: false,
     pending_invoice_items_behavior: "include",
+    default_tax_rates: [await getVatTaxRateId(stripe)],
   })
   try {
     const finalized = await stripe.invoices.finalizeInvoice(draft.id)

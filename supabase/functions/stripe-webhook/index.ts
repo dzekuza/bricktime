@@ -140,7 +140,7 @@ async function handleGiftCardCheckout(session: Stripe.Checkout.Session) {
       buyerEmail: giftCard.buyer_email,
       recipientEmail: giftCard.recipient_email,
       message: giftCard.message ?? "",
-      expiresAt: giftCard.expires_at,
+      expiresAt: String(giftCard.expires_at).slice(0, 10),
       purchasedAt: giftCard.created_at,
       redeemUrl: `https://www.bricktime.lt/gift-cards?code=${encodeURIComponent(giftCard.code)}`,
     }
@@ -185,6 +185,7 @@ async function handleMerchCheckout(session: Stripe.Checkout.Session) {
   const customer = session.customer_details ?? null
   const email = customer?.email ?? session.customer_email ?? null
   const userId = session.metadata?.userId || null
+  const isTerminal = session.metadata?.deliveryMethod === "terminal"
 
   const { data: isNew, error } = await supabase.rpc("record_merch_order", {
     p_merch_item_id: itemId,
@@ -200,6 +201,13 @@ async function handleMerchCheckout(session: Stripe.Checkout.Session) {
       typeof session.payment_intent === "string"
         ? session.payment_intent
         : null,
+    p_delivery_method: isTerminal ? "terminal" : "courier",
+    p_lp_terminal_id: isTerminal
+      ? (session.metadata?.lpTerminalId ?? null)
+      : null,
+    p_lp_terminal_name: isTerminal
+      ? (session.metadata?.lpTerminalName ?? null)
+      : null,
   })
   if (error) {
     throw new Error(
@@ -658,6 +666,19 @@ async function handleSubscriptionCheckout(session: Stripe.Checkout.Session) {
     if (homeDelivery !== undefined) update.home_delivery = homeDelivery
 
     await supabase.from("subscribers").update(update).eq("id", subscriber.id)
+  }
+
+  // Not thrown on failure: the rows above are already written and a Stripe
+  // retry would redeem the coupon and gift card a second time.
+  const email = session.customer_details?.email ?? session.customer_email
+  if (email && !isOtherLive) {
+    await pushOmnisendEvent("subscription started", email, {
+      planKey: planKey ?? "",
+      billing: session.metadata?.billing ?? "monthly",
+      homeDelivery: homeDelivery ?? false,
+      amountPaid: (session.amount_total ?? 0) / 100,
+      startedAt: new Date().toISOString(),
+    })
   }
 }
 
