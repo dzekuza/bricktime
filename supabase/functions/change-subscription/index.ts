@@ -88,12 +88,48 @@ async function resolveDiscountCode(
   return { kind: "gift", code: card.code, cents: card.amount_cents }
 }
 
+// Stripe Checkout normally leaves a default payment method on the customer,
+// but older/migrated subscribers can lack one, which makes invoices.pay()
+// fail with a raw "no default_payment_method" error. Resolve one explicitly
+// (subscription default, then customer default, then the customer's first
+// saved card) so the gap invoice always has something to charge.
+async function resolveChargeablePaymentMethod(
+  customerId: string,
+  subscription: Stripe.Subscription
+): Promise<string> {
+  const subscriptionPm =
+    typeof subscription.default_payment_method === "string"
+      ? subscription.default_payment_method
+      : subscription.default_payment_method?.id
+  if (subscriptionPm) return subscriptionPm
+
+  const customer = await stripe.customers.retrieve(customerId)
+  if (!("deleted" in customer && customer.deleted)) {
+    const defaultPm = (customer as Stripe.Customer).invoice_settings
+      ?.default_payment_method
+    const customerPm =
+      typeof defaultPm === "string" ? defaultPm : defaultPm?.id
+    if (customerPm) return customerPm
+  }
+
+  const methods = await stripe.paymentMethods.list({
+    customer: customerId,
+    type: "card",
+  })
+  if (methods.data[0]) return methods.data[0].id
+
+  throw new Error(
+    "Nerastas joks mokėjimo būdas. Pridėk kortelę atsiskaitymų skiltyje ir bandyk dar kartą."
+  )
+}
+
 // Bills the upgrade gap as its own invoice and settles it before the plan is
 // swapped, so a failed payment leaves the old plan untouched.
 async function chargeUpgradeDifference(
   customerId: string,
   cents: number,
-  planName: string
+  planName: string,
+  paymentMethodId: string
 ): Promise<Stripe.Invoice> {
   await stripe.invoiceItems.create({
     customer: customerId,
@@ -107,13 +143,16 @@ async function chargeUpgradeDifference(
     auto_advance: false,
     pending_invoice_items_behavior: "include",
     default_tax_rates: [await getVatTaxRateId(stripe)],
+    default_payment_method: paymentMethodId,
   })
   try {
     const finalized = await stripe.invoices.finalizeInvoice(draft.id)
     // A gift-card balance can cover the whole gap, leaving nothing to pay.
     return finalized.status === "paid"
       ? finalized
-      : await stripe.invoices.pay(finalized.id)
+      : await stripe.invoices.pay(finalized.id, {
+          payment_method: paymentMethodId,
+        })
   } catch (err) {
     await stripe.invoices
       .voidInvoice(draft.id)
@@ -402,10 +441,15 @@ Deno.serve(async (req) => {
     let upgradeInvoice: Stripe.Invoice | null = null
     try {
       if (flatDiffCents != null) {
+        const paymentMethodId = await resolveChargeablePaymentMethod(
+          customerId,
+          subscription
+        )
         upgradeInvoice = await chargeUpgradeDifference(
           customerId,
           flatDiffCents,
-          plan.name ?? planKey
+          plan.name ?? planKey,
+          paymentMethodId
         )
       }
       await stripe.subscriptions.update(subscription.id, {
