@@ -5,13 +5,12 @@
 > it (don't append) whenever the state changes. History belongs in [[session-log]]
 > and [[changelog]], not here.
 
-**Last updated:** 2026-11-05
+**Last updated:** 2026-11-10
 
 ## Current focus
 
-Tester (Justinas) feedback round on billing, rentals and shipping — branch
-`fix/billing-safety`, stacked on dzekuza/bricktime#97 (`feat/merch-orders-and-fixes`),
-which overlaps dzekuza/bricktime#96.
+Branch `feat/vat-invoices-merch-delivery` (pushed, no PR yet): VAT invoices, welcome
+email event, merch delivery choice, stats fix, nav fix. See [[session-log]].
 
 ## Done recently
 
@@ -28,9 +27,9 @@ which overlaps dzekuza/bricktime#96.
 
 ## Next up
 
-1. Real test purchase on production: subscribe, upgrade from rental Checkout, courier rental + admin label, pause and resume, gift card purchase.
-2. Make sure the Stripe webhook endpoint sends `checkout.session.async_payment_succeeded`.
-3. Omnisend automations for `merch order placed` and `gift card purchased`.
+1. Commit + redeploy `stripe-webhook` (enriched `subscription started` payload), deploy `change-subscription` (VAT on gap invoice), open the PR.
+2. Build the welcome automation in the BRICKTIME Omnisend account ([[welcome-email]]); the MCP there is the SKIN365 account.
+3. Stripe dashboard: seller details, VAT id, invoice numbering. Then a real test purchase incl. a merch terminal order.
 
 ## Blockers & open questions
 
