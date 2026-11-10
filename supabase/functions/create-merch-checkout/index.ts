@@ -13,6 +13,7 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
 // longer so the card can't be freed while the session can still be paid.
 const SESSION_TTL_MINUTES = 30
 const GIFT_CARD_HOLD_MINUTES = 35
+const COURIER_FEE_CENTS = 300
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,10 +27,29 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { itemId, size, successUrl, cancelUrl, userEmail, code } =
-      await req.json()
+    const {
+      itemId,
+      size,
+      successUrl,
+      cancelUrl,
+      userEmail,
+      code,
+      deliveryMethod,
+      terminal,
+    } = await req.json()
 
     if (!itemId || !size) throw new Error("itemId and size are required")
+
+    // The fee is decided here, never taken from the client.
+    const isTerminal = deliveryMethod === "terminal"
+    if (deliveryMethod !== "terminal" && deliveryMethod !== "courier") {
+      throw new Error("Pasirink pristatymo būdą")
+    }
+    const terminalId = isTerminal ? String(terminal?.id ?? "").trim() : ""
+    const terminalName = isTerminal ? String(terminal?.name ?? "").trim() : ""
+    if (isTerminal && (!terminalId || !terminalName)) {
+      throw new Error("Pasirink paštomatą")
+    }
 
     // Fetch item from DB to get canonical price + name
     const supabase = createClient(
@@ -110,7 +130,24 @@ Deno.serve(async (req) => {
             },
             quantity: 1,
           },
+          ...(isTerminal
+            ? []
+            : [
+                {
+                  price_data: {
+                    currency: "eur",
+                    product_data: { name: "Pristatymas kurjeriu iki durų" },
+                    unit_amount: COURIER_FEE_CENTS,
+                  },
+                  quantity: 1,
+                },
+              ]),
         ],
+        ...(isTerminal && {
+          custom_text: {
+            submit: { message: `Pristatymas į paštomatą: ${terminalName}` },
+          },
+        }),
         customer_email: userEmail ?? undefined,
         invoice_creation: { enabled: true },
         // A held code must settle inside its hold. Delayed methods can take
@@ -124,6 +161,11 @@ Deno.serve(async (req) => {
           itemId,
           size,
           userId,
+          deliveryMethod,
+          ...(isTerminal && {
+            lpTerminalId: terminalId,
+            lpTerminalName: terminalName.slice(0, 450),
+          }),
           ...(discount?.kind === "coupon" && {
             couponCode: discount.code,
             ...(discount.holdId && { couponHoldId: discount.holdId }),
@@ -133,20 +175,23 @@ Deno.serve(async (req) => {
           }),
         },
         phone_number_collection: { enabled: true },
-        shipping_address_collection: {
-          allowed_countries: [
-            "LT",
-            "LV",
-            "EE",
-            "PL",
-            "DE",
-            "FR",
-            "GB",
-            "NL",
-            "SE",
-            "FI",
-          ],
-        },
+        // A terminal order is picked up, so no street address is needed.
+        ...(!isTerminal && {
+          shipping_address_collection: {
+            allowed_countries: [
+              "LT",
+              "LV",
+              "EE",
+              "PL",
+              "DE",
+              "FR",
+              "GB",
+              "NL",
+              "SE",
+              "FI",
+            ],
+          },
+        }),
       })
 
       return new Response(JSON.stringify({ url: session.url }), {

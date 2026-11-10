@@ -105,7 +105,7 @@ function PlanChip({ plan }: { plan: string }) {
   return (
     <Link
       to="/account"
-      className="-mr-4 hidden items-center rounded-full border-2 border-ink px-3.5 py-[7px] md:flex"
+      className="-mr-4 hidden items-center rounded-full border-2 border-ink px-3.5 py-[7px] whitespace-nowrap md:flex"
       style={{ background: bg }}
     >
       <span
@@ -126,7 +126,7 @@ function CreditsPill() {
 
   return (
     <>
-      <div className="mr-2 hidden items-center gap-1.5 rounded-full border-2 border-ink bg-paper px-3.5 py-[7px] md:flex">
+      <div className="mr-2 hidden items-center gap-1.5 rounded-full border-2 border-ink bg-paper px-3.5 py-[7px] whitespace-nowrap md:flex">
         <span className="font-mono text-[11px] font-bold tracking-[.12em] text-ink uppercase">
           {loading ? "…" : `${remainingCredits} Briksiai`}
         </span>
@@ -202,12 +202,12 @@ export default function Nav() {
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <div
             className={[
-              "flex h-[84px] items-center justify-between rounded-[28px] border-2 border-ink bg-paper px-7 transition-all duration-300 md:grid md:grid-cols-[1fr_auto_1fr]",
+              "flex h-[84px] items-center justify-between rounded-[28px] border-2 border-ink bg-paper px-7 transition-all duration-300 lg:grid lg:grid-cols-[1fr_auto_1fr]",
               scrolled ? "shadow-[6px_6px_0_#001B21]" : "shadow-none",
             ].join(" ")}
           >
             {/* Left — desktop nav links */}
-            <div className="hidden items-center gap-7 md:flex">
+            <div className="hidden items-center gap-5 lg:flex xl:gap-7">
               {links.map((l) => {
                 const isActive =
                   l.to === "/"
@@ -217,7 +217,7 @@ export default function Nav() {
                   <Link
                     key={l.label}
                     to={l.to}
-                    className={`relative text-[15px] font-semibold text-ink after:absolute after:right-0 after:-bottom-1.5 after:left-0 after:h-[2px] after:origin-left after:bg-ink after:transition-transform after:duration-200 after:content-[''] ${isActive ? "after:scale-x-100" : "after:scale-x-0 hover:after:scale-x-100"}`}
+                    className={`relative text-[15px] font-semibold whitespace-nowrap text-ink after:absolute after:right-0 after:-bottom-1.5 after:left-0 after:h-[2px] after:origin-left after:bg-ink after:transition-transform after:duration-200 after:content-[''] ${isActive ? "after:scale-x-100" : "after:scale-x-0 hover:after:scale-x-100"}`}
                   >
                     {l.label}
                   </Link>
@@ -225,7 +225,7 @@ export default function Nav() {
               })}
             </div>
 
-            <Link to="/" className="flex items-center md:justify-self-center">
+            <Link to="/" className="flex items-center lg:justify-self-center">
               <BrandLogoVideo className="h-16 w-auto object-contain" />
             </Link>
 
@@ -240,7 +240,7 @@ export default function Nav() {
                 ) : (
                   <Link
                     to="/subscribe"
-                    className="brick-hover-sm -mr-3 hidden items-center gap-2 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[15px] font-bold text-paper md:inline-flex"
+                    className="brick-hover-sm -mr-3 hidden items-center gap-2 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[15px] font-bold text-paper lg:inline-flex"
                   >
                     Pradėk konstruoti <ArrowRightIcon className="size-4" />
                   </Link>
@@ -251,7 +251,7 @@ export default function Nav() {
                 <AvatarPopover />
                 <button
                   onClick={() => setOpen((v) => !v)}
-                  className="grid size-9 place-items-center rounded-full border-2 border-ink bg-paper md:hidden"
+                  className="grid size-9 place-items-center rounded-full border-2 border-ink bg-paper lg:hidden"
                   aria-label={open ? "Uždaryti meniu" : "Atidaryti meniu"}
                 >
                   {open ? (
@@ -270,12 +270,12 @@ export default function Nav() {
 
       {/* Mobile top drawer — slides down from under the header, height hugs content */}
       <div
-        className={`fixed inset-0 z-30 bg-ink/30 transition-opacity duration-300 md:hidden ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`fixed inset-0 z-30 bg-ink/30 transition-opacity duration-300 lg:hidden ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
         onClick={() => setOpen(false)}
         aria-hidden="true"
       />
       <div
-        className="fixed top-0 right-0 left-0 z-40 rounded-b-[28px] border-b-2 border-ink bg-paper transition-transform duration-300 ease-out md:hidden"
+        className="fixed top-0 right-0 left-0 z-40 rounded-b-[28px] border-b-2 border-ink bg-paper transition-transform duration-300 ease-out lg:hidden"
         style={{
           paddingTop: navHeight,
           transform: open ? "translateY(0)" : "translateY(-100%)",

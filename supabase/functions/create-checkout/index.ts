@@ -6,6 +6,7 @@ import {
 
 import { applyCoupon } from "../_shared/coupon.ts"
 import { assertNoDowngradeWhileHolding } from "../_shared/downgrade-guard.ts"
+import { getVatTaxRateId } from "../_shared/vat.ts"
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2024-06-20",
@@ -165,6 +166,30 @@ Deno.serve(async (req) => {
       )
     }
 
+    // Stripe renders invoices in the customer's preferred locale, so it has to
+    // be Lithuanian before the first invoice is finalized at checkout.
+    if (customerId) {
+      await stripe.customers.update(customerId, { preferred_locales: ["lt"] })
+    } else {
+      const [existing] = userEmail
+        ? (await stripe.customers.list({ email: userEmail, limit: 1 })).data
+        : []
+      customerId = existing
+        ? (
+            await stripe.customers.update(existing.id, {
+              preferred_locales: ["lt"],
+            })
+          ).id
+        : (
+            await stripe.customers.create({
+              email: userEmail ?? undefined,
+              preferred_locales: ["lt"],
+              metadata: { userId },
+            })
+          ).id
+    }
+    const vatTaxRateId = await getVatTaxRateId(stripe)
+
     // Legenda (mega) includes free courier delivery — never charge the add-on fee for it.
     const chargeHomeDeliveryFee = homeDelivery && planKey !== "mega"
 
@@ -274,9 +299,7 @@ Deno.serve(async (req) => {
           ...((giftCardCoupon || stripeCouponId) && {
             discounts: [{ coupon: (giftCardCoupon?.id ?? stripeCouponId)! }],
           }),
-          ...(customerId
-            ? { customer: customerId }
-            : { customer_email: userEmail ?? undefined }),
+          customer: customerId,
           client_reference_id: userId,
           success_url: successUrl,
           cancel_url: cancelUrl,
@@ -291,6 +314,7 @@ Deno.serve(async (req) => {
             ...(appliedCouponCode && { couponCode: appliedCouponCode }),
           },
           subscription_data: {
+            default_tax_rates: [vatTaxRateId],
             metadata: {
               userId,
               planKey,

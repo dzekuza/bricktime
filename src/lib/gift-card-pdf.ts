@@ -50,18 +50,22 @@ function formatDate(date: Date): string {
   return `${y}-${m}-${d}`
 }
 
+const DEFAULT_MESSAGE = "Smagaus konstravimo – mėgaukis kiekviena detale!"
+
 export async function downloadGiftCardPdf({
   code,
   amountCents,
   recipientEmail,
   buyerEmail,
   expiresAt,
+  message,
 }: {
   code: string
   amountCents: number
   recipientEmail: string
   buyerEmail?: string
   expiresAt: Date
+  message?: string
 }) {
   const doc = new jsPDF({ unit: "mm", format: "a5", orientation: "portrait" })
   await registerFonts(doc)
@@ -167,7 +171,7 @@ export async function downloadGiftCardPdf({
   doc.setFontSize(10)
   doc.setTextColor(...INK)
   const quote = doc.splitTextToSize(
-    "„Smagaus konstravimo – mėgaukis kiekviena detale!“",
+    `„${message?.trim() || DEFAULT_MESSAGE}“`,
     cardWidth - 8
   )
   doc.text(quote, pageWidth / 2, y + 6, { align: "center" })

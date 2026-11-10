@@ -15,7 +15,13 @@ import {
   MerchDiscountCode,
   type AppliedMerchCode,
 } from "@/components/merch/MerchDiscountCode"
+import {
+  MerchDelivery,
+  MERCH_COURIER_FEE,
+  type MerchDeliveryMethod,
+} from "@/components/merch/MerchDelivery"
 import { readFunctionError } from "@/lib/function-error"
+import type { LpTerminal } from "@/lib/lpexpress"
 
 const TYPE_LABEL: Record<string, string> = {
   hoodie: "Džemperis",
@@ -34,6 +40,9 @@ export default function MerchDrop() {
   const [buyError, setBuyError] = useState<string | null>(null)
   const [appliedCode, setAppliedCode] = useState<AppliedMerchCode | null>(null)
   const [activeImage, setActiveImage] = useState<string | null>(null)
+  const [deliveryMethod, setDeliveryMethod] =
+    useState<MerchDeliveryMethod>("terminal")
+  const [terminal, setTerminal] = useState<LpTerminal | null>(null)
 
   // image_url is the hero; image_urls are the extra shots behind it.
   const gallery = item
@@ -67,6 +76,27 @@ export default function MerchDrop() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, navigate])
 
+  // Prefill the terminal the member already uses for their rentals.
+  useEffect(() => {
+    if (!user) return
+    supabase
+      .from("subscribers")
+      .select("lp_terminal_id, lp_terminal_name")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!data?.lp_terminal_id || !data.lp_terminal_name) return
+        const saved: LpTerminal = {
+          id: data.lp_terminal_id,
+          name: data.lp_terminal_name,
+          city: "",
+          address: "",
+          postalCode: "",
+        }
+        setTerminal((prev) => prev ?? saved)
+      })
+  }, [user])
+
   if (loading) {
     return (
       <>
@@ -93,10 +123,14 @@ export default function MerchDrop() {
     Object.values(item.stock).every((qty) => qty <= 0)
 
   const priceCents = Math.round(Number(item.price) * 100)
-  const totalCents = priceCents - (appliedCode?.amountOffCents ?? 0)
+  const shippingCents =
+    deliveryMethod === "courier" ? MERCH_COURIER_FEE * 100 : 0
+  const totalCents =
+    priceCents - (appliedCode?.amountOffCents ?? 0) + shippingCents
+  const isDeliveryReady = deliveryMethod === "courier" || terminal !== null
 
   async function handleBuy() {
-    if (!selectedSize || !item) return
+    if (!selectedSize || !item || !isDeliveryReady) return
     setBuying(true)
     setBuyError(null)
     const origin = window.location.origin
@@ -109,6 +143,9 @@ export default function MerchDrop() {
           userEmail: user?.email ?? undefined,
           successUrl: `${origin}/merch/aciu?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: `${origin}/merch/${item.slug}`,
+          deliveryMethod,
+          ...(deliveryMethod === "terminal" &&
+            terminal && { terminal: { id: terminal.id, name: terminal.name } }),
           ...(appliedCode && { code: appliedCode.code }),
         },
       }
@@ -253,6 +290,12 @@ export default function MerchDrop() {
                   </div>
                 ) : (
                   <>
+                    <MerchDelivery
+                      method={deliveryMethod}
+                      onMethodChange={setDeliveryMethod}
+                      terminal={terminal}
+                      onTerminalChange={setTerminal}
+                    />
                     <MerchDiscountCode
                       priceCents={priceCents}
                       applied={appliedCode}
@@ -264,15 +307,17 @@ export default function MerchDrop() {
                     />
                     <Button
                       size="lg"
-                      disabled={!selectedSize || buying}
+                      disabled={!selectedSize || !isDeliveryReady || buying}
                       onClick={handleBuy}
                       className="mt-5 w-full justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)] disabled:opacity-40"
                     >
                       {buying
                         ? "Kraunama…"
-                        : selectedSize
-                          ? `Pirkti — ${selectedSize} · €${(totalCents / 100).toFixed(2)} →`
-                          : "Pasirink dydį"}
+                        : selectedSize && !isDeliveryReady
+                          ? "Pasirink paštomatą"
+                          : selectedSize
+                            ? `Pirkti — ${selectedSize} · €${(totalCents / 100).toFixed(2)} →`
+                            : "Pasirink dydį"}
                     </Button>
                     {buyError && (
                       <p className="mt-2 font-mono text-[12px] text-red-500">

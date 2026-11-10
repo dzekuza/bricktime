@@ -140,7 +140,7 @@ async function handleGiftCardCheckout(session: Stripe.Checkout.Session) {
       buyerEmail: giftCard.buyer_email,
       recipientEmail: giftCard.recipient_email,
       message: giftCard.message ?? "",
-      expiresAt: giftCard.expires_at,
+      expiresAt: String(giftCard.expires_at).slice(0, 10),
       purchasedAt: giftCard.created_at,
       redeemUrl: `https://www.bricktime.lt/gift-cards?code=${encodeURIComponent(giftCard.code)}`,
     }
@@ -185,6 +185,7 @@ async function handleMerchCheckout(session: Stripe.Checkout.Session) {
   const customer = session.customer_details ?? null
   const email = customer?.email ?? session.customer_email ?? null
   const userId = session.metadata?.userId || null
+  const isTerminal = session.metadata?.deliveryMethod === "terminal"
 
   const { data: isNew, error } = await supabase.rpc("record_merch_order", {
     p_merch_item_id: itemId,
@@ -200,6 +201,13 @@ async function handleMerchCheckout(session: Stripe.Checkout.Session) {
       typeof session.payment_intent === "string"
         ? session.payment_intent
         : null,
+    p_delivery_method: isTerminal ? "terminal" : "courier",
+    p_lp_terminal_id: isTerminal
+      ? (session.metadata?.lpTerminalId ?? null)
+      : null,
+    p_lp_terminal_name: isTerminal
+      ? (session.metadata?.lpTerminalName ?? null)
+      : null,
   })
   if (error) {
     throw new Error(
@@ -645,6 +653,19 @@ async function handleSubscriptionCheckout(session: Stripe.Checkout.Session) {
     subscriber &&
     subscriptionId &&
     (await isStoredSubscriptionOtherLive(subscriber.id, subscriptionId))
+
+  // Stripe delivers events at least once, so a repeat must not email again:
+  // the welcome goes out only when this subscription is not stored yet.
+  const { data: storedBefore } = subscriber
+    ? await supabase
+        .from("subscribers")
+        .select("stripe_subscription_id")
+        .eq("id", subscriber.id)
+        .maybeSingle()
+    : { data: null }
+  const isFirstDelivery =
+    storedBefore?.stripe_subscription_id !== subscriptionId
+
   if (subscriber && !isOtherLive) {
     const update: Record<string, unknown> = {
       status: "active",
@@ -659,6 +680,80 @@ async function handleSubscriptionCheckout(session: Stripe.Checkout.Session) {
 
     await supabase.from("subscribers").update(update).eq("id", subscriber.id)
   }
+
+  // Not thrown on failure: the rows above are already written and a Stripe
+  // retry would redeem the coupon and gift card a second time.
+  const email = session.customer_details?.email ?? session.customer_email
+  if (email && !isOtherLive && isFirstDelivery) {
+    await sendWelcomeEvent(
+      session,
+      email,
+      planKey,
+      homeDelivery,
+      subscriptionId
+    )
+  }
+}
+
+const formatLtDate = (date: Date) => date.toLocaleDateString("lt-LT")
+
+// Everything the welcome email shows is sent as event properties, so the
+// Omnisend template only places them. Lookups that fail fall back to blanks
+// rather than blocking the email.
+async function sendWelcomeEvent(
+  session: Stripe.Checkout.Session,
+  email: string,
+  planKey: string | undefined,
+  homeDelivery: boolean | undefined,
+  subscriptionId: string | undefined
+) {
+  let planName = ""
+  if (planKey) {
+    const { data: plan } = await supabase
+      .from("plans")
+      .select("name")
+      .eq("id", planKey)
+      .maybeSingle()
+    planName = plan?.name ?? ""
+  }
+
+  let nextPaymentAt = ""
+  let monthlyPrice = ""
+  if (subscriptionId) {
+    try {
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId)
+      nextPaymentAt = formatLtDate(
+        new Date(subscription.current_period_end * 1000)
+      )
+      // The recurring price before any one-off discount, per month.
+      const cents = subscription.items.data.reduce(
+        (sum: number, item: Stripe.SubscriptionItem) =>
+          sum + (item.price.unit_amount ?? 0) * (item.quantity ?? 1),
+        0
+      )
+      const isYearly =
+        subscription.items.data[0]?.price.recurring?.interval === "year"
+      monthlyPrice = (cents / (isYearly ? 12 : 1) / 100).toFixed(2)
+    } catch (e) {
+      console.error(
+        `Welcome email: subscription ${subscriptionId} not loaded`,
+        e
+      )
+    }
+  }
+
+  await pushOmnisendEvent("subscription started", email, {
+    planKey: planKey ?? "",
+    planName,
+    status: "Aktyvi",
+    billing: session.metadata?.billing ?? "monthly",
+    homeDelivery: homeDelivery ?? false,
+    amountPaid: (session.amount_total ?? 0) / 100,
+    monthlyPrice,
+    activatedAt: formatLtDate(new Date()),
+    nextPaymentAt,
+    catalogUrl: "https://www.bricktime.lt/archive",
+  })
 }
 
 Deno.serve(async (req) => {
