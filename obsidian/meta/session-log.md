@@ -1,6 +1,6 @@
 ## 2026-11-10 — VAT invoices, welcome event, merch delivery, stats, nav
 - **Changed:** branch `feat/vat-invoices-merch-delivery` (not merged, no PR yet): pay-today line + gift card message in PDF; 21% inclusive VAT (`_shared/vat.ts`) and `lt` locale on subscription checkout and plan-change gap invoices; `subscription started` Omnisend event with plan/dates/price (see [[welcome-email]]); merch delivery choice (terminal free, courier +3 EUR) with migration `20261109120000` (applied live); `public_stats.active_sets` = sum of stock, migration `20261109130000` (applied live, reads 98); nav hamburger below `lg`.
-- **Deployed live:** create-merch-checkout v11, create-checkout v13, stripe-webhook v17. **Not deployed:** change-subscription (VAT on gap invoice, awaiting owner OK) and the enriched `subscription started` payload (uncommitted local edit to stripe-webhook; needs commit + redeploy).
+- **Deployed live:** create-merch-checkout v11, create-checkout v13, stripe-webhook v17. Later same day: stripe-webhook v18 (enriched event) and change-subscription v15 (VAT on gap invoice) deployed too.
 - **Status:** Omnisend MCP is the SKIN365 account, so the BRICKTIME welcome automation must be built by hand; Stripe dashboard still needs seller details/VAT id/invoice numbering.
 - **Next:** commit + redeploy stripe-webhook, deploy change-subscription, open PR, build Omnisend automation, test merch terminal order.
 

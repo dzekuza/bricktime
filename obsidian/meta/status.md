@@ -27,7 +27,7 @@ email event, merch delivery choice, stats fix, nav fix. See [[session-log]].
 
 ## Next up
 
-1. Commit + redeploy `stripe-webhook` (enriched `subscription started` payload), deploy `change-subscription` (VAT on gap invoice), open the PR.
+1. Open the PR for `feat/vat-invoices-merch-delivery`. Live: create-merch-checkout v11, create-checkout v13, stripe-webhook v18, change-subscription v15 (multi-file layout, includes the 6cdd948 payment-method fix + VAT).
 2. Build the welcome automation in the BRICKTIME Omnisend account ([[welcome-email]]); the MCP there is the SKIN365 account.
 3. Stripe dashboard: seller details, VAT id, invoice numbering. Then a real test purchase incl. a merch terminal order.
 
