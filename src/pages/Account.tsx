@@ -820,6 +820,11 @@ export default function Account() {
               ...s,
               pending_plan: newTier.key,
               pending_schedule_id: swap.fits ? "scheduled" : null,
+              // effectiveAt is the renewal date the server just scheduled for.
+              current_period_end:
+                swap.fits && swap.effectiveAt
+                  ? swap.effectiveAt
+                  : s.current_period_end,
             }
           : s
       )
