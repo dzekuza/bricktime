@@ -15,7 +15,7 @@ const formatDate = (iso: string) => {
 }
 
 const BUTTON =
-  "brick-hover-sm rounded-xl border-2 border-ink px-4 py-3 font-mono text-[11px] tracking-[.14em] uppercase transition-all disabled:pointer-events-none disabled:opacity-50"
+  "brick-hover-sm rounded-full border-2 border-ink px-3 py-2.5 text-[14px] font-bold transition-all disabled:pointer-events-none disabled:opacity-50"
 
 interface PauseSubscriptionProps {
   pausedUntil: string | null

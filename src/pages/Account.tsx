@@ -1624,7 +1624,7 @@ export default function Account() {
                   <>
                     <button
                       onClick={openPlanChange}
-                      className="brick-hover-sm w-full rounded-xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[11px] tracking-[.14em] text-paper uppercase transition-all"
+                      className="brick-hover-sm w-full rounded-full border-2 border-ink bg-ink px-4 py-2.5 text-[14px] font-bold text-paper transition-all"
                     >
                       Keisti prenumeratą
                     </button>
@@ -1632,14 +1632,14 @@ export default function Account() {
                       <button
                         onClick={openBillingPortal}
                         disabled={portalLoading}
-                        className="brick-hover-sm rounded-xl border-2 border-ink bg-paper px-4 py-3 font-mono text-[11px] tracking-[.14em] text-ink uppercase transition-all disabled:pointer-events-none disabled:opacity-50"
+                        className="brick-hover-sm rounded-full border-2 border-ink bg-paper px-3 py-2.5 text-[14px] font-bold text-ink transition-all disabled:pointer-events-none disabled:opacity-50"
                       >
                         {portalLoading ? "Kraunama…" : "Mano prenumerata →"}
                       </button>
                       <button
                         onClick={() => cancelSubscription()}
                         disabled={subscriptionBusy}
-                        className="brick-hover-sm rounded-xl border-2 border-ink bg-paper px-4 py-3 font-mono text-[11px] tracking-[.14em] text-ink uppercase transition-all disabled:pointer-events-none disabled:opacity-50"
+                        className="brick-hover-sm rounded-full border-2 border-ink bg-paper px-3 py-2.5 text-[14px] font-bold text-ink transition-all disabled:pointer-events-none disabled:opacity-50"
                       >
                         Atšaukti
                       </button>
@@ -1668,7 +1668,7 @@ export default function Account() {
                 ) : (
                   <button
                     onClick={() => setShowUpgrade(true)}
-                    className="brick-hover-sm w-full rounded-xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[11px] tracking-[.14em] text-paper uppercase transition-all"
+                    className="brick-hover-sm w-full rounded-full border-2 border-ink bg-ink px-4 py-2.5 text-[14px] font-bold text-paper transition-all"
                   >
                     Pasirinkti planą →
                   </button>
