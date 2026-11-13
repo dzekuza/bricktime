@@ -34,6 +34,10 @@ import { TermsAgreement } from "@/components/TermsAgreement"
 import { PlanFitConfigurator } from "@/components/PlanFitConfigurator"
 import { getDisplayPlan } from "@/lib/product-filters"
 import { UpgradePriceNotes } from "@/components/checkout/UpgradePriceNotes"
+import {
+  PlanChangeConfirm,
+  type PlanChangeQuote,
+} from "@/components/checkout/PlanChangeConfirm"
 import type { Tier } from "@/components/ProductCard"
 
 const HOME_DELIVERY_FEE = 3
@@ -504,7 +508,20 @@ export default function Checkout() {
     return Math.max(0, basePrice - appliedCoupon.discount_value)
   }, [appliedCoupon, basePrice])
 
-  async function handleSubscribe() {
+  const [planChangeQuote, setPlanChangeQuote] =
+    useState<PlanChangeQuote | null>(null)
+
+  function handleSubscribe() {
+    return startSubscribe(false)
+  }
+
+  // The member has seen what the plan change will charge and agreed to it.
+  function confirmPlanChange() {
+    setPlanChangeQuote(null)
+    return startSubscribe(true)
+  }
+
+  async function startSubscribe(isConfirmed: boolean) {
     if (!user) {
       setPurchaseError("Prisijunk prie paskyros prieš perkant.")
       return
@@ -551,6 +568,47 @@ export default function Checkout() {
         return
       }
       const code = appliedGiftCard?.code ?? appliedCoupon?.code
+
+      // The swap bills the saved card with no Stripe page, so show the amount
+      // first. Nothing is charged or claimed by the preview.
+      if (!isConfirmed) {
+        const { data: quote, error: quoteError } =
+          await supabase.functions.invoke("change-subscription", {
+            body: {
+              planKey: requiredTier.key,
+              billing,
+              homeDelivery,
+              preview: true,
+              ...(code && { code }),
+            },
+          })
+        if (quoteError || quote?.error) {
+          setPurchasing(false)
+          setPurchaseError(
+            quote?.error ??
+              (await readFunctionError(
+                quoteError,
+                "Plano pakeisti nepavyko. Bandyk dar kartą."
+              ))
+          )
+          return
+        }
+        if (
+          quote?.preview &&
+          !quote.scheduled &&
+          (quote.amountCents > 0 || quote.creditCents > 0)
+        ) {
+          setPurchasing(false)
+          setPlanChangeQuote({
+            amountCents: quote.amountCents,
+            creditCents: quote.creditCents,
+            isProration: quote.isProration,
+            card: quote.card,
+          })
+          return
+        }
+      }
+
       const { data: swap, error: swapError } = await supabase.functions.invoke(
         "change-subscription",
         {
@@ -1922,6 +1980,13 @@ export default function Checkout() {
           </div>
         </div>
       </div>
+
+      <PlanChangeConfirm
+        quote={planChangeQuote}
+        isLoading={purchasing}
+        onConfirm={confirmPlanChange}
+        onCancel={() => setPlanChangeQuote(null)}
+      />
 
       {/* Confirmation modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
