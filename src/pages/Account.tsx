@@ -24,6 +24,10 @@ import { GiftCardTile } from "@/components/account/GiftCardTile"
 import { PaymentHistory } from "@/components/account/PaymentHistory"
 import { PlanChangeSummary } from "@/components/account/PlanChangeSummary"
 import {
+  PlanChangeConfirm,
+  type PlanChangeQuote,
+} from "@/components/checkout/PlanChangeConfirm"
+import {
   RentedOrderCard,
   type RentedOrder,
 } from "@/components/account/RentedOrderCard"
@@ -270,6 +274,8 @@ export default function Account() {
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [planChanging, setPlanChanging] = useState(false)
   const [planChangeError, setPlanChangeError] = useState("")
+  const [planChangeQuote, setPlanChangeQuote] =
+    useState<PlanChangeQuote | null>(null)
   const [subscriptionBusy, setSubscriptionBusy] = useState(false)
   const discount = useDiscountCode()
   const [agreedToPlanChangeTerms, setAgreedToPlanChangeTerms] = useState(false)
@@ -693,7 +699,17 @@ export default function Account() {
       .eq("id", user.id)
   }
 
-  async function handlePlanChange() {
+  function handlePlanChange() {
+    return startPlanChange(false)
+  }
+
+  // The member has seen what the plan change will charge and agreed to it.
+  function confirmPlanChange() {
+    setPlanChangeQuote(null)
+    return startPlanChange(true)
+  }
+
+  async function startPlanChange(isConfirmed: boolean) {
     if (!user) return
     const newTier = tierOptions[selectedTier] ?? FALLBACK_TIER
     const nextHomeDelivery = upgradeHomeDelivery
@@ -726,6 +742,43 @@ export default function Account() {
     const origin = window.location.origin
     const successUrl = `${origin}/account?plan_changed=true&plan=${newTier.key}${nextHomeDelivery ? "&home_delivery=1" : ""}`
 
+    // The swap bills the saved card with no Stripe page, so show the amount
+    // first. Nothing is charged or claimed by the preview.
+    if (!isConfirmed) {
+      const { data: quote, error: quoteError } =
+        await supabase.functions.invoke("change-subscription", {
+          body: {
+            planKey: newTier.key,
+            billing: upgradeBilling,
+            homeDelivery: nextHomeDelivery,
+            preview: true,
+            ...(discount.applied && { code: discount.applied.code }),
+          },
+        })
+      if (quoteError || quote?.error) {
+        setPlanChanging(false)
+        setPlanChangeError(
+          quote?.error ??
+            (await readFunctionError(quoteError, "Nepavyko. Bandyk dar kartą."))
+        )
+        return
+      }
+      if (
+        quote?.preview &&
+        !quote.scheduled &&
+        (quote.amountCents > 0 || quote.creditCents > 0)
+      ) {
+        setPlanChanging(false)
+        setPlanChangeQuote({
+          amountCents: quote.amountCents,
+          creditCents: quote.creditCents,
+          isProration: quote.isProration,
+          card: quote.card,
+        })
+        return
+      }
+    }
+
     // Swap the existing subscription in place; only open a new checkout when
     // there is no active subscription to change.
     const { data: swap, error: swapError } = await supabase.functions.invoke(
@@ -755,6 +808,8 @@ export default function Account() {
       // A cheaper plan waits for the next renewal; nothing changes today.
       setPlanChanging(false)
       setShowUpgrade(false)
+      // A downgrade never uses a code, so don't leave one looking applied.
+      discount.clear()
       setSubscriber((s) => (s ? { ...s, pending_plan: newTier.key } : s))
       return
     }
@@ -801,6 +856,7 @@ export default function Account() {
       )
       return
     }
+    discount.clear()
     setSubscriber((s) => (s ? { ...s, pending_plan: null } : s))
   }
 
@@ -1356,7 +1412,10 @@ export default function Account() {
                       </button>
                     </div>
                   </div>
-                  <DiscountCodeField discount={discount} />
+                  <DiscountCodeField
+                    discount={discount}
+                    isIgnored={isTierDowngrade}
+                  />
                   <PlanChangeSummary
                     planName={tierOptions[selectedTier]?.name ?? ""}
                     monthlyPrice={tierOptions[selectedTier]?.price ?? 0}
@@ -1721,6 +1780,13 @@ export default function Account() {
           }}
         />
       )}
+
+      <PlanChangeConfirm
+        quote={planChangeQuote}
+        isLoading={planChanging}
+        onConfirm={confirmPlanChange}
+        onCancel={() => setPlanChangeQuote(null)}
+      />
 
       <DeleteAccountDialog
         open={deleteAccountOpen}
