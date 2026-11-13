@@ -1150,7 +1150,7 @@ export default function Account() {
               >
                 <div>
                   <h2
-                    className="text-d-xl mt-3 font-display leading-[.88] uppercase"
+                    className="text-d-lg mt-3 font-display leading-[.88] uppercase"
                     style={{ color: activeTier.textColor }}
                   >
                     {activeTier.name}
