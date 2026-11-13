@@ -1392,15 +1392,15 @@ export default function Account() {
                     </p>
                     <div
                       className={[
-                        "flex items-start justify-between gap-3 rounded-2xl border-2 px-5 py-4",
+                        "flex items-center justify-between gap-3 rounded-2xl border-2 px-5 py-4",
                         hasPhone && (!upgradeHomeDelivery || hasAddress)
                           ? "border-ink/15 bg-ink/[.02]"
                           : "border-brand-orange bg-brand-orange/5",
                       ].join(" ")}
                     >
                       <div className="min-w-0 space-y-1">
-                        <p className="font-mono text-[13px] text-ink">
-                          <span className="text-ink/40">Tel.:</span>{" "}
+                        <p className="text-[14px] font-semibold text-ink">
+                          <span className="font-normal text-ink/50">Tel.:</span>{" "}
                           {hasPhone ? (
                             subscriber?.phone
                           ) : (
@@ -1410,8 +1410,10 @@ export default function Account() {
                           )}
                         </p>
                         {upgradeHomeDelivery && (
-                          <p className="font-mono text-[13px] text-ink">
-                            <span className="text-ink/40">Adresas:</span>{" "}
+                          <p className="text-[14px] font-semibold text-ink">
+                            <span className="font-normal text-ink/50">
+                              Adresas:
+                            </span>{" "}
                             {hasAddress ? (
                               `${subscriber?.street} ${subscriber?.house_no}${subscriber?.flat ? `-${subscriber.flat}` : ""}, ${subscriber?.city} ${subscriber?.postal_code}`
                             ) : (
@@ -1425,7 +1427,7 @@ export default function Account() {
                       <button
                         type="button"
                         onClick={() => setProfileOpen(true)}
-                        className="brick-hover-sm shrink-0 rounded-full border-2 border-ink bg-paper px-4 py-1.5 font-mono text-[11px] font-bold text-ink transition-all"
+                        className="brick-hover-sm shrink-0 rounded-full border-2 border-ink bg-paper px-4 py-1.5 text-[13px] font-bold text-ink transition-all"
                       >
                         Redaguoti
                       </button>
