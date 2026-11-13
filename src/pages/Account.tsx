@@ -155,15 +155,15 @@ function AchievementsSection({
               </div>
               <a
                 href="/community"
-                className="mt-3 block text-center font-mono text-[11px] tracking-widest text-paper/40 uppercase transition-colors hover:text-paper/70"
+                className="mt-4 block rounded-full border-2 border-paper bg-paper px-3 py-2 text-center text-[14px] font-bold text-ink transition-colors hover:bg-transparent hover:text-paper"
               >
-                Žiūrėti lyderių lentelę →
+                Lyderių lentelė →
               </a>
               <a
                 href={`/profile/${userId}`}
-                className="mt-2 block text-center font-mono text-[11px] tracking-widest text-paper/40 uppercase transition-colors hover:text-paper/70"
+                className="mt-2 block rounded-full border-2 border-paper/40 px-3 py-2 text-center text-[14px] font-bold text-paper transition-colors hover:border-paper hover:bg-paper hover:text-ink"
               >
-                Peržiūrėti savo profilį →
+                Mano profilis →
               </a>
             </div>
           </div>
