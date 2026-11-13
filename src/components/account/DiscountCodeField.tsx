@@ -9,7 +9,17 @@ function describe(applied: NonNullable<Discount["applied"]>): string {
     : `−€${applied.value.toFixed(2)}`
 }
 
-export function DiscountCodeField({ discount }: { discount: Discount }) {
+type DiscountCodeFieldProps = {
+  discount: Discount
+  // A downgrade is only scheduled, so the code is not used; say so instead of
+  // showing a credit that will not be taken off anything.
+  isIgnored?: boolean
+}
+
+export function DiscountCodeField({
+  discount,
+  isIgnored = false,
+}: DiscountCodeFieldProps) {
   const { input, setInput, applied, error, loading, apply, clear } = discount
 
   return (
@@ -18,9 +28,12 @@ export function DiscountCodeField({ discount }: { discount: Discount }) {
         Dovanų kortelė arba nuolaidos kodas
       </label>
       {applied ? (
-        <div className="flex items-center justify-between gap-3 rounded-full border-2 border-ink bg-brand-mint px-4 py-2.5">
+        <div
+          className={`flex items-center justify-between gap-3 rounded-full border-2 border-ink px-4 py-2.5 ${isIgnored ? "bg-ink/5" : "bg-brand-mint"}`}
+        >
           <span className="font-mono text-[13px] font-bold text-ink">
-            {applied.code} · {describe(applied)}
+            {applied.code} ·{" "}
+            {isIgnored ? "netaikoma mažinant planą" : describe(applied)}
           </span>
           <button
             type="button"
