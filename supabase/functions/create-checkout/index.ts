@@ -272,6 +272,10 @@ Deno.serve(async (req) => {
         {
           expires_at: Math.floor(Date.now() / 1000) + SESSION_TTL_MINUTES * 60,
           mode: "subscription",
+          // Checkout writes its page language onto the customer, which then
+          // decides the invoice language; without this it follows the browser
+          // (en-GB) and undoes the lt locale set elsewhere.
+          locale: "lt",
           line_items: [
             {
               price_data: {
