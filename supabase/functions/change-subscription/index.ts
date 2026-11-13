@@ -107,8 +107,7 @@ async function resolveChargeablePaymentMethod(
   if (!("deleted" in customer && customer.deleted)) {
     const defaultPm = (customer as Stripe.Customer).invoice_settings
       ?.default_payment_method
-    const customerPm =
-      typeof defaultPm === "string" ? defaultPm : defaultPm?.id
+    const customerPm = typeof defaultPm === "string" ? defaultPm : defaultPm?.id
     if (customerPm) return customerPm
   }
 
@@ -162,6 +161,123 @@ async function chargeUpgradeDifference(
   }
 }
 
+// What the member will pay now for an immediate swap, without claiming a gift
+// card, creating a coupon or touching the subscription, so the page can show
+// the amount before anything is charged. Customer balance and a gift card code
+// count as credit, as they do when the swap really runs.
+async function previewUpgrade(args: {
+  subscription: Stripe.Subscription
+  plan: { name: string | null; price: number; annual_price: number | null }
+  planKey: string
+  billing: string | undefined
+  homeDelivery: boolean | undefined
+  discount: DiscountCode | null
+}) {
+  const { subscription, plan, planKey, billing, homeDelivery, discount } = args
+  const customerId =
+    typeof subscription.customer === "string"
+      ? subscription.customer
+      : subscription.customer.id
+  const isAnnual = billing === "annual"
+  const interval = isAnnual ? "year" : "month"
+  const monthsPerInterval = isAnnual ? 12 : 1
+  const hasDeliveryFee = Boolean(homeDelivery) && planKey !== "mega"
+  const listPrice = isAnnual ? (plan.annual_price ?? plan.price) : plan.price
+
+  // A coupon with a length leaves the recurring price intact; only an
+  // open-ended one cuts it, and that case creates nothing in Stripe.
+  const monthlyPrice =
+    discount?.kind === "coupon" && discount.durationMonths == null
+      ? (await applyCoupon(stripe, discount, listPrice, monthsPerInterval))
+          .monthlyPrice
+      : listPrice
+  const newTotalCents =
+    Math.round(monthlyPrice * 100) * monthsPerInterval +
+    (hasDeliveryFee ? HOME_DELIVERY_FEE_CENTS * monthsPerInterval : 0)
+
+  const customer = await stripe.customers.retrieve(customerId)
+  const balanceCents =
+    "deleted" in customer && customer.deleted
+      ? 0
+      : Math.max(0, -((customer as Stripe.Customer).balance ?? 0))
+  const giftCents = discount?.kind === "gift" ? discount.cents : 0
+  const creditCents = balanceCents + giftCents
+
+  const flatDiffCents = flatUpgradeDiffCents(
+    subscription.items.data,
+    interval,
+    newTotalCents
+  )
+  let grossCents: number
+  if (flatDiffCents != null) {
+    grossCents = flatDiffCents
+  } else {
+    // Yearly or interval changes use Stripe's own proration. The upcoming
+    // invoice needs a product id, so the two products are created here too.
+    const planProduct = await stripe.products.create({
+      name: plan.name ?? `BRICKTIME ${planKey}`,
+    })
+    const deliveryProduct = hasDeliveryFee
+      ? await stripe.products.create({ name: "Pristatymas į duris" })
+      : null
+    const upcoming = await stripe.invoices.retrieveUpcoming({
+      customer: customerId,
+      subscription: subscription.id,
+      subscription_items: [
+        ...subscription.items.data.map((item: Stripe.SubscriptionItem) => ({
+          id: item.id,
+          deleted: true,
+        })),
+        {
+          price_data: {
+            currency: "eur",
+            product: planProduct.id,
+            unit_amount: Math.round(monthlyPrice * 100) * monthsPerInterval,
+            recurring: { interval },
+          },
+          quantity: 1,
+        },
+        ...(deliveryProduct
+          ? [
+              {
+                price_data: {
+                  currency: "eur",
+                  product: deliveryProduct.id,
+                  unit_amount: HOME_DELIVERY_FEE_CENTS * monthsPerInterval,
+                  recurring: { interval },
+                },
+                quantity: 1,
+              },
+            ]
+          : []),
+      ],
+      subscription_proration_behavior: "always_invoice",
+    })
+    // amount_due already nets the customer balance, so add it back to treat
+    // both paths the same below.
+    grossCents = upcoming.amount_due + balanceCents
+  }
+
+  const amountCents = Math.max(0, grossCents - creditCents)
+  let card: { brand: string; last4: string } | null = null
+  if (amountCents > 0) {
+    const paymentMethodId = await resolveChargeablePaymentMethod(
+      customerId,
+      subscription
+    )
+    const method = await stripe.paymentMethods.retrieve(paymentMethodId)
+    if (method.card)
+      card = { brand: method.card.brand, last4: method.card.last4 }
+  }
+  return {
+    preview: true,
+    amountCents,
+    creditCents: Math.min(creditCents, grossCents),
+    isProration: flatDiffCents == null,
+    card,
+  }
+}
+
 // Swaps the plan on the caller's existing Stripe subscription instead of
 // opening a second checkout. Returns { changed: false } when there is nothing
 // to swap so the client can fall back to a normal checkout.
@@ -183,7 +299,7 @@ Deno.serve(async (req) => {
     const user = userData.user
     if (!user) return json({ error: "Unauthorized" }, 401)
 
-    const { planKey, billing, homeDelivery, code, withdrawPending } =
+    const { planKey, billing, homeDelivery, code, withdrawPending, preview } =
       await req.json()
 
     const supabase = createClient(
@@ -277,6 +393,9 @@ Deno.serve(async (req) => {
       planKey !== subscriber.plan &&
       plan.price < currentPlan.price
     ) {
+      // A cheaper plan is only scheduled, so there is nothing to charge or save.
+      if (preview)
+        return json({ preview: true, amountCents: 0, scheduled: true })
       await supabase
         .from("subscribers")
         .update({
@@ -332,6 +451,19 @@ Deno.serve(async (req) => {
       }
     }
 
+    if (preview) {
+      return json(
+        await previewUpgrade({
+          subscription,
+          plan,
+          planKey,
+          billing,
+          homeDelivery,
+          discount,
+        })
+      )
+    }
+
     // An immediate swap supersedes a pending downgrade, and Stripe refuses to
     // update a subscription while a schedule controls it.
     if (subscription.schedule) {
@@ -385,6 +517,11 @@ Deno.serve(async (req) => {
       typeof subscription.customer === "string"
         ? subscription.customer
         : subscription.customer.id
+    // Invoices render in the customer's preferred locale, which Checkout only
+    // sets for new customers, so set it before the gap invoice is created.
+    await stripe.customers.update(customerId, { preferred_locales: ["lt"] })
+    const vatTaxRateId = await getVatTaxRateId(stripe)
+
     let creditApplied = false
     if (discount?.kind === "gift") {
       const { data: claimed } = await supabase
@@ -491,6 +628,9 @@ Deno.serve(async (req) => {
               proration_behavior: "always_invoice" as const,
               payment_behavior: "error_if_incomplete" as const,
             }),
+        // The swapped items carry no tax rate of their own, so the proration
+        // and every later renewal would otherwise be invoiced without VAT.
+        default_tax_rates: [vatTaxRateId],
         cancel_at_period_end: false,
         metadata,
       })
