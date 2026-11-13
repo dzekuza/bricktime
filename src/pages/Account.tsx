@@ -1660,9 +1660,6 @@ export default function Account() {
                         onResume={() => pauseSubscription(null)}
                       />
                     )}
-                    <p className="text-center font-mono text-[10px] text-ink/30">
-                      Kortelė · istorija
-                    </p>
                     {subscriptionNotices}
                   </>
                 ) : (
