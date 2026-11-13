@@ -1373,7 +1373,7 @@ export default function Account() {
                     </p>
                     <div
                       className={[
-                        "flex items-start justify-between gap-3 rounded-2xl border-2 px-5 py-4",
+                        "flex items-center justify-between gap-3 rounded-2xl border-2 px-5 py-4",
                         hasPhone && (!upgradeHomeDelivery || hasAddress)
                           ? "border-ink/15 bg-ink/[.02]"
                           : "border-brand-orange bg-brand-orange/5",
