@@ -118,6 +118,8 @@ Deno.serve(async (req) => {
       const session = await stripe.checkout.sessions.create({
         expires_at: Math.floor(Date.now() / 1000) + SESSION_TTL_MINUTES * 60,
         mode: "payment",
+        // Keeps the customer's invoice language Lithuanian (see create-checkout).
+        locale: "lt",
         line_items: [
           {
             price_data: {
