@@ -9,8 +9,14 @@ updated: 2026-11-10
 subscription checkout is paid (once per subscription: repeat Stripe deliveries
 are skipped by comparing the stored `stripe_subscription_id`). The email itself
 is built in the **BRICKTIME** Omnisend account as an automation triggered by
-that event, sending immediately. The Omnisend MCP in Claude Code is connected to
-a different brand (SKIN365), so this is done by hand in the dashboard.
+that event, sending immediately. Merge tags are `[[event.<property>]]`.
+
+State (2026-11-13): template **Subscription Started - Welcome**
+(`6af724a6c4d0ee03d41d24bf`) and automation `6af725ad48aef24124a68d5b`
+(trigger `subscription started`/api, email threshold `all`, sender BRICKTIME,
+`lt_LT`) exist and the automation is **enabled**. The API only accepted the
+trigger after the first real event arrived, so the first test purchase did not
+get an email; it needs a new purchase to verify.
 
 ## Event properties → email fields
 

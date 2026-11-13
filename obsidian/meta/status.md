@@ -9,7 +9,7 @@
 
 ## Current focus
 
-Branch `feat/vat-invoices-merch-delivery` (pushed, no PR yet): VAT invoices, welcome
+Branch `feat/vat-invoices-merch-delivery` (PR #102 open, CI green): VAT invoices, welcome
 email event, merch delivery choice, stats fix, nav fix. See [[session-log]].
 
 ## Done recently
@@ -27,7 +27,7 @@ email event, merch delivery choice, stats fix, nav fix. See [[session-log]].
 
 ## Next up
 
-1. Open the PR for `feat/vat-invoices-merch-delivery`. Live: create-merch-checkout v11, create-checkout v13, stripe-webhook v18, change-subscription v15 (multi-file layout, includes the 6cdd948 payment-method fix + VAT).
+1. Merge PR #102. Live: create-merch-checkout v11, create-checkout v13, stripe-webhook v18, change-subscription v15 (multi-file layout, includes the 6cdd948 payment-method fix + VAT).
 2. Build the welcome automation in the BRICKTIME Omnisend account ([[welcome-email]]); the MCP there is the SKIN365 account.
 3. Stripe dashboard: seller details, VAT id, invoice numbering. Then a real test purchase incl. a merch terminal order.
 
