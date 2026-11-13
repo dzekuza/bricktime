@@ -155,15 +155,15 @@ function AchievementsSection({
               </div>
               <a
                 href="/community"
-                className="mt-3 block text-center font-mono text-[11px] tracking-widest text-paper/40 uppercase transition-colors hover:text-paper/70"
+                className="mt-4 block rounded-full border-2 border-paper bg-paper px-3 py-2 text-center text-[14px] font-bold text-ink transition-colors hover:bg-transparent hover:text-paper"
               >
-                Žiūrėti lyderių lentelę →
+                Lyderių lentelė →
               </a>
               <a
                 href={`/profile/${userId}`}
-                className="mt-2 block text-center font-mono text-[11px] tracking-widest text-paper/40 uppercase transition-colors hover:text-paper/70"
+                className="mt-2 block rounded-full border-2 border-paper/40 px-3 py-2 text-center text-[14px] font-bold text-paper transition-colors hover:border-paper hover:bg-paper hover:text-ink"
               >
-                Peržiūrėti savo profilį →
+                Mano profilis →
               </a>
             </div>
           </div>
@@ -1150,7 +1150,7 @@ export default function Account() {
               >
                 <div>
                   <h2
-                    className="text-d-xl mt-3 font-display leading-[.88] uppercase"
+                    className="text-d-lg mt-3 font-display leading-[.88] uppercase"
                     style={{ color: activeTier.textColor }}
                   >
                     {activeTier.name}
@@ -1624,7 +1624,7 @@ export default function Account() {
                   <>
                     <button
                       onClick={openPlanChange}
-                      className="brick-hover-sm w-full rounded-xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[11px] tracking-[.14em] text-paper uppercase transition-all"
+                      className="brick-hover-sm w-full rounded-full border-2 border-ink bg-ink px-4 py-2.5 text-[14px] font-bold text-paper transition-all"
                     >
                       Keisti prenumeratą
                     </button>
@@ -1632,14 +1632,14 @@ export default function Account() {
                       <button
                         onClick={openBillingPortal}
                         disabled={portalLoading}
-                        className="brick-hover-sm rounded-xl border-2 border-ink bg-paper px-4 py-3 font-mono text-[11px] tracking-[.14em] text-ink uppercase transition-all disabled:pointer-events-none disabled:opacity-50"
+                        className="brick-hover-sm rounded-full border-2 border-ink bg-paper px-3 py-2.5 text-[14px] font-bold text-ink transition-all disabled:pointer-events-none disabled:opacity-50"
                       >
                         {portalLoading ? "Kraunama…" : "Mano prenumerata →"}
                       </button>
                       <button
                         onClick={() => cancelSubscription()}
                         disabled={subscriptionBusy}
-                        className="brick-hover-sm rounded-xl border-2 border-ink bg-paper px-4 py-3 font-mono text-[11px] tracking-[.14em] text-ink uppercase transition-all disabled:pointer-events-none disabled:opacity-50"
+                        className="brick-hover-sm rounded-full border-2 border-ink bg-paper px-3 py-2.5 text-[14px] font-bold text-ink transition-all disabled:pointer-events-none disabled:opacity-50"
                       >
                         Atšaukti
                       </button>
@@ -1660,15 +1660,12 @@ export default function Account() {
                         onResume={() => pauseSubscription(null)}
                       />
                     )}
-                    <p className="text-center font-mono text-[10px] text-ink/30">
-                      Kortelė · istorija
-                    </p>
                     {subscriptionNotices}
                   </>
                 ) : (
                   <button
                     onClick={() => setShowUpgrade(true)}
-                    className="brick-hover-sm w-full rounded-xl border-2 border-ink bg-ink px-4 py-3 font-mono text-[11px] tracking-[.14em] text-paper uppercase transition-all"
+                    className="brick-hover-sm w-full rounded-full border-2 border-ink bg-ink px-4 py-2.5 text-[14px] font-bold text-paper transition-all"
                   >
                     Pasirinkti planą →
                   </button>
