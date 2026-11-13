@@ -105,6 +105,7 @@ interface SubscriberData {
   lp_terminal_name?: string | null
   home_delivery?: boolean
   pending_plan?: string | null
+  pending_schedule_id?: string | null
   cancel_requested?: boolean
   cancel_at?: string | null
   paused_until?: string | null
@@ -424,7 +425,7 @@ export default function Account() {
       supabase
         .from("subscribers")
         .select(
-          "plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code, home_delivery, pending_plan, cancel_requested, cancel_at, paused_until, current_period_start, current_period_end"
+          "plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code, home_delivery, pending_plan, pending_schedule_id, cancel_requested, cancel_at, paused_until, current_period_start, current_period_end"
         )
         .eq("id", user.id)
         .single(),
@@ -630,6 +631,8 @@ export default function Account() {
   const subscriptionNotices = (
     <SubscriptionNotices
       pendingPlanName={pendingTier?.name ?? null}
+      isPlanScheduled={Boolean(subscriber?.pending_schedule_id)}
+      renewalAt={subscriber?.current_period_end ?? null}
       pendingCredits={
         pendingTier
           ? (dbPlans.find((p) => p.id === pendingTier.key)?.credits ?? null)
@@ -810,7 +813,21 @@ export default function Account() {
       setShowUpgrade(false)
       // A downgrade never uses a code, so don't leave one looking applied.
       discount.clear()
-      setSubscriber((s) => (s ? { ...s, pending_plan: newTier.key } : s))
+      // Only whether a schedule exists matters here; the server holds its id.
+      setSubscriber((s) =>
+        s
+          ? {
+              ...s,
+              pending_plan: newTier.key,
+              pending_schedule_id: swap.fits ? "scheduled" : null,
+              // effectiveAt is the renewal date the server just scheduled for.
+              current_period_end:
+                swap.fits && swap.effectiveAt
+                  ? swap.effectiveAt
+                  : s.current_period_end,
+            }
+          : s
+      )
       return
     }
 
@@ -857,7 +874,9 @@ export default function Account() {
       return
     }
     discount.clear()
-    setSubscriber((s) => (s ? { ...s, pending_plan: null } : s))
+    setSubscriber((s) =>
+      s ? { ...s, pending_plan: null, pending_schedule_id: null } : s
+    )
   }
 
   async function cancelSubscription(undo = false) {

@@ -1,5 +1,9 @@
 interface SubscriptionNoticesProps {
   pendingPlanName: string | null
+  // The change is already scheduled with Stripe; otherwise it is waiting for
+  // the member's sets to fit the cheaper plan.
+  isPlanScheduled: boolean
+  renewalAt: string | null
   pendingCredits: number | null
   cancelRequested: boolean
   cancelAt: string | null
@@ -37,6 +41,8 @@ function Notice({ message, actionLabel, busy, onAction }: NoticeProps) {
 // next renewal, or a cancellation waiting for sets to come back.
 export function SubscriptionNotices({
   pendingPlanName,
+  isPlanScheduled,
+  renewalAt,
   pendingCredits,
   cancelRequested,
   cancelAt,
@@ -48,7 +54,11 @@ export function SubscriptionNotices({
     <>
       {pendingPlanName && (
         <Notice
-          message={`${pendingPlanName} prenumerata įsigalios nuo kito nuskaitymo, jei iki tol grąžinsi rinkinius, viršijančius ${pendingCredits ?? 0} briksių. Kol kas lieka dabartinis planas.`}
+          message={
+            isPlanScheduled
+              ? `${pendingPlanName} prenumerata įsigalios nuo kito nuskaitymo${renewalAt ? ` (${new Date(renewalAt).toLocaleDateString("lt-LT")})` : ""}. Kol kas lieka dabartinis planas.`
+              : `${pendingPlanName} prenumerata įsigalios nuo kito nuskaitymo, jei iki tol grąžinsi rinkinius, viršijančius ${pendingCredits ?? 0} briksių. Kol kas lieka dabartinis planas.`
+          }
           actionLabel="Atšaukti keitimą"
           busy={busy}
           onAction={onWithdrawPlan}
