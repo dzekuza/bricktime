@@ -9,8 +9,7 @@
 
 ## Current focus
 
-Branch `feat/vat-invoices-merch-delivery` (PR #102 open, CI green): VAT invoices, welcome
-email event, merch delivery choice, stats fix, nav fix. See [[session-log]].
+All of PRs #102–#105 are merged (VAT, lt locale, welcome event, merch delivery, plan-change confirmation). Waiting on a real end-to-end test purchase. See [[session-log]].
 
 ## Done recently
 
@@ -27,9 +26,9 @@ email event, merch delivery choice, stats fix, nav fix. See [[session-log]].
 
 ## Next up
 
-1. Merge PR #102. Live: create-merch-checkout v11, create-checkout v13, stripe-webhook v18, change-subscription v15 (multi-file layout, includes the 6cdd948 payment-method fix + VAT).
-2. Build the welcome automation in the BRICKTIME Omnisend account ([[welcome-email]]); the MCP there is the SKIN365 account.
-3. Stripe dashboard: seller details, VAT id, invoice numbering. Then a real test purchase incl. a merch terminal order.
+1. Test purchase + plan change: check lt invoice/Checkout, VAT split, welcome email ([[welcome-email]]), preview dialog.
+2. Set `plans.credits` of `mystery_s` to 0 (currently 2000; owner OK pending).
+3. Stripe dashboard: seller details, VAT id, invoice numbering (accountant to confirm the invoice meets VAT-invoice rules).
 
 ## Blockers & open questions
 
