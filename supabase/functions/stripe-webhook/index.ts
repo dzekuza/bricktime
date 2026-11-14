@@ -101,6 +101,9 @@ async function pushOmnisendEvent(
 // A bought card is inserted as pending; it becomes spendable only once paid.
 // Delayed methods complete the session unpaid and are activated on
 // async_payment_succeeded instead.
+const DEFAULT_GIFT_CARD_MESSAGE =
+  "Linkiu smagaus konstravimo - mėgaukis kiekviena detale!"
+
 async function handleGiftCardCheckout(session: Stripe.Checkout.Session) {
   if (
     session.payment_status !== "paid" &&
@@ -139,7 +142,9 @@ async function handleGiftCardCheckout(session: Stripe.Checkout.Session) {
       amount: giftCard.amount_cents / 100,
       buyerEmail: giftCard.buyer_email,
       recipientEmail: giftCard.recipient_email,
-      message: giftCard.message ?? "",
+      // The Omnisend template prints this verbatim in a quote box, so an
+      // empty value would render as an empty „“ quote.
+      message: giftCard.message?.trim() || DEFAULT_GIFT_CARD_MESSAGE,
       expiresAt: String(giftCard.expires_at).slice(0, 10),
       purchasedAt: giftCard.created_at,
       redeemUrl: `https://www.bricktime.lt/gift-cards?code=${encodeURIComponent(giftCard.code)}`,
