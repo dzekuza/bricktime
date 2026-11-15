@@ -4,6 +4,8 @@ import {
   type SupabaseClient,
 } from "https://esm.sh/@supabase/supabase-js@2"
 
+import { getVatTaxRateId } from "../_shared/vat.ts"
+
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2024-06-20",
   httpClient: Stripe.createFetchHttpClient(),
@@ -115,6 +117,7 @@ Deno.serve(async (req) => {
             })
           : null
 
+      const vatTaxRateId = await getVatTaxRateId(stripe)
       const session = await stripe.checkout.sessions.create({
         expires_at: Math.floor(Date.now() / 1000) + SESSION_TTL_MINUTES * 60,
         mode: "payment",
@@ -131,6 +134,7 @@ Deno.serve(async (req) => {
               unit_amount: unitAmount,
             },
             quantity: 1,
+            tax_rates: [vatTaxRateId],
           },
           ...(isTerminal
             ? []
@@ -142,6 +146,7 @@ Deno.serve(async (req) => {
                     unit_amount: COURIER_FEE_CENTS,
                   },
                   quantity: 1,
+                  tax_rates: [vatTaxRateId],
                 },
               ]),
         ],
