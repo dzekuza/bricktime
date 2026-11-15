@@ -315,6 +315,54 @@ async function deleteCouponHold(holdId: string, sessionId: string) {
   }
 }
 
+// Rental rule violations (inactive, paused, over budget, tier, address, out of
+// stock). Retrying can't fix these, so the fee is refunded instead.
+const RENTAL_REFUSED_CODES = new Set(["42501", "23514"])
+
+// The courier fee is paid; create the rental it was paid for. The rules are
+// checked again because budget or stock may have changed since the session
+// opened. Errors throw so Stripe retries; the RPC is idempotent per session.
+async function handleRentalCourierCheckout(session: Stripe.Checkout.Session) {
+  if (session.payment_status !== "paid") return
+  const userId = session.metadata?.userId
+  const productId = Number(session.metadata?.productId)
+  if (!userId || !Number.isSafeInteger(productId)) {
+    throw new Error(
+      `Rental courier session ${session.id} is missing userId/productId metadata`
+    )
+  }
+
+  const { error } = await supabase.rpc("record_paid_courier_rental", {
+    p_subscriber_id: userId,
+    p_product_id: productId,
+    p_stripe_session_id: session.id,
+    p_amount: (session.amount_total ?? 0) / 100,
+  })
+  if (!error) return
+
+  if (!RENTAL_REFUSED_CODES.has(error.code ?? "")) {
+    throw new Error(
+      `record_paid_courier_rental failed for session ${session.id}: ${error.message}`
+    )
+  }
+
+  console.error("Paid courier rental refused, refunding the fee", {
+    userId,
+    productId,
+    sessionId: session.id,
+    reason: error.message,
+  })
+  if (typeof session.payment_intent !== "string") {
+    throw new Error(
+      `Rental courier session ${session.id} has no payment intent`
+    )
+  }
+  await stripe.refunds.create(
+    { payment_intent: session.payment_intent },
+    { idempotencyKey: `rental-courier-refund-${session.id}` }
+  )
+}
+
 // Members can no longer write penalty columns themselves, so the paid
 // penalty is cleared here. Errors throw so Stripe retries the event.
 async function handlePenaltyCheckout(session: Stripe.Checkout.Session) {
@@ -809,6 +857,14 @@ Deno.serve(async (req) => {
           break
         }
 
+        if (
+          session.mode === "payment" &&
+          session.metadata?.type === "rental_courier"
+        ) {
+          await handleRentalCourierCheckout(session)
+          break
+        }
+
         if (session.mode === "subscription") {
           await handleSubscriptionCheckout(session)
         }
@@ -823,6 +879,9 @@ Deno.serve(async (req) => {
         }
         if (session.metadata?.type === "merch") {
           await handleMerchCheckout(session)
+        }
+        if (session.metadata?.type === "rental_courier") {
+          await handleRentalCourierCheckout(session)
         }
         if (session.mode === "payment" && session.metadata?.code) {
           await handleGiftCardCheckout(session)
