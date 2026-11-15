@@ -98,12 +98,12 @@ async function pushOmnisendEvent(
   return true
 }
 
-// A bought card is inserted as pending; it becomes spendable only once paid.
-// Delayed methods complete the session unpaid and are activated on
-// async_payment_succeeded instead.
 const DEFAULT_GIFT_CARD_MESSAGE =
   "Linkiu smagaus konstravimo - mėgaukis kiekviena detale!"
 
+// A bought card is inserted as pending; it becomes spendable only once paid.
+// Delayed methods complete the session unpaid and are activated on
+// async_payment_succeeded instead.
 async function handleGiftCardCheckout(session: Stripe.Checkout.Session) {
   if (
     session.payment_status !== "paid" &&
