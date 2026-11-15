@@ -34,6 +34,7 @@ import { TermsAgreement } from "@/components/TermsAgreement"
 import { PlanFitConfigurator } from "@/components/PlanFitConfigurator"
 import { getDisplayPlan } from "@/lib/product-filters"
 import { UpgradePriceNotes } from "@/components/checkout/UpgradePriceNotes"
+import { usePaidCourierReturn } from "@/hooks/usePaidCourierReturn"
 import {
   PlanChangeConfirm,
   type PlanChangeQuote,
@@ -126,6 +127,24 @@ type DbProduct = {
   rating: string | null
 }
 
+// The rental rules' reasons (insert trigger or paid-courier check), in the
+// member's words.
+function toRentalErrorMessage(reason: string): string {
+  if (reason.includes("paused")) {
+    return "Prenumerata pristabdyta – atnaujink ją paskyroje, kad galėtum nuomotis."
+  }
+  if (reason.includes("exceeds the plan budget")) {
+    return "Šiam rinkiniui neužtenka briksių šiam atsiskaitymo laikotarpiui."
+  }
+  if (reason.includes("full address")) {
+    return "Pristatymui į duris reikia vardo, telefono ir pilno adreso."
+  }
+  if (reason.includes("fully rented out")) {
+    return "Šis rinkinys šiuo metu yra išnuomotas kitam nariui."
+  }
+  return "Užsakymo pateikti nepavyko. Bandyk dar kartą arba susisiek su mumis."
+}
+
 export default function Checkout() {
   const [params] = useSearchParams()
   const { user } = useAuth()
@@ -156,13 +175,24 @@ export default function Checkout() {
   // Whether the member's subscription includes the monthly door-delivery item,
   // as opposed to `homeDelivery`, the delivery picked for this one order.
   const [hasPlanHomeDelivery, setHasPlanHomeDelivery] = useState(false)
-  // Door delivery is billed once a month as part of the plan (Legenda
-  // includes it), never per order. Without it in the plan the server rejects
-  // a courier rental, so the option is shown as unavailable instead of priced.
+  // Door delivery is included when the plan carries the monthly delivery item
+  // (Legenda always does). Every other plan can still pick the courier for
+  // one order by paying the fee in Stripe Checkout.
   const isDoorDeliveryInPlan = userSub?.key === "mega" || hasPlanHomeDelivery
+  const isCourierFeeDue = homeDelivery && !isDoorDeliveryInPlan
+  const orderTotal = isCourierFeeDue ? HOME_DELIVERY_FEE : 0
   const homeDeliveryLabel = isDoorDeliveryInPlan
     ? "Įskaičiuota"
-    : "Nėra tavo plane"
+    : `+€${HOME_DELIVERY_FEE}`
+  const paidCourierState = usePaidCourierReturn(
+    user?.id,
+    params.get("courier_paid") === "true" ? params.get("session_id") : null
+  )
+  useEffect(() => {
+    if (paidCourierState !== "placed") return
+    setHomeDelivery(true)
+    setConfirmed(true)
+  }, [paidCourierState])
   const [terminal, setTerminal] = useState<LpTerminal | null>(null)
   const [profileData, setProfileData] = useState<Partial<
     Record<keyof ProfileValues, string | null>
@@ -710,6 +740,28 @@ export default function Checkout() {
       return false
     }
     setConfirming(true)
+    if (isCourierFeeDue) {
+      const origin = window.location.origin
+      const { data, error } = await supabase.functions.invoke(
+        "create-rental-courier-checkout",
+        {
+          body: {
+            productId: product.id,
+            successUrl: `${origin}/checkout?product=${product.id}&courier_paid=true&session_id={CHECKOUT_SESSION_ID}`,
+            cancelUrl: `${origin}/checkout?product=${product.id}`,
+          },
+        }
+      )
+      if (error || !data?.url) {
+        setConfirming(false)
+        setConfirmError(
+          toRentalErrorMessage(await readFunctionError(error, ""))
+        )
+        return false
+      }
+      window.location.assign(data.url)
+      return false
+    }
     const today = new Date()
     const due = new Date(today)
     due.setDate(due.getDate() + 30)
@@ -728,17 +780,7 @@ export default function Checkout() {
     setConfirming(false)
     if (error) {
       console.error("Order insert failed:", error.message)
-      // The insert trigger's reasons, in the member's words.
-      const reason = error.message
-      setConfirmError(
-        reason.includes("paused")
-          ? "Prenumerata pristabdyta – atnaujink ją paskyroje, kad galėtum nuomotis."
-          : reason.includes("exceeds the plan budget")
-            ? "Šiam rinkiniui neužtenka briksių šiam atsiskaitymo laikotarpiui."
-            : reason.includes("full address")
-              ? "Pristatymui į duris reikia vardo, telefono ir pilno adreso."
-              : "Užsakymo pateikti nepavyko. Bandyk dar kartą arba susisiek su mumis."
-      )
+      setConfirmError(toRentalErrorMessage(error.message))
       return false
     }
     setConfirmed(true)
@@ -987,7 +1029,9 @@ export default function Checkout() {
                     <span
                       className={[
                         "rounded-full border-2 border-ink px-3 py-1.5 font-mono text-[11px] font-bold tracking-[.1em] uppercase",
-                        "bg-brand-mint text-ink",
+                        isCourierFeeDue
+                          ? "bg-brand-yellow text-ink"
+                          : "bg-brand-mint text-ink",
                       ].join(" ")}
                     >
                       {homeDelivery ? homeDeliveryLabel : "Nemokamas"}
@@ -1222,16 +1266,15 @@ export default function Checkout() {
                             note: homeDeliveryLabel,
                             accent: isDoorDeliveryInPlan
                               ? "bg-brand-mint"
-                              : "bg-ink/10",
+                              : "bg-brand-yellow",
                           },
                         ].map(({ value, label, note, accent }) => (
                           <button
                             key={String(value)}
                             type="button"
-                            disabled={value && !isDoorDeliveryInPlan}
                             onClick={() => setHomeDelivery(value)}
                             className={[
-                              "flex items-center justify-between rounded-2xl border-2 px-5 py-4 text-left transition-all disabled:cursor-not-allowed disabled:opacity-50",
+                              "flex items-center justify-between rounded-2xl border-2 px-5 py-4 text-left transition-all",
                               homeDelivery === value
                                 ? "border-ink shadow-[3px_3px_0_#001B21]"
                                 : "border-ink/20 hover:border-ink/50",
@@ -1332,13 +1375,15 @@ export default function Checkout() {
                         Šio užsakymo suma
                       </p>
                       <p className="mt-0.5 font-display text-[26px] leading-none text-ink">
-                        €0
+                        €{orderTotal}
                       </p>
                     </div>
                     <p className="label-mono max-w-[140px] text-right text-ink/40">
-                      {homeDelivery
-                        ? "Pristatymas į duris įskaičiuotas prenumeratoje"
-                        : "Produktas + paštomatas"}
+                      {!homeDelivery
+                        ? "Produktas + paštomatas"
+                        : isCourierFeeDue
+                          ? "Pristatymas kurjeriu iki durų"
+                          : "Pristatymas į duris įskaičiuotas prenumeratoje"}
                     </p>
                   </div>
 
@@ -1375,6 +1420,18 @@ export default function Checkout() {
                         →
                       </span>
                     </button>
+                    {paidCourierState === "waiting" && (
+                      <p className="mt-2 text-center font-mono text-[12px] text-ink/50">
+                        Apmokėjimas gautas – ruošiame užsakymą…
+                      </p>
+                    )}
+                    {paidCourierState === "missing" && (
+                      <p className="mt-2 text-center font-mono text-[12px] text-brand-orange">
+                        Užsakymo dar nematome. Patikrink paskyrą po kelių
+                        minučių – jei rinkinio pateikti nepavyko, pristatymo
+                        mokestis bus grąžintas.
+                      </p>
+                    )}
                     {!canConfirm && (
                       <p className="mt-2 text-center font-mono text-[12px] text-ink/50">
                         {!hasPhone
@@ -1996,7 +2053,9 @@ export default function Checkout() {
               Patvirtinti užsakymą?
             </DialogTitle>
             <DialogDescription className="mt-2 text-[13px] leading-[1.6] text-ink/50">
-              Produktas bus pridėtas į tavo dėžutę ir išsiųstas su kita siunta.
+              {isCourierFeeDue
+                ? `Sumokėsi €${HOME_DELIVERY_FEE} už pristatymą kurjeriu, o produktas bus pridėtas į tavo dėžutę ir išsiųstas su kita siunta.`
+                : "Produktas bus pridėtas į tavo dėžutę ir išsiųstas su kita siunta."}
             </DialogDescription>
 
             <div className="mt-5 flex items-center gap-3 rounded-2xl border-2 border-ink/10 bg-ink/[.02] p-4">
@@ -2014,7 +2073,7 @@ export default function Checkout() {
                 </p>
                 <div className="mt-1 flex items-center gap-2">
                   <span className="font-mono text-[11px] font-bold text-brand-mint">
-                    €0
+                    €{orderTotal}
                   </span>
                   <span className="label-mono text-ink/40">·</span>
                   <span className="label-mono text-ink/40">
@@ -2033,7 +2092,11 @@ export default function Checkout() {
                   if (await handleConfirm()) setShowModal(false)
                 }}
               >
-                {confirming ? "Apdorojama…" : "Taip, patvirtinti →"}
+                {confirming
+                  ? "Apdorojama…"
+                  : isCourierFeeDue
+                    ? `Apmokėti €${HOME_DELIVERY_FEE} →`
+                    : "Taip, patvirtinti →"}
               </Button>
               {confirmError && (
                 <p className="font-mono text-[11px] leading-relaxed text-brand-orange">

@@ -996,6 +996,7 @@ export type Database = {
           returned_at: string | null
           start_date: string
           status: Database["public"]["Enums"]["order_status"]
+          stripe_session_id: string | null
           subscriber_id: string
           updated_at: string
         }
@@ -1029,6 +1030,7 @@ export type Database = {
           returned_at?: string | null
           start_date: string
           status?: Database["public"]["Enums"]["order_status"]
+          stripe_session_id?: string | null
           subscriber_id: string
           updated_at?: string
         }
@@ -1062,6 +1064,7 @@ export type Database = {
           returned_at?: string | null
           start_date?: string
           status?: Database["public"]["Enums"]["order_status"]
+          stripe_session_id?: string | null
           subscriber_id?: string
           updated_at?: string
         }
@@ -1906,6 +1909,16 @@ export type Database = {
           p_user_id: string
         }
         Returns: boolean
+      }
+      record_paid_courier_rental: {
+        Args: {
+          p_amount: number
+          p_dry_run?: boolean
+          p_product_id: number
+          p_stripe_session_id: string
+          p_subscriber_id: string
+        }
+        Returns: string
       }
       redeem_coupon: { Args: { p_code: string }; Returns: undefined }
       refresh_my_achievements: { Args: never; Returns: undefined }
