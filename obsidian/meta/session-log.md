@@ -1,3 +1,13 @@
+## 2026-11-16 — architecture documentation (incremental, `7e98519` to `a985f7f`)
+- **Changed:** `obsidian/architecture/` only: billing-edge, fulfilment-edge, database-module, storefront-shared, storefront-pages, codebase-map counts, integrations, data-flow, deepening-candidates, decisions-from-chat; `synced_commit` bumped to `a985f7f`.
+- **Status:** Legenda +3 EUR exemption confirmed in code; stripe-webhook still handles the same 7 events; `async_payment_failed` still unhandled (claim sits in this log's PR #97 entry, not in status.md). Chat read for 2026-10-29 first page, 2026-11-14 onward and keyword searches only.
+- **Next:** read chat 2026-10-30 to 2026-11-13 page by page; decide on `async_payment_failed`.
+
+## 2026-11-16 — architecture documentation (full run)
+- **Changed:** `obsidian/architecture/` only: system-overview, folder-structure, tech-stack, data-flow, environment-variables filled from code; new codebase-map + modules/{storefront-pages,storefront-shared,billing-edge,fulfilment-edge,database-module,admin-module}, integrations, deepening-candidates, decisions-from-chat; README index updated. No source files touched.
+- **Status:** facts read from code at `7e98519`; paths and symbols spot-checked with `rg`. Chat read for 2026-10-17 to 2026-10-29 only; later messages and CRM task bodies not read (TASKS.md titles used).
+- **Next:** read the rest of the chat window, decide on the top deepening candidates, add `.env.example`, add the missing CREATE statements or document the live schema.
+
 ## 2026-11-13 — plan-change confirmation, VAT/lt on swaps, Checkout locale, welcome automation
 - **Changed (all merged: #102–#105):** `change-subscription` has a `preview` mode + Checkout confirmation dialog ("Iš VISA ••4242 bus nuskaičiuota €X"), sets `default_tax_rates` and customer `preferred_locales=lt` on swaps; all four Checkout sessions (subscription, merch, gift card, penalty) send `locale: "lt"` because Checkout otherwise overwrites the customer locale with the browser's (en-GB). Omnisend (BRICKTIME): template + automation `6af725ad48aef24124a68d5b` for `subscription started`, enabled.
 - **Live:** change-subscription v16, create-checkout v14, create-merch-checkout v12, create-gift-card-checkout v9, create-penalty-checkout v9, stripe-webhook v18. Test-mode cleanup: dzekuza@gmail.com subscriptions cancelled and its subscriber row reset; Justinas's test subscription got the VAT rate.
