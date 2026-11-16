@@ -1,6 +1,6 @@
 ---
 tags: [moc, home]
-updated: 2026-08-25
+updated: 2026-11-16
 ---
 
 # 🧠 bricks — Project Brain
@@ -10,7 +10,7 @@ project is built, why decisions were made, and how to extend it — for both hum
 and AI agents (Claude Code, Cursor).
 
 > [!info] What is this project?
-> <!-- One paragraph: what bricks is, who it is for, what stage it is at. -->
+> BRICKTIME is a Lithuanian LEGO rental subscription (https://www.bricktime.lt): members pick a plan with a monthly brick budget, claim sets within it and return them. Two Vite apps (storefront and admin) on one Supabase project with Stripe, LP EXPRESS and Omnisend. Pre-launch, in Stripe test mode per chat; see [[status]].
 
 ## 🗺️ Map of Content
 
@@ -25,6 +25,11 @@ and AI agents (Claude Code, Cursor).
 - [[folder-structure]] — where everything lives and what belongs where
 - [[data-flow]] — how state and data move through the app
 - [[environment-variables]] — config & secrets handling
+- [[codebase-map]] — module catalog with functions, routes, tables (index; details in `architecture/modules/`)
+  - [[storefront-pages]] · [[storefront-shared]] · [[billing-edge]] · [[fulfilment-edge]] · [[database-module]] · [[admin-module]]
+- [[integrations]] — Supabase, Stripe, LP EXPRESS, Omnisend, Google, webhooks in and out
+- [[deepening-candidates]] — architectural friction found (no solutions)
+- [[decisions-from-chat]] — dated decisions from the WhatsApp group and CRM
 
 ### 02 — Frontend
 - [[routing]] — App Router conventions, route → view delegation
