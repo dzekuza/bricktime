@@ -248,6 +248,7 @@ function AchievementsSection({
 export default function Account() {
   const navigate = useNavigate()
   const { user, profile, signOut, refreshProfile } = useAuth()
+  const userId = user?.id
   const [deleteAccountOpen, setDeleteAccountOpen] = useState(false)
   const { subscriptions: dbPlans } = useSubscriptions()
   const {
@@ -375,14 +376,14 @@ export default function Account() {
   // handle Stripe penalty-paid redirect: ?penalty_paid=true
   useEffect(() => {
     const q = new URLSearchParams(window.location.search)
-    if (q.get("penalty_paid") !== "true" || !user?.email) return
+    if (q.get("penalty_paid") !== "true" || !userId) return
     window.history.replaceState({}, "", "/account")
     // Hides the pay button until the webhook clears the penalty, so a slow
     // webhook can't lead to a second payment.
     setPenaltyConfirming(true)
     const controller = new AbortController()
     waitForSubscriberBilling(
-      user.id,
+      userId,
       (s) => s.penalty_amount == null,
       controller.signal
     ).then((row) => {
@@ -395,35 +396,41 @@ export default function Account() {
       setPenaltyConfirming(false)
     })
     return () => controller.abort()
-  }, [user])
+  }, [userId])
 
   // handle Stripe plan-change redirect: ?plan_changed=true&plan=xxx
+  // Keyed on the user id: the user object is replaced once at load, and that
+  // would cancel this wait after the URL parameter is already gone.
   useEffect(() => {
     const q = new URLSearchParams(window.location.search)
-    if (q.get("plan_changed") !== "true" || !user) return
+    if (q.get("plan_changed") !== "true" || !userId) return
     const planKey = q.get("plan") as PlanTier | null
     if (!planKey) return
     setShowUpgrade(false)
     window.history.replaceState({}, "", "/account")
     const controller = new AbortController()
     waitForSubscriberBilling(
-      user.id,
+      userId,
       (s) => s.status === "active" && s.plan === planKey,
       controller.signal
     ).then(async (row) => {
       if (!row) return
       // The first load can predate the webhook, so refetch the whole row
-      // (status, billing period) rather than patching two fields.
-      const { data } = await supabase
-        .from("subscribers")
-        .select(SUBSCRIBER_COLUMNS)
-        .eq("id", user.id)
-        .single()
+      // (status, billing period) rather than patching two fields. The nav
+      // pill and budget read the auth profile, so refresh that too.
+      const [{ data }] = await Promise.all([
+        supabase
+          .from("subscribers")
+          .select(SUBSCRIBER_COLUMNS)
+          .eq("id", userId)
+          .single(),
+        refreshProfile(),
+      ])
       if (controller.signal.aborted) return
       if (data) setSubscriber(data as SubscriberData)
     })
     return () => controller.abort()
-  }, [user])
+  }, [userId, refreshProfile])
 
   useEffect(() => {
     if (profile) setSelectedAvatarId(profile.avatarId)
