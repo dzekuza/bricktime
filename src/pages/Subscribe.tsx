@@ -17,6 +17,7 @@ import { useSubscriptions } from "@/hooks/useSubscriptions"
 import { HERO_VIDEO_URL } from "@/lib/media"
 import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
+import { VatNote } from "@/components/VatNote"
 
 // ── static data ────────────────────────────────────────────────────────────
 
@@ -455,6 +456,7 @@ export default function Subscribe() {
                     onCheckedChange={setAgreedToTerms}
                     className="mt-6"
                   />
+                  <VatNote className="mt-4 text-center" />
                   <div className="mt-4 flex gap-3">
                     <Button
                       size="lg"

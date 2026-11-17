@@ -36,6 +36,7 @@ import { PauseSubscription } from "@/components/account/PauseSubscription"
 import { useDiscountCode } from "@/hooks/useDiscountCode"
 import { readFunctionError } from "@/lib/function-error"
 import { SubscriptionNotices } from "@/components/account/SubscriptionNotices"
+import { VatNote } from "@/components/VatNote"
 
 const SUBSCRIBER_STATUS_LABELS: Record<string, string> = {
   active: "Aktyvi",
@@ -1471,6 +1472,7 @@ export default function Account() {
                     checked={agreedToPlanChangeTerms}
                     onCheckedChange={setAgreedToPlanChangeTerms}
                   />
+                  <VatNote className="text-center" />
                   <div className="flex gap-3">
                     <button
                       onClick={handlePlanChange}

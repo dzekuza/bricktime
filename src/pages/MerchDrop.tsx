@@ -22,6 +22,7 @@ import {
 } from "@/components/merch/MerchDelivery"
 import { readFunctionError } from "@/lib/function-error"
 import type { LpTerminal } from "@/lib/lpexpress"
+import { VatNote } from "@/components/VatNote"
 
 const TYPE_LABEL: Record<string, string> = {
   hoodie: "Džemperis",
@@ -243,6 +244,7 @@ export default function MerchDrop() {
               <p className="heading-display text-d-sm mt-4 text-ink md:mt-6">
                 €{item.price}
               </p>
+              <VatNote className="mt-2" />
 
               {/* Buy */}
               <div id="buy" className="pt-6">
