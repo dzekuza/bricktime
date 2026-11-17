@@ -5,11 +5,11 @@
 > it (don't append) whenever the state changes. History belongs in [[session-log]]
 > and [[changelog]], not here.
 
-**Last updated:** 2026-11-10
+**Last updated:** 2026-11-18
 
 ## Current focus
 
-All of PRs #102–#105 are merged (VAT, lt locale, welcome event, merch delivery, plan-change confirmation). Waiting on a real end-to-end test purchase. See [[session-log]].
+Branch `fix/subscription-flow` (3 commits, not pushed): account profile refresh after purchase, plan-picker button, and admin Cancel reaching Stripe (`admin-cancel-subscription` v1 live). Still waiting on a real end-to-end test purchase. See [[session-log]].
 
 ## Done recently
 
@@ -26,6 +26,7 @@ All of PRs #102–#105 are merged (VAT, lt locale, welcome event, merch delivery
 
 ## Next up
 
+0. Push `fix/subscription-flow`, open a PR, redeploy admin; test an admin cancel then a re-subscribe.
 1. Test purchase + plan change: check lt invoice/Checkout, VAT split, welcome email ([[welcome-email]]), preview dialog.
 2. Set `plans.credits` of `mystery_s` to 0 (currently 2000; owner OK pending).
 3. Stripe dashboard: seller details, VAT id, invoice numbering (accountant to confirm the invoice meets VAT-invoice rules).
