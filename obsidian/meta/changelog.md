@@ -9,6 +9,9 @@ Chronological log of notable changes to the project. Newest first.
 This is a human-curated log — not a mirror of `git log`. Record *why*, not just
 *what*; the diff already covers *what*.
 
+## 2026-11-18 — architecture docs incremental sync (2)
+- `codebase-map` synced to `1e55c31`: webhook re-reads the live subscription; `refreshProfile` memoised on user id.
+
 ## 2026-11-18 — architecture docs incremental sync
 - `codebase-map` synced to `ec425ae`: added `VatNote` (price-includes-VAT note on 4 surfaces).
 

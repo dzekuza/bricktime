@@ -1,3 +1,8 @@
+## 2026-11-18 — architecture docs incremental (automated, 2)
+
+- **Changed:** vault only. `codebase-map.md` synced_commit `ec425ae` → `1e55c31`; noted `stripe-webhook` live-subscription re-read and `AuthContext` `refreshProfile` change.
+- **Open:** chats/CRM not read (skipped by instruction).
+
 ## 2026-11-18 — architecture docs incremental (automated)
 
 - **Changed:** vault only. `codebase-map.md` synced_commit `9b4413c` → `ec425ae`; added `VatNote` entry under Pages.

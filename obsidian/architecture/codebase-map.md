@@ -1,7 +1,7 @@
 ---
 tags: [architecture, codebase-map]
 updated: 2026-11-18
-synced_commit: ec425ae
+synced_commit: 1e55c31
 ---
 
 # Codebase map
@@ -92,7 +92,7 @@ Used by: all pages and Nav.
 
 | Function / export                                   | File:line                                   | Signature (one line)        | Does                                          | Called from                                                                    |
 | --------------------------------------------------- | ------------------------------------------- | --------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------ |
-| `AuthProvider` / `useAuthContext`                   | src/contexts/AuthContext.tsx:23,91          | provider + context hook     | session and user                              | main.tsx                                                                       |
+| `AuthProvider` / `useAuthContext`                   | src/contexts/AuthContext.tsx:24,95          | provider + context hook     | session, user, profile; `refreshProfile` is memoised on the user id | main.tsx                                                                       |
 | `SubscriptionsProvider` / `useSubscriptionsContext` | src/contexts/SubscriptionsContext.tsx:13,43 | provider + context hook     | shared subscriber row                         | main.tsx                                                                       |
 | `ConsentProvider` / `useConsentContext`             | src/contexts/ConsentContext.tsx:36,74       | provider + context hook     | cookie consent, loads GA and Pixel            | main.tsx                                                                       |
 | `BreadcrumbProvider` / `useBreadcrumbLabel`         | src/contexts/BreadcrumbContext.tsx:10,19    | label slot                  | breadcrumb text                               | Breadcrumb                                                                     |
@@ -170,7 +170,7 @@ Used by: Account, Checkout, Subscribe pages; admin app; pg_cron.
 
 ### Stripe webhook — `supabase/functions/stripe-webhook/`
 
-Purpose: turn Stripe events into database state. Handles `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `customer.subscription.created/updated/deleted`, `invoice.paid`, `invoice.payment_failed` (`index.ts:839-927`).
+Purpose: turn Stripe events into database state. Handles `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `customer.subscription.created/updated/deleted`, `invoice.paid`, `invoice.payment_failed` (`index.ts:839-934`). For `customer.subscription.*` (except `deleted`) it re-reads the live subscription with `stripe.subscriptions.retrieve` instead of trusting the event snapshot, because Stripe does not order events (`index.ts:898-905`).
 Interface: signature checked with `STRIPE_WEBHOOK_SECRET`; non-2xx makes Stripe retry, so handlers return false only for retry-worthy failures (comment at `index.ts:64`).
 Depends on: external: Stripe, Omnisend (`pushOmnisendEvent`), RPCs `redeem_coupon`, `record_merch_order`, `record_paid_courier_rental`.
 Used by: Stripe only.
