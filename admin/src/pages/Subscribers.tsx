@@ -128,13 +128,32 @@ export function Subscribers() {
   }
 
   async function handleSetStatus(ids: string[], status: SubscriberStatus) {
-    const { error } = await supabase
-      .from("subscribers")
-      .update({ status, updated_at: new Date().toISOString() })
-      .in("id", ids)
-    if (error) {
-      console.error("Status update failed:", error.message)
-      return
+    // Cancelling has to end the Stripe subscription too; a status-only update
+    // leaves it billing and blocks the member from picking a new plan.
+    if (status === "cancelled") {
+      const { data, error } = await supabase.functions.invoke<{
+        success?: boolean
+        errors?: { id: string; message: string }[]
+        error?: string
+      }>("admin-cancel-subscription", { body: { ids } })
+      if (error || data?.error || data?.errors) {
+        console.error(
+          "Cancel failed:",
+          error?.message ??
+            data?.error ??
+            data?.errors?.map((e) => e.message).join(", ")
+        )
+        return
+      }
+    } else {
+      const { error } = await supabase
+        .from("subscribers")
+        .update({ status, updated_at: new Date().toISOString() })
+        .in("id", ids)
+      if (error) {
+        console.error("Status update failed:", error.message)
+        return
+      }
     }
     setItems((prev) =>
       prev.map((s) =>

@@ -86,6 +86,9 @@ const avatarOptions = [
   },
 ]
 
+const SUBSCRIBER_COLUMNS =
+  "plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code, home_delivery, pending_plan, pending_schedule_id, cancel_requested, cancel_at, paused_until, current_period_start, current_period_end"
+
 interface SubscriberData {
   plan: string
   status: string
@@ -406,11 +409,17 @@ export default function Account() {
       user.id,
       (s) => s.status === "active" && s.plan === planKey,
       controller.signal
-    ).then((row) => {
+    ).then(async (row) => {
       if (!row) return
-      setSubscriber((s) =>
-        s ? { ...s, plan: row.plan, home_delivery: row.home_delivery } : s
-      )
+      // The first load can predate the webhook, so refetch the whole row
+      // (status, billing period) rather than patching two fields.
+      const { data } = await supabase
+        .from("subscribers")
+        .select(SUBSCRIBER_COLUMNS)
+        .eq("id", user.id)
+        .single()
+      if (controller.signal.aborted) return
+      if (data) setSubscriber(data as SubscriberData)
     })
     return () => controller.abort()
   }, [user])
@@ -424,9 +433,7 @@ export default function Account() {
     Promise.all([
       supabase
         .from("subscribers")
-        .select(
-          "plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code, home_delivery, pending_plan, pending_schedule_id, cancel_requested, cancel_at, paused_until, current_period_start, current_period_end"
-        )
+        .select(SUBSCRIBER_COLUMNS)
         .eq("id", user.id)
         .single(),
       supabase
@@ -1685,7 +1692,7 @@ export default function Account() {
                   </>
                 ) : (
                   <button
-                    onClick={() => setShowUpgrade(true)}
+                    onClick={openPlanChange}
                     className="brick-hover-sm w-full rounded-full border-2 border-ink bg-ink px-4 py-2.5 text-[14px] font-bold text-paper transition-all"
                   >
                     Pasirinkti planą →
