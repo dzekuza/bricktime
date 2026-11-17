@@ -895,7 +895,14 @@ Deno.serve(async (req) => {
       case "customer.subscription.created":
       case "customer.subscription.updated":
       case "customer.subscription.deleted": {
-        const subscription = event.data.object as Stripe.Subscription
+        const snapshot = event.data.object as Stripe.Subscription
+        // Stripe doesn't order events, so an early "incomplete" snapshot can
+        // arrive after the paid one and flip the member to paused. Read the
+        // live subscription instead (the client pins the API version).
+        const subscription =
+          event.type === "customer.subscription.deleted"
+            ? snapshot
+            : await stripe.subscriptions.retrieve(snapshot.id)
         let fallbackEmail: string | null = null
 
         if (typeof subscription.customer === "string") {

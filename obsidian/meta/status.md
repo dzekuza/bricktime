@@ -9,7 +9,7 @@
 
 ## Current focus
 
-Branch `fix/subscription-flow` (3 commits, not pushed): account profile refresh after purchase, plan-picker button, and admin Cancel reaching Stripe (`admin-cancel-subscription` v1 live). Still waiting on a real end-to-end test purchase. See [[session-log]].
+Branch `fix/subscription-flow` (3 commits, not pushed): account profile refresh after purchase, plan-picker button, and admin Cancel reaching Stripe (`admin-cancel-subscription` v1 live). Still waiting on a real end-to-end test purchase. Uncommitted: "su PVM" note on price surfaces; the 5 leftover active test subs now carry the 21% VAT rate. See [[session-log]].
 
 ## Done recently
 
@@ -29,7 +29,8 @@ Branch `fix/subscription-flow` (3 commits, not pushed): account profile refresh 
 0. Push `fix/subscription-flow`, open a PR, redeploy admin; test an admin cancel then a re-subscribe.
 1. Test purchase + plan change: check lt invoice/Checkout, VAT split, welcome email ([[welcome-email]]), preview dialog.
 2. Set `plans.credits` of `mystery_s` to 0 (currently 2000; owner OK pending).
-3. Stripe dashboard: seller details, VAT id, invoice numbering (accountant to confirm the invoice meets VAT-invoice rules).
+3. Stripe dashboard on `acct_1TgKMU8expYbOWjJ` (not the other account id from the chat): seller VAT id (`default_account_tax_ids` is empty), invoice footer, then fix company tax id / owner verification before live. Invoice numbering is already account-wide and sequential; accountant to confirm VAT-invoice rules.
+4. Cancel the leftover test subscriptions of user `4cf81f4c` (5 active) after checking the DB.
 
 ## Blockers & open questions
 

@@ -1,6 +1,6 @@
 ---
 tags: [moc, home]
-updated: 2026-08-25
+updated: 2026-11-18
 ---
 
 # 🧠 bricks — Project Brain
@@ -25,6 +25,10 @@ and AI agents (Claude Code, Cursor).
 - [[folder-structure]] — where everything lives and what belongs where
 - [[data-flow]] — how state and data move through the app
 - [[environment-variables]] — config & secrets handling
+- [[codebase-map]] — modules, functions, routes, edge functions, RPCs
+- [[integrations]] — Stripe, LP Express, Omnisend, Supabase, GA4, webhooks
+- [[deepening-candidates]] — architectural friction (no solutions)
+- [[decisions-from-chat]] — dated decisions from chats and tasks
 
 ### 02 — Frontend
 - [[routing]] — App Router conventions, route → view delegation

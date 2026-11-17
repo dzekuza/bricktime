@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useReveal } from "@/hooks/useReveal"
 import { useAuth } from "@/hooks/useAuth"
+import { VatNote } from "@/components/VatNote"
 
 const BRICK_BY_COLOR: Record<string, string> = {
   "#ffd731": "/bricks/brick-yellow.svg",
@@ -121,7 +122,7 @@ export default function Subscriptions({
             {/* Tagline tile — full width */}
             <div
               ref={headerRef}
-              className="reveal sticky top-28 z-20 flex flex-col items-center gap-4 bg-paper pt-3 pb-0 lg:static lg:py-9 lg:flex-row lg:items-end lg:justify-between"
+              className="reveal sticky top-28 z-20 flex flex-col items-center gap-4 bg-paper pt-3 pb-0 lg:static lg:flex-row lg:items-end lg:justify-between lg:py-9"
             >
               {/* Billing toggle */}
               <div className="order-first flex shrink-0 flex-col items-center gap-2 lg:order-last lg:ml-6 lg:self-start">
@@ -319,6 +320,7 @@ export default function Subscriptions({
                     </div>
                   ))}
             </div>
+            <VatNote className="mt-6 text-center" />
           </div>
         </div>
       </div>
