@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -40,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  async function loadProfile(userId: string) {
+  const loadProfile = useCallback(async (userId: string) => {
     const { data, error: err } = await supabase
       .from("subscribers")
       .select("id, name, avatar_id, avatar_bg, plan, status, cancel_at")
@@ -60,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
     }
     setLoading(false)
-  }
+  }, [])
 
   useEffect(() => {
     if (!user) {
@@ -69,11 +70,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return
     }
     loadProfile(user.id)
-  }, [user])
+  }, [user, loadProfile])
 
-  async function refreshProfile() {
-    if (user) await loadProfile(user.id)
-  }
+  // Keyed on the id, not the user object: Supabase hands out a new object for
+  // the same person at load, which would otherwise cancel callers' effects.
+  const userId = user?.id
+  const refreshProfile = useCallback(async () => {
+    if (userId) await loadProfile(userId)
+  }, [userId, loadProfile])
 
   async function signOut() {
     await supabase.auth.signOut()
