@@ -1,4 +1,26 @@
+## 2026-11-18 — architecture docs incremental (automated)
+
+- **Changed:** vault only. `codebase-map.md` synced_commit `9b4413c` → `ec425ae`; added `VatNote` entry under Pages.
+- **Open:** chats/CRM not read (skipped by instruction).
+
+## 2026-11-18 — WhatsApp review, Stripe check, VAT note
+
+- **Changed:** new `src/components/VatNote.tsx` ("Visos kainos nurodytos su PVM") shown on plan cards (`Subscriptions.tsx`), `Subscribe.tsx`, the `Account.tsx` plan-change picker and `MerchDrop.tsx` (uncommitted). Stripe sandbox `acct_1TgKMU8expYbOWjJ`: added the 21% inclusive PVM rate (`txr_1UbLvJ8expYbOWjJ93xRdB5t`) as `default_tax_rates` on 5 active test subs that lacked it (no proration).
+- **Found (Stripe MCP, read-only):** prices match the site and the code sets VAT on new checkouts, but old invoices had no VAT; invoices carry no seller VAT id (`default_account_tax_ids` null) and no footer; the footer link in the chat points at a different account id (`acct_1TgKM39iqnB6VhnP`); user `4cf81f4c` has 5 active subs (leftovers from before the 6 Nov wipe); sandbox account has past-due verification (company tax id, owners). `BigCTA.tsx` is unused and shows old `$` prices.
+- **Open:** cancel the leftover test subs (check DB first); seller VAT id + footer on the sandbox account (needs the VAT number); gift-card and penalty checkouts have no VAT rate (accountant's call); Stripe line descriptions stay English.
+- **Done later:** VatNote committed (`ec425ae`). Decided to consolidate Stripe test onto the live account's test mode (`acct_1TgKM39iqnB6VhnP/test`); owner set the new `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET` and webhook (`.../functions/v1/stripe-webhook`). Cleared `stripe_customer_id`/`stripe_subscription_id` and reset to paused/nano for 3 test members (`6e4f5184`, `4cf81f4c`, `6dcac626`) via `execute_sql`. Member `6dcac626` still has 1 `processing` order.
+- **Webhook:** the new endpoint was on API `2026-05-27.dahlia` (period dates stayed null); recreated on `2025-02-24.acacia`, period dates now fill. A purchase then left the member `paused` (a stale `incomplete` snapshot won the race), so `stripe-webhook` now re-fetches the subscription on `customer.subscription.created/updated` — deployed as v25 via the `supabase-project-2` connector (source edit in `stripe-webhook/index.ts`, not committed yet). Member `6dcac626`'s leftover `processing` order was marked returned.
+- **Next:** confirm the €5 plan change as a second test (status must stay active), check welcome email, VAT/footer on the invoice, then delete sandbox 1; commit the webhook change; push `fix/subscription-flow`.
+
+## 2026-11-18 — architecture docs (automated run)
+
+- **Changed:** vault only. New `architecture/codebase-map.md` (synced_commit `9b4413c`), `integrations.md`, `deepening-candidates.md`, `decisions-from-chat.md`; filled system-overview, folder-structure, tech-stack, data-flow, environment-variables.
+- **Found:** `AGENTS.md` says `admin/` is a submodule, code says plain directory; `.env.example` and code disagree on several names; `trackEvent` has no caller.
+- **Open:** WhatsApp/CRM not read (skipped by instruction); `process-plan-changes` cron schedule not in migrations; `routing`/`hooks`/`utils` notes not refreshed.
+- **Next:** read the Bricktime chat for decisions; pick one candidate to explore.
+
 ## 2026-11-18 — account profile, plan picker, admin cancel
+
 - **Changed (branch `fix/subscription-flow`, 3 commits, not pushed):** (1) `Account.tsx` refetches the whole subscriber row after the `plan_changed` webhook wait — it only merged `plan`/`home_delivery`, so `status` stayed stale and the profile showed no subscription until reload; (2) the payments-card "Pasirinkti planą" button now calls `openPlanChange` (the picker lives in the profile section above); (3) new edge function `admin-cancel-subscription` (admin JWT check, releases any schedule, cancels the Stripe subscription immediately, then sets the row `cancelled`) and `admin/src/pages/Subscribers.tsx` calls it for Cancel.
 - **Why:** admin Cancel only set `subscribers.status`, so Stripe kept the subscription live and `create-checkout` refused a new plan with the 409 "Jau turi aktyvią prenumeratą".
 - **Live:** `admin-cancel-subscription` v1 deployed via the multi-account `supabase-project-2` connector (the CLI gets 403 on deploy). Smoke test: 401 without a user. No real cancel run through it yet.
@@ -6,28 +28,33 @@
 - **Next:** push + PR, redeploy admin, test one admin cancel then a re-subscribe.
 
 ## 2026-11-13 — plan-change confirmation, VAT/lt on swaps, Checkout locale, welcome automation
+
 - **Changed (all merged: #102–#105):** `change-subscription` has a `preview` mode + Checkout confirmation dialog ("Iš VISA ••4242 bus nuskaičiuota €X"), sets `default_tax_rates` and customer `preferred_locales=lt` on swaps; all four Checkout sessions (subscription, merch, gift card, penalty) send `locale: "lt"` because Checkout otherwise overwrites the customer locale with the browser's (en-GB). Omnisend (BRICKTIME): template + automation `6af725ad48aef24124a68d5b` for `subscription started`, enabled.
 - **Live:** change-subscription v16, create-checkout v14, create-merch-checkout v12, create-gift-card-checkout v9, create-penalty-checkout v9, stripe-webhook v18. Test-mode cleanup: dzekuza@gmail.com subscriptions cancelled and its subscriber row reset; Justinas's test subscription got the VAT rate.
 - **Open:** plans.credits for `mystery_s` is 2000 (migration says 0; banner shows "2000 briksių") — waiting for owner OK to set 0. Justinas's customer locale is still en-GB until his next purchase/swap. Needs a real test purchase to confirm lt + VAT + welcome email. Stripe dashboard seller/VAT id/invoice numbering still to do.
 - **Next:** test purchase and plan change; fix `plans.credits`; decide whether merch/penalty need VAT.
 
 ## 2026-11-10 — VAT invoices, welcome event, merch delivery, stats, nav
+
 - **Changed:** branch `feat/vat-invoices-merch-delivery` (not merged, no PR yet): pay-today line + gift card message in PDF; 21% inclusive VAT (`_shared/vat.ts`) and `lt` locale on subscription checkout and plan-change gap invoices; `subscription started` Omnisend event with plan/dates/price (see [[welcome-email]]); merch delivery choice (terminal free, courier +3 EUR) with migration `20261109120000` (applied live); `public_stats.active_sets` = sum of stock, migration `20261109130000` (applied live, reads 98); nav hamburger below `lg`.
 - **Deployed live:** create-merch-checkout v11, create-checkout v13, stripe-webhook v17. Later same day: stripe-webhook v18 (enriched event) and change-subscription v15 (VAT on gap invoice) deployed too.
 - **Status:** Omnisend MCP is the SKIN365 account, so the BRICKTIME welcome automation must be built by hand; Stripe dashboard still needs seller details/VAT id/invoice numbering.
 - **Next:** commit + redeploy stripe-webhook, deploy change-subscription, open PR, build Omnisend automation, test merch terminal order.
 
 ## 2026-11-06 — pre-launch test data wiped
+
 - **Changed:** live DB via the SQL editor (the Supabase connector refuses bulk deletes): deleted 5 rentals, 1 merch order (stock unit restored), 21 gift cards, 2 penalties, 1 missing-part request, 1 coupon; reset all 10 subscribers to no subscription. Stripe test data deleted from the Stripe dashboard by the owner.
 - **Status:** verified — all transactional tables empty, subscribers reset, 97 products / 6 plans / 4 merch items intact. Duplicate-subscription and unpaid-gift-card follow-ups are moot.
 - **Next:** a real end-to-end test purchase on production.
 
 ## 2026-11-05 — #96, #97, #98 merged; functions redeployed from main
+
 - **Changed:** merged #97 (after resolving its conflict with #96) and #98 (retargeted to main) into main at `b48260f`. Compared every deployed function with main and redeployed the five that differed: stripe-webhook v16, create-gift-card-checkout v8, lpexpress v6, pause-subscription v2, create-checkout v12.
 - **Status:** live functions match main; smoke-tested. Not tested end to end with a real payment.
 - **Next:** Stripe cleanup (duplicate subscriptions, older unpaid gift cards), billing-period backfill, a real test purchase.
 
 ## 2026-11-05 — #98 cubic review rounds
+
 - **Checkout guard:** create-checkout fails closed (stored subscription checked, Stripe errors rethrown, all pages listed, `incomplete` counted), payment-problem message, 10 s idempotency key.
 - **Webhook:** stored-subscription guard on every path and throws on a failed read; billing period never moves back; longer pause block kept; invoice fetched only after a pause; Omnisend retried only on 429/5xx.
 - **Gift cards:** row saved before the checkout URL; email first, then activate; pending shown as awaiting payment; admin counts used/pending/expired correctly.
@@ -37,69 +64,83 @@
 - **Next:** merge #96 → #97 → #98 (retarget to main); redeploy what differs; Stripe cleanup (duplicate subscriptions, older unpaid gift cards); backfill billing periods.
 
 ## 2026-11-05 — edge functions deployed (combined #96 + #97 + #98)
+
 - **Changed:** deployed 9 functions via Supabase MCP from local branch `deploy/combined` (merge of fix/merch-payment-hardening, feat/merch-orders-and-fixes, fix/billing-safety). Pause hardening from security reviews landed first on #98 (atomic start, resume keeps unpaid month blocked, webhook keeps the block, timeout-safe, no plan change while paused, 'infinity' fails closed).
 - **Status:** all 9 boot and refuse unauthenticated calls correctly. No end-to-end Stripe test yet.
 - **Next:** merge the three PRs in order; Stripe duplicate-subscription cleanup.
 
 ## 2026-11-05 — tester feedback: billing safety, rentals, courier, budget period, pause
+
 - **Changed:** branch fix/billing-safety (9 commits, see status.md) + #97 card-only fix b676a16. Five migrations applied live via MCP and renamed locally to their recorded versions.
 - **Status:** storefront + admin typecheck; deno check clean except pre-existing TS7006/EdgeRuntime errors; used_credits verified in a rolled-back transaction. Not tested end to end in the browser or against Stripe test mode. Edge functions not deployed.
 - **Next:** open stacked PR, merge order #96 → #97 → this, deploy functions, clean up duplicate Stripe subscriptions.
 
 ## 2026-11-05 — PR #97 opened; cubic review addressed
+
 - **Changed:** branch rebased onto main after #95; PR dzekuza/bricktime#97 opened (head b734b77 before review fixes). Review fixes: webhook keeps coupon/gift card holds for 14 days on delayed payments and releases them on `async_payment_failed`, keeps the coupon hold if `redeem_coupon` fails; useCredits waits for plan load; downgrade summary wording and no swap note on downgrades; 35-min retry message; migrations renamed 200000→220000 to avoid colliding with #96's `20261105200000_merch_order_stock_guard.sql`; new 220300 fixes the `reserved_by` column comment (applied live); vault hook marker stores the last edit time.
 - **Status:** review fixes committed on feat/merch-orders-and-fixes; edge functions for #97 not deployed.
 - **Next:** merge #96, rebase #97, deploy the three functions, enable `async_payment_failed` on the Stripe endpoint.
 
 ## 2026-11-05 — merch checkout security fixes
+
 - **Changed:** create-merch-checkout (gift card needs login, hold tied to `reserved_by`, one generic error; coupon uses reserved via `claim_coupon_hold`), stripe-webhook (releases coupon hold after redeem), MerchDiscountCode (guest gift-card message), migrations 20261105200000 + 20261105200100 (`reserved_by`, `coupon_holds`, owner-only buyer PII in `get_merch_order_by_session`).
 - **Status:** commits 5e72da3 + dafac67 on feat/merch-orders-and-fixes. Migrations 20261105200000/200100/200200 applied by hand in the SQL editor and verified live (reserved_by, coupon_holds+RLS+index, 3-arg claim_coupon_hold not callable by anon, order lookup hides buyer details for guest orders older than 1h). Edge functions not deployed.
 - **Next:** regenerate database.types.ts (both apps), deploy create-merch-checkout + stripe-webhook, open the PR.
 
 ## 2026-11-05 — gift card hold extended to subscription checkout
+
 - **Changed:** create-checkout holds the gift card with the same conditional UPDATE (35 min), sets a 30-min session expiry, releases the hold if Stripe fails, hides raw DB errors; stripe-webhook clears `reserved_until` when a subscription redeems a card.
 - **Status:** deployed — create-checkout v9 (with `_shared/coupon.ts` + `_shared/downgrade-guard.ts`), stripe-webhook v13. Smoke tests: create-checkout boots and returns its own 401 for anon; merch bogus code → 400 "Kodas nerastas…"; webhook rejects unsigned. Gift-card hold in the subscription path not exercised with a real signed-in checkout.
 - **Next:** one real gift-card test purchase (merch + subscription); delete test order #1003; Omnisend "merch order placed" automation; deploy storefront; commit.
 
 ## 2026-11-05 — gift card hold against double-spend; merch codes deployed
+
 - **Changed:** migration 20261105130000_gift_card_reservation (`gift_cards.reserved_until`, applied); create-merch-checkout claims the card with one conditional UPDATE (35-min hold), Stripe session expires in 30 min, hold released if Stripe fails; DB errors no longer returned to the client; webhook redeems the gift card on every delivery (retry-safe, throws on error) and counts coupons only on first delivery.
 - **Status:** deployed — stripe-webhook v12, create-merch-checkout v7; live smoke test: bogus code → "Kodas nerastas arba nebegalioja", webhook rejects unsigned. A real gift-card hold through Stripe not exercised end to end.
 - **Next:** add the same hold to subscription create-checkout (cards used there ignore it); delete test order #1003; Omnisend "merch order placed" automation; deploy storefront; commit.
 
 ## 2026-11-05 — plan-change summary shows what the gift card really does
+
 - **Changed:** `src/components/account/PlanChangeSummary.tsx` + `isDowngrade` prop from Account.tsx. New subscription: "Mokėsi dabar" line = total − card (≥ €0), note that the card covers only the first payment and any excess is forfeited (create-checkout caps the one-off coupon and marks the card used). Upgrade swap: card shown as credit with a note that it pays the swap invoice first and the rest carries over (Stripe customer balance); no exact pay-now figure because the swap charge depends on the current Stripe items. Downgrade: no coupon/gift deduction shown, with a note that codes don't apply (change-subscription returns before reading the code).
 - **Status:** typecheck + lint clean; all four cases rendered in the dev preview by mounting the component directly (account page needs a login). Uncommitted.
 - **Next:** decide whether to add a server-side swap preview (Stripe upcoming invoice) so swaps can show an exact pay-now amount; decide whether forfeiting a gift-card excess on new subscriptions is intended.
 
 ## 2026-11-05 — merch checkout accepts discount codes and gift cards
+
 - **Changed:** `src/components/merch/MerchDiscountCode.tsx` (one field for coupon or gift card, shows −€ and the total on the buy button); MerchDrop passes `code` and now shows checkout errors instead of failing silently; create-merch-checkout prices the code server-side (coupon first, then gift card, capped at item price, one-off Stripe coupon); stripe-webhook redeems the gift card / counts the coupon only once the order is first recorded.
 - **Status:** typecheck/lint/deno check clean; field verified in local preview (invalid code error, WECOME → −€5, button €20). Function changes NOT deployed — live create-merch-checkout ignores `code`.
 - **Next:** deploy both functions before the storefront ships, otherwise shoppers see a discount and get charged full price.
 
 ## 2026-11-05 — merch orders actually get recorded
+
 - **Changed:** new `merch_orders` table + `record_merch_order` / `get_merch_order_by_session` (migrations 20261105120000/120100, applied to remote); stripe-webhook handles `type: "merch"` sessions (insert, per-size stock decrement, Omnisend "merch order placed"); create-merch-checkout tags sessions, links verified user, collects phone, redirects to `/merch/aciu`; new storefront thank-you page `MerchThankYou.tsx`; fake `?payment=success` banner removed from MerchDrop; admin Orders page gets Rentals/Merch tabs (`MerchOrdersPanel`, `MerchOrderDetailSheet`, `lib/merch-orders.ts`); types regenerated in both apps.
 - **Status:** typechecks + lint clean; DB functions dry-run tested; thank-you page and admin tab verified locally. Edge functions deployed 2026-11-05 (stripe-webhook v11, create-merch-checkout v6) via Supabase MCP — the CLI token lacks deploy rights. Test row #1003 (`cs_test_claude_preview`) still in merch_orders — deletion was declined.
 - **Next:** deploy storefront (thank-you page + new success URL); create Omnisend automation for "merch order placed"; backfill past merch payments from Stripe; commit.
 
 ## 2026-11-05 — admin Analytics page fails with 500
+
 - **Found:** `get-analytics` edge function returns 500 after auth succeeds (logs, 17:25 + 13:23 UTC), so the failure is in the Google step: secrets missing, or the service-account token or API calls failing. CLI can't list secrets (403 on this account).
 - **Changed:** admin/src/pages/Analytics.tsx — the alert now shows the function's real `error` body, not the generic "non-2xx" text.
 - **Verified:** new service account `bricks@cedar-freedom-471318-u2` works locally: token OK, GA4 property 548715432 (161 sessions/28d), GSC `sc-domain:bricktime.lt` (6 clicks).
-- **Next:** set GOOGLE_SERVICE_ACCOUNT_EMAIL / _PRIVATE_KEY / GA4_PROPERTY_ID=548715432 / GSC_SITE_URL=sc-domain:bricktime.lt in Supabase secrets, then reload /analytics.
+- **Next:** set GOOGLE_SERVICE_ACCOUNT_EMAIL / \_PRIVATE_KEY / GA4_PROPERTY_ID=548715432 / GSC_SITE_URL=sc-domain:bricktime.lt in Supabase secrets, then reload /analytics.
 
 ## 2026-11-05 — merch edit dialog gets a description field
+
 - **Changed:** admin/src/pages/Merch.tsx — Description textarea under Name, loaded from and saved to `merch_items.description` (column already existed; storefront MerchDrop already renders it).
 - **Status:** typechecks, field visible in dev preview; uncommitted (along with the sidebar grouping).
 - **Next:** fill descriptions for the existing 4 merch items, then commit.
 
 ## 2026-11-05 — admin sidebar grouped into sections
+
 - **Changed:** admin/src/components/AppSidebar.tsx — flat 16-item "Menu" split into Overview / Catalog / Sales / Customers / Engagement; Settings pinned to the bottom.
 - **Status:** typechecks, verified in dev preview; uncommitted.
 - **Next:** commit if the grouping is approved.
 
 ---
+
 tags: [meta, session-log]
 updated: 2026-11-05
+
 ---
 
 # Session log
