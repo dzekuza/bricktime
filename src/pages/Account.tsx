@@ -1692,7 +1692,7 @@ export default function Account() {
                   </>
                 ) : (
                   <button
-                    onClick={() => setShowUpgrade(true)}
+                    onClick={openPlanChange}
                     className="brick-hover-sm w-full rounded-full border-2 border-ink bg-ink px-4 py-2.5 text-[14px] font-bold text-paper transition-all"
                   >
                     Pasirinkti planą →
