@@ -469,10 +469,10 @@ export default function Subscribe() {
                       ) : (
                         <>
                           <span className="sm:hidden">
-                            {`Pradėti — €${billing === "annual" ? `${total} šiandien` : `${price + deliveryFee}/mėn.`} →`}
+                            {`Pradėti — €${billing === "annual" ? `${total} šiandien` : `${(price + deliveryFee).toFixed(2)}/mėn.`} →`}
                           </span>
                           <span className="hidden sm:inline">
-                            {`Pradėti ${plan?.name ?? ""} — €${billing === "annual" ? `${total} šiandien` : `${price + deliveryFee}/mėn.`} →`}
+                            {`Pradėti ${plan?.name ?? ""} — €${billing === "annual" ? `${total} šiandien` : `${(price + deliveryFee).toFixed(2)}/mėn.`} →`}
                           </span>
                         </>
                       )}
@@ -559,8 +559,16 @@ export default function Subscribe() {
                           className="flex justify-between text-[13px]"
                           style={{ color: `${plan.text_color}70` }}
                         >
-                          <span>Standartinis pristatymas</span>
-                          <span>Nemokamas</span>
+                          <span>
+                            {deliveryFee > 0
+                              ? "Pristatymas kurjeriu"
+                              : "Standartinis pristatymas"}
+                          </span>
+                          <span>
+                            {deliveryFee > 0
+                              ? `+€${deliveryFee.toFixed(2)}/mėn.`
+                              : "Nemokamas"}
+                          </span>
                         </div>
                         {isHomeDeliveryEligible && (
                           <div
@@ -668,7 +676,7 @@ export default function Subscribe() {
                         style={{ color: plan.text_color }}
                       >
                         <span className="text-[15px] font-bold">
-                          Mokėti šiandien
+                          Mokėti šiandien (su PVM)
                         </span>
                         <span className="font-display text-[40px] leading-none">
                           €
@@ -680,7 +688,7 @@ export default function Subscribe() {
                               ).toFixed(2)
                             : billing === "annual"
                               ? total
-                              : price + deliveryFee}
+                              : (price + deliveryFee).toFixed(2)}
                         </span>
                       </div>
                     </div>

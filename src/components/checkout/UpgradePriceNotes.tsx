@@ -4,7 +4,7 @@ type UpgradePriceNotesProps = {
   // List price per month; a coupon is shown separately and may not recur.
   monthlyPrice: number
   isAnnual: boolean
-  // Monthly door-delivery fee kept on the plan; 0 when not on the plan.
+  // Monthly door-delivery fee on the plan; 0 when not chosen.
   deliveryFee: number
   // The member already has a subscription that is swapped, not a new one.
   isSwap: boolean
@@ -30,10 +30,9 @@ export function UpgradePriceNotes({
   const todayTotal = Math.max(0, firstInvoice - giftCardCredit)
   const showToday = giftCardCredit > 0 && !isSwap
   const notes = [
-    deliveryFee > 0 &&
-      `+ ${euro(deliveryFee)}/mėn. pristatymas į duris (jau yra tavo plane).`,
-    isAnnual && `Metinė plano kaina – ${euro(periodTotal)}.`,
-    !isAnnual && deliveryFee > 0 && `Iš viso ${euro(periodTotal)}/mėn.`,
+    deliveryFee > 0 && `+ ${euro(deliveryFee)}/mėn. pristatymas kurjeriu.`,
+    isAnnual && `Metinė plano kaina – ${euro(periodTotal)} su PVM.`,
+    !isAnnual && deliveryFee > 0 && `Iš viso ${euro(periodTotal)}/mėn. su PVM.`,
     isSwap &&
       (isAnnual
         ? "Nepanaudota dabartinio plano dalis įskaičiuojama į pirmą metinį mokėjimą. Antra prenumerata nekuriama."
@@ -44,7 +43,7 @@ export function UpgradePriceNotes({
   return (
     <div className="mt-2 flex flex-col gap-1">
       {showToday && (
-        <p className="font-mono text-[13px] font-bold leading-relaxed text-ink">
+        <p className="font-mono text-[13px] leading-relaxed font-bold text-ink">
           Šiandien mokėsi {euro(todayTotal)} (po {euro(giftCardCredit)} kupono).
         </p>
       )}

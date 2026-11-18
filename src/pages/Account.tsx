@@ -27,6 +27,7 @@ import { RentalHistory } from "@/components/account/RentalHistory"
 import { PauseSubscription } from "@/components/account/PauseSubscription"
 import { readFunctionError } from "@/lib/function-error"
 import { SubscriptionNotices } from "@/components/account/SubscriptionNotices"
+import { CancelSubscriptionDialog } from "@/components/account/CancelSubscriptionDialog"
 
 const SUBSCRIBER_STATUS_LABELS: Record<string, string> = {
   active: "Aktyvi",
@@ -244,8 +245,6 @@ export default function Account() {
     totalCredits,
     remainingCredits,
     overBudgetCredits,
-    returnedHeldCredits,
-    budgetFreesAt,
   } = useCredits()
   const { achievements } = useAchievements()
   const tierOptions = useMemo(
@@ -267,6 +266,7 @@ export default function Account() {
   const [leaderboardRank, setLeaderboardRank] = useState<number | null>(null)
   const [postCount, setPostCount] = useState(0)
   const [subscriptionBusy, setSubscriptionBusy] = useState(false)
+  const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false)
   const [rentedOrders, setRentedOrders] = useState<RentedOrder[]>([])
   // Every rental incl. returned ones, newest first.
   const [rentalHistory, setRentalHistory] = useState<RentedOrder[]>([])
@@ -583,6 +583,8 @@ export default function Account() {
       onUndoCancel={() => cancelSubscription(true)}
     />
   )
+  const cancelPending =
+    Boolean(subscriber?.cancel_requested) || Boolean(subscriber?.cancel_at)
   const activeAvatar = avatarOptions[selectedAvatarId] ?? avatarOptions[0]
   const totalPoints =
     dbPoints ??
@@ -593,7 +595,6 @@ export default function Account() {
   const memberSince = subscriber?.joined_at
     ? formatMemberSince(new Date(subscriber.joined_at))
     : "–"
-
 
   async function saveAvatar(id: number) {
     setSelectedAvatarId(id)
@@ -633,6 +634,7 @@ export default function Account() {
       { body: { undo } }
     )
     setSubscriptionBusy(false)
+    setCancelConfirmOpen(false)
     if (error || data?.error) {
       setPortalError(
         data?.error ??
@@ -875,18 +877,8 @@ export default function Account() {
               {overBudgetCredits > 0 && (
                 <p className="mt-4 text-[13px] text-ink/60">
                   Turimi rinkiniai viršija tavo plano biudžetą{" "}
-                  {overBudgetCredits} briksių. Grąžink rinkinį, kad galėtum
-                  pasirinkti naują.
-                </p>
-              )}
-              {returnedHeldCredits > 0 && budgetFreesAt && (
-                <p className="mt-4 text-[13px] text-ink/60">
-                  {`Grąžintų rinkinių briksiai (${returnedHeldCredits}) atsilaisvins ${new Date(
-                    budgetFreesAt
-                  ).toLocaleDateString("lt-LT", {
-                    month: "long",
-                    day: "numeric",
-                  })} – briksiai skiriami atsiskaitymo laikotarpiui, o ne vienam rinkiniui.`}
+                  {overBudgetCredits} briksių. Grąžink rinkinį – jo briksiai
+                  atsilaisvins iškart ir galėsi pasirinkti naują.
                 </p>
               )}
 
@@ -950,8 +942,8 @@ export default function Account() {
                 <div className="mt-auto flex gap-3 pt-6 md:hidden">
                   <button
                     className="flex-1 rounded-full border-2 border-ink bg-ink px-3 py-2 text-[14px] font-bold text-paper transition-colors hover:bg-paper hover:text-ink"
-                    onClick={() => cancelSubscription()}
-                    disabled={subscriptionBusy}
+                    onClick={() => setCancelConfirmOpen(true)}
+                    disabled={subscriptionBusy || cancelPending}
                   >
                     Atšaukti
                   </button>
@@ -971,8 +963,8 @@ export default function Account() {
                   </button>
                   <button
                     className="rounded-full border-2 border-ink bg-paper px-3 py-2 text-[14px] font-bold text-ink transition-colors hover:bg-ink hover:text-paper"
-                    onClick={() => cancelSubscription()}
-                    disabled={subscriptionBusy}
+                    onClick={() => setCancelConfirmOpen(true)}
+                    disabled={subscriptionBusy || cancelPending}
                   >
                     Atšaukti
                   </button>
@@ -996,7 +988,6 @@ export default function Account() {
                 </button>
               </div>
             )}
-
           </div>
         </div>
       </section>
@@ -1168,8 +1159,8 @@ export default function Account() {
                         {portalLoading ? "Kraunama…" : "Mano prenumerata →"}
                       </button>
                       <button
-                        onClick={() => cancelSubscription()}
-                        disabled={subscriptionBusy}
+                        onClick={() => setCancelConfirmOpen(true)}
+                        disabled={subscriptionBusy || cancelPending}
                         className="brick-hover-sm rounded-full border-2 border-ink bg-paper px-3 py-2.5 text-[14px] font-bold text-ink transition-all disabled:pointer-events-none disabled:opacity-50"
                       >
                         Atšaukti
@@ -1309,6 +1300,13 @@ export default function Account() {
         />
       )}
 
+      <CancelSubscriptionDialog
+        open={cancelConfirmOpen}
+        onOpenChange={setCancelConfirmOpen}
+        periodEnd={subscriber?.current_period_end ?? null}
+        busy={subscriptionBusy}
+        onConfirm={() => cancelSubscription()}
+      />
       <DeleteAccountDialog
         open={deleteAccountOpen}
         onOpenChange={setDeleteAccountOpen}

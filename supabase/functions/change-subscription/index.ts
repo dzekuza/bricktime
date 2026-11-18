@@ -209,8 +209,13 @@ async function previewUpgrade(args: {
     newTotalCents
   )
   let grossCents: number
+  // What the gross amount is made of, so the member can see why it is due.
+  let oldPlanCreditCents = 0
+  let newPlanChargeCents = 0
   if (flatDiffCents != null) {
     grossCents = flatDiffCents
+    newPlanChargeCents = newTotalCents
+    oldPlanCreditCents = newTotalCents - flatDiffCents
   } else {
     // Yearly or interval changes use Stripe's own proration. The upcoming
     // invoice needs a product id, so the two products are created here too.
@@ -256,6 +261,11 @@ async function previewUpgrade(args: {
     // amount_due already nets the customer balance, so add it back to treat
     // both paths the same below.
     grossCents = upcoming.amount_due + balanceCents
+    for (const line of upcoming.lines.data) {
+      if (!line.proration) continue
+      if (line.amount < 0) oldPlanCreditCents += -line.amount
+      else newPlanChargeCents += line.amount
+    }
   }
 
   const amountCents = Math.max(0, grossCents - creditCents)
@@ -274,6 +284,8 @@ async function previewUpgrade(args: {
     amountCents,
     creditCents: Math.min(creditCents, grossCents),
     isProration: flatDiffCents == null,
+    oldPlanCreditCents,
+    newPlanChargeCents,
     card,
   }
 }
