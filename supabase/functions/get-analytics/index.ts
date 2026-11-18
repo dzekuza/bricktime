@@ -21,7 +21,8 @@ function base64url(bytes: ArrayBuffer | Uint8Array) {
 // Google-issued PEM keys arrive as a single env-var line with literal "\n"
 // sequences instead of real newlines, wrapped in PEM header/footer markers.
 function pemToDer(pem: string) {
-  const normalized = pem.replace(/\\n/g, "\n")
+  // Secrets pasted from the service-account JSON often keep wrapping quotes.
+  const normalized = pem.trim().replace(/^["']|["']$/g, "").replace(/\\n/g, "\n")
   const body = normalized
     .split("\n")
     .filter((line) => line && !line.startsWith("-----"))
@@ -216,7 +217,10 @@ Deno.serve(async (req) => {
       )
     }
 
-    const accessToken = await getAccessToken(email, privateKey)
+    // Surface a bad key/credential as a readable error instead of a raw crypto exception.
+    const accessToken = await getAccessToken(email, privateKey).catch((e) => {
+      throw new Error(`Google service account auth failed (check GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY): ${e instanceof Error ? e.message : String(e)}`)
+    })
 
     const [ga, gaError] = propertyId
       ? await fetchGa4(accessToken, propertyId, startDate, endDate)

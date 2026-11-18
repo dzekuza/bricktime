@@ -348,8 +348,6 @@ export default function Checkout() {
   const {
     remainingCredits,
     overBudgetCredits,
-    returnedHeldCredits,
-    budgetFreesAt,
   } = useCredits()
   const { available: productAvailability } = useProductAvailability()
   const hasTier = useMemo(
@@ -659,6 +657,8 @@ export default function Checkout() {
             amountCents: quote.amountCents,
             creditCents: quote.creditCents,
             isProration: quote.isProration,
+            oldPlanCreditCents: quote.oldPlanCreditCents ?? 0,
+            newPlanChargeCents: quote.newPlanChargeCents ?? 0,
             card: quote.card,
           })
           return
@@ -1600,15 +1600,8 @@ export default function Checkout() {
                     </h2>
                     <p className="mt-1 text-[13px] text-ink/50">
                       Šiam produktui reikia {product?.value ?? 0} Kr., o tau
-                      liko {remainingCredits} Kr.{" "}
-                      {returnedHeldCredits > 0 && budgetFreesAt
-                        ? `Grąžintų rinkinių briksiai (${returnedHeldCredits} Kr.) atsilaisvins ${new Date(
-                            budgetFreesAt
-                          ).toLocaleDateString("lt-LT", {
-                            month: "long",
-                            day: "numeric",
-                          })}, kai prasidės naujas atsiskaitymo laikotarpis.`
-                        : "Grąžink turimą produktą – briksiai atsilaisvins nuo kito atsiskaitymo laikotarpio."}
+                      liko {remainingCredits} Kr. Grąžink turimą produktą – jo
+                      briksiai atsilaisvins iškart.
                     </p>
                   </div>
 
@@ -2082,8 +2075,8 @@ export default function Checkout() {
                         ? "Nepasiekiama"
                         : userSub
                           ? isPlanDowngrade
-                                  ? "Pakeisti prenumeratą"
-                                  : "Paaukštinti prenumeratą"
+                            ? "Pakeisti prenumeratą"
+                            : "Paaukštinti prenumeratą"
                           : "Prenumeruoti dabar"}
                 </span>
                 <span className="font-display text-[24px] leading-none">→</span>

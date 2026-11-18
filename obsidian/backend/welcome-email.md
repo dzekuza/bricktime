@@ -18,6 +18,8 @@ State (2026-11-13): template **Subscription Started - Welcome**
 trigger after the first real event arrived, so the first test purchase did not
 get an email; it needs a new purchase to verify.
 
+**Checked 2026-11-18 via Omnisend MCP:** automation enabled, trigger `subscription started`/api, template stored with `[[event.*]]` tags (render preview shows them as `{{event_*}}`, same as the working gift-card email). No `subscription started` event exists yet for the two test contacts, so delivery is still unverified; needs one real test purchase. A contact that has unsubscribed (e.g. the 2026-11-15 test address) will not receive it.
+
 ## Event properties → email fields
 
 | Email field | Event property | Example |

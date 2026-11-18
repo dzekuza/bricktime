@@ -1,3 +1,28 @@
+## 2026-11-18 — owner decisions applied
+
+- **Changed:** returned sets free budget immediately (migration + UI wording, `useCredits` pruned), `mystery_s` credits 0, two functions deployed.
+- **Next:** e2e test purchase; commit.
+
+## 2026-11-18 — TASKS.md fix pass (3 agents)
+
+- **Changed:** see status.md; typecheck passes, src lint clean; nothing committed/deployed.
+- **Next:** deploy change-subscription + get-analytics, e2e test purchase.
+
+## 2026-11-18 — architecture docs incremental (automated, 5)
+
+- **Changed:** vault only. `codebase-map.md` synced_commit `195f18a` → `ba8c33b`; Account plan buttons for members without a plan now go to `/subscribe`.
+- **Open:** chats/CRM not read (skipped by instruction).
+
+## 2026-11-18 — architecture docs incremental (automated, 4)
+
+- **Changed:** vault only. `codebase-map.md` synced_commit `1186250` → `195f18a`; plan changes now live in `Checkout.tsx`, Account only navigates there; `PlanChangeSummary`/`DiscountCodeField` unreferenced.
+- **Open:** chats/CRM not read (skipped by instruction).
+
+## 2026-11-18 — architecture docs incremental (automated, 3)
+
+- **Changed:** vault only. `codebase-map.md` synced_commit `1e55c31` → `1186250`; Pages note on upgrade routing and plan-only checkout redirect; admin `fetchPlanPrices`.
+- **Open:** chats/CRM not read (skipped by instruction).
+
 ## 2026-11-18 — architecture docs incremental (automated, 2)
 
 - **Changed:** vault only. `codebase-map.md` synced_commit `ec425ae` → `1e55c31`; noted `stripe-webhook` live-subscription re-read and `AuthContext` `refreshProfile` change.

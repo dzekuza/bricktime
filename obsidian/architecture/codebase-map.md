@@ -1,7 +1,7 @@
 ---
 tags: [architecture, codebase-map]
 updated: 2026-11-18
-synced_commit: 1e55c31
+synced_commit: ba8c33b
 ---
 
 # Codebase map
@@ -139,10 +139,13 @@ Depends on: external: Supabase. Used by: pages and hooks.
 
 ### Pages — `src/pages/`
 
-Purpose: route views. Lines: Checkout 2145, Account 1823, Community 1460, Drop 1013, Subscribe 801. These contain the client side of the billing flow.
+Purpose: route views. Lines: Checkout 2200, Account 1328, Community 1460, Drop 1013, Subscribe 801. These contain the client side of the billing flow.
 Interface: call edge functions with `supabase.functions.invoke` (`create-checkout`, `change-subscription` from Account/Checkout/Subscribe; `verify-gift-card` from hooks and merch).
 Depends on: Auth and subscription state, Billing functions, LP Express module.
 Used by: routes in App shell.
+Plan-change routing (as of `ba8c33b`): the two "Pasirinkti planą" buttons for members without a plan now `navigate("/subscribe")` (`Account.tsx:993`, `:1198`) instead of going to checkout; `goToPlanCheckout` (`Account.tsx:688`) is only used for members who already have a plan (next plan up, else the current one). Earlier (`195f18a`): `Account.tsx` no longer holds a plan-change flow. Its in-place upgrade/downgrade UI (`startPlanChange`, `handleUpgradeCheckout`, `PlanChangeConfirm`, terminal/discount state) was removed; the plan picker only does `navigate(`/checkout?plan=<key>&billing=monthly`)` (`Account.tsx:702`). All plan purchases and changes now run through `Checkout.tsx`: `selectPlan` (plan pills rewrite `?plan=`), `isPlanDowngrade` (plan-only checkout where the target price is below the current plan) and the `swap.scheduled` branch, which redirects to `/account` because a cheaper plan waits for the next renewal. A same-plan, same-delivery attempt returns "Jau esi šiame plane.". A plan-only purchase ends on `/account?plan_changed=true&plan=<key>`; Account's `plan_changed` handler (`Account.tsx:375-380`) clears the URL and waits for the webhook via `waitForSubscriberBilling`. A purchase with a product still returns to `/checkout?product=...&success=true`. `Checkout.tsx` now also renders `VatNote`.
+Orphans after `195f18a`: `src/components/account/PlanChangeSummary.tsx` and `src/components/account/DiscountCodeField.tsx` have no importers left in `src` (checked with `rg`); `useDiscountCode` is still used elsewhere (see Table above).
+Admin plan prices: `fetchPlanPrices` (`admin/src/lib/plan-prices.ts:5`, `() => Promise<Record<string, number>>`) reads `plans(id, price)`; used by admin `Dashboard.tsx` (MRR) and `Subscribers.tsx` (monthly spend) in place of two hardcoded `PLAN_PRICES` maps. Returns `{}` on error, so MRR then shows 0 silently (console.error only).
 VAT note: `VatNote` (`src/components/VatNote.tsx:5`, `({ className? }) => JSX`) renders "Visos kainos nurodytos su PVM"; used by `Subscriptions.tsx`, `Subscribe.tsx`, `Account.tsx` (plan picker) and `MerchDrop.tsx`. Its copy must stay true to `supabase/functions/_shared/vat.ts` (prices stored gross, 21% PVM split by Stripe).
 Table access (counts of `.from(...)` in `src` and functions): `subscribers` 63, `gift_cards` 19, `orders` 14, `products` 10, `feed_items` 10, `coupons` 8, `plans` 7, `home_content` 6.
 

@@ -34,6 +34,7 @@ interface SheetOrder {
   productTitle: string
   startDate: string
   dueDate: string
+  returnedAt: string | null
   status: OrderStatus
   amount: number
 }
@@ -182,7 +183,7 @@ export function SubscriberProfileSheet({
     if (!subscriber || !open) return
     supabase
       .from("orders")
-      .select("id, product_id, start_date, due_date, status, amount")
+      .select("id, product_id, start_date, due_date, returned_at, status, amount")
       .eq("subscriber_id", subscriber.id)
       .order("created_at", { ascending: false })
       .then(async ({ data: orderRows }) => {
@@ -205,6 +206,7 @@ export function SubscriberProfileSheet({
               productMap[o.product_id] ?? `Product #${o.product_id}`,
             startDate: o.start_date,
             dueDate: o.due_date,
+            returnedAt: o.returned_at,
             status: o.status as OrderStatus,
             amount: o.amount,
           }))
@@ -293,7 +295,12 @@ export function SubscriberProfileSheet({
                         {order.productTitle}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {order.startDate} → {order.dueDate}
+                        Rented {order.startDate} · due {order.dueDate}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {order.returnedAt
+                          ? `Returned ${order.returnedAt.slice(0, 10)}`
+                          : "Not returned yet"}
                       </span>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">

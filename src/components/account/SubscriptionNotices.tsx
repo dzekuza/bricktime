@@ -57,7 +57,7 @@ export function SubscriptionNotices({
           message={
             isPlanScheduled
               ? `${pendingPlanName} prenumerata įsigalios nuo kito nuskaitymo${renewalAt ? ` (${new Date(renewalAt).toLocaleDateString("lt-LT")})` : ""}. Kol kas lieka dabartinis planas.`
-              : `${pendingPlanName} prenumerata įsigalios nuo kito nuskaitymo, jei iki tol grąžinsi rinkinius, viršijančius ${pendingCredits ?? 0} briksių. Kol kas lieka dabartinis planas.`
+              : `${pendingPlanName} prenumerata įsigalios nuo kito nuskaitymo, jei iki tol grąžinsi rinkinius, kad laikomų rinkinių vertė neviršytų naujo plano ${pendingCredits ?? 0} € biudžeto. Kol kas lieka dabartinis planas.`
           }
           actionLabel="Atšaukti keitimą"
           busy={busy}

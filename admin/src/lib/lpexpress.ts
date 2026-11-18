@@ -13,7 +13,14 @@ export interface LpTrackingEvent {
 
 async function call<T>(body: Record<string, unknown>): Promise<T> {
   const { data, error } = await supabase.functions.invoke('lpexpress', { body })
-  if (error) throw new Error(error.message)
+  if (error) {
+    // The generic "non-2xx" message hides the function's own JSON error body.
+    const res = (error as { context?: Response }).context
+    const detail: unknown = await res?.json?.().catch(() => null)
+    throw new Error(
+      detail && typeof detail === 'object' && 'error' in detail ? String(detail.error) : error.message,
+    )
+  }
   if (data?.error) throw new Error(data.error)
   return data as T
 }

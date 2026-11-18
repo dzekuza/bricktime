@@ -292,11 +292,18 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
                 )
               }
             />
-            {order.homeDelivery && (
-              <Row
-                label="Address"
-                value={order.deliveryAddress ?? <span className="text-muted-foreground">Not on file</span>}
-              />
+            {order.homeDelivery && !order.deliveryAddress && (
+              <Row label="Address" value={<span className="text-muted-foreground">Not on file</span>} />
+            )}
+            {order.homeDelivery && order.deliveryAddress && (
+              <>
+                {order.deliveryName && <Row label="Recipient" value={order.deliveryName} />}
+                <Row label="Street" value={order.deliveryStreet ?? '—'} />
+                <Row label="House / flat" value={[order.deliveryHouseNo, order.deliveryFlat].filter(Boolean).join(' / ') || '—'} />
+                <Row label="Postal code" value={order.deliveryPostalCode ?? '—'} />
+                <Row label="City" value={order.deliveryCity ?? '—'} />
+                <Row label="Phone" value={order.deliveryPhone ?? <span className="text-muted-foreground">Not on file</span>} />
+              </>
             )}
             {order.trackingState && <Row label="Status" value={<Badge variant="secondary">{order.trackingState}</Badge>} />}
             {order.returnBarcode && (

@@ -73,6 +73,12 @@ export function Orders() {
             ].join(', ')
           : null,
         deliveryPhone: o.delivery_phone,
+        deliveryName: o.delivery_name,
+        deliveryStreet: o.delivery_street,
+        deliveryHouseNo: o.delivery_house_no,
+        deliveryFlat: o.delivery_flat,
+        deliveryPostalCode: o.delivery_postal_code,
+        deliveryCity: o.delivery_city,
         barcode: o.lp_barcode,
         trackingState: o.lp_tracking_state,
         returnBarcode: o.lp_return_barcode,
