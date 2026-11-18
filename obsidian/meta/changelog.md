@@ -6,8 +6,23 @@ updated: 2026-08-25
 # Changelog
 
 Chronological log of notable changes to the project. Newest first.
+## 2026-11-18 — architecture docs incremental (automated, 5)
+
+- **Changed:** vault only. `codebase-map.md` synced_commit `195f18a` → `ba8c33b`; Account plan buttons for members without a plan now go to `/subscribe`.
+- **Open:** chats/CRM not read (skipped by instruction).
+
+## 2026-11-18 — architecture docs incremental (automated, 4)
+
+- **Changed:** vault only. `codebase-map.md` synced_commit `1186250` → `195f18a`; Pages note rewritten (plan changes moved from Account to Checkout, two orphan components); candidate 1 evidence updated.
+- **Open:** chats/CRM not read (skipped by instruction).
+
 This is a human-curated log — not a mirror of `git log`. Record *why*, not just
 *what*; the diff already covers *what*.
+
+## 2026-11-18 — architecture docs incremental (automated, 3)
+
+- **Changed:** vault only. `codebase-map.md` synced_commit `1e55c31` → `1186250`; documented upgrade-to-checkout routing, plan-only checkout success URL, admin `fetchPlanPrices`.
+- **Open:** chats/CRM not read (skipped by instruction).
 
 ## 2026-11-18 — architecture docs incremental sync (2)
 - `codebase-map` synced to `1e55c31`: webhook re-reads the live subscription; `refreshProfile` memoised on user id.

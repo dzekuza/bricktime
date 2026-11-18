@@ -5,11 +5,13 @@
 > it (don't append) whenever the state changes. History belongs in [[session-log]]
 > and [[changelog]], not here.
 
-**Last updated:** 2026-11-18
+**Last updated:** 2026-11-18 (evening)
 
 ## Current focus
 
 Branch `fix/subscription-flow` (3 commits, not pushed): account profile refresh after purchase, plan-picker button, and admin Cancel reaching Stripe (`admin-cancel-subscription` v1 live). Still waiting on a real end-to-end test purchase. Uncommitted: "su PVM" note on price surfaces; the 5 leftover active test subs now carry the 21% VAT rate. See [[session-log]].
+
+**Uncommitted TASKS.md pass (2026-11-18):** cancel-confirm dialog, courier price/delivery row + proration breakdown (needs `change-subscription` deploy), admin order address rows + LP error text, rental `returned_at`, `get-analytics` hardening (needs deploy; check GOOGLE_* secrets), unused PlanChangeSummary/DiscountCodeField removed. Open: mystery_s credits=0 OK, returned-set budget rule question, LP_* secrets, Stripe dashboard, e2e purchase.
 
 ## Done recently
 
@@ -44,3 +46,6 @@ Branch `fix/subscription-flow` (3 commits, not pushed): account profile refresh 
 - **Run:** `pnpm dev` (storefront, :5173), `cd admin && pnpm dev` (admin, :5174/admin/)
 - **Deploy:** Vercel (storefront + admin); edge functions + migrations on Supabase project `yzqaiqgzvlmxnehtqazq`; production https://www.bricktime.lt
 - **Known issues:** see [[known-issues]] if present
+
+
+**Update 2026-11-18 (late):** applied live via MCP: migration `returned_sets_free_budget_immediately` (returned sets stop counting at once; file `20261118120000_…`), `plans.credits` of `mystery_s` set to 0 (SQL, not in a migration), deployed `change-subscription` v21 and `get-analytics` v9 (CLI deploy still 403, used MCP). Still open: LP_* secrets, GOOGLE_* secrets, Stripe dashboard, welcome email, e2e purchase.
