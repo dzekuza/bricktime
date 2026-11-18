@@ -640,6 +640,11 @@ export default function Account() {
   const isTierDowngrade =
     hasSubscription &&
     (tierOptions[selectedTier]?.price ?? 0) < activeTier.price
+  // Upgrades finish on the checkout page, which shows what fits in the plan
+  // and the amount due; a downgrade is scheduled here instead.
+  const isTierUpgrade =
+    hasSubscription &&
+    (tierOptions[selectedTier]?.price ?? 0) > activeTier.price
   const pendingTier = subscriber?.pending_plan
     ? tierOptions.find((t) => t.key === subscriber.pending_plan)
     : undefined
@@ -719,6 +724,13 @@ export default function Account() {
 
   function handlePlanChange() {
     return startPlanChange(false)
+  }
+
+  function handleUpgradeCheckout() {
+    const planKey = tierOptions[selectedTier]?.key
+    if (!planKey) return
+    const billing = upgradeBilling === "annual" ? "yearly" : "monthly"
+    navigate(`/checkout?plan=${planKey}&billing=${billing}`)
   }
 
   // The member has seen what the plan change will charge and agreed to it.
@@ -1474,21 +1486,30 @@ export default function Account() {
                       {planChangeError}
                     </p>
                   )}
-                  <TermsAgreement
-                    id="terms-plan-change"
-                    checked={agreedToPlanChangeTerms}
-                    onCheckedChange={setAgreedToPlanChangeTerms}
-                  />
+                  {!isTierUpgrade && (
+                    <TermsAgreement
+                      id="terms-plan-change"
+                      checked={agreedToPlanChangeTerms}
+                      onCheckedChange={setAgreedToPlanChangeTerms}
+                    />
+                  )}
                   <VatNote className="text-center" />
                   <div className="flex gap-3">
                     <button
-                      onClick={handlePlanChange}
-                      disabled={planChanging || !agreedToPlanChangeTerms}
+                      onClick={
+                        isTierUpgrade ? handleUpgradeCheckout : handlePlanChange
+                      }
+                      disabled={
+                        planChanging ||
+                        (!isTierUpgrade && !agreedToPlanChangeTerms)
+                      }
                       className="flex-1 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[14px] font-bold text-paper transition-[transform,box-shadow] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] disabled:pointer-events-none disabled:opacity-50"
                     >
                       {planChanging
                         ? "Kraunama…"
-                        : `Patvirtinti keitimą į ${tierOptions[selectedTier]?.name ?? "…"} →`}
+                        : isTierUpgrade
+                          ? "Tęsti į užsakymą →"
+                          : `Patvirtinti keitimą į ${tierOptions[selectedTier]?.name ?? "…"} →`}
                     </button>
                     <button
                       onClick={() => {
