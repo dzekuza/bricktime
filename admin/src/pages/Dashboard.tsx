@@ -3,8 +3,7 @@ import { PackageIcon, UsersIcon, CreditCardIcon, TrendingUpIcon } from 'lucide-r
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { supabase } from '@/lib/supabase'
-
-const PLAN_PRICES: Record<string, number> = { nano: 7, mini: 12, standard: 19, pro: 28, mega: 49 }
+import { fetchPlanPrices } from '@/lib/plan-prices'
 
 interface Stat {
   label: string
@@ -35,13 +34,15 @@ export function Dashboard() {
         { count: productCount },
         { data: activeSubs },
         { data: ratedProducts },
+        planPrices,
       ] = await Promise.all([
         supabase.from('products').select('id', { count: 'exact', head: true }),
         supabase.from('subscribers').select('plan').eq('status', 'active'),
         supabase.from('products').select('rating').not('rating', 'is', null),
+        fetchPlanPrices(),
       ])
 
-      const mrr = (activeSubs ?? []).reduce((sum, s) => sum + (PLAN_PRICES[s.plan] ?? 0), 0)
+      const mrr = (activeSubs ?? []).reduce((sum, s) => sum + (planPrices[s.plan] ?? 0), 0)
       const ratings = (ratedProducts ?? [])
         .map((p) => parseFloat(p.rating ?? '0'))
         .filter((r) => r > 0)
