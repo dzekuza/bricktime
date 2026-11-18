@@ -581,9 +581,11 @@ export default function Checkout() {
     setPurchasing(true)
     setPurchaseError("")
     const origin = window.location.origin
+    // A plan-only checkout has no product to continue with, so it ends on the
+    // account page, which waits for the webhook before showing the new plan.
     const successUrl = productId
       ? `${origin}/checkout?product=${productId}&success=true&plan=${requiredTier.key}`
-      : `${origin}/checkout?plan=${requiredTier.key}&success=true`
+      : `${origin}/account?plan_changed=true&plan=${requiredTier.key}`
 
     // A member's existing subscription is swapped in place. A new Checkout
     // Session would start a second subscription and bill both.
