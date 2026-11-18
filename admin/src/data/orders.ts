@@ -17,6 +17,12 @@ export interface Order {
   // Snapshot taken when the order was placed; courier orders only.
   deliveryAddress?: string | null
   deliveryPhone?: string | null
+  deliveryName?: string | null
+  deliveryStreet?: string | null
+  deliveryHouseNo?: string | null
+  deliveryFlat?: string | null
+  deliveryPostalCode?: string | null
+  deliveryCity?: string | null
   barcode?: string | null // outbound
   trackingState?: string | null
   returnBarcode?: string | null
