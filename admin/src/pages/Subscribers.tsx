@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import { MoreHorizontalIcon, SearchIcon, Trash2Icon } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
@@ -31,14 +31,8 @@ import {
 } from "@/data/subscribers"
 import { LIVE_TIERS } from "@/data/products"
 import { supabase } from "@/lib/supabase"
+import { fetchPlanPrices } from "@/lib/plan-prices"
 
-const PLAN_PRICES: Record<string, number> = {
-  nano: 7,
-  mini: 12,
-  standard: 19,
-  pro: 28,
-  mega: 49,
-}
 import {
   DataTable,
   SortableHeader,
@@ -66,16 +60,21 @@ export function Subscribers() {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [profileTarget, setProfileTarget] = useState<Subscriber | null>(null)
   const [profileOpen, setProfileOpen] = useState(false)
+  // A ref, not state: the table's memoized columns call handleSetStatus from
+  // an earlier render and must still see the loaded prices.
+  const planPrices = useRef<Record<string, number>>({})
 
   useEffect(() => {
     async function load() {
-      const [{ data: subs }, { data: orderRows }] = await Promise.all([
+      const [{ data: subs }, { data: orderRows }, prices] = await Promise.all([
         supabase
           .from("subscribers")
           .select("*")
           .order("joined_at", { ascending: false }),
         supabase.from("orders").select("subscriber_id"),
+        fetchPlanPrices(),
       ])
+      planPrices.current = prices
 
       const countMap: Record<string, number> = {}
       for (const o of orderRows ?? []) {
@@ -91,8 +90,7 @@ export function Subscribers() {
             plan: s.plan as Subscriber["plan"],
             status: s.status as SubscriberStatus,
             joined: s.joined_at.split("T")[0],
-            monthlySpend:
-              s.status === "active" ? (PLAN_PRICES[s.plan] ?? 0) : 0,
+            monthlySpend: s.status === "active" ? (prices[s.plan] ?? 0) : 0,
             setsRented: countMap[s.id] ?? 0,
           }))
         )
@@ -164,7 +162,7 @@ export function Subscribers() {
               monthlySpend:
                 status === "cancelled" || status === "paused"
                   ? 0
-                  : (PLAN_PRICES[s.plan] ?? 0),
+                  : (planPrices.current[s.plan] ?? 0),
             }
           : s
       )
@@ -177,7 +175,7 @@ export function Subscribers() {
             monthlySpend:
               status === "cancelled" || status === "paused"
                 ? 0
-                : (PLAN_PRICES[prev.plan] ?? 0),
+                : (planPrices.current[prev.plan] ?? 0),
           }
         : prev
     )
