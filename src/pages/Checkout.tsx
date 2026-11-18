@@ -31,6 +31,7 @@ import {
 import type { LpTerminal } from "@/lib/lpexpress"
 import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
+import { VatNote } from "@/components/VatNote"
 import { PlanFitConfigurator } from "@/components/PlanFitConfigurator"
 import { getDisplayPlan } from "@/lib/product-filters"
 import { UpgradePriceNotes } from "@/components/checkout/UpgradePriceNotes"
@@ -146,7 +147,7 @@ function toRentalErrorMessage(reason: string): string {
 }
 
 export default function Checkout() {
-  const [params] = useSearchParams()
+  const [params, setParams] = useSearchParams()
   const { user } = useAuth()
   // support both ?product= and legacy ?drop=
   const productId = params.get("product") ?? params.get("drop") ?? ""
@@ -541,6 +542,20 @@ export default function Checkout() {
   const [planChangeQuote, setPlanChangeQuote] =
     useState<PlanChangeQuote | null>(null)
 
+  function selectPlan(key: string) {
+    const next = new URLSearchParams(params)
+    next.set("plan", key)
+    setParams(next, { replace: true })
+  }
+
+  // Plan-only checkout of a member: a cheaper plan is scheduled for the next
+  // renewal instead of charged now.
+  const currentPlanPrice = plans.find((p) => p.id === userSub?.key)?.price
+  const isPlanDowngrade =
+    !productId &&
+    currentPlanPrice !== undefined &&
+    (requiredPlan?.price ?? requiredTier.price) < currentPlanPrice
+
   function handleSubscribe() {
     return startSubscribe(false)
   }
@@ -554,6 +569,15 @@ export default function Checkout() {
   async function startSubscribe(isConfirmed: boolean) {
     if (!user) {
       setPurchaseError("Prisijunk prie paskyros prieš perkant.")
+      return
+    }
+    if (
+      userSub &&
+      !productId &&
+      requiredTier.key === userSub.key &&
+      homeDelivery === hasPlanHomeDelivery
+    ) {
+      setPurchaseError("Jau esi šiame plane.")
       return
     }
     if (!requiredPlan) {
@@ -652,6 +676,11 @@ export default function Checkout() {
           },
         }
       )
+      // A cheaper plan waits for the next renewal; the account page shows it.
+      if (!swapError && swap?.scheduled) {
+        window.location.assign(`${origin}/account`)
+        return
+      }
       // No subscription to swap after all (a stale row): a fresh checkout is
       // safe, and create-checkout refuses if a live one does exist.
       const isNothingToSwap =
@@ -1187,6 +1216,25 @@ export default function Checkout() {
                       katalogą.
                     </p>
                   </div>
+                  {plans.length > 0 && (
+                    <div className="flex flex-wrap gap-2 border-t-2 border-ink/10 p-6 md:p-8">
+                      {plans.map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => selectPlan(p.id)}
+                          className={[
+                            "rounded-full border-2 border-ink px-3 py-1.5 font-mono text-[11px] font-bold tracking-[.08em] uppercase transition-colors",
+                            p.id === requiredTier.key
+                              ? "bg-ink text-paper"
+                              : "bg-paper/70 text-ink hover:bg-paper",
+                          ].join(" ")}
+                        >
+                          {p.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1911,6 +1959,7 @@ export default function Checkout() {
                       onCheckedChange={setAgreedToTerms}
                       className="mb-4"
                     />
+                    <VatNote className="mb-4 text-center" />
                     <button
                       onClick={
                         !user ? () => setShowAuthModal(true) : handleSubscribe
@@ -1929,7 +1978,9 @@ export default function Checkout() {
                             : !requiredPlan
                               ? "Nepasiekiama"
                               : userSub
-                                ? "Paaukštinti prenumeratą"
+                                ? isPlanDowngrade
+                                  ? "Pakeisti prenumeratą"
+                                  : "Paaukštinti prenumeratą"
                                 : "Prenumeruoti dabar"}
                       </span>
                       <span className="font-display text-[32px] leading-none">
@@ -2030,7 +2081,9 @@ export default function Checkout() {
                       : !requiredPlan
                         ? "Nepasiekiama"
                         : userSub
-                          ? "Paaukštinti prenumeratą"
+                          ? isPlanDowngrade
+                                  ? "Pakeisti prenumeratą"
+                                  : "Paaukštinti prenumeratą"
                           : "Prenumeruoti dabar"}
                 </span>
                 <span className="font-display text-[24px] leading-none">→</span>

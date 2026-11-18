@@ -15,35 +15,24 @@ import { MissingPartDialog } from "@/components/MissingPartDialog"
 import { ReturnDialog } from "@/components/ReturnDialog"
 import { ProfileEditDialog } from "@/components/ProfileEditDialog"
 import { DeleteAccountDialog } from "@/components/DeleteAccountDialog"
-import { TerminalPicker } from "@/components/TerminalPicker"
-import { fetchLabelPdf, downloadPdf, type LpTerminal } from "@/lib/lpexpress"
+import { fetchLabelPdf, downloadPdf } from "@/lib/lpexpress"
 import { Seo } from "@/components/Seo"
-import { TermsAgreement } from "@/components/TermsAgreement"
-import { DiscountCodeField } from "@/components/account/DiscountCodeField"
 import { GiftCardTile } from "@/components/account/GiftCardTile"
 import { PaymentHistory } from "@/components/account/PaymentHistory"
-import { PlanChangeSummary } from "@/components/account/PlanChangeSummary"
-import {
-  PlanChangeConfirm,
-  type PlanChangeQuote,
-} from "@/components/checkout/PlanChangeConfirm"
 import {
   RentedOrderCard,
   type RentedOrder,
 } from "@/components/account/RentedOrderCard"
 import { RentalHistory } from "@/components/account/RentalHistory"
 import { PauseSubscription } from "@/components/account/PauseSubscription"
-import { useDiscountCode } from "@/hooks/useDiscountCode"
 import { readFunctionError } from "@/lib/function-error"
 import { SubscriptionNotices } from "@/components/account/SubscriptionNotices"
-import { VatNote } from "@/components/VatNote"
 
 const SUBSCRIBER_STATUS_LABELS: Record<string, string> = {
   active: "Aktyvi",
   paused: "Pristabdyta",
   cancelled: "Atšaukta",
 }
-const HOME_DELIVERY_FEE = 3
 
 // Intl's Lithuanian short months vary by browser, so the abbreviations are fixed.
 const MONTHS_SHORT = [
@@ -277,14 +266,7 @@ export default function Account() {
   const [dbPoints, setDbPoints] = useState<number | null>(null)
   const [leaderboardRank, setLeaderboardRank] = useState<number | null>(null)
   const [postCount, setPostCount] = useState(0)
-  const [showUpgrade, setShowUpgrade] = useState(false)
-  const [planChanging, setPlanChanging] = useState(false)
-  const [planChangeError, setPlanChangeError] = useState("")
-  const [planChangeQuote, setPlanChangeQuote] =
-    useState<PlanChangeQuote | null>(null)
   const [subscriptionBusy, setSubscriptionBusy] = useState(false)
-  const discount = useDiscountCode()
-  const [agreedToPlanChangeTerms, setAgreedToPlanChangeTerms] = useState(false)
   const [rentedOrders, setRentedOrders] = useState<RentedOrder[]>([])
   // Every rental incl. returned ones, newest first.
   const [rentalHistory, setRentalHistory] = useState<RentedOrder[]>([])
@@ -318,14 +300,6 @@ export default function Account() {
   const [billingLoading, setBillingLoading] = useState(false)
   const [portalLoading, setPortalLoading] = useState(false)
   const [portalError, setPortalError] = useState("")
-  const [selectedTier, setSelectedTier] = useState(2)
-  const [upgradeHomeDelivery, setUpgradeHomeDelivery] = useState(false)
-  const [upgradeTerminal, setUpgradeTerminal] = useState<LpTerminal | null>(
-    null
-  )
-  const [upgradeBilling, setUpgradeBilling] = useState<"monthly" | "annual">(
-    "monthly"
-  )
   const [missingPartOrder, setMissingPartOrder] = useState<RentedOrder | null>(
     null
   )
@@ -406,7 +380,6 @@ export default function Account() {
     if (q.get("plan_changed") !== "true" || !userId) return
     const planKey = q.get("plan") as PlanTier | null
     if (!planKey) return
-    setShowUpgrade(false)
     window.history.replaceState({}, "", "/account")
     const controller = new AbortController()
     waitForSubscriberBilling(
@@ -464,8 +437,6 @@ export default function Account() {
       setDbPoints(pts?.total_points ?? null)
       if (sub) {
         setSubscriber(sub as SubscriberData)
-        const tierIdx = tierOptions.findIndex((t) => t.key === sub.plan)
-        if (tierIdx >= 0) setSelectedTier(tierIdx)
       }
       if (ach)
         setUnlockedIds(
@@ -473,22 +444,6 @@ export default function Account() {
         )
       setPostCount(count ?? 0)
     })
-    supabase
-      .from("subscribers")
-      .select("lp_terminal_id, lp_terminal_name")
-      .eq("id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data?.lp_terminal_id && data?.lp_terminal_name) {
-          setUpgradeTerminal({
-            id: data.lp_terminal_id,
-            name: data.lp_terminal_name,
-            city: "",
-            address: "",
-            postalCode: "",
-          })
-        }
-      })
   }, [user])
 
   useEffect(() => {
@@ -502,17 +457,6 @@ export default function Account() {
         setLeaderboardRank(data?.rank ?? null)
       })
   }, [user])
-
-  useEffect(() => {
-    const selected = tierOptions[selectedTier]
-
-    if (selected?.key === subscriber?.plan) {
-      setUpgradeHomeDelivery(subscriber?.home_delivery ?? false)
-      return
-    }
-
-    setUpgradeHomeDelivery(false)
-  }, [selectedTier, subscriber])
 
   useEffect(() => {
     if (!user?.email) return
@@ -572,24 +516,6 @@ export default function Account() {
       setRentedOrders(allOrders.filter((o) => o.status !== "returned"))
       setRentalHistory(allOrders)
       setOrdersLoading(false)
-      const latestWithTerminal = (orders ?? []).find(
-        (o) => o.lp_terminal_id && o.lp_terminal_name
-      )
-      if (
-        latestWithTerminal?.lp_terminal_id &&
-        latestWithTerminal.lp_terminal_name
-      ) {
-        setUpgradeTerminal(
-          (prev) =>
-            prev ?? {
-              id: latestWithTerminal.lp_terminal_id!,
-              name: latestWithTerminal.lp_terminal_name!,
-              city: "",
-              address: "",
-              postalCode: "",
-            }
-        )
-      }
     })
   }, [user])
 
@@ -637,14 +563,6 @@ export default function Account() {
     Date.parse(subscriber.current_period_end) -
       Date.parse(subscriber.current_period_start) >
       40 * 86_400_000
-  const isTierDowngrade =
-    hasSubscription &&
-    (tierOptions[selectedTier]?.price ?? 0) < activeTier.price
-  // Upgrades finish on the checkout page, which shows what fits in the plan
-  // and the amount due; a downgrade is scheduled here instead.
-  const isTierUpgrade =
-    hasSubscription &&
-    (tierOptions[selectedTier]?.price ?? 0) > activeTier.price
   const pendingTier = subscriber?.pending_plan
     ? tierOptions.find((t) => t.key === subscriber.pending_plan)
     : undefined
@@ -676,41 +594,6 @@ export default function Account() {
     ? formatMemberSince(new Date(subscriber.joined_at))
     : "–"
 
-  const hasPhone = !!subscriber?.phone?.trim()
-  const hasName = !!(
-    profile?.name?.trim() ||
-    subscriber?.name?.trim() ||
-    subscriber?.last_name?.trim()
-  )
-  const hasAddress = !!(
-    hasName &&
-    subscriber?.street?.trim() &&
-    subscriber?.house_no?.trim() &&
-    subscriber?.city?.trim() &&
-    subscriber?.postal_code?.trim()
-  )
-
-  async function handleUpgradeTerminalChange(t: LpTerminal | null) {
-    setUpgradeTerminal(t)
-    setPlanChangeError("")
-    setSubscriber((s) =>
-      s
-        ? {
-            ...s,
-            lp_terminal_id: t?.id ?? null,
-            lp_terminal_name: t?.name ?? null,
-          }
-        : s
-    )
-    if (!user) return
-    await supabase
-      .from("subscribers")
-      .update({
-        lp_terminal_id: t?.id ?? null,
-        lp_terminal_name: t?.name ?? null,
-      })
-      .eq("id", user.id)
-  }
 
   async function saveAvatar(id: number) {
     setSelectedAvatarId(id)
@@ -720,169 +603,6 @@ export default function Account() {
       .from("subscribers")
       .update({ avatar_id: id, avatar_bg: avatarOptions[id].bg })
       .eq("id", user.id)
-  }
-
-  function handlePlanChange() {
-    return startPlanChange(false)
-  }
-
-  function handleUpgradeCheckout() {
-    const planKey = tierOptions[selectedTier]?.key
-    if (!planKey) return
-    const billing = upgradeBilling === "annual" ? "yearly" : "monthly"
-    navigate(`/checkout?plan=${planKey}&billing=${billing}`)
-  }
-
-  // The member has seen what the plan change will charge and agreed to it.
-  function confirmPlanChange() {
-    setPlanChangeQuote(null)
-    return startPlanChange(true)
-  }
-
-  async function startPlanChange(isConfirmed: boolean) {
-    if (!user) return
-    const newTier = tierOptions[selectedTier] ?? FALLBACK_TIER
-    const nextHomeDelivery = upgradeHomeDelivery
-    if (
-      hasSubscription &&
-      newTier.key === subscriber?.plan &&
-      nextHomeDelivery === (subscriber?.home_delivery ?? false)
-    ) {
-      setPlanChangeError("Jau esi šiame plane.")
-      return
-    }
-    if (!hasPhone) {
-      setPlanChangeError(
-        "Įvesk telefono numerį skiltyje „Kontaktai“, kad galėtume išsiųsti siuntą."
-      )
-      return
-    }
-    if (nextHomeDelivery && !hasAddress) {
-      setPlanChangeError(
-        "Pristatymui kurjeriu reikia vardo ir pilno adreso. Papildyk juos skiltyje „Kontaktai ir adresas“."
-      )
-      return
-    }
-    if (!nextHomeDelivery && !upgradeTerminal) {
-      setPlanChangeError("Pasirink paštomatą pristatymui.")
-      return
-    }
-    setPlanChanging(true)
-    setPlanChangeError("")
-    const origin = window.location.origin
-    const successUrl = `${origin}/account?plan_changed=true&plan=${newTier.key}${nextHomeDelivery ? "&home_delivery=1" : ""}`
-
-    // The swap bills the saved card with no Stripe page, so show the amount
-    // first. Nothing is charged or claimed by the preview.
-    if (!isConfirmed) {
-      const { data: quote, error: quoteError } =
-        await supabase.functions.invoke("change-subscription", {
-          body: {
-            planKey: newTier.key,
-            billing: upgradeBilling,
-            homeDelivery: nextHomeDelivery,
-            preview: true,
-            ...(discount.applied && { code: discount.applied.code }),
-          },
-        })
-      if (quoteError || quote?.error) {
-        setPlanChanging(false)
-        setPlanChangeError(
-          quote?.error ??
-            (await readFunctionError(quoteError, "Nepavyko. Bandyk dar kartą."))
-        )
-        return
-      }
-      if (
-        quote?.preview &&
-        !quote.scheduled &&
-        (quote.amountCents > 0 || quote.creditCents > 0)
-      ) {
-        setPlanChanging(false)
-        setPlanChangeQuote({
-          amountCents: quote.amountCents,
-          creditCents: quote.creditCents,
-          isProration: quote.isProration,
-          card: quote.card,
-        })
-        return
-      }
-    }
-
-    // Swap the existing subscription in place; only open a new checkout when
-    // there is no active subscription to change.
-    const { data: swap, error: swapError } = await supabase.functions.invoke(
-      "change-subscription",
-      {
-        body: {
-          planKey: newTier.key,
-          billing: upgradeBilling,
-          homeDelivery: nextHomeDelivery,
-          ...(discount.applied && { code: discount.applied.code }),
-        },
-      }
-    )
-    if (swapError || swap?.error) {
-      setPlanChanging(false)
-      setPlanChangeError(
-        swap?.error ??
-          (await readFunctionError(swapError, "Nepavyko. Bandyk dar kartą."))
-      )
-      return
-    }
-    if (swap?.changed) {
-      window.location.href = successUrl
-      return
-    }
-    if (swap?.scheduled) {
-      // A cheaper plan waits for the next renewal; nothing changes today.
-      setPlanChanging(false)
-      setShowUpgrade(false)
-      // A downgrade never uses a code, so don't leave one looking applied.
-      discount.clear()
-      // Only whether a schedule exists matters here; the server holds its id.
-      setSubscriber((s) =>
-        s
-          ? {
-              ...s,
-              pending_plan: newTier.key,
-              pending_schedule_id: swap.fits ? "scheduled" : null,
-              // effectiveAt is the renewal date the server just scheduled for.
-              current_period_end:
-                swap.fits && swap.effectiveAt
-                  ? swap.effectiveAt
-                  : s.current_period_end,
-            }
-          : s
-      )
-      return
-    }
-
-    const { data, error } = await supabase.functions.invoke("create-checkout", {
-      body: {
-        planKey: newTier.key,
-        billing: upgradeBilling,
-        userId: user.id,
-        userEmail: user.email ?? "",
-        successUrl,
-        cancelUrl: `${origin}/account`,
-        homeDelivery: nextHomeDelivery,
-        ...(discount.applied?.kind === "gift" && {
-          giftCardCode: discount.applied.code,
-        }),
-        ...(discount.applied?.kind === "coupon" && {
-          couponCode: discount.applied.code,
-        }),
-      },
-    })
-    setPlanChanging(false)
-    if (error || !data?.url) {
-      setPlanChangeError(
-        await readFunctionError(error, "Nepavyko. Bandyk dar kartą.")
-      )
-      return
-    }
-    window.location.href = data.url
   }
 
   async function withdrawPendingPlan() {
@@ -900,7 +620,6 @@ export default function Account() {
       )
       return
     }
-    discount.clear()
     setSubscriber((s) =>
       s ? { ...s, pending_plan: null, pending_schedule_id: null } : s
     )
@@ -964,15 +683,23 @@ export default function Account() {
     )
   }
 
-  // The plan picker lives in the profile section above; bring it into view
-  // when it is opened from the payments card further down.
-  function openPlanChange() {
-    setShowUpgrade(true)
-    requestAnimationFrame(() =>
-      document
-        .getElementById("plan-change")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" })
-    )
+  // Plan changes and first purchases happen on the checkout page, which has
+  // the plan picker. Start on the next plan up (or the featured one when the
+  // member has no plan yet); the picker there lets them choose another.
+  function goToPlanCheckout() {
+    const currentPrice = hasSubscription ? activeTier.price : null
+    const nextUp =
+      currentPrice === null
+        ? undefined
+        : tierOptions
+            .filter((t) => t.price > currentPrice)
+            .sort((a, b) => a.price - b.price)[0]
+    const planKey =
+      nextUp?.key ??
+      (hasSubscription
+        ? activeTier.key
+        : (dbPlans.find((p) => p.featured)?.id ?? tierOptions[0]?.key))
+    navigate(planKey ? `/checkout?plan=${planKey}&billing=monthly` : "/checkout")
   }
 
   async function openBillingPortal() {
@@ -1239,7 +966,7 @@ export default function Account() {
                   </button>
                   <button
                     className="flex-1 rounded-full border-2 border-ink bg-paper px-3 py-2 text-[14px] font-bold text-ink transition-colors hover:bg-ink hover:text-paper"
-                    onClick={() => setShowUpgrade(!showUpgrade)}
+                    onClick={goToPlanCheckout}
                   >
                     Keisti
                   </button>
@@ -1247,7 +974,7 @@ export default function Account() {
                 <div className="mt-auto hidden flex-col gap-2.5 md:flex">
                   <button
                     className="rounded-full border-2 border-ink bg-ink px-3 py-2 text-[14px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
-                    onClick={() => setShowUpgrade(!showUpgrade)}
+                    onClick={goToPlanCheckout}
                   >
                     Keisti prenumeratą
                   </button>
@@ -1272,258 +999,13 @@ export default function Account() {
                 </div>
                 <button
                   className="w-full rounded-full border-2 border-ink bg-ink px-3 py-3 text-[14px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
-                  onClick={() => setShowUpgrade(!showUpgrade)}
+                  onClick={goToPlanCheckout}
                 >
                   Pasirinkti planą
                 </button>
               </div>
             )}
 
-            {/* Upgrade plan picker */}
-            {showUpgrade && (
-              <div
-                id="plan-change"
-                className="brick-card scroll-mt-28 bg-paper p-3 md:p-8 lg:col-span-12"
-              >
-                <h3 className="label-mono mb-5 text-ink">Keisti prenumeratą</h3>
-                <div className="mb-4 flex gap-2">
-                  {(
-                    [
-                      { value: "monthly", label: "Kas mėnesį" },
-                      { value: "annual", label: "Kasmet −15%" },
-                    ] as const
-                  ).map(({ value, label }) => (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => setUpgradeBilling(value)}
-                      className={[
-                        "rounded-full border-2 px-4 py-1.5 font-mono text-[11px] tracking-[.1em] uppercase transition-colors",
-                        upgradeBilling === value
-                          ? "border-ink bg-ink text-paper"
-                          : "border-ink/30 text-ink hover:border-ink",
-                      ].join(" ")}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-                  {tierOptions.map((t, i) => (
-                    <button
-                      key={t.name}
-                      onClick={() => setSelectedTier(i)}
-                      className={[
-                        "relative rounded-2xl border-2 p-3 text-left transition-all md:p-5",
-                        selectedTier === i
-                          ? "scale-[1.02] border-ink shadow-[4px_4px_0_#001B21]"
-                          : "border-ink/30 hover:border-ink",
-                      ].join(" ")}
-                      style={{
-                        background: selectedTier === i ? t.bg : "transparent",
-                      }}
-                    >
-                      {hasSubscription && t.key === subscriber?.plan && (
-                        <span className="absolute -top-3 left-3 rounded-full border border-ink bg-ink px-2 py-0.5 font-mono text-[9px] tracking-[.1em] text-paper uppercase">
-                          Dabartinis
-                        </span>
-                      )}
-                      <div
-                        className="font-display text-[16px] leading-tight sm:text-[18px] lg:text-[22px] lg:leading-none"
-                        style={{
-                          color: selectedTier === i ? t.textColor : "#001B21",
-                        }}
-                      >
-                        {t.name}
-                      </div>
-                      <div
-                        className="mt-1.5 font-mono text-[10px] tracking-[.06em] uppercase sm:text-[11px]"
-                        style={{
-                          color:
-                            selectedTier === i
-                              ? `${t.textColor}80`
-                              : "#001B2180",
-                        }}
-                      >
-                        €{upgradeBilling === "annual" ? t.annualPrice : t.price}
-                        /mėn.
-                      </div>
-                    </button>
-                  ))}
-                </div>
-                <div className="mt-5 flex flex-col gap-3">
-                  <div className="flex flex-col gap-2">
-                    {[
-                      {
-                        value: false,
-                        label: "Paštomatas",
-                        note: "Nemokamas",
-                      },
-                      {
-                        value: true,
-                        label: "Pristatymas kurjeriu",
-                        note:
-                          tierOptions[selectedTier]?.key === "mega"
-                            ? "Nemokamas"
-                            : `+€${HOME_DELIVERY_FEE}/mėn.`,
-                      },
-                    ].map(({ value, label, note }) => (
-                      <button
-                        key={String(value)}
-                        type="button"
-                        onClick={() => setUpgradeHomeDelivery(value)}
-                        className={[
-                          "flex items-center justify-between rounded-2xl border-2 px-4 py-3 text-left transition-all",
-                          upgradeHomeDelivery === value
-                            ? "border-ink bg-ink/[.03] shadow-[3px_3px_0_#001B21]"
-                            : "border-ink/15 hover:border-ink/40",
-                        ].join(" ")}
-                      >
-                        <div className="flex items-center gap-3">
-                          <span
-                            className={[
-                              "flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
-                              upgradeHomeDelivery === value
-                                ? "border-ink bg-ink"
-                                : "border-ink/30",
-                            ].join(" ")}
-                          >
-                            {upgradeHomeDelivery === value && (
-                              <span className="size-2 rounded-full bg-paper" />
-                            )}
-                          </span>
-                          <span className="font-semibold text-ink">
-                            {label}
-                          </span>
-                        </div>
-                        <span className="font-mono text-[11px] text-ink/55">
-                          {note}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                  {!upgradeHomeDelivery && (
-                    <div>
-                      <p className="label-mono mb-1 text-ink/40">
-                        Pasirink paštomatą
-                      </p>
-                      <TerminalPicker
-                        value={upgradeTerminal}
-                        onChange={handleUpgradeTerminalChange}
-                      />
-                    </div>
-                  )}
-                  <div>
-                    <p className="label-mono mb-2 text-ink/40">
-                      Kontaktai{upgradeHomeDelivery ? " ir adresas" : ""}
-                    </p>
-                    <div
-                      className={[
-                        "flex items-center justify-between gap-3 rounded-2xl border-2 px-5 py-4",
-                        hasPhone && (!upgradeHomeDelivery || hasAddress)
-                          ? "border-ink/15 bg-ink/[.02]"
-                          : "border-brand-orange bg-brand-orange/5",
-                      ].join(" ")}
-                    >
-                      <div className="min-w-0 space-y-1">
-                        <p className="text-[14px] font-semibold text-ink">
-                          <span className="font-normal text-ink/50">Tel.:</span>{" "}
-                          {hasPhone ? (
-                            subscriber?.phone
-                          ) : (
-                            <span className="font-bold text-brand-orange">
-                              Įvesk telefono nr.
-                            </span>
-                          )}
-                        </p>
-                        {upgradeHomeDelivery && (
-                          <p className="text-[14px] font-semibold text-ink">
-                            <span className="font-normal text-ink/50">
-                              Adresas:
-                            </span>{" "}
-                            {hasAddress ? (
-                              `${subscriber?.street} ${subscriber?.house_no}${subscriber?.flat ? `-${subscriber.flat}` : ""}, ${subscriber?.city} ${subscriber?.postal_code}`
-                            ) : (
-                              <span className="font-bold text-brand-orange">
-                                Užpildyk vardą ir pristatymo adresą
-                              </span>
-                            )}
-                          </p>
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setProfileOpen(true)}
-                        className="brick-hover-sm shrink-0 rounded-full border-2 border-ink bg-paper px-4 py-1.5 text-[13px] font-bold text-ink transition-all"
-                      >
-                        Redaguoti
-                      </button>
-                    </div>
-                  </div>
-                  <DiscountCodeField
-                    discount={discount}
-                    isIgnored={isTierDowngrade}
-                  />
-                  <PlanChangeSummary
-                    planName={tierOptions[selectedTier]?.name ?? ""}
-                    monthlyPrice={tierOptions[selectedTier]?.price ?? 0}
-                    annualMonthlyPrice={
-                      tierOptions[selectedTier]?.annualPrice ?? 0
-                    }
-                    billing={upgradeBilling}
-                    homeDelivery={upgradeHomeDelivery}
-                    homeDeliveryFee={
-                      tierOptions[selectedTier]?.key === "mega"
-                        ? 0
-                        : HOME_DELIVERY_FEE
-                    }
-                    code={discount.applied}
-                    isSwap={hasSubscription && !isTierDowngrade}
-                    isDowngrade={isTierDowngrade}
-                  />
-                  {planChangeError && (
-                    <p className="font-mono text-[11px] text-red-500">
-                      {planChangeError}
-                    </p>
-                  )}
-                  {!isTierUpgrade && (
-                    <TermsAgreement
-                      id="terms-plan-change"
-                      checked={agreedToPlanChangeTerms}
-                      onCheckedChange={setAgreedToPlanChangeTerms}
-                    />
-                  )}
-                  <VatNote className="text-center" />
-                  <div className="flex gap-3">
-                    <button
-                      onClick={
-                        isTierUpgrade ? handleUpgradeCheckout : handlePlanChange
-                      }
-                      disabled={
-                        planChanging ||
-                        (!isTierUpgrade && !agreedToPlanChangeTerms)
-                      }
-                      className="flex-1 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[14px] font-bold text-paper transition-[transform,box-shadow] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21] disabled:pointer-events-none disabled:opacity-50"
-                    >
-                      {planChanging
-                        ? "Kraunama…"
-                        : isTierUpgrade
-                          ? "Tęsti į užsakymą →"
-                          : `Patvirtinti keitimą į ${tierOptions[selectedTier]?.name ?? "…"} →`}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowUpgrade(false)
-                        setPlanChangeError("")
-                      }}
-                      className="rounded-full border-2 border-ink px-5 py-2.5 text-[14px] font-semibold text-ink transition-colors hover:bg-ink/5"
-                    >
-                      Atšaukti
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </section>
@@ -1681,7 +1163,7 @@ export default function Account() {
                 {hasSubscription ? (
                   <>
                     <button
-                      onClick={openPlanChange}
+                      onClick={goToPlanCheckout}
                       className="brick-hover-sm w-full rounded-full border-2 border-ink bg-ink px-4 py-2.5 text-[14px] font-bold text-paper transition-all"
                     >
                       Keisti prenumeratą
@@ -1722,7 +1204,7 @@ export default function Account() {
                   </>
                 ) : (
                   <button
-                    onClick={openPlanChange}
+                    onClick={goToPlanCheckout}
                     className="brick-hover-sm w-full rounded-full border-2 border-ink bg-ink px-4 py-2.5 text-[14px] font-bold text-paper transition-all"
                   >
                     Pasirinkti planą →
@@ -1835,13 +1317,6 @@ export default function Account() {
           }}
         />
       )}
-
-      <PlanChangeConfirm
-        quote={planChangeQuote}
-        isLoading={planChanging}
-        onConfirm={confirmPlanChange}
-        onCancel={() => setPlanChangeQuote(null)}
-      />
 
       <DeleteAccountDialog
         open={deleteAccountOpen}
