@@ -683,23 +683,14 @@ export default function Account() {
     )
   }
 
-  // Plan changes and first purchases happen on the checkout page, which has
-  // the plan picker. Start on the next plan up (or the featured one when the
-  // member has no plan yet); the picker there lets them choose another.
+  // A member changes plan on the checkout page, which has the plan picker;
+  // start on the next plan up and let them choose another there.
   function goToPlanCheckout() {
-    const currentPrice = hasSubscription ? activeTier.price : null
-    const nextUp =
-      currentPrice === null
-        ? undefined
-        : tierOptions
-            .filter((t) => t.price > currentPrice)
-            .sort((a, b) => a.price - b.price)[0]
-    const planKey =
-      nextUp?.key ??
-      (hasSubscription
-        ? activeTier.key
-        : (dbPlans.find((p) => p.featured)?.id ?? tierOptions[0]?.key))
-    navigate(planKey ? `/checkout?plan=${planKey}&billing=monthly` : "/checkout")
+    const nextUp = tierOptions
+      .filter((t) => t.price > activeTier.price)
+      .sort((a, b) => a.price - b.price)[0]
+    const planKey = nextUp?.key ?? activeTier.key
+    navigate(`/checkout?plan=${planKey}&billing=monthly`)
   }
 
   async function openBillingPortal() {
@@ -999,7 +990,7 @@ export default function Account() {
                 </div>
                 <button
                   className="w-full rounded-full border-2 border-ink bg-ink px-3 py-3 text-[14px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
-                  onClick={goToPlanCheckout}
+                  onClick={() => navigate("/subscribe")}
                 >
                   Pasirinkti planą
                 </button>
@@ -1204,7 +1195,7 @@ export default function Account() {
                   </>
                 ) : (
                   <button
-                    onClick={goToPlanCheckout}
+                    onClick={() => navigate("/subscribe")}
                     className="brick-hover-sm w-full rounded-full border-2 border-ink bg-ink px-4 py-2.5 text-[14px] font-bold text-paper transition-all"
                   >
                     Pasirinkti planą →
