@@ -23,6 +23,7 @@ import {
 import { cn } from '@/lib/utils'
 import { orderStatusColors, type Order, type OrderStatus } from '@/data/orders'
 import { supabase } from '@/lib/supabase'
+import type { ParcelSize } from '@/lib/lpexpress'
 import { DataTable, SortableHeader, selectionColumn } from '@/components/DataTable'
 import { OrderDetailSheet } from '@/components/OrderDetailSheet'
 import { OrderLabelCell } from '@/components/OrderLabelCell'
@@ -55,7 +56,7 @@ export function Orders() {
     ] = await Promise.all([
       supabase.from('orders').select('*').order('created_at', { ascending: false }),
       supabase.from('subscribers').select('id, name, email'),
-      supabase.from('products').select('id, title'),
+      supabase.from('products').select('id, title, shipping_size'),
     ])
 
     const subMap = Object.fromEntries((subRows ?? []).map((s) => [s.id, s]))
@@ -68,6 +69,7 @@ export function Orders() {
         subscriberEmail: subMap[o.subscriber_id]?.email ?? '',
         productTitle: productMap[o.product_id]?.title ?? `Product #${o.product_id}`,
         productId: o.product_id,
+        productShippingSize: productMap[o.product_id]?.shipping_size as ParcelSize | undefined,
         cartId: o.cart_id,
         status: o.status as OrderStatus,
         startDate: o.start_date,

@@ -96,13 +96,20 @@ const BARCODE_PATTERN = /^[A-Za-z0-9]{8,30}$/
 
 const PARCEL_SIZES = ["XS", "S", "M", "L", "XL"] as const
 
-/** Locker slot for a return parcel: the largest set's size, one step up when several sets share it. */
-function returnSizeForSets(sizes: string[]) {
+/**
+ * Locker slot for a return parcel. Each set returns in the slot it left in
+ * (the admin's outbound size), else its product's size. Sets that shipped
+ * together share one parcel; separate parcels returned together go up a step.
+ */
+function returnSize(
+  sets: { parcelId: string | null; size: string }[]
+): (typeof PARCEL_SIZES)[number] {
   const largest = Math.max(
-    ...sizes.map((s) => PARCEL_SIZES.indexOf(s as (typeof PARCEL_SIZES)[number])),
+    ...sets.map((s) => PARCEL_SIZES.indexOf(s.size as (typeof PARCEL_SIZES)[number])),
     0
   )
-  const bump = sizes.length > 1 ? 1 : 0
+  const parcels = new Set(sets.map((s, i) => s.parcelId ?? `order-${i}`)).size
+  const bump = parcels > 1 ? 1 : 0
   return PARCEL_SIZES[Math.min(largest + bump, PARCEL_SIZES.length - 1)]
 }
 
@@ -301,6 +308,8 @@ Deno.serve(async (req) => {
           .update({
             ...rerouted,
             lp_parcel_id: result.parcelId,
+            // Locker parcels only; the return label reuses this slot size.
+            lp_parcel_size: method === "terminal" ? (payload.size ?? "M") : null,
             lp_barcode: result.barcode,
             lp_tracking_state: "LABEL_CREATED",
             lp_label_created_at: new Date().toISOString(),
@@ -389,21 +398,24 @@ Deno.serve(async (req) => {
 
         let size: (typeof PARCEL_SIZES)[number] | undefined = payload.size
         if (!size) {
-          // Admin sets each set's shipping size; size the return parcel from them.
           const { data: orderRows } = await service()
             .from("orders")
-            .select("product_id")
+            .select("product_id, lp_parcel_id, lp_parcel_size")
             .in("id", orderIds)
           const productIds = (orderRows ?? []).map((o) => o.product_id)
           const { data: productRows } = await service()
             .from("products")
             .select("id, shipping_size")
             .in("id", productIds)
-          const sizes = productIds.map(
-            (id) =>
-              productRows?.find((p) => p.id === id)?.shipping_size ?? "S"
+          size = returnSize(
+            (orderRows ?? []).map((o) => ({
+              parcelId: o.lp_parcel_id,
+              size:
+                o.lp_parcel_size ??
+                productRows?.find((p) => p.id === o.product_id)?.shipping_size ??
+                "S",
+            }))
           )
-          size = returnSizeForSets(sizes)
         }
 
         const result = await createReturnLabel({

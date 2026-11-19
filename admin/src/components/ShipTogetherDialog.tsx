@@ -16,6 +16,7 @@ import { ManualTrackingForm } from "@/components/ManualTrackingForm"
 import {
   createLabel,
   toWeightGrams,
+  PARCEL_SIZES,
   validateCourierAddress,
   trimCourierAddress,
   courierOrderPatch,
@@ -60,6 +61,15 @@ function getBlocker(orders: Order[]): string | null {
   return null
 }
 
+/** Biggest of the sets' own sizes; a combined parcel must fit the largest. */
+function largestShippingSize(orders: Order[]): ParcelSize {
+  const index = Math.max(
+    ...orders.map((o) => PARCEL_SIZES.indexOf(o.productShippingSize ?? "L")),
+    0
+  )
+  return PARCEL_SIZES[index]
+}
+
 export function ShipTogetherDialog({
   orders,
   open,
@@ -83,7 +93,7 @@ export function ShipTogetherDialog({
   useEffect(() => {
     if (!open) return
     setPhone(first?.deliveryPhone ?? "")
-    setSize("L")
+    setSize(largestShippingSize(orders))
     setWeightKg("3")
     setCourierPickup(false)
     setSendByCourier(false)
