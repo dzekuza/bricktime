@@ -17,6 +17,8 @@ import {
 import { getDisplayPlan, sortPlans } from "@/lib/product-filters"
 import { Seo } from "@/components/Seo"
 import { useProductAvailability } from "@/hooks/useProductAvailability"
+import { useProductRatings } from "@/hooks/useProductRatings"
+import { RatingBadge } from "@/components/reviews/RatingBadge"
 import { ManufacturerInfo } from "@/components/ManufacturerInfo"
 import { ProductReviews } from "@/components/reviews/ProductReviews"
 import { ExpandableHtml } from "@/components/ExpandableHtml"
@@ -162,6 +164,7 @@ export default function Drop() {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [relatedRows, setRelatedRows] = useState<Record<string, unknown>[]>([])
   const { available } = useProductAvailability()
+  const ratings = useProductRatings()
   const isRentedOut = product != null && available.get(product.id) === 0
 
   useEffect(() => {
@@ -241,6 +244,13 @@ export default function Drop() {
       src={getSubscriptionBrickSvg(displayPlan)}
       alt=""
       className="pointer-events-none absolute top-[14px] left-[14px] z-10 h-10 w-auto select-none"
+    />
+  )
+
+  const ratingBadge = (
+    <RatingBadge
+      rating={product ? ratings.get(product.id) : undefined}
+      className="absolute bottom-3 left-3 z-10 md:bottom-5 md:left-5"
     />
   )
 
@@ -332,6 +342,7 @@ export default function Drop() {
                       </div>
                       {tierBrick}
                       {releaseBadge}
+                      {ratingBadge}
                       {thumbs.length > 1 && (
                         <>
                           {[-1, 1].map((dir) => {
@@ -383,6 +394,7 @@ export default function Drop() {
                     {!activeImage && <ImagePlaceholder />}
                     {tierBrick}
                     {releaseBadge}
+                    {ratingBadge}
                   </div>
 
                   {/* Thumbnails */}
