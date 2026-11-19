@@ -217,12 +217,13 @@ export function ProductCard({
 
   return (
     <div className="group brick-card brick-card-hover relative flex flex-col overflow-hidden bg-paper text-ink">
-      {/* Covers the card so all of it opens the set, while the cart button
-          sits above it as a separate control rather than inside the link. */}
+      {/* Covers the card (above its z-10 badges) so all of it opens the set;
+          the cart button comes later in the DOM at the same z-20, so it paints
+          above this link as a separate control rather than inside it. */}
       <Link
         to={`/drop/${product.id}`}
         aria-label={product.title}
-        className="absolute inset-0 z-10"
+        className="absolute inset-0 z-20"
       />
       <StudBg
         image={product.image}
