@@ -26,6 +26,9 @@ interface OrderDetailSheetProps {
   onOpenChange: (open: boolean) => void
   onStatusChange: (order: Order, status: OrderStatus, note?: string) => void
   onShippingUpdate?: (orderId: string, patch: Partial<Order>) => void
+  // Every order placed together with this one (including it); empty when it stands alone.
+  cartOrders?: Order[]
+  onShipCart?: (orders: Order[]) => void
 }
 
 const statusActions: { status: OrderStatus; label: string }[] = [
@@ -44,7 +47,7 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
   )
 }
 
-export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, onShippingUpdate }: OrderDetailSheetProps) {
+export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, onShippingUpdate, cartOrders = [], onShipCart }: OrderDetailSheetProps) {
   const [returnStep, setReturnStep] = useState<'actions' | 'accept' | 'decline'>('actions')
   const [customerMessage, setCustomerMessage] = useState('')
   const [adminNote, setAdminNote] = useState('')
@@ -280,6 +283,36 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
           </div>
 
           <Separator className="my-5" />
+
+          {cartOrders.length > 1 && (
+            <>
+              {/* Cart: the other sets placed in the same order */}
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Cart · {cartOrders.length} sets
+              </p>
+              <div className="rounded-lg border divide-y">
+                {cartOrders.map((o) => (
+                  <Row
+                    key={o.id}
+                    label={o.id === order.id ? `${o.productTitle} (this order)` : o.productTitle}
+                    value={
+                      <span className="flex items-center gap-2">
+                        <Badge className={cn('capitalize', orderStatusColors[o.status])}>{o.status}</Badge>
+                        {o.barcode && <span className="font-mono text-xs text-muted-foreground">{o.barcode}</span>}
+                      </span>
+                    }
+                  />
+                ))}
+              </div>
+              {onShipCart && (
+                <Button className="mt-2 w-full" variant="outline" onClick={() => onShipCart(cartOrders)}>
+                  Ship cart together
+                </Button>
+              )}
+
+              <Separator className="my-5" />
+            </>
+          )}
 
           {/* Shipping (LP EXPRESS) */}
           <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Shipping (LP EXPRESS)</p>
