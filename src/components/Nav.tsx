@@ -11,11 +11,6 @@ import {
   BlocksIcon,
 } from "lucide-react"
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -23,7 +18,6 @@ import {
 } from "@/components/ui/dialog"
 import { useAuth } from "@/hooks/useAuth"
 import { avatarSrc } from "@/lib/avatars"
-import { AuthForm } from "@/components/AuthForm"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
 import { useCredits } from "@/hooks/useCredits"
 import { useMerchCart } from "@/hooks/useMerchCart"
@@ -49,51 +43,29 @@ const links = [
 
 // ── Avatar button ─────────────────────────────────────────────────────────────
 
-function AvatarPopover() {
+function AvatarLink() {
   const { user, profile } = useAuth()
-  const [open, setOpen] = useState(false)
 
   const avatarId = profile?.avatarId ?? 0
   const avatarBg = profile?.avatarBg ?? "#FFD731"
 
-  if (user) {
-    return (
-      <Link
-        to="/account"
-        className="brick-hover-sm relative z-10 flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-ink"
-        style={{ background: avatarBg }}
-        aria-label="Paskyra"
-      >
+  return (
+    <Link
+      to="/account"
+      className="brick-hover-sm relative z-10 flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-ink"
+      style={{ background: avatarBg }}
+      aria-label={user ? "Paskyra" : "Prisijungti"}
+    >
+      {user ? (
         <img
           src={avatarSrc(avatarId)}
           alt="Paskyra"
           className="h-full w-full object-cover"
         />
-      </Link>
-    )
-  }
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <button
-          className="brick-hover-sm relative z-10 flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-ink"
-          style={{ background: avatarBg }}
-          aria-label="Prisijungti"
-        >
-          <UserIcon className="size-4 text-ink" />
-        </button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        className="w-64 rounded-2xl border-2 border-ink bg-paper p-4 shadow-[6px_6px_0_#001B21]"
-        style={{
-          transformOrigin: "var(--radix-popover-content-transform-origin)",
-        }}
-      >
-        <AuthForm onClose={() => setOpen(false)} />
-      </PopoverContent>
-    </Popover>
+      ) : (
+        <UserIcon className="size-4 text-ink" />
+      )}
+    </Link>
   )
 }
 
@@ -295,7 +267,7 @@ export default function Nav() {
               <div className="flex items-center gap-2">
                 <RentalCartLink />
                 <CartLink />
-                <AvatarPopover />
+                <AvatarLink />
                 <button
                   onClick={() => setOpen((v) => !v)}
                   className="grid size-9 place-items-center rounded-full border-2 border-ink bg-paper lg:hidden"
