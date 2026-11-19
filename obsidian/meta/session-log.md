@@ -1,3 +1,19 @@
+## 2026-11-19 — set (rental) cart (branch `feat/merch-cart`, uncommitted)
+
+- **Changed:** "Į krepšelį" on `Drop` (desktop CTA + mobile icon), `RentalCartContext` (localStorage, ≤10 sets), Nav shows a second badge only when the set cart is non-empty, `/rinkiniai/krepselis` page (tier/availability/budget checks, terminal or plan door delivery), `toRentalErrorMessage` moved to `src/lib/rental.ts`. New migration `20261119150000_claim_rentals` (invoker RPC, one transaction, existing `guard_member_order_insert` stays the rule source). Typecheck + lint clean; cart UI checked in the browser pane.
+- **Not done:** `claim_rentals` migration NOT applied remotely, so "Nuomotis" will fail until it is; paid courier fee not supported in the cart (message tells the member to rent singly); no real claim tested; `database.types.ts` entry added by hand.
+- **Next:** apply the migration, claim two sets with a test member, regen types.
+
+## 2026-11-19 — merch cart (branch `feat/merch-cart`, uncommitted)
+
+- **Changed:** several merch items per checkout. `MerchCartContext` (localStorage) + `/merch/krepselis` page + Nav bag badge + "Į krepšelį" on `MerchDrop`; `create-merch-checkout` takes `items[]` (legacy single item still works, max 6 lines, qty ≤ 10, stock re-checked per line); webhook reads `metadata.cart` and calls new `record_merch_cart_order`; migration `20261119100000_merch_cart_orders` adds `merch_order_items` + `get_merch_order_lines_by_session`; thank-you page lists lines. Typecheck, vite build, `deno check` clean; cart flow checked in the browser pane. Not yet: migration applied, functions deployed, test-mode payment.
+- **Next:** apply migration, regen `database.types.ts` (one function entry added by hand), deploy `create-merch-checkout` + `stripe-webhook`, test-mode 2-line purchase; then rental cart (`claim_rentals` RPC + `/rinkiniai/krepselis`).
+
+## 2026-11-19 — LP label size/weight + ship several sets in one parcel
+
+- **Changed:** `lpexpress` `create-label` accepts `orderIds[]` (admin only; same customer + destination, none labelled) and validates `size`/`weight`; `cancel` hits every order sharing the parcel. Admin: size (XS–XL) / weight picker in `OrderDetailSheet`, new `ShipTogetherDialog` + "Ship together" bulk action in Orders, `ParcelOptionsFields`. Admin typecheck + lint clean, `deno check` ok; `courierPickup` toggle (H2T) for locker parcels added. `lpexpress` deployed as v11 via project-2 MCP; not tested against real LP.
+- **Next:** verify in LP self-service that `size` is honoured (code defaulted to M, user saw smallest slot); grouped customer returns (one `create-return-label` for several orders) not built; courier pickup call not in code, check LP API.
+
 ## 2026-11-18 — owner decisions applied
 
 - **Changed:** returned sets free budget immediately (migration + UI wording, `useCredits` pruned), `mystery_s` credits 0, two functions deployed.
@@ -7,6 +23,11 @@
 
 - **Changed:** see status.md; typecheck passes, src lint clean; nothing committed/deployed.
 - **Next:** deploy change-subscription + get-analytics, e2e test purchase.
+
+## 2026-11-18 — architecture docs incremental (automated, 6)
+
+- **Changed:** `codebase-map.md` synced to `81f5a60` (see changelog).
+- **Next:** none from this run.
 
 ## 2026-11-18 — architecture docs incremental (automated, 5)
 

@@ -16,6 +16,8 @@ import {
   ShippingPage,
 } from "@/pages/HelpPages"
 import MerchPage from "@/pages/Merch"
+import MerchCart from "@/pages/MerchCart"
+import RentalCart from "@/pages/RentalCart"
 import MerchDrop from "@/pages/MerchDrop"
 import MerchThankYou from "@/pages/MerchThankYou"
 import GiftCards from "@/pages/GiftCards"
@@ -67,6 +69,8 @@ export default function App() {
         <Route path="/drop/:id" element={<Drop />} />
         <Route path="/profile/:userId" element={<UserProfile />} />
         <Route path="/merch" element={<MerchPage />} />
+        <Route path="/merch/krepselis" element={<MerchCart />} />
+        <Route path="/rinkiniai/krepselis" element={<RentalCart />} />
         <Route path="/merch/aciu" element={<MerchThankYou />} />
         <Route path="/merch/:slug" element={<MerchDrop />} />
         <Route path="/gift-cards" element={<GiftCards />} />

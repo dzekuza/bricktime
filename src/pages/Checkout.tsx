@@ -23,6 +23,7 @@ import { ImagePlaceholder } from "@/components/ImagePlaceholder"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
 import { useCredits } from "@/hooks/useCredits"
 import { useProductAvailability } from "@/hooks/useProductAvailability"
+import { toRentalErrorMessage } from "@/lib/rental"
 import { TerminalPicker } from "@/components/TerminalPicker"
 import {
   ProfileEditDialog,
@@ -126,24 +127,6 @@ type DbProduct = {
   year: number | null
   category: string | null
   rating: string | null
-}
-
-// The rental rules' reasons (insert trigger or paid-courier check), in the
-// member's words.
-function toRentalErrorMessage(reason: string): string {
-  if (reason.includes("paused")) {
-    return "Prenumerata pristabdyta – atnaujink ją paskyroje, kad galėtum nuomotis."
-  }
-  if (reason.includes("exceeds the plan budget")) {
-    return "Šiam rinkiniui neužtenka briksių šiam atsiskaitymo laikotarpiui."
-  }
-  if (reason.includes("full address")) {
-    return "Pristatymui į duris reikia vardo, telefono ir pilno adreso."
-  }
-  if (reason.includes("fully rented out")) {
-    return "Šis rinkinys šiuo metu yra išnuomotas kitam nariui."
-  }
-  return "Užsakymo pateikti nepavyko. Bandyk dar kartą arba susisiek su mumis."
 }
 
 export default function Checkout() {
@@ -345,10 +328,7 @@ export default function Checkout() {
       ] ?? tierByName.standard,
     [product, tierParam]
   )
-  const {
-    remainingCredits,
-    overBudgetCredits,
-  } = useCredits()
+  const { remainingCredits, overBudgetCredits } = useCredits()
   const { available: productAvailability } = useProductAvailability()
   const hasTier = useMemo(
     () =>

@@ -20,6 +20,7 @@ import { useProductAvailability } from "@/hooks/useProductAvailability"
 import { ManufacturerInfo } from "@/components/ManufacturerInfo"
 import { ProductReviews } from "@/components/reviews/ProductReviews"
 import { ExpandableHtml } from "@/components/ExpandableHtml"
+import { RentalCartButton } from "@/components/RentalCartButton"
 import { ImagePlaceholder } from "@/components/ImagePlaceholder"
 import {
   ProductCard,
@@ -521,6 +522,9 @@ export default function Drop() {
                       </Link>
                     </Button>
                   )}
+                  {!isRentedOut && product && (
+                    <RentalCartButton productId={product.id} />
+                  )}
 
                   <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] tracking-[.16em] text-ink/40 uppercase">
                     {["Nemokamas pristatymas", "Atšauk bet kada"].map((s) => (
@@ -914,6 +918,9 @@ export default function Drop() {
                 Rinkis šį rinkinį →
               </Link>
             </Button>
+          )}
+          {!isRentedOut && product && (
+            <RentalCartButton productId={product.id} layout="icon" />
           )}
         </div>
       </main>

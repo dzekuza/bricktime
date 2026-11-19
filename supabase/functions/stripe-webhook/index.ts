@@ -178,12 +178,9 @@ async function handleMerchCheckout(session: Stripe.Checkout.Session) {
     return
   }
 
-  const itemId = session.metadata?.itemId
-  const size = session.metadata?.size
-  if (!itemId || !size) {
-    throw new Error(
-      `Merch session ${session.id} is missing itemId/size metadata`
-    )
+  const lines = readMerchLines(session)
+  if (!lines) {
+    throw new Error(`Merch session ${session.id} is missing cart metadata`)
   }
 
   const shipping = session.shipping_details ?? null
@@ -192,9 +189,8 @@ async function handleMerchCheckout(session: Stripe.Checkout.Session) {
   const userId = session.metadata?.userId || null
   const isTerminal = session.metadata?.deliveryMethod === "terminal"
 
-  const { data: isNew, error } = await supabase.rpc("record_merch_order", {
-    p_merch_item_id: itemId,
-    p_size: size,
+  const { data: isNew, error } = await supabase.rpc("record_merch_cart_order", {
+    p_lines: lines,
     p_amount: (session.amount_total ?? 0) / 100,
     p_buyer_email: email,
     p_buyer_name: shipping?.name ?? customer?.name ?? null,
@@ -216,7 +212,7 @@ async function handleMerchCheckout(session: Stripe.Checkout.Session) {
   })
   if (error) {
     throw new Error(
-      `record_merch_order failed for session ${session.id}: ${error.message}`
+      `record_merch_cart_order failed for session ${session.id}: ${error.message}`
     )
   }
   // Runs on every delivery: if marking the card used failed last time, the
@@ -229,7 +225,9 @@ async function handleMerchCheckout(session: Stripe.Checkout.Session) {
 
   const { data: order } = await supabase
     .from("merch_orders")
-    .select("order_number, item_name, size, amount, shipping_address")
+    .select(
+      "order_number, item_name, size, amount, shipping_address, merch_order_items(item_name, size, quantity)"
+    )
     .eq("stripe_session_id", session.id)
     .single()
   if (!order) return
@@ -240,7 +238,38 @@ async function handleMerchCheckout(session: Stripe.Checkout.Session) {
     size: order.size,
     amount: Number(order.amount),
     shippingAddress: order.shipping_address ?? {},
+    items: (order.merch_order_items ?? []).map(
+      (l: { item_name: string; size: string; quantity: number }) => ({
+        itemName: l.item_name,
+        size: l.size,
+        quantity: l.quantity,
+      })
+    ),
   })
+}
+
+type MerchLine = { item_id: string; size: string; quantity: number }
+
+// Sessions opened before the cart carry itemId/size instead of `cart`.
+function readMerchLines(session: Stripe.Checkout.Session): MerchLine[] | null {
+  const metadata = session.metadata ?? {}
+  if (metadata.cart) {
+    try {
+      const parsed: unknown = JSON.parse(metadata.cart)
+      if (!Array.isArray(parsed) || parsed.length === 0) return null
+      return parsed.map((l: { i: string; s: string; q: number }) => ({
+        item_id: l.i,
+        size: l.s,
+        quantity: l.q,
+      }))
+    } catch {
+      return null
+    }
+  }
+  if (metadata.itemId && metadata.size) {
+    return [{ item_id: metadata.itemId, size: metadata.size, quantity: 1 }]
+  }
+  return null
 }
 
 // The card was held for this session at checkout, so finding it already used

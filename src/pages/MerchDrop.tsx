@@ -21,7 +21,9 @@ import {
   type MerchDeliveryMethod,
 } from "@/components/merch/MerchDelivery"
 import { readFunctionError } from "@/lib/function-error"
-import type { LpTerminal } from "@/lib/lpexpress"
+import { useMerchCart } from "@/hooks/useMerchCart"
+import { useSavedTerminal } from "@/hooks/useSavedTerminal"
+import { MERCH_CART_MAX_QUANTITY } from "@/contexts/MerchCartContext"
 import { VatNote } from "@/components/VatNote"
 
 const TYPE_LABEL: Record<string, string> = {
@@ -43,7 +45,9 @@ export default function MerchDrop() {
   const [activeImage, setActiveImage] = useState<string | null>(null)
   const [deliveryMethod, setDeliveryMethod] =
     useState<MerchDeliveryMethod>("terminal")
-  const [terminal, setTerminal] = useState<LpTerminal | null>(null)
+  const [terminal, setTerminal] = useSavedTerminal()
+  const { addLine, lines } = useMerchCart()
+  const [cartNote, setCartNote] = useState<string | null>(null)
 
   // image_url is the hero; image_urls are the extra shots behind it.
   const gallery = item
@@ -77,27 +81,6 @@ export default function MerchDrop() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, navigate])
 
-  // Prefill the terminal the member already uses for their rentals.
-  useEffect(() => {
-    if (!user) return
-    supabase
-      .from("subscribers")
-      .select("lp_terminal_id, lp_terminal_name")
-      .eq("id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (!data?.lp_terminal_id || !data.lp_terminal_name) return
-        const saved: LpTerminal = {
-          id: data.lp_terminal_id,
-          name: data.lp_terminal_name,
-          city: "",
-          address: "",
-          postalCode: "",
-        }
-        setTerminal((prev) => prev ?? saved)
-      })
-  }, [user])
-
   if (loading) {
     return (
       <>
@@ -130,6 +113,24 @@ export default function MerchDrop() {
     priceCents - (appliedCode?.amountOffCents ?? 0) + shippingCents
   const isDeliveryReady = deliveryMethod === "courier" || terminal !== null
 
+  const inCartQuantity =
+    lines.find((l) => l.itemId === item.id && l.size === selectedSize)
+      ?.quantity ?? 0
+  const sizeStock = selectedSize ? (item.stock[selectedSize] ?? 0) : 0
+  const canAddToCart =
+    selectedSize !== null &&
+    inCartQuantity < Math.min(sizeStock, MERCH_CART_MAX_QUANTITY)
+
+  function handleAddToCart() {
+    if (!selectedSize || !item || !canAddToCart) return
+    const result = addLine(item.id, selectedSize)
+    setCartNote(
+      result === "full"
+        ? "Krepšelyje gali būti iki 6 skirtingų prekių."
+        : "Pridėta į krepšelį."
+    )
+  }
+
   async function handleBuy() {
     if (!selectedSize || !item || !isDeliveryReady) return
     setBuying(true)
@@ -139,8 +140,7 @@ export default function MerchDrop() {
       "create-merch-checkout",
       {
         body: {
-          itemId: item.id,
-          size: selectedSize,
+          items: [{ itemId: item.id, size: selectedSize, quantity: 1 }],
           userEmail: user?.email ?? undefined,
           successUrl: `${origin}/merch/aciu?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: `${origin}/merch/${item.slug}`,
@@ -261,7 +261,10 @@ export default function MerchDrop() {
                         <button
                           key={size}
                           disabled={disabled}
-                          onClick={() => setSelectedSize(size)}
+                          onClick={() => {
+                            setSelectedSize(size)
+                            setCartNote(null)
+                          }}
                           title={sizeOutOfStock ? "Išparduota" : undefined}
                           className={[
                             "rounded-xl border-2 px-4 py-2 font-mono text-[13px] font-bold uppercase transition-all",
@@ -321,6 +324,28 @@ export default function MerchDrop() {
                             ? `Pirkti — ${selectedSize} · €${(totalCents / 100).toFixed(2)} →`
                             : "Pasirink dydį"}
                     </Button>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      disabled={!canAddToCart}
+                      onClick={handleAddToCart}
+                      className="brick-hover-sm mt-3 w-full justify-center rounded-full border-2 border-ink text-[16px] font-bold text-ink disabled:opacity-40"
+                    >
+                      {selectedSize && !canAddToCart
+                        ? "Visas likutis jau krepšelyje"
+                        : "Į krepšelį"}
+                    </Button>
+                    {cartNote && (
+                      <p className="mt-2 font-mono text-[12px] text-ink/70">
+                        {cartNote}{" "}
+                        <Link
+                          to="/merch/krepselis"
+                          className="font-bold underline"
+                        >
+                          Peržiūrėti krepšelį →
+                        </Link>
+                      </p>
+                    )}
                     {buyError && (
                       <p className="mt-2 font-mono text-[12px] text-red-500">
                         {buyError}
