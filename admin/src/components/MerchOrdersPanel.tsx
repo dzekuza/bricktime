@@ -30,8 +30,19 @@ import {
 } from "@/lib/merch-orders"
 import { cn } from "@/lib/utils"
 
+interface OrderLine {
+  order_id: string
+  item_name: string
+  size: string
+  quantity: number
+}
+
 export function MerchOrdersPanel() {
   const [orders, setOrders] = useState<MerchOrder[]>([])
+  // Items per order. An order with no entry was placed before carts existed.
+  const [linesByOrder, setLinesByOrder] = useState<Record<string, OrderLine[]>>(
+    {}
+  )
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [search, setSearch] = useState("")
@@ -50,6 +61,16 @@ export function MerchOrdersPanel() {
       setLoadError(null)
       setOrders(data ?? [])
     }
+    const { data: lineRows } = await supabase
+      .from("merch_order_items")
+      .select("order_id, item_name, size, quantity")
+      .order("created_at")
+      .limit(5000)
+    const grouped: Record<string, OrderLine[]> = {}
+    for (const line of lineRows ?? []) {
+      grouped[line.order_id] = [...(grouped[line.order_id] ?? []), line]
+    }
+    setLinesByOrder(grouped)
     setLoading(false)
   }, [])
 
@@ -132,12 +153,35 @@ export function MerchOrdersPanel() {
       {
         accessorKey: "item_name",
         header: "Item",
-        cell: ({ row }) => (
-          <span className="text-sm">
-            {row.original.item_name}{" "}
-            <span className="text-muted-foreground">· {row.original.size}</span>
-          </span>
-        ),
+        cell: ({ row }) => {
+          const lines = linesByOrder[row.original.id] ?? []
+          const pieces = lines.reduce((sum, l) => sum + l.quantity, 0)
+          if (pieces <= 1) {
+            return (
+              <span className="text-sm">
+                {row.original.item_name}{" "}
+                <span className="text-muted-foreground">
+                  · {row.original.size}
+                </span>
+              </span>
+            )
+          }
+          return (
+            <div className="flex flex-col gap-1">
+              <Badge variant="outline" className="w-fit">
+                Cart · {pieces} items
+              </Badge>
+              {lines.map((line) => (
+                <span
+                  key={`${line.item_name}|${line.size}`}
+                  className="text-xs text-muted-foreground"
+                >
+                  {line.quantity} × {line.item_name} · {line.size}
+                </span>
+              ))}
+            </div>
+          )
+        },
       },
       {
         accessorKey: "status",
@@ -184,7 +228,7 @@ export function MerchOrdersPanel() {
         size: 90,
       },
     ],
-    []
+    [linesByOrder]
   )
 
   return (
