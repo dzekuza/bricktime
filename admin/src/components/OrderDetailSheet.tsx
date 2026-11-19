@@ -13,7 +13,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { type Order, type OrderStatus, orderStatusColors } from '@/data/orders'
-import { createLabel, fetchLabelPdf, downloadPdf } from '@/lib/lpexpress'
+import { createLabel, fetchLabelPdf, downloadPdf, toWeightGrams, type ParcelSize } from '@/lib/lpexpress'
+import { ParcelOptionsFields } from '@/components/ParcelOptionsFields'
 
 function noteKey(orderId: string) {
   return `admin_note_order_${orderId}`
@@ -51,6 +52,9 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
   const [phone, setPhone] = useState('')
   const [shipBusy, setShipBusy] = useState<string | null>(null)
   const [shipErr, setShipErr] = useState<string | null>(null)
+  const [parcelSize, setParcelSize] = useState<ParcelSize>('M')
+  const [weightKg, setWeightKg] = useState('2')
+  const [courierPickup, setCourierPickup] = useState(false)
 
   useEffect(() => {
     setReturnStep('actions')
@@ -58,6 +62,9 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
     setAdminNote(order ? (localStorage.getItem(noteKey(order.id)) ?? '') : '')
     setNoteSaved(false)
     setPhone(order?.deliveryPhone ?? '')
+    setParcelSize('M')
+    setWeightKg('2')
+    setCourierPickup(false)
     setShipErr(null)
     setShipBusy(null)
   }, [order?.id])
@@ -66,11 +73,14 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
     if (!order) return
     const p = phone.trim()
     if (!/^\+?\d{8,15}$/.test(p)) { setShipErr('Enter a valid phone (e.g. +37060000000)'); return }
+    const weight = order.homeDelivery ? toWeightGrams(weightKg) : undefined
+    if (order.homeDelivery && weight === undefined) { setShipErr('Enter a weight between 0.1 and 30 kg'); return }
     setShipBusy('generate'); setShipErr(null)
     try {
       const res = await createLabel({
         orderId: order.id,
         receiver: { name: order.subscriberName, phone: p, email: order.subscriberEmail },
+        ...(order.homeDelivery ? { weight } : { size: parcelSize, courierPickup }),
       })
       onShippingUpdate?.(order.id, { barcode: res.barcode, trackingState: 'LABEL_CREATED' })
     } catch (e) {
@@ -323,6 +333,15 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
                     ? 'Generate courier label to the address above (customer phone required)'
                     : 'Generate outbound label (customer phone required)'}
                 </p>
+                <ParcelOptionsFields
+                  homeDelivery={!!order.homeDelivery}
+                  size={parcelSize}
+                  onSizeChange={setParcelSize}
+                  weightKg={weightKg}
+                  onWeightKgChange={setWeightKg}
+                  courierPickup={courierPickup}
+                  onCourierPickupChange={setCourierPickup}
+                />
                 <div className="flex gap-2">
                   <Input
                     placeholder="+37060000000"

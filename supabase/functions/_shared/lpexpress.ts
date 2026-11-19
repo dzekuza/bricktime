@@ -134,6 +134,8 @@ export interface CreateLabelInput {
   }
   size?: "XS" | "S" | "M" | "L" | "XL"
   weight?: number // grams
+  /** Locker delivery only: true = LP courier collects from BRICKTIME (H2T), false = BRICKTIME drops it at a locker (T2T). */
+  courierPickup?: boolean
 }
 
 export interface CreateLabelResult {
@@ -184,13 +186,15 @@ export async function createLabel(input: CreateLabelInput): Promise<CreateLabelR
   const body = isTerminal
     ? {
         plan: { code: "TERMINAL" },
-        parcel: { type: "T2T", size: input.size ?? "M" },
+        parcel: { type: input.courierPickup ? "H2T" : "T2T", size: input.size ?? "M" },
         services: [],
         receiver: {
           name: input.receiver.name,
           address: { countryCode: input.receiver.countryCode ?? "LT", terminalId: input.terminalId },
           contacts: { phone: ltPhone(input.receiver.phone), email: input.receiver.email },
         },
+        // H2T needs the pickup address; T2T keeps the account default sender.
+        ...(input.courierPickup && { sender: bricktimeParty() }),
       }
     : {
         plan: { code: "HANDS" },

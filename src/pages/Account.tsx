@@ -721,9 +721,9 @@ export default function Account() {
 
   // The return label + status change is handled server-side by the lpexpress
   // `create-return-label` action (via ReturnDialog). This just syncs local state.
-  function onReturnComplete(orderId: string, barcode: string | null) {
+  function onReturnComplete(orderIds: string[], barcode: string | null) {
     const markRequested = (o: RentedOrder) =>
-      o.id === orderId
+      orderIds.includes(o.id)
         ? {
             ...o,
             status: "return_requested",
@@ -1264,6 +1264,12 @@ export default function Account() {
       <ReturnDialog
         orderId={returnDialogOrder?.id ?? null}
         productTitle={returnDialogOrder?.productTitle}
+        otherOrders={rentedOrders.filter(
+          (o) =>
+            o.id !== returnDialogOrder?.id &&
+            ["active", "overdue"].includes(o.status) &&
+            !o.returnBarcode
+        )}
         defaultName={
           [profile?.name, subscriber?.last_name].filter(Boolean).join(" ") ||
           user?.email?.split("@")[0] ||

@@ -26,11 +26,25 @@ async function call<T>(body: Record<string, unknown>): Promise<T> {
 }
 
 /** Generate the outbound shipment/label for an order (admin). Returns the barcode. */
+export const PARCEL_SIZES = ['XS', 'S', 'M', 'L', 'XL'] as const
+export type ParcelSize = (typeof PARCEL_SIZES)[number]
+
+/** Courier weight in whole grams, or undefined when the field is not a valid 0.1–30 kg value. */
+export function toWeightGrams(weightKg: string): number | undefined {
+  const kg = Number(weightKg)
+  if (!Number.isFinite(kg) || kg < 0.1 || kg > 30) return undefined
+  return Math.round(kg * 1000)
+}
+
+/** `orderIds` ships several of one customer's sets in a single parcel. */
 export async function createLabel(input: {
   orderId: string
+  orderIds?: string[]
   receiver: { name: string; phone: string; email?: string }
-  size?: string
+  size?: ParcelSize
   weight?: number
+  /** Locker orders: LP courier collects from us (H2T) instead of us dropping at a locker (T2T). */
+  courierPickup?: boolean
 }): Promise<{ parcelId: string; barcode: string | null }> {
   return call({ action: 'create-label', ...input })
 }

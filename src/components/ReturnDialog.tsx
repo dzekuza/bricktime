@@ -1,28 +1,41 @@
 import { useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Checkbox } from "@/components/ui/checkbox"
 import { TerminalPicker } from "@/components/TerminalPicker"
 import { createReturnLabel, fetchLabelPdf, downloadPdf, type LpTerminal } from "@/lib/lpexpress"
+
+export interface ReturnableOrder {
+  id: string
+  productTitle: string
+}
 
 interface ReturnDialogProps {
   orderId: string | null
   productTitle?: string
+  /** Other sets the customer holds that can go back in the same parcel. */
+  otherOrders?: ReturnableOrder[]
   defaultName: string
   defaultPhone?: string
   open: boolean
   onOpenChange: (open: boolean) => void
-  /** Called after a return label is created — passes the return barcode so the parent can update its state. */
-  onComplete: (orderId: string, barcode: string | null) => void
+  /** Called after a return label is created — passes every order covered by it and the return barcode. */
+  onComplete: (orderIds: string[], barcode: string | null) => void
 }
 
 /** Prepaid-return flow: customer picks the paštomatas they'll drop the parcel at
  *  + a contact phone, we generate the return label and set the order to
  *  return_requested. */
-export function ReturnDialog({ orderId, productTitle, defaultName, defaultPhone = "", open, onOpenChange, onComplete }: ReturnDialogProps) {
+export function ReturnDialog({ orderId, productTitle, otherOrders = [], defaultName, defaultPhone = "", open, onOpenChange, onComplete }: ReturnDialogProps) {
   const [terminal, setTerminal] = useState<LpTerminal | null>(null)
   const [phone, setPhone] = useState(defaultPhone)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState<{ barcode: string | null } | null>(null)
+  const [extraIds, setExtraIds] = useState<string[]>([])
+
+  function toggleExtra(id: string, checked: boolean) {
+    setExtraIds((prev) => (checked ? [...prev, id] : prev.filter((x) => x !== id)))
+  }
 
   // Prefill the phone from the saved profile each time the dialog opens
   // (the profile may load after this component first mounts).
@@ -35,6 +48,7 @@ export function ReturnDialog({ orderId, productTitle, defaultName, defaultPhone 
     setPhone(defaultPhone)
     setError(null)
     setDone(null)
+    setExtraIds([])
     setSubmitting(false)
   }
 
@@ -48,13 +62,15 @@ export function ReturnDialog({ orderId, productTitle, defaultName, defaultPhone 
     setSubmitting(true)
     setError(null)
     try {
+      const orderIds = [orderId, ...extraIds]
       const res = await createReturnLabel({
         orderId,
+        orderIds,
         terminalId: terminal.id,
         customer: { name: defaultName, phone: trimmed },
       })
       setDone({ barcode: res.barcode })
-      onComplete(orderId, res.barcode)
+      onComplete(orderIds, res.barcode)
     } catch (e) {
       setError((e as Error).message)
     } finally {
@@ -93,6 +109,25 @@ export function ReturnDialog({ orderId, productTitle, defaultName, defaultPhone 
               <p className="label-mono mb-1 text-ink/40">Paštomatas</p>
               <TerminalPicker value={terminal} onChange={setTerminal} />
             </div>
+
+            {otherOrders.length > 0 && (
+              <div className="mt-4">
+                <p className="label-mono mb-2 text-ink/40">Grąžinti kartu vienoje siuntoje</p>
+                <ul className="flex flex-col gap-2">
+                  {otherOrders.map((o) => (
+                    <li key={o.id}>
+                      <label className="flex cursor-pointer items-center gap-3 text-[13px] text-ink">
+                        <Checkbox
+                          checked={extraIds.includes(o.id)}
+                          onCheckedChange={(v) => toggleExtra(o.id, v === true)}
+                        />
+                        {o.productTitle}
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <div className="mt-4">
               <label className="label-mono mb-1 block text-ink/40">Telefono nr.</label>

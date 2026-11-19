@@ -85,6 +85,8 @@ export async function createLabel(input: {
  *  order to `return_requested` (owner only). */
 export async function createReturnLabel(input: {
   orderId: string
+  /** Extra sets of the same customer sent back in the same parcel (include `orderId` too). */
+  orderIds?: string[]
   terminalId: string
   customer: { name: string; phone: string; email?: string }
   size?: string
