@@ -13,6 +13,8 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
 })
 
 const COURIER_FEE_CENTS = 300
+// Mirrors the limit record_paid_courier_rentals enforces.
+const MAX_CART_SETS = 10
 // Stripe's shortest allowed session lifetime: a short window keeps the
 // webhook's re-check close to the dry run done here.
 const SESSION_TTL_MINUTES = 30
@@ -70,11 +72,20 @@ Deno.serve(async (req) => {
     } = await callerClient.auth.getUser()
     if (!caller) return json(401, { error: "Unauthorized" })
 
-    const { productId, successUrl, cancelUrl } = await req.json()
-    const product = Number(productId)
-    if (!Number.isSafeInteger(product) || product <= 0) {
+    const { productId, productIds, successUrl, cancelUrl } = await req.json()
+    // `productIds` is a set cart (one fee covers the whole parcel); `productId`
+    // is the single-set checkout.
+    const isCart = Array.isArray(productIds)
+    const products: number[] = (isCart ? productIds : [productId]).map(Number)
+    const isValidList =
+      products.length >= 1 &&
+      products.length <= MAX_CART_SETS &&
+      new Set(products).size === products.length &&
+      products.every((id) => Number.isSafeInteger(id) && id > 0)
+    if (!isValidList) {
       return json(400, { error: "Unknown product" })
     }
+    const product = products[0]
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -101,16 +112,21 @@ Deno.serve(async (req) => {
 
     // Same checks the rental insert runs, so a payment is never taken for a
     // rental that would be refused. The webhook runs them again for real.
-    const { error: checkError } = await supabase.rpc(
-      "record_paid_courier_rental",
-      {
-        p_subscriber_id: caller.id,
-        p_product_id: product,
-        p_stripe_session_id: null,
-        p_amount: COURIER_FEE_CENTS / 100,
-        p_dry_run: true,
-      }
-    )
+    const { error: checkError } = isCart
+      ? await supabase.rpc("record_paid_courier_rentals", {
+          p_subscriber_id: caller.id,
+          p_product_ids: products,
+          p_stripe_session_id: null,
+          p_amount: COURIER_FEE_CENTS / 100,
+          p_dry_run: true,
+        })
+      : await supabase.rpc("record_paid_courier_rental", {
+          p_subscriber_id: caller.id,
+          p_product_id: product,
+          p_stripe_session_id: null,
+          p_amount: COURIER_FEE_CENTS / 100,
+          p_dry_run: true,
+        })
     if (checkError) return json(400, { error: checkError.message })
 
     const customerId = await getOwnedCustomerId(
@@ -150,7 +166,9 @@ Deno.serve(async (req) => {
       metadata: {
         type: "rental_courier",
         userId: caller.id,
-        productId: String(product),
+        ...(isCart
+          ? { productIds: JSON.stringify(products) }
+          : { productId: String(product) }),
       },
     })
 

@@ -332,7 +332,9 @@ export default function MerchDrop() {
                       className="brick-hover-sm mt-3 w-full justify-center rounded-full border-2 border-ink text-[16px] font-bold text-ink disabled:opacity-40"
                     >
                       {selectedSize && !canAddToCart
-                        ? "Visas likutis jau krepšelyje"
+                        ? inCartQuantity >= sizeStock
+                          ? "Visas likutis jau krepšelyje"
+                          : `Daugiausia ${MERCH_CART_MAX_QUANTITY} vnt. krepšelyje`
                         : "Į krepšelį"}
                     </Button>
                     {cartNote && (

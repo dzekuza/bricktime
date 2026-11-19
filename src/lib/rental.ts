@@ -1,3 +1,7 @@
+// One courier fee covers a whole parcel; mirrors COURIER_FEE_CENTS in
+// create-rental-courier-checkout.
+export const RENTAL_COURIER_FEE = 3
+
 // The rental rules' reasons (insert trigger, claim_rentals or the paid-courier
 // check), in the member's words.
 export function toRentalErrorMessage(reason: string): string {

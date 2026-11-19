@@ -40,7 +40,12 @@ export default function MerchCart() {
   const [deliveryMethod, setDeliveryMethod] =
     useState<MerchDeliveryMethod>("terminal")
   const [terminal, setTerminal] = useSavedTerminal()
-  const [appliedCode, setAppliedCode] = useState<AppliedMerchCode | null>(null)
+  // A code is priced against the subtotal it was checked for; it is only
+  // honoured while the subtotal is unchanged (see activeCode below).
+  const [applied, setApplied] = useState<{
+    code: AppliedMerchCode
+    subtotalCents: number
+  } | null>(null)
   const [buying, setBuying] = useState(false)
   const [buyError, setBuyError] = useState<string | null>(null)
 
@@ -79,7 +84,9 @@ export default function MerchCart() {
           item !== null &&
           item.status === "active" &&
           item.sizes.includes(line.size)
-        const stock = isSellable ? (item.stock[line.size] ?? 0) : 0
+        // Checkout only accepts whole-number stock, so anything else is none.
+        const rawStock = isSellable ? item.stock[line.size] : 0
+        const stock = Number.isSafeInteger(rawStock) ? rawStock : 0
         return {
           ...line,
           item: isSellable ? item : null,
@@ -118,10 +125,9 @@ export default function MerchCart() {
       r.item ? sum + Math.round(Number(r.item.price) * 100) * r.quantity : sum,
     0
   )
-  const discountCents = Math.min(
-    appliedCode?.amountOffCents ?? 0,
-    subtotalCents
-  )
+  const activeCode =
+    applied?.subtotalCents === subtotalCents ? applied.code : null
+  const discountCents = Math.min(activeCode?.amountOffCents ?? 0, subtotalCents)
   const shippingCents =
     deliveryMethod === "courier" ? MERCH_COURIER_FEE * 100 : 0
   const totalCents = subtotalCents - discountCents + shippingCents
@@ -144,12 +150,12 @@ export default function MerchCart() {
             quantity: r.quantity,
           })),
           userEmail: user?.email ?? undefined,
-          successUrl: `${origin}/merch/aciu?session_id={CHECKOUT_SESSION_ID}`,
+          successUrl: `${origin}/merch/aciu?session_id={CHECKOUT_SESSION_ID}&cart=1`,
           cancelUrl: `${origin}/merch/krepselis`,
           deliveryMethod,
           ...(deliveryMethod === "terminal" &&
             terminal && { terminal: { id: terminal.id, name: terminal.name } }),
-          ...(appliedCode && { code: appliedCode.code }),
+          ...(activeCode && { code: activeCode.code }),
         },
       }
     )
@@ -210,12 +216,12 @@ export default function MerchCart() {
                 />
                 <MerchDiscountCode
                   priceCents={subtotalCents}
-                  applied={appliedCode}
+                  applied={activeCode}
                   onApply={(code) => {
-                    setAppliedCode(code)
+                    setApplied({ code, subtotalCents })
                     setBuyError(null)
                   }}
-                  onClear={() => setAppliedCode(null)}
+                  onClear={() => setApplied(null)}
                 />
 
                 <dl className="mt-6 flex flex-col gap-2 border-t-2 border-ink/10 pt-5 font-mono text-[13px] text-ink">

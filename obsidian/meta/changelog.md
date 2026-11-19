@@ -1,15 +1,23 @@
 ---
 tags: [meta, changelog]
-updated: 2026-08-25
+updated: 2026-11-19
 ---
 
 # Changelog
 
 Chronological log of notable changes to the project. Newest first.
 
+## 2026-11-19 — architecture docs sync (LP parcels, `2677e36`)
+
+- **Changed:** `codebase-map` lpexpress module (orderIds, size/weight, courierPickup, admin `ShipTogetherDialog`/`ParcelOptionsFields`); `synced_commit` now `2677e36`. Cart sections still describe the uncommitted working tree (branch `feat/merch-cart`, not in `2677e36` history). Chats not read.
+
+## 2026-11-19 — architecture docs sync (`81f5a60`→`ba70986`)
+
+- **Changed:** `codebase-map` (cart routes, contexts, `claim_rentals`, `record_merch_cart_order`), `deepening-candidates` #4, `decisions-from-chat`, `integrations`.
+
 ## 2026-11-19 — carts: several merch items per payment, several sets per claim
 
-- **Changed:** merch cart (`/merch/krepselis`, one Stripe checkout with `items[]`, `merch_order_items`, `record_merch_cart_order`) and set cart (`/rinkiniai/krepselis`, `claim_rentals` all-or-nothing RPC). Both migrations applied live; `create-merch-checkout` v18 and `stripe-webhook` v26 deployed; types regenerated (storefront + admin). Paid courier fee not supported in the set cart yet.
+- **Changed:** merch cart (`/merch/krepselis`, one Stripe checkout with `items[]`, `merch_order_items`, `record_merch_cart_order`), set cart (`/rinkiniai/krepselis`, `claim_rentals` all-or-nothing RPC) and a €3 courier fee per cart (`record_paid_courier_rentals`). Migrations and functions are applied/deployed (see [[status]]); review-fix migration `20261119180000` is not applied yet; payments are untested in Stripe test mode.
 
 ## 2026-11-19 — LP shipping: parcel size/weight and shared parcels
 

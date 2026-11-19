@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react"
-import { Link } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import { Trash2Icon } from "lucide-react"
 
 import Nav from "@/components/Nav"
@@ -7,13 +7,16 @@ import Footer from "@/components/Footer"
 import { Seo } from "@/components/Seo"
 import { Button } from "@/components/ui/button"
 import { ImagePlaceholder } from "@/components/ImagePlaceholder"
+import { BricksBudgetBar } from "@/components/rental/BricksBudgetBar"
 import { TerminalPicker } from "@/components/TerminalPicker"
 import { useAuth } from "@/hooks/useAuth"
 import { useCredits } from "@/hooks/useCredits"
+import { usePaidCourierReturn } from "@/hooks/usePaidCourierReturn"
 import { useProductAvailability } from "@/hooks/useProductAvailability"
 import { useRentalCart } from "@/hooks/useRentalCart"
 import { useSavedTerminal } from "@/hooks/useSavedTerminal"
-import { toRentalErrorMessage } from "@/lib/rental"
+import { readFunctionError } from "@/lib/function-error"
+import { RENTAL_COURIER_FEE, toRentalErrorMessage } from "@/lib/rental"
 import { supabase } from "@/lib/supabase"
 
 type CartProduct = {
@@ -35,7 +38,9 @@ export default function RentalCart() {
   const [products, setProducts] = useState<Record<number, CartProduct> | null>(
     null
   )
-  const [isDoorInPlan, setIsDoorInPlan] = useState(false)
+  // The door-delivery add-on on the subscription; Legenda includes door
+  // delivery without it (see isDoorInPlan below).
+  const [hasDoorAddon, setHasDoorAddon] = useState(false)
   const [isDoor, setIsDoor] = useState(false)
   const [isClaiming, setIsClaiming] = useState(false)
   const [claimError, setClaimError] = useState<string | null>(null)
@@ -43,6 +48,19 @@ export default function RentalCart() {
 
   const plan = profile?.plan ?? null
   const isActive = profile?.status === "active"
+  const isDoorInPlan = plan === "mega" || hasDoorAddon
+
+  // Back from Stripe after the courier fee: the webhook creates the rentals,
+  // so wait for the first order to appear (see usePaidCourierReturn).
+  const [params] = useSearchParams()
+  const returnSessionId =
+    params.get("courier_paid") === "true" ? params.get("session_id") : null
+  const paidReturn = usePaidCourierReturn(user?.id, returnSessionId)
+  useEffect(() => {
+    if (paidReturn !== "placed" || placedCount !== null) return
+    setPlacedCount(productIds.length)
+    clear()
+  }, [paidReturn, placedCount, productIds.length, clear])
 
   const idsKey = [...productIds].sort((a, b) => a - b).join(",")
   useEffect(() => {
@@ -76,7 +94,7 @@ export default function RentalCart() {
       .select("home_delivery")
       .eq("id", user.id)
       .maybeSingle()
-      .then(({ data }) => setIsDoorInPlan(data?.home_delivery === true))
+      .then(({ data }) => setHasDoorAddon(data?.home_delivery === true))
   }, [user])
 
   const rows = useMemo(
@@ -97,6 +115,41 @@ export default function RentalCart() {
     return (
       <Shell>
         <div className="brick-card h-64 animate-pulse bg-ink/10" />
+      </Shell>
+    )
+  }
+
+  if (paidReturn === "waiting") {
+    return (
+      <Shell>
+        <div className="brick-card flex flex-col gap-3 p-6 md:p-8">
+          <h2 className="heading-display text-d-md text-ink">
+            Tvirtiname mokėjimą…
+          </h2>
+          <p className="text-[16px] text-ink/75">
+            Kuriame tavo užsakymus, tai užtrunka kelias sekundes.
+          </p>
+        </div>
+      </Shell>
+    )
+  }
+
+  if (paidReturn === "missing") {
+    return (
+      <Shell>
+        <div className="brick-card flex flex-col gap-3 p-6 md:p-8">
+          <h2 className="heading-display text-d-md text-ink">
+            Užsakymo dar nematome
+          </h2>
+          <p className="text-[16px] text-ink/75">
+            Jei mokėjimas praėjo, o užsakymų paskyroje nėra, rinkiniai galėjo
+            būti išnuomoti kitam nariui – tuomet mokestį grąžiname automatiškai.
+            Kilus klausimų, susisiek su mumis.
+          </p>
+          <Button asChild size="lg" className="w-fit">
+            <Link to="/account">Į paskyrą</Link>
+          </Button>
+        </div>
       </Shell>
     )
   }
@@ -123,6 +176,8 @@ export default function RentalCart() {
   const isOverBudget = totalValue > remainingCredits
   const hasProblem = rows.some((r) => r.problem !== null)
   const isDeliveryReady = isDoor || terminal !== null
+  // One fee covers the whole parcel; plans with door delivery pay nothing.
+  const isCourierFeeDue = isDoor && !isDoorInPlan
   const canClaim =
     Boolean(user) &&
     isActive &&
@@ -136,6 +191,30 @@ export default function RentalCart() {
     if (!canClaim) return
     setClaimError(null)
     setIsClaiming(true)
+
+    if (isCourierFeeDue) {
+      const origin = window.location.origin
+      const { data, error: checkoutError } = await supabase.functions.invoke(
+        "create-rental-courier-checkout",
+        {
+          body: {
+            productIds: rows.map((r) => r.id),
+            successUrl: `${origin}/rinkiniai/krepselis?courier_paid=true&session_id={CHECKOUT_SESSION_ID}`,
+            cancelUrl: `${origin}/rinkiniai/krepselis`,
+          },
+        }
+      )
+      if (checkoutError || !data?.url) {
+        setIsClaiming(false)
+        setClaimError(
+          toRentalErrorMessage(await readFunctionError(checkoutError, ""))
+        )
+        return
+      }
+      window.location.assign(data.url)
+      return
+    }
+
     const { error } = await supabase.rpc("claim_rentals", {
       p_product_ids: rows.map((r) => r.id),
       p_home_delivery: isDoor,
@@ -221,22 +300,10 @@ export default function RentalCart() {
               </p>
             ) : (
               <>
-                <dl className="mt-5 flex flex-col gap-2 font-mono text-[13px] text-ink">
-                  <Line
-                    label="Rinkinių vertė"
-                    value={`${totalValue} Briksių`}
-                  />
-                  <Line
-                    label="Liko Briksių"
-                    value={`${remainingCredits}`}
-                    isWarning={isOverBudget}
-                  />
-                </dl>
-                {isOverBudget && (
-                  <p className="mt-2 font-mono text-[12px] text-red-500">
-                    Rinkinių vertė viršija likusį biudžetą. Pašalink bent vieną.
-                  </p>
-                )}
+                <BricksBudgetBar
+                  cartValue={totalValue}
+                  remaining={remainingCredits}
+                />
 
                 <p className="label-mono mt-6 mb-2 text-ink/50">
                   Pristatymo būdas
@@ -248,25 +315,21 @@ export default function RentalCart() {
                     isSelected={!isDoor}
                     onSelect={() => setIsDoor(false)}
                   />
-                  {isDoorInPlan && (
-                    <DeliveryOption
-                      label="Pristatymas į duris"
-                      note="Įskaičiuota"
-                      isSelected={isDoor}
-                      onSelect={() => setIsDoor(true)}
-                    />
-                  )}
+                  <DeliveryOption
+                    label="Pristatymas kurjeriu"
+                    note={
+                      isDoorInPlan
+                        ? "Įskaičiuota"
+                        : `+€${RENTAL_COURIER_FEE} visam krepšeliui`
+                    }
+                    isSelected={isDoor}
+                    onSelect={() => setIsDoor(true)}
+                  />
                 </div>
                 {!isDoor && (
                   <div className="mt-4">
                     <TerminalPicker value={terminal} onChange={setTerminal} />
                   </div>
-                )}
-                {!isDoorInPlan && (
-                  <p className="mt-3 text-[13px] text-ink/55">
-                    Pristatymą kurjeriu mokant po €3 pasirink rinkinius po
-                    vieną.
-                  </p>
                 )}
 
                 <Button
@@ -281,7 +344,9 @@ export default function RentalCart() {
                       ? "Pašalink neprieinamus rinkinius"
                       : !isDeliveryReady
                         ? "Pasirink paštomatą"
-                        : `Nuomotis ${rows.length} →`}
+                        : isCourierFeeDue
+                          ? `Apmokėti €${RENTAL_COURIER_FEE} ir nuomotis ${rows.length} →`
+                          : `Nuomotis ${rows.length} →`}
                 </Button>
                 {claimError && (
                   <p className="mt-2 font-mono text-[12px] text-red-500">
@@ -324,25 +389,6 @@ function Shell({ children }: { children: ReactNode }) {
       </section>
       <Footer />
     </>
-  )
-}
-
-function Line({
-  label,
-  value,
-  isWarning = false,
-}: {
-  label: string
-  value: string
-  isWarning?: boolean
-}) {
-  return (
-    <div className="flex items-center justify-between">
-      <dt className="text-ink/60">{label}</dt>
-      <dd className={isWarning ? "font-bold text-red-500" : "font-bold"}>
-        {value}
-      </dd>
-    </div>
   )
 }
 

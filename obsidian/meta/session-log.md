@@ -1,3 +1,24 @@
+## 2026-11-19 — architecture docs sync for LP parcels
+
+- **Changed:** lpexpress module in `codebase-map` for `2677e36`; `synced_commit` is `2677e36`. Chats and CRM not read (automated run).
+- **Note:** `ba70986` (cart work) is on `feat/merch-cart`, not an ancestor of HEAD; cart sections stay as the working tree shows them. `admin/` only documented for the LP files.
+
+## 2026-11-19 — architecture docs incremental sync
+
+- **Changed:** architecture notes updated for the cart commits (`81f5a60`→`ba70986`); `synced_commit` is now `ba70986`. Chats and CRM not read (automated run).
+- **Not covered:** uncommitted LP shipping work (`lpexpress` size/weight, admin `ShipTogetherDialog`) was left out until committed; `admin/` is not documented.
+
+## 2026-11-19 — grouped returns + PR for admin deploy
+
+- **Changed:** `create-return-label` accepts `orderIds[]` (size S/M/L/XL by set count, v12 live); storefront `ReturnDialog` lets a customer tick other held sets. LP changes committed on `feat/lp-parcel-options` (2677e36), PR #125. Admin is built inside the bricktime Vercel project, so deploy = merge to main.
+- **Done:** PR #125 merged to main (294da04), Vercel production build started. **Next:** verify first real label in LP self-service.
+
+## 2026-11-19 — paid courier in the set cart (branch `feat/merch-cart`, uncommitted)
+
+- **Changed:** courier option in `/rinkiniai/krepselis` (+€3 once per cart, free if the plan has door delivery). Migration `20261119170000_paid_courier_rental_cart` (`record_paid_courier_rentals`: all-or-nothing, first order carries the Stripe session id), `create-rental-courier-checkout` accepts `productIds`, `stripe-webhook` handles `metadata.productIds`. RPC tested in a rolled-back transaction (dry run, real, replay idempotent, over-budget refused). Also: Briksiai progress bar, catalogue add-to-cart button, one-line plan badges.
+- **Not done:** migration NOT applied and the two functions NOT deployed (deploying the webhook is required before the courier path can work); no real Stripe test of the cart fee.
+- **Next:** apply + deploy, test-mode pay €3 for a two-set cart, regen types.
+
 ## 2026-11-19 — set (rental) cart (branch `feat/merch-cart`, uncommitted)
 
 - **Changed:** "Į krepšelį" on `Drop` (desktop CTA + mobile icon), `RentalCartContext` (localStorage, ≤10 sets), Nav shows a second badge only when the set cart is non-empty, `/rinkiniai/krepselis` page (tier/availability/budget checks, terminal or plan door delivery), `toRentalErrorMessage` moved to `src/lib/rental.ts`. New migration `20261119150000_claim_rentals` (invoker RPC, one transaction, existing `guard_member_order_insert` stays the rule source). Typecheck + lint clean; cart UI checked in the browser pane.

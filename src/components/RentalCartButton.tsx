@@ -16,17 +16,25 @@ export function RentalCartButton({
   layout = "full",
 }: RentalCartButtonProps) {
   const { has, add, remove } = useRentalCart()
-  const [note, setNote] = useState<string | null>(null)
+  // Tied to the set it was raised for: moving to another set reuses this
+  // component, and a "cart is full" note must not follow along.
+  const [noteState, setNoteState] = useState<{
+    productId: number
+    text: string
+  } | null>(null)
+  const note = noteState?.productId === productId ? noteState.text : null
   const isInCart = has(productId)
 
   function handleClick() {
     if (isInCart) {
       remove(productId)
-      setNote(null)
+      setNoteState(null)
       return
     }
-    setNote(
-      add(productId) === "full" ? "Krepšelyje gali būti iki 10 rinkinių." : null
+    setNoteState(
+      add(productId) === "full"
+        ? { productId, text: "Krepšelyje gali būti iki 10 rinkinių." }
+        : null
     )
   }
 

@@ -344,6 +344,23 @@ async function deleteCouponHold(holdId: string, sessionId: string) {
   }
 }
 
+function parseCartProductIds(value: string | undefined): number[] | null {
+  if (!value) return null
+  try {
+    const parsed: unknown = JSON.parse(value)
+    if (
+      Array.isArray(parsed) &&
+      parsed.length > 0 &&
+      parsed.every((id) => Number.isSafeInteger(id))
+    ) {
+      return parsed as number[]
+    }
+  } catch {
+    // Falls through to null: the caller reports missing metadata.
+  }
+  return null
+}
+
 // Rental rule violations (inactive, paused, over budget, tier, address, out of
 // stock). Retrying can't fix these, so the fee is refunded instead.
 const RENTAL_REFUSED_CODES = new Set(["42501", "23514"])
@@ -354,19 +371,28 @@ const RENTAL_REFUSED_CODES = new Set(["42501", "23514"])
 async function handleRentalCourierCheckout(session: Stripe.Checkout.Session) {
   if (session.payment_status !== "paid") return
   const userId = session.metadata?.userId
+  const cartProductIds = parseCartProductIds(session.metadata?.productIds)
   const productId = Number(session.metadata?.productId)
-  if (!userId || !Number.isSafeInteger(productId)) {
+  if (!userId || (!cartProductIds && !Number.isSafeInteger(productId))) {
     throw new Error(
       `Rental courier session ${session.id} is missing userId/productId metadata`
     )
   }
 
-  const { error } = await supabase.rpc("record_paid_courier_rental", {
-    p_subscriber_id: userId,
-    p_product_id: productId,
-    p_stripe_session_id: session.id,
-    p_amount: (session.amount_total ?? 0) / 100,
-  })
+  // One fee can cover a whole set cart; then every rental is created at once.
+  const { error } = cartProductIds
+    ? await supabase.rpc("record_paid_courier_rentals", {
+        p_subscriber_id: userId,
+        p_product_ids: cartProductIds,
+        p_stripe_session_id: session.id,
+        p_amount: (session.amount_total ?? 0) / 100,
+      })
+    : await supabase.rpc("record_paid_courier_rental", {
+        p_subscriber_id: userId,
+        p_product_id: productId,
+        p_stripe_session_id: session.id,
+        p_amount: (session.amount_total ?? 0) / 100,
+      })
   if (!error) return
 
   if (!RENTAL_REFUSED_CODES.has(error.code ?? "")) {

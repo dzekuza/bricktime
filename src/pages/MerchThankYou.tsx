@@ -61,10 +61,12 @@ export default function MerchThankYou() {
     setLabel("Užsakymas")
   }, [setLabel])
 
-  // The order is paid, so what was in the cart is bought.
+  // Only a checkout started from the cart empties it; a direct "Pirkti" from a
+  // product page must leave the lines the shopper is still collecting.
+  const isCartCheckout = searchParams.get("cart") === "1"
   useEffect(() => {
-    if (state === "found") clearCart()
-  }, [state, clearCart])
+    if (state === "found" && isCartCheckout) clearCart()
+  }, [state, isCartCheckout, clearCart])
 
   useEffect(() => {
     if (!sessionId) return
@@ -84,27 +86,29 @@ export default function MerchThankYou() {
           { p_session_id: sessionId as string }
         )
         if (isCancelled) return
-        if (linesError) {
-          console.error("Merch order lines lookup failed:", linesError.message)
+        if (!linesError) {
+          // Orders placed before the cart have no lines; show the order itself.
+          setLines(
+            lineRows?.length
+              ? lineRows
+              : [
+                  {
+                    item_name: summary.item_name,
+                    size: summary.size,
+                    quantity: 1,
+                    unit_price: summary.amount,
+                    image_url: summary.image_url,
+                    item_slug: summary.item_slug,
+                  },
+                ]
+          )
+          setOrder(summary)
+          setState("found")
+          return
         }
-        // Orders placed before the cart have no lines; show the order itself.
-        setLines(
-          lineRows?.length
-            ? lineRows
-            : [
-                {
-                  item_name: summary.item_name,
-                  size: summary.size,
-                  quantity: 1,
-                  unit_price: summary.amount,
-                  image_url: summary.image_url,
-                  item_slug: summary.item_slug,
-                },
-              ]
-        )
-        setOrder(summary)
-        setState("found")
-        return
+        // A failed lines lookup must not pass for a pre-cart order, which
+        // would show one wrong line for a multi-item purchase: try again.
+        console.error("Merch order lines lookup failed:", linesError.message)
       }
       if (attempt + 1 >= POLL_ATTEMPTS) {
         setState("pending")

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom"
 import { ArrowRightIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { ImagePlaceholder } from "@/components/ImagePlaceholder"
+import { ProductCardCartButton } from "@/components/ProductCardCartButton"
 import {
   getSubscriptionDisplayName,
   getSubscriptionTheme,
@@ -243,6 +244,11 @@ export function ProductCard({
             ))}
           </div>
         )}
+        <ProductCardCartButton
+          productId={product.id}
+          allowedTiers={product.allowedTiers}
+          isRentedOut={product.status === "sold_out"}
+        />
         {!product.image && (
           <div className="absolute right-0 bottom-0 left-0 flex items-end justify-center">
             <MockModel

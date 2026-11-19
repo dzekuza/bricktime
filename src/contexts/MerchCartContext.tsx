@@ -39,8 +39,9 @@ function isLine(value: unknown): value is MerchCartLine {
   return (
     typeof line.itemId === "string" &&
     typeof line.size === "string" &&
-    Number.isInteger(line.quantity) &&
-    (line.quantity as number) >= 1
+    Number.isSafeInteger(line.quantity) &&
+    (line.quantity as number) >= 1 &&
+    (line.quantity as number) <= MERCH_CART_MAX_QUANTITY
   )
 }
 

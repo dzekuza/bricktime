@@ -215,7 +215,7 @@ export default function Drop() {
     return (
       <div
         key={plan}
-        className={`rounded-full border-2 border-ink px-4 font-display text-[18px] leading-none ${className}`}
+        className={`rounded-full border-2 border-ink px-3 font-display text-[15px] leading-none ${className}`}
         style={{ background: theme?.bg, color: theme?.textColor }}
       >
         {getSubscriptionDisplayName(plan)}
@@ -488,13 +488,13 @@ export default function Drop() {
 
                 {/* Rent CTA */}
                 <div id="buy" className="mt-8 border-t border-ink/10 pt-6">
-                  <div className="flex flex-wrap items-center gap-3">
+                  <p className="label-mono mb-3 text-ink/50">
+                    {planPills.length > 1
+                      ? "Tinkamos prenumeratos"
+                      : "Reikalinga prenumerata"}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
                     {planPills.map((plan) => renderTierPill(plan))}
-                    <span className="text-[14px] text-ink/50">
-                      {planPills.length > 1
-                        ? "tinkamos prenumeratos"
-                        : "reikalinga prenumerata"}
-                    </span>
                   </div>
 
                   <p className="mt-4 text-[14px] leading-[1.6] text-ink/70">
