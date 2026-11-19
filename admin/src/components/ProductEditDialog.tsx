@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 import { ImagePlusIcon, XIcon, UploadIcon, Loader2Icon } from "lucide-react"
 import { supabase } from "@/lib/supabase"
+import { uploadToStorage } from "@/lib/upload-to-storage"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -150,19 +151,10 @@ export function ProductEditDialog({
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
-  async function uploadToStorage(file: File): Promise<string> {
-    const ext = file.name.split(".").pop()
-    const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-    const { error } = await supabase.storage.from("products").upload(path, file)
-    if (error) throw error
-    const { data } = supabase.storage.from("products").getPublicUrl(path)
-    return data.publicUrl
-  }
-
   async function handleCoverFile(file: File) {
     setCoverUploading(true)
     try {
-      const url = await uploadToStorage(file)
+      const url = await uploadToStorage(file, "products")
       set("image_url", url)
     } finally {
       setCoverUploading(false)
@@ -190,7 +182,9 @@ export function ProductEditDialog({
     if (!files.length) return
     setGalleryUploading(true)
     try {
-      const urls = await Promise.all(files.map(uploadToStorage))
+      const urls = await Promise.all(
+        files.map((file) => uploadToStorage(file, "products"))
+      )
       set("gallery", [...(form.gallery ?? []), ...urls])
     } finally {
       setGalleryUploading(false)
@@ -206,7 +200,9 @@ export function ProductEditDialog({
     if (!files.length) return
     setGalleryUploading(true)
     try {
-      const urls = await Promise.all(files.map(uploadToStorage))
+      const urls = await Promise.all(
+        files.map((file) => uploadToStorage(file, "products"))
+      )
       set("gallery", [...(form.gallery ?? []), ...urls])
     } finally {
       setGalleryUploading(false)
@@ -1296,8 +1292,7 @@ export function ProductEditDialog({
                     ))}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Only the checked plans can rent this set. Pick at least
-                    one.
+                    Only the checked plans can rent this set. Pick at least one.
                   </p>
                 </div>
                 <div className="flex flex-col gap-1.5">

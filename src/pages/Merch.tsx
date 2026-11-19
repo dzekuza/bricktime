@@ -106,6 +106,8 @@ function MerchCard({ item }: { item: MerchItem }) {
           <img
             src={item.image_url}
             alt={item.name}
+            loading="lazy"
+            decoding="async"
             className="h-full w-full object-contain"
           />
         ) : (
