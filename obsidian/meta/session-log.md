@@ -1,3 +1,33 @@
+## 2026-11-19 — product image backfill (live data change)
+
+- **Changed:** 192 of 194 images used by `products` were converted to WebP (max 1600 px, quality 82) and uploaded as new `*-opt.webp` files to the `products` bucket (one-year cache header); `products.image_url` and `gallery` now point at them (97 products, none missing). Files served for products: 535 MB -> 16 MB; first 25 catalogue cards 73 MB -> 2 MB. The 2 already-small images were kept.
+- **Not done:** the original files (199, ~542 MB) are still in the bucket; delete once the site has been checked. Revert: `supabase/rollbacks/20261119_product_images_webp_backfill_revert.sql`. Videos (hero/promo 19-20 MB, three 9-37 MB in `site-content`) and the three merch PNGs (21/10/10 MB) and one 9.9 MB community JPEG still to compress.
+
+## 2026-11-19 — architecture docs sync (`1aaa744`)
+
+- **Changed:** map note for `1aaa744` only (2 files changed since `53383b4`); `synced_commit` bumped. Chats and CRM not read.
+
+## 2026-11-19 — architecture docs sync (`53383b4`)
+
+- **Changed:** map + candidate #7 for `perf/image-optimisation` (optimiser in both apps, upload helper with bucket/cache); flagged that `41678c5` lives on `feat/merch-cart` only. Chats and CRM not read.
+
+## 2026-11-19 — architecture docs sync (`41678c5`)
+
+- **Changed:** map drops `optimiseImage` (removed in `41678c5`); cart round-3 notes; candidate #7 rewritten. `synced_commit` `41678c5`. Chats and CRM not read.
+
+## 2026-11-19 — architecture docs sync (`7634f18`)
+
+- **Changed:** map gets `optimiseImage` (storefront lib); candidate #7 added (image upload helper duplicated in admin). `synced_commit` `7634f18`. Chats and CRM not read.
+
+## 2026-11-19 — architecture docs check (`fde922b`)
+
+- **Changed:** `synced_commit` bumped to `fde922b`; no architecture content changed (types regeneration and a `ProfileEditDialog` restyle only). Chats and CRM not read.
+
+## 2026-11-19 — architecture docs sync for carts
+
+- **Changed:** `codebase-map` and `deepening-candidates` for `2677e36..a82d3e4` (paid courier for set carts, review-fix migration, index). `synced_commit` is `a82d3e4`. Chats and CRM not read (automated run).
+- **Note:** `ba70986` is now an ancestor of HEAD. Migration `20261119180000_cart_review_fixes` is marked not applied only because the status note says so.
+
 ## 2026-11-19 — architecture docs sync for LP parcels
 
 - **Changed:** lpexpress module in `codebase-map` for `2677e36`; `synced_commit` is `2677e36`. Chats and CRM not read (automated run).

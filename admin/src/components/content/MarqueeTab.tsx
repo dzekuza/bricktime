@@ -28,6 +28,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { supabase, type Tables } from "@/lib/supabase"
+import { uploadToStorage } from "@/lib/upload-to-storage"
 
 type MarqueeItem = Tables<"home_marquee_items">
 
@@ -44,17 +45,6 @@ function blank(sortOrder: number): MarqueeItem {
     sort_order: sortOrder,
     updated_at: new Date(0).toISOString(),
   }
-}
-
-async function uploadToStorage(file: File): Promise<string> {
-  const ext = file.name.split(".").pop()
-  const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-  const { error } = await supabase.storage
-    .from("site-content")
-    .upload(path, file)
-  if (error) throw error
-  const { data } = supabase.storage.from("site-content").getPublicUrl(path)
-  return data.publicUrl
 }
 
 export function MarqueeTab({ items, onChange }: MarqueeTabProps) {

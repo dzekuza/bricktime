@@ -6,6 +6,7 @@ import { useReveal } from "@/hooks/useReveal"
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase"
 import { avatarSrc } from "@/lib/avatars"
+import { optimiseImage } from "@/lib/optimise-image"
 import {
   getAnonSessionId,
   getAnonLikedIds,
@@ -820,11 +821,16 @@ function FeedPanel({
     let imageUrl: string | null = null
 
     if (imageFile) {
-      const ext = imageFile.name.split(".").pop()
+      // Phone photos are shrunk before upload; feed images are shown small.
+      const photo = await optimiseImage(imageFile)
+      const ext = photo.name.split(".").pop()
       const path = `${user.id}/${Date.now()}.${ext}`
       const { data: uploaded } = await supabase.storage
         .from("community-images")
-        .upload(path, imageFile)
+        .upload(path, photo, {
+          cacheControl: "31536000",
+          contentType: photo.type || undefined,
+        })
       if (uploaded) {
         const {
           data: { publicUrl },

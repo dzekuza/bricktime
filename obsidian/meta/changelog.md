@@ -7,6 +7,34 @@ updated: 2026-11-19
 
 Chronological log of notable changes to the project. Newest first.
 
+## 2026-11-19 — product images converted to WebP
+
+- **Changed:** product images in Storage resized to 1600 px WebP and `products` repointed (535 MB -> 16 MB); new admin and community uploads are resized the same way (PR #126). Originals kept for now; revert script in `supabase/rollbacks/`.
+
+## 2026-11-19 — architecture docs sync (`1aaa744`, branch `perf/image-optimisation`)
+
+- **Changed:** one note in the map for `1aaa744` (gallery upload fix, merch skeleton); `synced_commit` `1aaa744`. Chats and CRM not read.
+
+## 2026-11-19 — architecture docs sync (`53383b4`, branch `perf/image-optimisation`)
+
+- **Changed:** map gets `optimiseImage` and a branch-divergence note (`41678c5` is not an ancestor of HEAD); candidate #7 rewritten; `synced_commit` `53383b4`. Chats and CRM not read (automated run).
+
+## 2026-11-19 — architecture docs sync (`7634f18..41678c5`)
+
+- **Changed:** `codebase-map` (removed `optimiseImage`, cart round-3 notes, migrations applied), `deepening-candidates` #7 rewritten, `synced_commit` `41678c5`. Chats and CRM not read (automated run).
+
+## 2026-11-19 — architecture docs sync (`fde922b..7634f18`)
+
+- **Changed:** `codebase-map` lib table (+`optimiseImage`), `deepening-candidates` #7, `synced_commit` is `7634f18`. Source change: `perf: shrink uploaded images and lazy-load catalogue cards`. Chats and CRM not read (automated run).
+
+## 2026-11-19 — architecture docs check (`a82d3e4..fde922b`)
+
+- **Changed:** only `synced_commit` is now `fde922b`. Source changes were a type regeneration (adds `record_paid_courier_rentals`, already in the map) and a formatting/`Button` change in `ProfileEditDialog.tsx`; no module or interface changed. Chats and CRM not read (automated run).
+
+## 2026-11-19 — architecture docs sync (carts, `a82d3e4`)
+
+- **Changed:** `codebase-map` cart paragraph, `record_paid_courier_rentals`, `claim_rentals` redefinition, order_id index; deepening candidate 4 refreshed; `synced_commit` now `a82d3e4`. Chats and CRM not read (automated run).
+
 ## 2026-11-19 — architecture docs sync (LP parcels, `2677e36`)
 
 - **Changed:** `codebase-map` lpexpress module (orderIds, size/weight, courierPickup, admin `ShipTogetherDialog`/`ParcelOptionsFields`); `synced_commit` now `2677e36`. Cart sections still describe the uncommitted working tree (branch `feat/merch-cart`, not in `2677e36` history). Chats not read.
