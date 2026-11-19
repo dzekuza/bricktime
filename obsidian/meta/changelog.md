@@ -17,7 +17,7 @@ Chronological log of notable changes to the project. Newest first.
 
 ## 2026-11-19 — carts: several merch items per payment, several sets per claim
 
-- **Changed:** merch cart (`/merch/krepselis`, one Stripe checkout with `items[]`, `merch_order_items`, `record_merch_cart_order`), set cart (`/rinkiniai/krepselis`, `claim_rentals` all-or-nothing RPC) and a €3 courier fee per cart (`record_paid_courier_rentals`). Migrations and functions are applied/deployed (see [[status]]); review-fix migration `20261119180000` is not applied yet; payments are untested in Stripe test mode.
+- **Changed:** merch cart (`/merch/krepselis`, one Stripe checkout with `items[]`, `merch_order_items`, `record_merch_cart_order`), set cart (`/rinkiniai/krepselis`, `claim_rentals` all-or-nothing RPC) and a €3 courier fee per cart (`record_paid_courier_rentals`). Migrations and functions are applied/deployed (see [[status]]); review-fix and index migrations (`20261119180000`, `20261119190000`) are applied too; payments are untested in Stripe test mode.
 
 ## 2026-11-19 — LP shipping: parcel size/weight and shared parcels
 
