@@ -25,6 +25,7 @@ import { orderStatusColors, type Order, type OrderStatus } from '@/data/orders'
 import { supabase } from '@/lib/supabase'
 import { DataTable, SortableHeader, selectionColumn } from '@/components/DataTable'
 import { OrderDetailSheet } from '@/components/OrderDetailSheet'
+import { OrderLabelCell } from '@/components/OrderLabelCell'
 import { ShipTogetherDialog } from '@/components/ShipTogetherDialog'
 import { MerchOrdersPanel } from '@/components/MerchOrdersPanel'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -178,14 +179,6 @@ export function Orders() {
   const columns = useMemo<ColumnDef<Order, unknown>[]>(() => [
     selectionColumn<Order>(),
     {
-      accessorKey: 'id',
-      header: 'Order ID',
-      cell: ({ getValue }) => (
-        <span className="font-mono text-xs text-muted-foreground">{getValue<string>()}</span>
-      ),
-      size: 100,
-    },
-    {
       id: 'subscriber',
       accessorKey: 'subscriberName',
       header: ({ column }) => <SortableHeader column={column}>Subscriber</SortableHeader>,
@@ -236,6 +229,12 @@ export function Orders() {
         return <Badge className={cn('capitalize', orderStatusColors[v])}>{v}</Badge>
       },
       size: 110,
+    },
+    {
+      id: 'shipping',
+      header: 'Shipping',
+      cell: ({ row }) => <OrderLabelCell order={row.original} />,
+      size: 170,
     },
     {
       accessorKey: 'startDate',
