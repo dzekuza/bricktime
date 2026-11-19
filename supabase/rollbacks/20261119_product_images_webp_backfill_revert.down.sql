@@ -1,6 +1,10 @@
--- Reverts the 2026-11-19 product image backfill: points products.image_url and products.gallery
--- back at the original files (the *-opt.webp copies stay in Storage). Run it in the SQL editor.
--- The original files are still in the products bucket until they are deleted.
+-- Reverts the 2026-11-19 product image backfill: points products.image_url and
+-- products.gallery back at the original files. The *-opt.webp copies stay in
+-- Storage, and the originals stay there until they are deleted.
+--
+-- This is a data change, not a migration, so there is nothing to remove from
+-- supabase_migrations.schema_migrations. Run it deliberately, as the README says:
+--   psql "$DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/rollbacks/20261119_product_images_webp_backfill_revert.down.sql
 
 with m(old, new) as (values
   ('1788502416943-olmh026awwp-opt.webp', '1788502416943-olmh026awwp.jpg'),
@@ -201,4 +205,7 @@ update public.products p set
   gallery = case when p.gallery is null then null else (
     select coalesce(array_agg(coalesce((select replace(g, m.old, m.new) from m where g like '%/products/' || m.old), g) order by ord), '{}')
     from unnest(p.gallery) with ordinality as t(g, ord)) end
-where p.image_url is not null or p.gallery is not null;
+-- Only rows that actually point at an optimised file: touching the rest would
+-- also reset their updated_at through the products_updated_at trigger.
+where exists (select 1 from m where p.image_url like '%/products/' || m.old)
+   or exists (select 1 from unnest(p.gallery) as g, m where g like '%/products/' || m.old);
