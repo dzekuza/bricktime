@@ -29,5 +29,7 @@ External services, the module that talks to each, env var names and webhooks. Mo
 | out | LP Express API at `LP_API_BASE` | `_shared/lpexpress.ts` | token fetched in `getToken` |
 | out | Stripe API | every Stripe function | `stripe@14.21.0`, API `2024-06-20` |
 
+Merch cart (2026-11-19): `create-merch-checkout` now sends several Stripe line items per session; `checkout.session.completed` still reaches `handleMerchCheckout` (stripe-webhook `index.ts:171`), which writes `merch_order_items` via `record_merch_cart_order`. No new env vars found in the diff.
+
 ## Not found in code
 Shopify, Klaviyo, Resend, Hostinger: no references in `src/` or `supabase/functions/`.

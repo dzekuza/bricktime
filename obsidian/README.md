@@ -1,6 +1,6 @@
 ---
 tags: [moc, home]
-updated: 2026-11-18
+updated: 2026-11-19
 ---
 
 # 🧠 bricks — Project Brain
