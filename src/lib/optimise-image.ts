@@ -7,12 +7,40 @@ const WEBP_QUALITY = 0.82
 const OPTIMISABLE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"])
 
 /**
+ * createImageBitmap decodes only the first frame, so an animated PNG or WebP
+ * would be flattened. Both mark animation in their first bytes.
+ */
+async function isAnimated(file: File): Promise<boolean> {
+  const bytes = new Uint8Array(await file.slice(0, 131072).arrayBuffer())
+  const tag = (offset: number) =>
+    String.fromCharCode(...bytes.slice(offset, offset + 4))
+
+  if (file.type === "image/webp") {
+    // RIFF header, then a VP8X chunk whose 0x02 flag means animation.
+    return bytes.length > 20 && tag(12) === "VP8X" && (bytes[20] & 0x02) !== 0
+  }
+  if (file.type === "image/png") {
+    // An acTL chunk before the first IDAT marks an APNG.
+    const view = new DataView(bytes.buffer)
+    let offset = 8
+    while (offset + 8 <= bytes.length) {
+      const type = tag(offset + 4)
+      if (type === "acTL") return true
+      if (type === "IDAT") return false
+      offset += 12 + view.getUint32(offset)
+    }
+  }
+  return false
+}
+
+/**
  * Returns a smaller WebP copy of a JPEG/PNG/WebP file (longest side at most
  * 1600 px). Anything else (GIF, SVG, video, ...) is returned unchanged, and so
  * is an image the conversion would not make smaller.
  */
 export async function optimiseImage(file: File): Promise<File> {
   if (!OPTIMISABLE_TYPES.has(file.type)) return file
+  if (await isAnimated(file)) return file
 
   let bitmap: ImageBitmap
   try {
@@ -31,6 +59,8 @@ export async function optimiseImage(file: File): Promise<File> {
     bitmap.close()
     return file
   }
+  // The default filter aliases when a phone photo is cut to a quarter or less.
+  context.imageSmoothingQuality = "high"
   context.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
   bitmap.close()
 

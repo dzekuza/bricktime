@@ -95,7 +95,7 @@ function MerchCard({ item }: { item: MerchItem }) {
     >
       {/* Visual */}
       <div
-        className="relative flex min-h-[300px] items-center justify-center"
+        className="relative flex aspect-[4/3] items-center justify-center"
         style={{ background: item.bg }}
       >
         <span className="label-mono absolute top-4 left-4 rounded-full border-2 border-ink bg-paper px-3 py-1 text-ink">

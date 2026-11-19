@@ -182,9 +182,11 @@ export function ProductEditDialog({
     if (!files.length) return
     setGalleryUploading(true)
     try {
-      const urls = await Promise.all(
-        files.map((file) => uploadToStorage(file, "products"))
-      )
+      // One at a time: each original is decoded at full size to resize it.
+      const urls: string[] = []
+      for (const file of files) {
+        urls.push(await uploadToStorage(file, "products"))
+      }
       set("gallery", [...(form.gallery ?? []), ...urls])
     } finally {
       setGalleryUploading(false)
@@ -200,9 +202,11 @@ export function ProductEditDialog({
     if (!files.length) return
     setGalleryUploading(true)
     try {
-      const urls = await Promise.all(
-        files.map((file) => uploadToStorage(file, "products"))
-      )
+      // One at a time: each original is decoded at full size to resize it.
+      const urls: string[] = []
+      for (const file of files) {
+        urls.push(await uploadToStorage(file, "products"))
+      }
       set("gallery", [...(form.gallery ?? []), ...urls])
     } finally {
       setGalleryUploading(false)
