@@ -3,6 +3,8 @@ import { ArrowRightIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { ImagePlaceholder } from "@/components/ImagePlaceholder"
 import { ProductCardCartButton } from "@/components/ProductCardCartButton"
+import { RatingBadge } from "@/components/reviews/RatingBadge"
+import { useProductRatings } from "@/hooks/useProductRatings"
 import {
   getSubscriptionDisplayName,
   getSubscriptionTheme,
@@ -209,6 +211,7 @@ export function ProductCard({
   product: Product
   preferredTiers?: readonly string[]
 }) {
+  const ratings = useProductRatings()
   const badgeBg = product.badge === "sold-out" ? "#001B21" : "#FB4903"
   const displayTier = getDisplayPlan(
     product.allowedTiers,
@@ -238,6 +241,11 @@ export function ProductCard({
         />
 
         {product.isNew && <NewBadge />}
+
+        <RatingBadge
+          rating={ratings.get(product.id)}
+          className="absolute bottom-[14px] left-[14px] z-10"
+        />
 
         {product.badge && (
           <div
