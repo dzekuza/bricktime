@@ -1031,6 +1031,7 @@ export type Database = {
           lp_barcode: string | null
           lp_label_created_at: string | null
           lp_parcel_id: string | null
+          lp_parcel_size: string | null
           lp_return_barcode: string | null
           lp_return_label_created_at: string | null
           lp_return_parcel_id: string | null
@@ -1066,6 +1067,7 @@ export type Database = {
           lp_barcode?: string | null
           lp_label_created_at?: string | null
           lp_parcel_id?: string | null
+          lp_parcel_size?: string | null
           lp_return_barcode?: string | null
           lp_return_label_created_at?: string | null
           lp_return_parcel_id?: string | null
@@ -1101,6 +1103,7 @@ export type Database = {
           lp_barcode?: string | null
           lp_label_created_at?: string | null
           lp_parcel_id?: string | null
+          lp_parcel_size?: string | null
           lp_return_barcode?: string | null
           lp_return_label_created_at?: string | null
           lp_return_parcel_id?: string | null

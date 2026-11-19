@@ -1,3 +1,5 @@
+import type { ParcelSize } from "@/lib/lpexpress"
+
 export type OrderStatus = 'active' | 'returned' | 'overdue' | 'processing' | 'return_requested' | 'return_declined'
 
 export interface Order {
@@ -6,6 +8,8 @@ export interface Order {
   subscriberEmail: string
   productTitle: string
   productId: number
+  // Product's admin-set locker size; prefills the outbound parcel size.
+  productShippingSize?: ParcelSize
   // Shared by the rentals created together from one set cart; null for single sets.
   cartId?: string | null
   status: OrderStatus

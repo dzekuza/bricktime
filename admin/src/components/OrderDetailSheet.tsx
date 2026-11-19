@@ -80,7 +80,7 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
     setAdminNote(order ? (localStorage.getItem(noteKey(order.id)) ?? '') : '')
     setNoteSaved(false)
     setPhone(order?.deliveryPhone ?? '')
-    setParcelSize('M')
+    setParcelSize(order?.productShippingSize ?? 'M')
     setWeightKg('2')
     setCourierPickup(false)
     setSendByCourier(false)
