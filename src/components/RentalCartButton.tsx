@@ -50,24 +50,26 @@ export function RentalCartButton({
   }
 
   return (
-    <div className="mt-3">
+    // A fragment: the button sits inline in the caller's flex row and the note
+    // takes the full row under it.
+    <>
       <Button
         size="lg"
         variant="outline"
         onClick={handleClick}
         aria-pressed={isInCart}
-        className={`brick-hover-sm w-full justify-center rounded-full border-2 border-ink text-[16px] font-bold text-ink ${isInCart ? "bg-brand-yellow" : "bg-paper"}`}
+        className={`brick-hover-sm min-w-[200px] flex-1 justify-center rounded-full border-2 border-ink text-[16px] font-bold text-ink ${isInCart ? "bg-brand-yellow" : "bg-paper"}`}
       >
-        {isInCart ? "✓ Krepšelyje · pašalinti" : "Į krepšelį"}
+        {isInCart ? "✓ Krepšelyje" : "Į krepšelį"}
       </Button>
       {(isInCart || note) && (
-        <p className="mt-2 font-mono text-[12px] text-ink/70">
+        <p className="basis-full font-mono text-[12px] text-ink/70">
           {note ?? "Pridėta."}{" "}
           <Link to="/rinkiniai/krepselis" className="font-bold underline">
             Peržiūrėti krepšelį →
           </Link>
         </p>
       )}
-    </div>
+    </>
   )
 }
