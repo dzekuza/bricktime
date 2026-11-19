@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { MoreHorizontalIcon, RefreshCwIcon, SearchIcon } from 'lucide-react'
+import { MoreHorizontalIcon, PlusIcon, RefreshCwIcon, SearchIcon } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -28,6 +28,7 @@ import { DataTable, SortableHeader, selectionColumn } from '@/components/DataTab
 import { OrderDetailSheet } from '@/components/OrderDetailSheet'
 import { OrderLabelCell } from '@/components/OrderLabelCell'
 import { ShipTogetherDialog } from '@/components/ShipTogetherDialog'
+import { CreateOrderDialog } from '@/components/CreateOrderDialog'
 import { MerchOrdersPanel } from '@/components/MerchOrdersPanel'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
@@ -47,6 +48,7 @@ export function Orders() {
   const [syncing, setSyncing] = useState(false)
   const [shipTogether, setShipTogether] = useState<Order[]>([])
   const [shipTogetherOpen, setShipTogetherOpen] = useState(false)
+  const [createOpen, setCreateOpen] = useState(false)
 
   const load = useCallback(async () => {
     const [
@@ -315,10 +317,16 @@ export function Orders() {
           <h1 className="text-2xl font-semibold tracking-tight">Orders</h1>
           <p className="text-muted-foreground text-sm">{loading ? 'Loading…' : `${items.length} total rentals`}</p>
         </div>
-        <Button variant="outline" size="sm" onClick={() => void syncTracking()} disabled={syncing}>
-          <RefreshCwIcon className={cn('size-4', syncing && 'animate-spin')} />
-          Sync tracking
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
+            <PlusIcon className="size-4" />
+            Create order
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => void syncTracking()} disabled={syncing}>
+            <RefreshCwIcon className={cn('size-4', syncing && 'animate-spin')} />
+            Sync tracking
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="rentals" className="flex flex-col gap-6">
@@ -414,6 +422,12 @@ export function Orders() {
       <p className="text-xs text-muted-foreground">
         Showing {filtered.length} of {items.length} orders
       </p>
+
+      <CreateOrderDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreated={() => void load()}
+      />
 
       <ShipTogetherDialog
         orders={shipTogether}

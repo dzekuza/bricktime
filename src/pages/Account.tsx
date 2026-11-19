@@ -502,6 +502,7 @@ export default function Account() {
         productTitle:
           productMap[o.product_id]?.title ?? `Produktas #${o.product_id}`,
         productImage: productMap[o.product_id]?.image_url ?? null,
+        isMystery: o.is_mystery,
         status: o.status,
         startDate: o.start_date,
         dueDate: o.due_date,
