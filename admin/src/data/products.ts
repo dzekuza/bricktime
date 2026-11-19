@@ -1,3 +1,5 @@
+import type { ParcelSize } from "@/lib/lpexpress"
+
 export type Tier =
   | "nano"
   | "mini"
@@ -77,6 +79,8 @@ export interface Product {
   early_access_tiers?: string[]
   early_access_hours?: number
   isDangerous?: boolean
+  // LP Express locker slot; sizes the return parcel.
+  shipping_size?: ParcelSize
 }
 
 export const products: Product[] = []

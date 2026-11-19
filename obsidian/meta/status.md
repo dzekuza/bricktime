@@ -5,9 +5,11 @@
 > it (don't append) whenever the state changes. History belongs in [[session-log]]
 > and [[changelog]], not here.
 
-**Last updated:** 2026-11-19
+**Last updated:** 2026-11-20
 
 ## Current focus
+
+**Return parcel size (2026-11-20, uncommitted on `main`):** products have `shipping_size`, set in admin; `create-return-label` uses it (`lpexpress` v14 deployed, migration live). Needs real sizes set per set and a first real return label check.
 
 **Carts (2026-11-19, PR #124, branch `feat/merch-cart`):** merch cart (`/merch/krepselis`), set cart (`/rinkiniai/krepselis`, Briksiai progress bar, catalogue add-to-cart button) and a paid courier fee (€3 per cart) are built. Migrations `merch_cart_orders`, `claim_rentals` and `paid_courier_rental_cart` are applied live; `create-merch-checkout` v18, `stripe-webhook` v27 and `create-rental-courier-checkout` v6 are deployed. Review-fix migrations `cart_review_fixes` (input check + lock order in the rental RPCs, one-hour visibility for merch order lines) and `merch_order_items_order_id_index` are applied live too. No Stripe test-mode payment or real `claim_rentals` run yet. See [[session-log]].
 

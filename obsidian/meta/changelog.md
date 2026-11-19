@@ -7,6 +7,34 @@ updated: 2026-11-19
 
 Chronological log of notable changes to the project. Newest first.
 
+## 2026-11-20 — product shipping size
+
+- **Added:** `products.shipping_size`, admin select, return label sized from it (`lpexpress` v14).
+
+## 2026-11-19 — architecture docs sync (`48bf10a`)
+
+- **Changed:** map for admin courier override + manual shipping code (`48bf10a`: `lpexpress` `set-tracking`, `deliveryMethod`) and merch quantity selector (`0f1ad3d`, PR #132); `synced_commit` `48bf10a`. Chats and CRM skipped (automated run).
+
+## 2026-11-19 — architecture docs sync (`4492cd5`)
+
+- **Changed:** map row for admin `OrderLabelCell` (`25f1161`, PR #131); `synced_commit` `4492cd5`. Chats and CRM skipped (automated run).
+
+## 2026-11-19 — architecture docs sync (`f0a5ea7`)
+
+- **Changed:** map: admin merch list item lines and rental "ordered together" label (`f842908`); `synced_commit` `f0a5ea7`. Chats and CRM skipped (automated run).
+
+## 2026-11-19 — architecture docs sync (`a03770e`)
+
+- **Changed:** map: `orders.cart_id` + index (migrations `20261119210000/210100`), cart grouping in admin Orders/OrderDetailSheet, merch item lines; `synced_commit` `a03770e`. Chats and CRM skipped (automated run).
+
+## 2026-11-19 — architecture docs sync (`2f9b09a`)
+
+- **Changed:** login moved from the Nav popover to the logged-out `Account` view (`AvatarLink`); map note added, `Account.tsx` line refs refreshed; `synced_commit` `2f9b09a`. Chats and CRM not read (automated run).
+
+## 2026-11-19 — architecture docs sync (`52c4de3`)
+
+- **Changed:** map branch note replaced by merge state (PRs #124, #125, #126 merged), LP Express line refs fixed, candidate #7 branch remark removed; `synced_commit` `52c4de3`. Chats and CRM not read (automated run).
+
 ## 2026-11-19 — product images converted to WebP
 
 - **Changed:** product images in Storage resized to 1600 px WebP and `products` repointed (535 MB -> 16 MB); new admin and community uploads are resized the same way (PR #126). Originals kept for now; revert script in `supabase/rollbacks/`.

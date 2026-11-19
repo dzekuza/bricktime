@@ -1,3 +1,33 @@
+## 2026-11-20 — product shipping size for return labels
+
+- **Changed:** `products.shipping_size` (XS–XL, default S; migration `products_shipping_size` applied live). Admin product dialog has a "Shipping size" select. `lpexpress` `create-return-label` now sizes the parcel from the sets' sizes (largest, one step up for several sets); deployed as v14. Both `database.types.ts` hand-edited.
+- **Status:** typecheck OK; no real return label created yet.
+- **Next:** set sizes on real sets in admin, verify the first return label size on LP.
+
+## 2026-11-19 — architecture docs sync (`48bf10a`)
+
+- **Changed:** map rows for admin courier override / manual tracking code and merch quantity stepper. Docs only. Chats and CRM skipped.
+
+## 2026-11-19 — architecture docs sync (`4492cd5`)
+
+- **Changed:** map row for admin order-table label cell (`25f1161`, PR #131). Docs only. Chats and CRM skipped.
+
+## 2026-11-19 — architecture docs sync (`f0a5ea7`)
+
+- **Changed:** map row for admin cart visibility in order lists (`f842908`, PR #129/#130). Docs only. Chats and CRM skipped.
+
+## 2026-11-19 — architecture docs sync (`a03770e`)
+
+- **Changed:** map updated for `31bdc41`/`a03770e` (cart_id grouping of rentals, admin cart view, merch item lines). Docs only. Chats and CRM skipped.
+
+## 2026-11-19 — architecture docs sync (`2f9b09a`)
+
+- **Changed:** map updated for `2f9b09a` (login form on `/account`, Nav avatar is a plain link); stale `Account.tsx` line refs fixed; `synced_commit` `2f9b09a`. Docs only. Chats and CRM skipped.
+
+## 2026-11-19 — architecture docs sync (`52c4de3`)
+
+- **Changed:** codebase map and candidate #7 updated after PRs #124/#125/#126 merged; LP Express line refs corrected; `synced_commit` `52c4de3`. Docs only; no code touched. Chats and CRM skipped.
+
 ## 2026-11-19 — product image backfill (live data change)
 
 - **Changed:** 192 of 194 images used by `products` were converted to WebP (max 1600 px, quality 82) and uploaded as new `*-opt.webp` files to the `products` bucket (one-year cache header); `products.image_url` and `gallery` now point at them (97 products, none missing). Files served for products: 535 MB -> 16 MB; first 25 catalogue cards 73 MB -> 2 MB. The 2 already-small images were kept.

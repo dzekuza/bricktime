@@ -1376,6 +1376,7 @@ export type Database = {
           price: number | null
           rating: string | null
           release_date: string | null
+          shipping_size: string
           status: Database["public"]["Enums"]["product_status"]
           stock: number
           story: Json | null
@@ -1413,6 +1414,7 @@ export type Database = {
           price?: number | null
           rating?: string | null
           release_date?: string | null
+          shipping_size?: string
           status?: Database["public"]["Enums"]["product_status"]
           stock?: number
           story?: Json | null
@@ -1450,6 +1452,7 @@ export type Database = {
           price?: number | null
           rating?: string | null
           release_date?: string | null
+          shipping_size?: string
           status?: Database["public"]["Enums"]["product_status"]
           stock?: number
           story?: Json | null
