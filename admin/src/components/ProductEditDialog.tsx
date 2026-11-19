@@ -151,6 +151,15 @@ export function ProductEditDialog({
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
+  // Built from the latest form, not the one captured when the upload began:
+  // edits made while a batch of photos uploads must not be overwritten.
+  function appendToGallery(urls: string[]) {
+    setForm((prev) => ({
+      ...prev,
+      gallery: [...(prev.gallery ?? []), ...urls],
+    }))
+  }
+
   async function handleCoverFile(file: File) {
     setCoverUploading(true)
     try {
@@ -187,7 +196,7 @@ export function ProductEditDialog({
       for (const file of files) {
         urls.push(await uploadToStorage(file, "products"))
       }
-      set("gallery", [...(form.gallery ?? []), ...urls])
+      appendToGallery(urls)
     } finally {
       setGalleryUploading(false)
     }
@@ -207,7 +216,7 @@ export function ProductEditDialog({
       for (const file of files) {
         urls.push(await uploadToStorage(file, "products"))
       }
-      set("gallery", [...(form.gallery ?? []), ...urls])
+      appendToGallery(urls)
     } finally {
       setGalleryUploading(false)
     }

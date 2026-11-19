@@ -171,7 +171,7 @@ function MerchCard({ item }: { item: MerchItem }) {
 function MerchCardSkeleton() {
   return (
     <div className="brick-card animate-pulse overflow-hidden">
-      <div className="h-[300px] bg-ink/10" />
+      <div className="aspect-[4/3] bg-ink/10" />
       <div className="flex flex-col gap-3 p-5">
         <div className="h-5 w-2/3 rounded bg-ink/10" />
         <div className="h-3 w-full rounded bg-ink/10" />
