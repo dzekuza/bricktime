@@ -199,7 +199,20 @@ export function Orders() {
     {
       accessorKey: 'productTitle',
       header: ({ column }) => <SortableHeader column={column}>Product</SortableHeader>,
-      cell: ({ getValue }) => <span className="text-sm">{getValue<string>()}</span>,
+      cell: ({ row }) => {
+        const key = getCartKey(row.original)
+        const others = (key ? (cartGroups.get(key) ?? []) : []).filter((o) => o.id !== row.original.id)
+        return (
+          <div className="flex flex-col gap-0.5">
+            <span className="text-sm">{row.original.productTitle}</span>
+            {others.length > 0 && (
+              <span className="text-xs text-muted-foreground">
+                Ordered together with {others.map((o) => o.productTitle).join(', ')}
+              </span>
+            )}
+          </div>
+        )
+      },
     },
     {
       id: 'cart',
