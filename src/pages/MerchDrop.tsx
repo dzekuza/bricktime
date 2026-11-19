@@ -24,6 +24,7 @@ import { readFunctionError } from "@/lib/function-error"
 import { useMerchCart } from "@/hooks/useMerchCart"
 import { useSavedTerminal } from "@/hooks/useSavedTerminal"
 import { MERCH_CART_MAX_QUANTITY } from "@/contexts/MerchCartContext"
+import { QuantityStepper } from "@/components/merch/QuantityStepper"
 import { VatNote } from "@/components/VatNote"
 
 const TYPE_LABEL: Record<string, string> = {
@@ -41,7 +42,13 @@ export default function MerchDrop() {
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const [buying, setBuying] = useState(false)
   const [buyError, setBuyError] = useState<string | null>(null)
-  const [appliedCode, setAppliedCode] = useState<AppliedMerchCode | null>(null)
+  const [quantity, setQuantity] = useState(1)
+  // A code is priced against the subtotal it was checked for, so it only holds
+  // while the quantity (and so the subtotal) is unchanged.
+  const [applied, setApplied] = useState<{
+    code: AppliedMerchCode
+    subtotalCents: number
+  } | null>(null)
   const [activeImage, setActiveImage] = useState<string | null>(null)
   const [deliveryMethod, setDeliveryMethod] =
     useState<MerchDeliveryMethod>("terminal")
@@ -106,30 +113,41 @@ export default function MerchDrop() {
     item.status === "coming-soon" ||
     Object.values(item.stock).every((qty) => qty <= 0)
 
-  const priceCents = Math.round(Number(item.price) * 100)
-  const shippingCents =
-    deliveryMethod === "courier" ? MERCH_COURIER_FEE * 100 : 0
-  const totalCents =
-    priceCents - (appliedCode?.amountOffCents ?? 0) + shippingCents
-  const isDeliveryReady = deliveryMethod === "courier" || terminal !== null
-
   const inCartQuantity =
     lines.find((l) => l.itemId === item.id && l.size === selectedSize)
       ?.quantity ?? 0
   // Checkout only accepts whole-number stock, so anything else counts as none.
   const rawStock = selectedSize ? item.stock[selectedSize] : 0
   const sizeStock = Number.isSafeInteger(rawStock) ? rawStock : 0
-  const canAddToCart =
-    selectedSize !== null &&
-    inCartQuantity < Math.min(sizeStock, MERCH_CART_MAX_QUANTITY)
+  const maxQuantity = Math.min(sizeStock, MERCH_CART_MAX_QUANTITY)
+  const selectedQuantity = Math.min(
+    Math.max(quantity, 1),
+    Math.max(maxQuantity, 1)
+  )
+  const remainingForCart = maxQuantity - inCartQuantity
+  const canAddToCart = selectedSize !== null && remainingForCart > 0
+
+  const priceCents = Math.round(Number(item.price) * 100)
+  const subtotalCents = priceCents * selectedQuantity
+  const activeCode =
+    applied?.subtotalCents === subtotalCents ? applied.code : null
+  const shippingCents =
+    deliveryMethod === "courier" ? MERCH_COURIER_FEE * 100 : 0
+  const totalCents =
+    subtotalCents -
+    Math.min(activeCode?.amountOffCents ?? 0, subtotalCents) +
+    shippingCents
+  const isDeliveryReady = deliveryMethod === "courier" || terminal !== null
 
   function handleAddToCart() {
     if (!selectedSize || !item || !canAddToCart) return
-    const result = addLine(item.id, selectedSize)
+    // Never more than the stock and cart limit allow, counting what is in the cart.
+    const toAdd = Math.min(selectedQuantity, remainingForCart)
+    const result = addLine(item.id, selectedSize, toAdd)
     setCartNote(
       result === "full"
         ? "Krepšelyje gali būti iki 6 skirtingų prekių."
-        : "Pridėta į krepšelį."
+        : `Pridėta į krepšelį: ${toAdd} vnt.`
     )
   }
 
@@ -142,14 +160,16 @@ export default function MerchDrop() {
       "create-merch-checkout",
       {
         body: {
-          items: [{ itemId: item.id, size: selectedSize, quantity: 1 }],
+          items: [
+            { itemId: item.id, size: selectedSize, quantity: selectedQuantity },
+          ],
           userEmail: user?.email ?? undefined,
           successUrl: `${origin}/merch/aciu?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: `${origin}/merch/${item.slug}`,
           deliveryMethod,
           ...(deliveryMethod === "terminal" &&
             terminal && { terminal: { id: terminal.id, name: terminal.name } }),
-          ...(appliedCode && { code: appliedCode.code }),
+          ...(activeCode && { code: activeCode.code }),
         },
       }
     )
@@ -265,6 +285,7 @@ export default function MerchDrop() {
                           disabled={disabled}
                           onClick={() => {
                             setSelectedSize(size)
+                            setQuantity(1)
                             setCartNote(null)
                           }}
                           title={sizeOutOfStock ? "Išparduota" : undefined}
@@ -283,6 +304,18 @@ export default function MerchDrop() {
                     })}
                   </div>
                 </div>
+
+                {!isComingSoon && (
+                  <div className="mt-5 flex flex-col gap-3">
+                    <span className="label-mono text-ink/50">Kiekis</span>
+                    <QuantityStepper
+                      value={selectedQuantity}
+                      max={maxQuantity}
+                      disabled={!selectedSize}
+                      onChange={setQuantity}
+                    />
+                  </div>
+                )}
 
                 {/* CTA */}
                 {isComingSoon ? (
@@ -304,41 +337,41 @@ export default function MerchDrop() {
                       onTerminalChange={setTerminal}
                     />
                     <MerchDiscountCode
-                      priceCents={priceCents}
-                      applied={appliedCode}
+                      priceCents={subtotalCents}
+                      applied={activeCode}
                       onApply={(code) => {
-                        setAppliedCode(code)
+                        setApplied({ code, subtotalCents })
                         setBuyError(null)
                       }}
-                      onClear={() => setAppliedCode(null)}
+                      onClear={() => setApplied(null)}
                     />
-                    <Button
-                      size="lg"
-                      disabled={!selectedSize || !isDeliveryReady || buying}
-                      onClick={handleBuy}
-                      className="mt-5 w-full justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)] disabled:opacity-40"
-                    >
-                      {buying
-                        ? "Kraunama…"
-                        : selectedSize && !isDeliveryReady
-                          ? "Pasirink paštomatą"
-                          : selectedSize
-                            ? `Pirkti — ${selectedSize} · €${(totalCents / 100).toFixed(2)} →`
-                            : "Pasirink dydį"}
-                    </Button>
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      disabled={!canAddToCart}
-                      onClick={handleAddToCart}
-                      className="brick-hover-sm mt-3 w-full justify-center rounded-full border-2 border-ink text-[16px] font-bold text-ink disabled:opacity-40"
-                    >
-                      {selectedSize && !canAddToCart
-                        ? inCartQuantity >= sizeStock
-                          ? "Visas likutis jau krepšelyje"
-                          : `Daugiausia ${MERCH_CART_MAX_QUANTITY} vnt. krepšelyje`
-                        : "Į krepšelį"}
-                    </Button>
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      <Button
+                        size="lg"
+                        disabled={!selectedSize || !isDeliveryReady || buying}
+                        onClick={handleBuy}
+                        className="min-w-[200px] flex-1 justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)] disabled:opacity-40"
+                      >
+                        {buying
+                          ? "Kraunama…"
+                          : selectedSize && !isDeliveryReady
+                            ? "Pasirink paštomatą"
+                            : selectedSize
+                              ? `Pirkti · €${(totalCents / 100).toFixed(2)} →`
+                              : "Pasirink dydį"}
+                      </Button>
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        disabled={!canAddToCart}
+                        onClick={handleAddToCart}
+                        className="brick-hover-sm min-w-[200px] flex-1 justify-center rounded-full border-2 border-ink text-[16px] font-bold text-ink disabled:opacity-40"
+                      >
+                        {selectedSize && !canAddToCart
+                          ? "Likutis jau krepšelyje"
+                          : "Į krepšelį"}
+                      </Button>
+                    </div>
                     {cartNote && (
                       <p className="mt-2 font-mono text-[12px] text-ink/70">
                         {cartNote}{" "}

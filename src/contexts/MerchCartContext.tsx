@@ -21,7 +21,11 @@ export type AddToMerchCartResult = "added" | "full"
 interface MerchCartContextValue {
   lines: MerchCartLine[]
   count: number
-  addLine: (itemId: string, size: string) => AddToMerchCartResult
+  addLine: (
+    itemId: string,
+    size: string,
+    quantity?: number
+  ) => AddToMerchCartResult
   setQuantity: (itemId: string, size: string, quantity: number) => void
   removeLine: (itemId: string, size: string) => void
   clear: () => void
@@ -72,7 +76,7 @@ export function MerchCartProvider({ children }: { children: ReactNode }) {
   }, [lines])
 
   const addLine = useCallback(
-    (itemId: string, size: string): AddToMerchCartResult => {
+    (itemId: string, size: string, quantity = 1): AddToMerchCartResult => {
       const exists = lines.some((l) => sameLine(l, itemId, size))
       if (!exists && lines.length >= MERCH_CART_MAX_LINES) return "full"
       setLines((prev) =>
@@ -81,11 +85,21 @@ export function MerchCartProvider({ children }: { children: ReactNode }) {
               sameLine(l, itemId, size)
                 ? {
                     ...l,
-                    quantity: Math.min(l.quantity + 1, MERCH_CART_MAX_QUANTITY),
+                    quantity: Math.min(
+                      l.quantity + quantity,
+                      MERCH_CART_MAX_QUANTITY
+                    ),
                   }
                 : l
             )
-          : [...prev, { itemId, size, quantity: 1 }]
+          : [
+              ...prev,
+              {
+                itemId,
+                size,
+                quantity: Math.min(quantity, MERCH_CART_MAX_QUANTITY),
+              },
+            ]
       )
       return "added"
     },
