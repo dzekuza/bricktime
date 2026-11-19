@@ -7,6 +7,7 @@ import Footer from "@/components/Footer"
 import { Seo } from "@/components/Seo"
 import { Button } from "@/components/ui/button"
 import { ImagePlaceholder } from "@/components/ImagePlaceholder"
+import { useMerchCart } from "@/hooks/useMerchCart"
 import { supabase } from "@/lib/supabase"
 
 interface MerchOrderSummary {
@@ -17,6 +18,15 @@ interface MerchOrderSummary {
   buyer_email: string | null
   buyer_name: string | null
   shipping_address: ShippingAddress | null
+  image_url: string | null
+  item_slug: string | null
+}
+
+interface MerchOrderLine {
+  item_name: string
+  size: string
+  quantity: number
+  unit_price: number
   image_url: string | null
   item_slug: string | null
 }
@@ -40,7 +50,9 @@ export default function MerchThankYou() {
   const [searchParams] = useSearchParams()
   const sessionId = searchParams.get("session_id")
   const { setLabel } = useBreadcrumbLabel()
+  const { clear: clearCart } = useMerchCart()
   const [order, setOrder] = useState<MerchOrderSummary | null>(null)
+  const [lines, setLines] = useState<MerchOrderLine[]>([])
   const [state, setState] = useState<LoadState>(
     sessionId ? "loading" : "missing"
   )
@@ -48,6 +60,13 @@ export default function MerchThankYou() {
   useEffect(() => {
     setLabel("Užsakymas")
   }, [setLabel])
+
+  // Only a checkout started from the cart empties it; a direct "Pirkti" from a
+  // product page must leave the lines the shopper is still collecting.
+  const isCartCheckout = searchParams.get("cart") === "1"
+  useEffect(() => {
+    if (state === "found" && isCartCheckout) clearCart()
+  }, [state, isCartCheckout, clearCart])
 
   useEffect(() => {
     if (!sessionId) return
@@ -61,9 +80,35 @@ export default function MerchThankYou() {
       if (error) console.error("Merch order lookup failed:", error.message)
       const row = data?.[0]
       if (row) {
-        setOrder(row as MerchOrderSummary)
-        setState("found")
-        return
+        const summary = row as MerchOrderSummary
+        const { data: lineRows, error: linesError } = await supabase.rpc(
+          "get_merch_order_lines_by_session",
+          { p_session_id: sessionId as string }
+        )
+        if (isCancelled) return
+        if (!linesError) {
+          // Orders placed before the cart have no lines; show the order itself.
+          setLines(
+            lineRows?.length
+              ? lineRows
+              : [
+                  {
+                    item_name: summary.item_name,
+                    size: summary.size,
+                    quantity: 1,
+                    unit_price: summary.amount,
+                    image_url: summary.image_url,
+                    item_slug: summary.item_slug,
+                  },
+                ]
+          )
+          setOrder(summary)
+          setState("found")
+          return
+        }
+        // A failed lines lookup must not pass for a pre-cart order, which
+        // would show one wrong line for a multi-item purchase: try again.
+        console.error("Merch order lines lookup failed:", linesError.message)
       }
       if (attempt + 1 >= POLL_ATTEMPTS) {
         setState("pending")
@@ -86,7 +131,9 @@ export default function MerchThankYou() {
       <section className="bg-paper py-6 md:py-12">
         <div className="mx-auto max-w-[760px] px-4 md:px-7">
           {state === "loading" && <LoadingCard />}
-          {state === "found" && order && <OrderCard order={order} />}
+          {state === "found" && order && (
+            <OrderCard order={order} lines={lines} />
+          )}
           {state === "pending" && <PendingCard />}
           {state === "missing" && <MissingCard />}
         </div>
@@ -107,7 +154,13 @@ function LoadingCard() {
   )
 }
 
-function OrderCard({ order }: { order: MerchOrderSummary }) {
+function OrderCard({
+  order,
+  lines,
+}: {
+  order: MerchOrderSummary
+  lines: MerchOrderLine[]
+}) {
   const address = order.shipping_address
   const addressLines = address
     ? [
@@ -144,25 +197,38 @@ function OrderCard({ order }: { order: MerchOrderSummary }) {
       </div>
 
       <div className="brick-card flex flex-col gap-6 p-6 md:p-8">
-        <div className="flex items-center gap-4">
-          <div className="relative size-20 shrink-0 overflow-hidden rounded-2xl border-2 border-ink bg-white md:size-24">
-            {order.image_url ? (
-              <img
-                src={order.image_url}
-                alt={order.item_name}
-                className="absolute inset-0 h-full w-full object-contain p-2"
-              />
-            ) : (
-              <ImagePlaceholder />
-            )}
-          </div>
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <p className="heading-display text-d-xs text-ink">
-              {order.item_name}
-            </p>
-            <p className="label-mono text-ink/50">Dydis: {order.size}</p>
-          </div>
-          <p className="shrink-0 font-mono text-[20px] font-bold text-ink">
+        <ul className="flex flex-col gap-4">
+          {lines.map((line) => (
+            <li
+              key={`${line.item_name}|${line.size}`}
+              className="flex items-center gap-4"
+            >
+              <div className="relative size-20 shrink-0 overflow-hidden rounded-2xl border-2 border-ink bg-white md:size-24">
+                {line.image_url ? (
+                  <img
+                    src={line.image_url}
+                    alt={line.item_name}
+                    className="absolute inset-0 h-full w-full object-contain p-2"
+                  />
+                ) : (
+                  <ImagePlaceholder />
+                )}
+              </div>
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <p className="heading-display text-d-xs text-ink">
+                  {line.item_name}
+                </p>
+                <p className="label-mono text-ink/50">
+                  Dydis: {line.size}
+                  {line.quantity > 1 && ` · ${line.quantity} vnt.`}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <div className="flex items-center justify-between border-t-2 border-ink/10 pt-4">
+          <p className="label-mono text-ink/50">Iš viso</p>
+          <p className="font-mono text-[20px] font-bold text-ink">
             €{Number(order.amount).toFixed(2)}
           </p>
         </div>

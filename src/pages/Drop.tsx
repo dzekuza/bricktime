@@ -20,6 +20,7 @@ import { useProductAvailability } from "@/hooks/useProductAvailability"
 import { ManufacturerInfo } from "@/components/ManufacturerInfo"
 import { ProductReviews } from "@/components/reviews/ProductReviews"
 import { ExpandableHtml } from "@/components/ExpandableHtml"
+import { RentalCartButton } from "@/components/RentalCartButton"
 import { ImagePlaceholder } from "@/components/ImagePlaceholder"
 import {
   ProductCard,
@@ -214,7 +215,7 @@ export default function Drop() {
     return (
       <div
         key={plan}
-        className={`rounded-full border-2 border-ink px-4 font-display text-[18px] leading-none ${className}`}
+        className={`rounded-full border-2 border-ink px-3 font-display text-[15px] leading-none ${className}`}
         style={{ background: theme?.bg, color: theme?.textColor }}
       >
         {getSubscriptionDisplayName(plan)}
@@ -288,7 +289,7 @@ export default function Drop() {
           <div className="mx-auto max-w-[1320px] px-4 md:px-7">
             <div className="grid grid-cols-1 items-start gap-6 md:gap-12 lg:grid-cols-2">
               {/* Gallery tile */}
-              <div className="brick-card p-4 lg:sticky lg:top-28">
+              <div className="brick-card p-4 lg:sticky lg:top-[148px]">
                 <div className="flex flex-col gap-4">
                   {/* Mobile: placeholder when the product has no photos */}
                   {thumbs.length === 0 && (
@@ -487,13 +488,13 @@ export default function Drop() {
 
                 {/* Rent CTA */}
                 <div id="buy" className="mt-8 border-t border-ink/10 pt-6">
-                  <div className="flex flex-wrap items-center gap-3">
+                  <p className="label-mono mb-3 text-ink/50">
+                    {planPills.length > 1
+                      ? "Tinkamos prenumeratos"
+                      : "Reikalinga prenumerata"}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
                     {planPills.map((plan) => renderTierPill(plan))}
-                    <span className="text-[14px] text-ink/50">
-                      {planPills.length > 1
-                        ? "tinkamos prenumeratos"
-                        : "reikalinga prenumerata"}
-                    </span>
                   </div>
 
                   <p className="mt-4 text-[14px] leading-[1.6] text-ink/70">
@@ -502,25 +503,30 @@ export default function Drop() {
                       : "Rinkinys atkeliaus Brick Time dėžėje: su originalia instrukcija, saugos lapeliu ir detalėmis, paruoštomis statyti. Naujas rinkinys siunčiamas gamintojo maišeliuose, jau naudotas – mūsų surūšiuotuose. Originali LEGO® dėžė nepridedama."}
                   </p>
 
-                  {isRentedOut ? (
-                    <Button
-                      size="lg"
-                      disabled
-                      className="mt-5 w-full justify-center rounded-full border-2 border-ink/30 bg-ink/10 text-[16px] font-bold text-ink/40"
-                    >
-                      Užimtas
-                    </Button>
-                  ) : (
-                    <Button
-                      asChild
-                      size="lg"
-                      className="mt-5 w-full justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)]"
-                    >
-                      <Link to={`/checkout?product=${product?.id}`}>
-                        Rinkis šį rinkinį →
-                      </Link>
-                    </Button>
-                  )}
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    {isRentedOut ? (
+                      <Button
+                        size="lg"
+                        disabled
+                        className="w-full justify-center rounded-full border-2 border-ink/30 bg-ink/10 text-[16px] font-bold text-ink/40"
+                      >
+                        Užimtas
+                      </Button>
+                    ) : (
+                      <Button
+                        asChild
+                        size="lg"
+                        className="min-w-[200px] flex-1 justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)]"
+                      >
+                        <Link to={`/checkout?product=${product?.id}`}>
+                          Rinkis šį rinkinį →
+                        </Link>
+                      </Button>
+                    )}
+                    {!isRentedOut && product && (
+                      <RentalCartButton productId={product.id} />
+                    )}
+                  </div>
 
                   <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] tracking-[.16em] text-ink/40 uppercase">
                     {["Nemokamas pristatymas", "Atšauk bet kada"].map((s) => (
@@ -914,6 +920,9 @@ export default function Drop() {
                 Rinkis šį rinkinį →
               </Link>
             </Button>
+          )}
+          {!isRentedOut && product && (
+            <RentalCartButton productId={product.id} layout="icon" />
           )}
         </div>
       </main>

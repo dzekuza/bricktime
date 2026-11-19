@@ -2,6 +2,7 @@ import { Link } from "react-router-dom"
 import { ArrowRightIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { ImagePlaceholder } from "@/components/ImagePlaceholder"
+import { ProductCardCartButton } from "@/components/ProductCardCartButton"
 import {
   getSubscriptionDisplayName,
   getSubscriptionTheme,
@@ -181,6 +182,8 @@ function StudBg({
         <img
           src={image}
           alt=""
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
       ) : (
@@ -215,10 +218,15 @@ export function ProductCard({
   const tier = tierConfig[displayTier]
 
   return (
-    <Link
-      to={`/drop/${product.id}`}
-      className="group brick-card brick-card-hover flex flex-col overflow-hidden bg-paper text-ink no-underline"
-    >
+    <div className="group brick-card brick-card-hover relative flex flex-col overflow-hidden bg-paper text-ink">
+      {/* Covers the card (above its z-10 badges) so all of it opens the set;
+          the cart button comes later in the DOM at the same z-20, so it paints
+          above this link as a separate control rather than inside it. */}
+      <Link
+        to={`/drop/${product.id}`}
+        aria-label={product.title}
+        className="absolute inset-0 z-20"
+      />
       <StudBg
         image={product.image}
         className="relative h-[280px] border-b-2 border-ink"
@@ -243,6 +251,12 @@ export function ProductCard({
             ))}
           </div>
         )}
+        <ProductCardCartButton
+          productId={product.id}
+          title={product.title}
+          allowedTiers={product.allowedTiers}
+          isRentedOut={product.status === "sold_out"}
+        />
         {!product.image && (
           <div className="absolute right-0 bottom-0 left-0 flex items-end justify-center">
             <MockModel
@@ -317,6 +331,6 @@ export function ProductCard({
           <ArrowRightIcon className="size-4" />
         </div>
       </div>
-    </Link>
+    </div>
   )
 }

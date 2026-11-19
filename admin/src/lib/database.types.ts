@@ -790,6 +790,54 @@ export type Database = {
         }
         Relationships: []
       }
+      merch_order_items: {
+        Row: {
+          created_at: string
+          id: string
+          item_name: string
+          merch_item_id: string | null
+          order_id: string
+          quantity: number
+          size: string
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_name: string
+          merch_item_id?: string | null
+          order_id: string
+          quantity: number
+          size: string
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_name?: string
+          merch_item_id?: string | null
+          order_id?: string
+          quantity?: number
+          size?: string
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merch_order_items_merch_item_id_fkey"
+            columns: ["merch_item_id"]
+            isOneToOne: false
+            referencedRelation: "merch_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "merch_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "merch_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       merch_orders: {
         Row: {
           amount: number
@@ -1539,6 +1587,8 @@ export type Database = {
           id: string
           joined_at: string
           last_name: string | null
+          lp_terminal_id: string | null
+          lp_terminal_name: string | null
           name: string
           paused_until: string | null
           penalty_amount: number | null
@@ -1571,6 +1621,8 @@ export type Database = {
           id: string
           joined_at?: string
           last_name?: string | null
+          lp_terminal_id?: string | null
+          lp_terminal_name?: string | null
           name: string
           paused_until?: string | null
           penalty_amount?: number | null
@@ -1603,6 +1655,8 @@ export type Database = {
           id?: string
           joined_at?: string
           last_name?: string | null
+          lp_terminal_id?: string | null
+          lp_terminal_name?: string | null
           name?: string
           paused_until?: string | null
           penalty_amount?: number | null
@@ -1866,10 +1920,69 @@ export type Database = {
       }
     }
     Functions: {
+      apply_member_rental_rules: {
+        Args: {
+          p_is_courier_paid: boolean
+          p_order: Database["public"]["Tables"]["orders"]["Row"]
+        }
+        Returns: {
+          amount: number
+          created_at: string
+          delivery_city: string | null
+          delivery_flat: string | null
+          delivery_house_no: string | null
+          delivery_name: string | null
+          delivery_phone: string | null
+          delivery_postal_code: string | null
+          delivery_street: string | null
+          due_date: string
+          home_delivery: boolean
+          id: string
+          lp_barcode: string | null
+          lp_label_created_at: string | null
+          lp_parcel_id: string | null
+          lp_return_barcode: string | null
+          lp_return_label_created_at: string | null
+          lp_return_parcel_id: string | null
+          lp_return_terminal_id: string | null
+          lp_return_tracking_state: string | null
+          lp_terminal_id: string | null
+          lp_terminal_name: string | null
+          lp_tracking_state: string | null
+          product_id: number
+          return_note: string | null
+          return_requested_at: string | null
+          returned_at: string | null
+          start_date: string
+          status: Database["public"]["Enums"]["order_status"]
+          stripe_session_id: string | null
+          subscriber_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "orders"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       auth_email_confirmed: { Args: never; Returns: boolean }
+      begin_subscription_pause: {
+        Args: { p_subscriber: string; p_until: string }
+        Returns: boolean
+      }
       claim_coupon_hold: {
         Args: { p_code: string; p_minutes: number; p_user_id: string }
         Returns: string
+      }
+      claim_rentals: {
+        Args: {
+          p_home_delivery?: boolean
+          p_product_ids: number[]
+          p_terminal_id?: string
+          p_terminal_name?: string
+        }
+        Returns: undefined
       }
       evaluate_achievements: {
         Args: { p_subscriber_id: string }
@@ -1891,7 +2004,35 @@ export type Database = {
           status: string
         }[]
       }
+      get_merch_order_lines_by_session: {
+        Args: { p_session_id: string }
+        Returns: {
+          image_url: string
+          item_name: string
+          item_slug: string
+          quantity: number
+          size: string
+          unit_price: number
+        }[]
+      }
       held_brick_value: { Args: { p_subscriber: string }; Returns: number }
+      record_merch_cart_order: {
+        Args: {
+          p_amount: number
+          p_buyer_email: string
+          p_buyer_name: string
+          p_buyer_phone: string
+          p_delivery_method?: string
+          p_lines: Json
+          p_lp_terminal_id?: string
+          p_lp_terminal_name?: string
+          p_shipping_address: Json
+          p_stripe_payment_intent_id: string
+          p_stripe_session_id: string
+          p_user_id: string
+        }
+        Returns: boolean
+      }
       record_merch_order: {
         Args: {
           p_amount: number
@@ -1919,6 +2060,16 @@ export type Database = {
           p_subscriber_id: string
         }
         Returns: string
+      }
+      record_paid_courier_rentals: {
+        Args: {
+          p_amount: number
+          p_dry_run?: boolean
+          p_product_ids: number[]
+          p_stripe_session_id: string
+          p_subscriber_id: string
+        }
+        Returns: number
       }
       redeem_coupon: { Args: { p_code: string }; Returns: undefined }
       refresh_my_achievements: { Args: never; Returns: undefined }
@@ -1974,12 +2125,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2003,11 +2154,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2028,11 +2179,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2053,11 +2204,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2070,11 +2221,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never) = never,
+    : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

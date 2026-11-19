@@ -1,6 +1,6 @@
 ---
 tags: [architecture, deepening]
-updated: 2026-11-18
+updated: 2026-11-19
 ---
 
 # Deepening candidates
@@ -48,9 +48,24 @@ Friction only, no solutions. Method: improve-codebase-architecture (module, inte
 - **Deletion test:** deleting `src/lib/lpexpress.ts` would move the `invoke` wiring into three components (earns its keep, thin).
 - **Strength:** Speculative
 
+## 7. Image optimiser copied into two apps; one call site bypasses the upload helper
+
+- **Files:** `src/lib/optimise-image.ts`, `admin/src/lib/optimise-image.ts` (identical 75 lines), `admin/src/lib/upload-to-storage.ts`, `src/pages/Community.tsx` (`FeedPanel` inline upload at `:825`).
+- **Problem:** on `perf/image-optimisation` the `optimiseImage` module is duplicated per app (admin shares no code with the storefront, see candidate 5), so a change to size or quality needs two edits. The storefront has no upload helper: only `Community.tsx` calls `optimiseImage`, then writes its own storage sequence.
+- **Deletion test:** deleting the admin copy would move the logic back into callers' absence (a real duplicate, not concentration); deleting `upload-to-storage.ts` would spread bucket, cache and optimise rules over five admin call sites (earns its keep).
+- **Evidence:** commits `7634f18`, `53383b4` (2026-11-19). On `feat/merch-cart`, `41678c5` removed the helper instead (branches diverge).
+- **Strength:** Speculative
+
 ## Smaller items
 - `trackEvent` (`src/lib/analytics.ts:68`) has no caller found by `rg`.
 - `.env.example` and code disagree (see [[environment-variables]]).
 
 ## Conflicts (code vs docs)
 - `AGENTS.md` says `admin/` is a git submodule (`bricktime-admin`); `CLAUDE.md` says it is a plain tracked directory. Code: no `.gitmodules`, and `git ls-files admin` lists 130 files, so it is a plain directory. `AGENTS.md` is stale.
+
+## 4. Two cart modules with parallel shape but separate rules
+- **Files:** `src/contexts/MerchCartContext.tsx`, `src/contexts/RentalCartContext.tsx`, `src/pages/MerchCart.tsx`, `src/pages/RentalCart.tsx`, `supabase/migrations/20261119150000_claim_rentals.sql`, `src/lib/rental.ts`.
+- **Problem:** Both carts hold local state in the browser (localStorage per status note) with their own limits (6 lines/qty 10; 10 sets). The rental rules (tier, availability, budget, door delivery) are checked in `RentalCart.tsx` for display and again in SQL (`guard_member_order_insert`), so the interface a caller must know is spread across a page and a trigger. Since `5dbc994` the cart also has a paid-courier path (one €3 Stripe fee, then `stripe-webhook` calls `record_paid_courier_rentals`), so a cart rental reaches `orders` by three routes: `claim_rentals`, `record_paid_courier_rentals`, and the single-set `record_paid_courier_rental`. The ten-set limit is repeated in `RentalCartContext.tsx`, `create-rental-courier-checkout` and both SQL functions (comments say they mirror each other).
+- **Deletion test:** deleting `claim_rentals` would move the all-or-nothing loop into the page (moves complexity, so it earns its keep); the client-side pre-checks in `RentalCart.tsx` duplicate the guard.
+- **Evidence:** commit `36ec075`, `ba70986`; commits `5dbc994` (courier fee for carts), `a82d3e4`; migration `20261119180000_cart_review_fixes.sql` redefines both RPCs the day they were added (applied live per status, 2026-11-19, unverified). Both are very recent, so churn is not yet measured.
+- **Strength:** Speculative

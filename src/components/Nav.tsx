@@ -7,6 +7,8 @@ import {
   ArrowRightIcon,
   UserIcon,
   InfoIcon,
+  ShoppingBagIcon,
+  BlocksIcon,
 } from "lucide-react"
 import {
   Popover,
@@ -24,6 +26,8 @@ import { avatarSrc } from "@/lib/avatars"
 import { AuthForm } from "@/components/AuthForm"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
 import { useCredits } from "@/hooks/useCredits"
+import { useMerchCart } from "@/hooks/useMerchCart"
+import { useRentalCart } from "@/hooks/useRentalCart"
 import BrandLogoVideo from "@/components/BrandLogoVideo"
 
 const PLAN_COLORS: Record<string, { bg: string; text: string }> = {
@@ -159,6 +163,47 @@ function CreditsPill() {
   )
 }
 
+// ── Cart link (merch) ────────────────────────────────────────────────────────
+
+function CartLink() {
+  const { count } = useMerchCart()
+
+  return (
+    <Link
+      to="/merch/krepselis"
+      className="brick-hover-sm relative flex size-9 items-center justify-center rounded-full border-2 border-ink bg-paper"
+      aria-label={count > 0 ? `Krepšelis (${count})` : "Krepšelis"}
+    >
+      <ShoppingBagIcon className="size-4 text-ink" />
+      {count > 0 && (
+        <span className="absolute -top-2 -right-2 grid min-w-5 place-items-center rounded-full border-2 border-ink bg-brand-yellow px-1 font-mono text-[10px] leading-4 font-bold text-ink">
+          {count}
+        </span>
+      )}
+    </Link>
+  )
+}
+
+// ── Set cart link (shown only once a set has been added) ─────────────────────
+
+function RentalCartLink() {
+  const { count } = useRentalCart()
+  if (count === 0) return null
+
+  return (
+    <Link
+      to="/rinkiniai/krepselis"
+      className="brick-hover-sm relative flex size-9 items-center justify-center rounded-full border-2 border-ink bg-paper"
+      aria-label={`Rinkinių krepšelis (${count})`}
+    >
+      <BlocksIcon className="size-4 text-ink" />
+      <span className="absolute -top-2 -right-2 grid min-w-5 place-items-center rounded-full border-2 border-ink bg-brand-orange px-1 font-mono text-[10px] leading-4 font-bold text-paper">
+        {count}
+      </span>
+    </Link>
+  )
+}
+
 // ── Nav ───────────────────────────────────────────────────────────────────────
 
 export default function Nav() {
@@ -248,6 +293,8 @@ export default function Nav() {
               </div>
 
               <div className="flex items-center gap-2">
+                <RentalCartLink />
+                <CartLink />
                 <AvatarPopover />
                 <button
                   onClick={() => setOpen((v) => !v)}

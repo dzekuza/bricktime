@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 import { ImagePlusIcon, XIcon, UploadIcon, Loader2Icon } from "lucide-react"
 import { supabase } from "@/lib/supabase"
+import { uploadToStorage } from "@/lib/upload-to-storage"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -150,19 +151,19 @@ export function ProductEditDialog({
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
-  async function uploadToStorage(file: File): Promise<string> {
-    const ext = file.name.split(".").pop()
-    const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-    const { error } = await supabase.storage.from("products").upload(path, file)
-    if (error) throw error
-    const { data } = supabase.storage.from("products").getPublicUrl(path)
-    return data.publicUrl
+  // Built from the latest form, not the one captured when the upload began:
+  // edits made while a batch of photos uploads must not be overwritten.
+  function appendToGallery(urls: string[]) {
+    setForm((prev) => ({
+      ...prev,
+      gallery: [...(prev.gallery ?? []), ...urls],
+    }))
   }
 
   async function handleCoverFile(file: File) {
     setCoverUploading(true)
     try {
-      const url = await uploadToStorage(file)
+      const url = await uploadToStorage(file, "products")
       set("image_url", url)
     } finally {
       setCoverUploading(false)
@@ -190,8 +191,12 @@ export function ProductEditDialog({
     if (!files.length) return
     setGalleryUploading(true)
     try {
-      const urls = await Promise.all(files.map(uploadToStorage))
-      set("gallery", [...(form.gallery ?? []), ...urls])
+      // One at a time: each original is decoded at full size to resize it.
+      const urls: string[] = []
+      for (const file of files) {
+        urls.push(await uploadToStorage(file, "products"))
+      }
+      appendToGallery(urls)
     } finally {
       setGalleryUploading(false)
     }
@@ -206,8 +211,12 @@ export function ProductEditDialog({
     if (!files.length) return
     setGalleryUploading(true)
     try {
-      const urls = await Promise.all(files.map(uploadToStorage))
-      set("gallery", [...(form.gallery ?? []), ...urls])
+      // One at a time: each original is decoded at full size to resize it.
+      const urls: string[] = []
+      for (const file of files) {
+        urls.push(await uploadToStorage(file, "products"))
+      }
+      appendToGallery(urls)
     } finally {
       setGalleryUploading(false)
     }
@@ -1296,8 +1305,7 @@ export function ProductEditDialog({
                     ))}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Only the checked plans can rent this set. Pick at least
-                    one.
+                    Only the checked plans can rent this set. Pick at least one.
                   </p>
                 </div>
                 <div className="flex flex-col gap-1.5">

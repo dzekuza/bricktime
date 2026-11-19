@@ -5,9 +5,13 @@
 > it (don't append) whenever the state changes. History belongs in [[session-log]]
 > and [[changelog]], not here.
 
-**Last updated:** 2026-11-18 (evening)
+**Last updated:** 2026-11-19
 
 ## Current focus
+
+**Carts (2026-11-19, PR #124, branch `feat/merch-cart`):** merch cart (`/merch/krepselis`), set cart (`/rinkiniai/krepselis`, Briksiai progress bar, catalogue add-to-cart button) and a paid courier fee (€3 per cart) are built. Migrations `merch_cart_orders`, `claim_rentals` and `paid_courier_rental_cart` are applied live; `create-merch-checkout` v18, `stripe-webhook` v27 and `create-rental-courier-checkout` v6 are deployed. Review-fix migrations `cart_review_fixes` (input check + lock order in the rental RPCs, one-hour visibility for merch order lines) and `merch_order_items_order_id_index` are applied live too. No Stripe test-mode payment or real `claim_rentals` run yet. See [[session-log]].
+
+**LP shipping (2026-11-19):** size/weight picker + "Ship together" (one parcel for several sets) in admin; `lpexpress` deployed (v12, 2026-11-19, incl. grouped returns); admin + storefront changes merged as PR #125 (294da04) and building on Vercel production; verify the first real LP label. Open: confirm LP honours `size`, courier pickup call.
 
 Branch `fix/subscription-flow` (3 commits, not pushed): account profile refresh after purchase, plan-picker button, and admin Cancel reaching Stripe (`admin-cancel-subscription` v1 live). Still waiting on a real end-to-end test purchase. Uncommitted: "su PVM" note on price surfaces; the 5 leftover active test subs now carry the 21% VAT rate. See [[session-log]].
 
@@ -46,6 +50,5 @@ Branch `fix/subscription-flow` (3 commits, not pushed): account profile refresh 
 - **Run:** `pnpm dev` (storefront, :5173), `cd admin && pnpm dev` (admin, :5174/admin/)
 - **Deploy:** Vercel (storefront + admin); edge functions + migrations on Supabase project `yzqaiqgzvlmxnehtqazq`; production https://www.bricktime.lt
 - **Known issues:** see [[known-issues]] if present
-
 
 **Update 2026-11-18 (late):** applied live via MCP: migration `returned_sets_free_budget_immediately` (returned sets stop counting at once; file `20261118120000_…`), `plans.credits` of `mystery_s` set to 0 (SQL, not in a migration), deployed `change-subscription` v21 and `get-analytics` v9 (CLI deploy still 403, used MCP). Still open: LP_* secrets, GOOGLE_* secrets, Stripe dashboard, welcome email, e2e purchase.

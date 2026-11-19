@@ -22,6 +22,8 @@ import { BreadcrumbProvider } from "@/contexts/BreadcrumbContext"
 import { AuthProvider } from "@/contexts/AuthContext"
 import { SubscriptionsProvider } from "@/contexts/SubscriptionsContext"
 import { ConsentProvider } from "@/contexts/ConsentContext"
+import { MerchCartProvider } from "@/contexts/MerchCartContext"
+import { RentalCartProvider } from "@/contexts/RentalCartContext"
 
 // Prevent browser from restoring scroll position on reload so hero animation always plays
 if ("scrollRestoration" in history) {
@@ -37,7 +39,11 @@ createRoot(document.getElementById("root")!).render(
           <AuthProvider>
             <SubscriptionsProvider>
               <BreadcrumbProvider>
-                <App />
+                <MerchCartProvider>
+                  <RentalCartProvider>
+                    <App />
+                  </RentalCartProvider>
+                </MerchCartProvider>
               </BreadcrumbProvider>
             </SubscriptionsProvider>
           </AuthProvider>

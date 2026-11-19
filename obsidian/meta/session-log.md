@@ -1,3 +1,70 @@
+## 2026-11-19 — product image backfill (live data change)
+
+- **Changed:** 192 of 194 images used by `products` were converted to WebP (max 1600 px, quality 82) and uploaded as new `*-opt.webp` files to the `products` bucket (one-year cache header); `products.image_url` and `gallery` now point at them (97 products, none missing). Files served for products: 535 MB -> 16 MB; first 25 catalogue cards 73 MB -> 2 MB. The 2 already-small images were kept.
+- **Not done:** the original files (199, ~542 MB) are still in the bucket; delete once the site has been checked. Revert: `supabase/rollbacks/20261119_product_images_webp_backfill_revert.sql`. Videos (hero/promo 19-20 MB, three 9-37 MB in `site-content`) and the three merch PNGs (21/10/10 MB) and one 9.9 MB community JPEG still to compress.
+
+## 2026-11-19 — architecture docs sync (`1aaa744`)
+
+- **Changed:** map note for `1aaa744` only (2 files changed since `53383b4`); `synced_commit` bumped. Chats and CRM not read.
+
+## 2026-11-19 — architecture docs sync (`53383b4`)
+
+- **Changed:** map + candidate #7 for `perf/image-optimisation` (optimiser in both apps, upload helper with bucket/cache); flagged that `41678c5` lives on `feat/merch-cart` only. Chats and CRM not read.
+
+## 2026-11-19 — architecture docs sync (`41678c5`)
+
+- **Changed:** map drops `optimiseImage` (removed in `41678c5`); cart round-3 notes; candidate #7 rewritten. `synced_commit` `41678c5`. Chats and CRM not read.
+
+## 2026-11-19 — architecture docs sync (`7634f18`)
+
+- **Changed:** map gets `optimiseImage` (storefront lib); candidate #7 added (image upload helper duplicated in admin). `synced_commit` `7634f18`. Chats and CRM not read.
+
+## 2026-11-19 — architecture docs check (`fde922b`)
+
+- **Changed:** `synced_commit` bumped to `fde922b`; no architecture content changed (types regeneration and a `ProfileEditDialog` restyle only). Chats and CRM not read.
+
+## 2026-11-19 — architecture docs sync for carts
+
+- **Changed:** `codebase-map` and `deepening-candidates` for `2677e36..a82d3e4` (paid courier for set carts, review-fix migration, index). `synced_commit` is `a82d3e4`. Chats and CRM not read (automated run).
+- **Note:** `ba70986` is now an ancestor of HEAD. Migration `20261119180000_cart_review_fixes` is marked not applied only because the status note says so.
+
+## 2026-11-19 — architecture docs sync for LP parcels
+
+- **Changed:** lpexpress module in `codebase-map` for `2677e36`; `synced_commit` is `2677e36`. Chats and CRM not read (automated run).
+- **Note:** `ba70986` (cart work) is on `feat/merch-cart`, not an ancestor of HEAD; cart sections stay as the working tree shows them. `admin/` only documented for the LP files.
+
+## 2026-11-19 — architecture docs incremental sync
+
+- **Changed:** architecture notes updated for the cart commits (`81f5a60`→`ba70986`); `synced_commit` is now `ba70986`. Chats and CRM not read (automated run).
+- **Not covered:** uncommitted LP shipping work (`lpexpress` size/weight, admin `ShipTogetherDialog`) was left out until committed; `admin/` is not documented.
+
+## 2026-11-19 — grouped returns + PR for admin deploy
+
+- **Changed:** `create-return-label` accepts `orderIds[]` (size S/M/L/XL by set count, v12 live); storefront `ReturnDialog` lets a customer tick other held sets. LP changes committed on `feat/lp-parcel-options` (2677e36), PR #125. Admin is built inside the bricktime Vercel project, so deploy = merge to main.
+- **Done:** PR #125 merged to main (294da04), Vercel production build started. **Next:** verify first real label in LP self-service.
+
+## 2026-11-19 — paid courier in the set cart (branch `feat/merch-cart`, uncommitted)
+
+- **Changed:** courier option in `/rinkiniai/krepselis` (+€3 once per cart, free if the plan has door delivery). Migration `20261119170000_paid_courier_rental_cart` (`record_paid_courier_rentals`: all-or-nothing, first order carries the Stripe session id), `create-rental-courier-checkout` accepts `productIds`, `stripe-webhook` handles `metadata.productIds`. RPC tested in a rolled-back transaction (dry run, real, replay idempotent, over-budget refused). Also: Briksiai progress bar, catalogue add-to-cart button, one-line plan badges.
+- **Not done:** migration NOT applied and the two functions NOT deployed (deploying the webhook is required before the courier path can work); no real Stripe test of the cart fee.
+- **Next:** apply + deploy, test-mode pay €3 for a two-set cart, regen types.
+
+## 2026-11-19 — set (rental) cart (branch `feat/merch-cart`, uncommitted)
+
+- **Changed:** "Į krepšelį" on `Drop` (desktop CTA + mobile icon), `RentalCartContext` (localStorage, ≤10 sets), Nav shows a second badge only when the set cart is non-empty, `/rinkiniai/krepselis` page (tier/availability/budget checks, terminal or plan door delivery), `toRentalErrorMessage` moved to `src/lib/rental.ts`. New migration `20261119150000_claim_rentals` (invoker RPC, one transaction, existing `guard_member_order_insert` stays the rule source). Typecheck + lint clean; cart UI checked in the browser pane.
+- **Not done:** `claim_rentals` migration NOT applied remotely, so "Nuomotis" will fail until it is; paid courier fee not supported in the cart (message tells the member to rent singly); no real claim tested; `database.types.ts` entry added by hand.
+- **Next:** apply the migration, claim two sets with a test member, regen types.
+
+## 2026-11-19 — merch cart (branch `feat/merch-cart`, uncommitted)
+
+- **Changed:** several merch items per checkout. `MerchCartContext` (localStorage) + `/merch/krepselis` page + Nav bag badge + "Į krepšelį" on `MerchDrop`; `create-merch-checkout` takes `items[]` (legacy single item still works, max 6 lines, qty ≤ 10, stock re-checked per line); webhook reads `metadata.cart` and calls new `record_merch_cart_order`; migration `20261119100000_merch_cart_orders` adds `merch_order_items` + `get_merch_order_lines_by_session`; thank-you page lists lines. Typecheck, vite build, `deno check` clean; cart flow checked in the browser pane. Not yet: migration applied, functions deployed, test-mode payment.
+- **Next:** apply migration, regen `database.types.ts` (one function entry added by hand), deploy `create-merch-checkout` + `stripe-webhook`, test-mode 2-line purchase; then rental cart (`claim_rentals` RPC + `/rinkiniai/krepselis`).
+
+## 2026-11-19 — LP label size/weight + ship several sets in one parcel
+
+- **Changed:** `lpexpress` `create-label` accepts `orderIds[]` (admin only; same customer + destination, none labelled) and validates `size`/`weight`; `cancel` hits every order sharing the parcel. Admin: size (XS–XL) / weight picker in `OrderDetailSheet`, new `ShipTogetherDialog` + "Ship together" bulk action in Orders, `ParcelOptionsFields`. Admin typecheck + lint clean, `deno check` ok; `courierPickup` toggle (H2T) for locker parcels added. `lpexpress` deployed as v11 via project-2 MCP; not tested against real LP.
+- **Next:** verify in LP self-service that `size` is honoured (code defaulted to M, user saw smallest slot); grouped customer returns (one `create-return-label` for several orders) not built; courier pickup call not in code, check LP API.
+
 ## 2026-11-18 — owner decisions applied
 
 - **Changed:** returned sets free budget immediately (migration + UI wording, `useCredits` pruned), `mystery_s` credits 0, two functions deployed.
@@ -7,6 +74,11 @@
 
 - **Changed:** see status.md; typecheck passes, src lint clean; nothing committed/deployed.
 - **Next:** deploy change-subscription + get-analytics, e2e test purchase.
+
+## 2026-11-18 — architecture docs incremental (automated, 6)
+
+- **Changed:** `codebase-map.md` synced to `81f5a60` (see changelog).
+- **Next:** none from this run.
 
 ## 2026-11-18 — architecture docs incremental (automated, 5)
 

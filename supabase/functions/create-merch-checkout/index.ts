@@ -30,6 +30,7 @@ Deno.serve(async (req) => {
 
   try {
     const {
+      items,
       itemId,
       size,
       successUrl,
@@ -40,7 +41,8 @@ Deno.serve(async (req) => {
       terminal,
     } = await req.json()
 
-    if (!itemId || !size) throw new Error("itemId and size are required")
+    // `itemId` + `size` is the single-item shape from before the cart.
+    const lines = parseLines(items ?? [{ itemId, size, quantity: 1 }])
 
     // The fee is decided here, never taken from the client.
     const isTerminal = deliveryMethod === "terminal"
@@ -58,13 +60,16 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     )
-    const { data: item, error } = await supabase
+    const { data: dbItems, error } = await supabase
       .from("merch_items")
       .select("id, name, price, image_url, status, stock, sizes")
-      .eq("id", itemId)
-      .single()
+      .in(
+        "id",
+        lines.map((l) => l.itemId)
+      )
 
-    if (error || !item) throw new Error("Merch item not found")
+    if (error) throw new Error("Merch item not found")
+    const itemsById = new Map((dbItems ?? []).map((i) => [i.id as string, i]))
 
     // Link the order to the account only from a verified token — a userId in
     // the body could be anyone's.
@@ -73,29 +78,42 @@ Deno.serve(async (req) => {
       ? await supabase.auth.getUser(token)
       : { data: { user: null } }
     const userId = authData.user?.id ?? ""
-    // Only an active item is for sale; coming-soon is browse-only. The size must
-    // be one the item lists, so a crafted value like "constructor" can't slip
-    // past the stock check.
-    if (item.status !== "active") throw new Error("Item not available")
-    const sizes = (item.sizes as string[] | null) ?? []
-    if (typeof size !== "string" || !sizes.includes(size)) {
-      throw new Error("Unknown size")
-    }
-    const stock = (item.stock as Record<string, unknown> | null) ?? {}
-    const sizeStock = Object.hasOwn(stock, size) ? stock[size] : 0
-    // Whole units only. record_merch_order also counts non-whole or non-numeric
-    // stock as none, flagging the order stock_short instead of taking a unit.
-    if (!Number.isSafeInteger(sizeStock) || (sizeStock as number) < 1) {
-      throw new Error("Out of stock")
-    }
-
-    const unitAmount = Math.round(Number(item.price) * 100) // cents
+    const priced = lines.map((line) => {
+      const item = itemsById.get(line.itemId)
+      if (!item) throw new Error("Merch item not found")
+      // Only an active item is for sale; coming-soon is browse-only. The size
+      // must be one the item lists, so a crafted value like "constructor"
+      // can't slip past the stock check.
+      if (item.status !== "active") throw new Error("Item not available")
+      const sizes = (item.sizes as string[] | null) ?? []
+      if (!sizes.includes(line.size)) throw new Error("Unknown size")
+      const stock = (item.stock as Record<string, unknown> | null) ?? {}
+      const sizeStock = Object.hasOwn(stock, line.size) ? stock[line.size] : 0
+      // Whole units only. The record_merch_* functions also count non-whole or
+      // non-numeric stock as none, flagging the order stock_short.
+      if (
+        !Number.isSafeInteger(sizeStock) ||
+        (sizeStock as number) < line.quantity
+      ) {
+        throw new Error("Out of stock")
+      }
+      return {
+        ...line,
+        name: item.name as string,
+        imageUrl: item.image_url as string | null,
+        unitAmount: Math.round(Number(item.price) * 100), // cents
+      }
+    })
+    const subtotalCents = priced.reduce(
+      (sum, l) => sum + l.unitAmount * l.quantity,
+      0
+    )
 
     // One code per order, priced here from the database so the client can't
     // pick its own discount. Usage is counted by the webhook once payment
     // completes — creating a session must not burn a coupon or gift card.
     const discount = code
-      ? await resolveDiscount(supabase, String(code), unitAmount, userId)
+      ? await resolveDiscount(supabase, String(code), subtotalCents, userId)
       : null
     // From here on the code is held; let it go again if Stripe fails, so a
     // failed attempt doesn't lock the shopper out of their own card or use.
@@ -124,18 +142,18 @@ Deno.serve(async (req) => {
         // Keeps the customer's invoice language Lithuanian (see create-checkout).
         locale: "lt",
         line_items: [
-          {
+          ...priced.map((line) => ({
             price_data: {
               currency: "eur",
               product_data: {
-                name: `${item.name} — ${size}`,
-                ...(item.image_url ? { images: [item.image_url] } : {}),
+                name: `${line.name} — ${line.size}`,
+                ...(line.imageUrl ? { images: [line.imageUrl] } : {}),
               },
-              unit_amount: unitAmount,
+              unit_amount: line.unitAmount,
             },
-            quantity: 1,
+            quantity: line.quantity,
             tax_rates: [vatTaxRateId],
-          },
+          })),
           ...(isTerminal
             ? []
             : [
@@ -165,8 +183,10 @@ Deno.serve(async (req) => {
         ...(stripeCoupon && { discounts: [{ coupon: stripeCoupon.id }] }),
         metadata: {
           type: "merch",
-          itemId,
-          size,
+          // Compact so six lines stay under Stripe's 500-char metadata limit.
+          cart: JSON.stringify(
+            lines.map((l) => ({ i: l.itemId, s: l.size, q: l.quantity }))
+          ),
           userId,
           deliveryMethod,
           ...(isTerminal && {
@@ -219,6 +239,46 @@ Deno.serve(async (req) => {
     })
   }
 })
+
+const MAX_LINES = 6
+const MAX_QUANTITY = 10
+
+type CartLine = { itemId: string; size: string; quantity: number }
+
+// Validates the untrusted cart and merges repeated item+size lines, so a
+// crafted cart can't dodge the per-size stock check by splitting a quantity.
+function parseLines(raw: unknown): CartLine[] {
+  if (!Array.isArray(raw) || raw.length === 0) {
+    throw new Error("Krepšelis tuščias")
+  }
+  const merged = new Map<string, CartLine>()
+  for (const entry of raw) {
+    const { itemId, size, quantity } = (entry ?? {}) as Record<string, unknown>
+    if (typeof itemId !== "string" || !itemId) {
+      throw new Error("itemId is required")
+    }
+    if (typeof size !== "string" || !size) throw new Error("Unknown size")
+    if (
+      !Number.isSafeInteger(quantity) ||
+      (quantity as number) < 1 ||
+      (quantity as number) > MAX_QUANTITY
+    ) {
+      throw new Error("Neteisingas kiekis")
+    }
+    const key = `${itemId}|${size}`
+    const existing = merged.get(key)
+    if (existing) existing.quantity += quantity as number
+    else merged.set(key, { itemId, size, quantity: quantity as number })
+  }
+  const lines = [...merged.values()]
+  if (lines.length > MAX_LINES) {
+    throw new Error(`Krepšelyje gali būti iki ${MAX_LINES} skirtingų prekių`)
+  }
+  if (lines.some((l) => l.quantity > MAX_QUANTITY)) {
+    throw new Error("Neteisingas kiekis")
+  }
+  return lines
+}
 
 type Discount =
   | {
