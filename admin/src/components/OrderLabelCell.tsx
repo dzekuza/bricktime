@@ -37,23 +37,25 @@ export function OrderLabelCell({ order }: { order: Order }) {
   return (
     <div className="flex items-center gap-1.5">
       <Badge variant="secondary" title={order.barcode}>
-        Label generated
+        {order.parcelId ? "Label generated" : "Code saved"}
       </Badge>
-      <Button
-        variant="ghost"
-        size="icon"
-        className={cn("size-8", error && "text-destructive")}
-        disabled={isBusy}
-        onClick={handleDownload}
-        aria-label="Download shipping label"
-        title={error ?? "Download shipping label"}
-      >
-        {isBusy ? (
-          <Loader2Icon className="size-4 animate-spin" />
-        ) : (
-          <DownloadIcon className="size-4" />
-        )}
-      </Button>
+      {order.parcelId && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn("size-8", error && "text-destructive")}
+          disabled={isBusy}
+          onClick={handleDownload}
+          aria-label="Download shipping label"
+          title={error ?? "Download shipping label"}
+        >
+          {isBusy ? (
+            <Loader2Icon className="size-4 animate-spin" />
+          ) : (
+            <DownloadIcon className="size-4" />
+          )}
+        </Button>
+      )}
     </div>
   )
 }

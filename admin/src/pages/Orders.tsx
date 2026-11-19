@@ -91,6 +91,7 @@ export function Orders() {
         deliveryPostalCode: o.delivery_postal_code,
         deliveryCity: o.delivery_city,
         barcode: o.lp_barcode,
+        parcelId: o.lp_parcel_id,
         trackingState: o.lp_tracking_state,
         returnBarcode: o.lp_return_barcode,
         returnTrackingState: o.lp_return_tracking_state,
@@ -170,8 +171,7 @@ export function Orders() {
     setDetailTarget((prev) => prev && prev.id === orderId ? { ...prev, ...patch } : prev)
   }
 
-  function handleShippedTogether(orderIds: string[], barcode: string | null) {
-    const patch: Partial<Order> = { barcode, trackingState: 'LABEL_CREATED' }
+  function handleShippedTogether(orderIds: string[], patch: Partial<Order>) {
     setItems((prev) => prev.map((o) => orderIds.includes(o.id) ? { ...o, ...patch } : o))
     setDetailTarget((prev) => prev && orderIds.includes(prev.id) ? { ...prev, ...patch } : prev)
   }

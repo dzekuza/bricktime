@@ -5,6 +5,10 @@
 //           "tracking"            → tracking events for a barcode     (public read)
 //           "create-label"        → outbound shipment for an order    (auth: order owner)
 //                                   {size, weight}; admin may pass orderIds[] to ship several sets in one parcel
+//                                   admin may pass deliveryMethod:"courier" to send a locker order to a door
+//                                   (receiver supplies street/building/flat/locality/postalCode)
+//           "set-tracking"        → record a barcode created on the LP site (admin only)
+//                                   {orderIds[], barcode}
 //           "create-return-label" → prepaid return label + set status (auth: order owner)
 //           "label-pdf"           → label PDF, {parcel:'outbound'|'return'} (auth: order owner)
 //           "cancel"              → cancel a shipment for an order     (auth: order owner)
@@ -87,6 +91,8 @@ function isAdmin(req: Request): boolean {
 
 const ORDER_COLUMNS =
   "id, subscriber_id, home_delivery, lp_terminal_id, lp_terminal_name, lp_parcel_id, lp_barcode, lp_return_parcel_id, lp_return_barcode, product_id, delivery_name, delivery_phone, delivery_street, delivery_house_no, delivery_flat, delivery_city, delivery_postal_code"
+
+const BARCODE_PATTERN = /^[A-Za-z0-9]{8,30}$/
 
 const PARCEL_SIZES = ["XS", "S", "M", "L", "XL"] as const
 
@@ -209,7 +215,17 @@ Deno.serve(async (req) => {
             400
           )
 
-        const method = order.home_delivery ? "courier" : "terminal"
+        if (
+          payload.deliveryMethod !== undefined &&
+          payload.deliveryMethod !== "courier"
+        )
+          return json({ error: 'deliveryMethod must be "courier"' }, 400)
+        // Only admins may reroute a locker order to the customer's door.
+        const forceCourier = payload.deliveryMethod === "courier"
+        if (forceCourier && !admin) return json({ error: "Forbidden" }, 403)
+
+        const method =
+          order.home_delivery || forceCourier ? "courier" : "terminal"
         if (method === "terminal" && !order.lp_terminal_id)
           return json({ error: "Order has no terminal selected" }, 400)
 
@@ -219,14 +235,26 @@ Deno.serve(async (req) => {
           ...payload.receiver,
           name: order.delivery_name || payload.receiver?.name,
           phone: order.delivery_phone || payload.receiver?.phone,
-          ...(method === "courier" && {
-            street: order.delivery_street || payload.receiver?.street,
-            building: order.delivery_house_no || payload.receiver?.building,
-            flat: order.delivery_flat ?? payload.receiver?.flat ?? undefined,
-            locality: order.delivery_city || payload.receiver?.locality,
-            postalCode:
-              order.delivery_postal_code || payload.receiver?.postalCode,
-          }),
+          ...(method === "courier" &&
+            (forceCourier && !order.home_delivery
+              ? // Locker order sent to a door: the admin-entered address wins
+                // over any stale snapshot.
+                {
+                  street: payload.receiver?.street,
+                  building: payload.receiver?.building,
+                  flat: payload.receiver?.flat || undefined,
+                  locality: payload.receiver?.locality,
+                  postalCode: payload.receiver?.postalCode,
+                }
+              : {
+                  street: order.delivery_street || payload.receiver?.street,
+                  building:
+                    order.delivery_house_no || payload.receiver?.building,
+                  flat: order.delivery_flat ?? payload.receiver?.flat ?? undefined,
+                  locality: order.delivery_city || payload.receiver?.locality,
+                  postalCode:
+                    order.delivery_postal_code || payload.receiver?.postalCode,
+                })),
         }
         if (!receiver.name || !receiver.phone)
           return json({ error: "Receiver name and phone required" }, 400)
@@ -248,9 +276,25 @@ Deno.serve(async (req) => {
           courierPickup: payload.courierPickup === true,
         })
 
+        // Keep the order consistent with how it was actually shipped.
+        const rerouted =
+          forceCourier && !order.home_delivery
+            ? {
+                home_delivery: true,
+                delivery_name: receiver.name,
+                delivery_phone: receiver.phone,
+                delivery_street: receiver.street,
+                delivery_house_no: receiver.building,
+                delivery_flat: receiver.flat ?? null,
+                delivery_city: receiver.locality,
+                delivery_postal_code: receiver.postalCode,
+              }
+            : {}
+
         await service()
           .from("orders")
           .update({
+            ...rerouted,
             lp_parcel_id: result.parcelId,
             lp_barcode: result.barcode,
             lp_tracking_state: "LABEL_CREATED",
@@ -259,6 +303,42 @@ Deno.serve(async (req) => {
           .in("id", orderIds)
 
         return json(result)
+      }
+
+      case "set-tracking": {
+        // The admin created the shipment on the LP Express site, so there is no
+        // parcel id here — only the barcode, which tracking sync needs.
+        if (!isAdmin(req)) return json({ error: "Forbidden" }, 403)
+        const orderIds: string[] = Array.isArray(payload.orderIds)
+          ? [...new Set<string>(payload.orderIds)]
+          : []
+        const barcode =
+          typeof payload.barcode === "string" ? payload.barcode.trim() : ""
+        if (orderIds.length === 0) return json({ error: "orderIds required" }, 400)
+        if (!BARCODE_PATTERN.test(barcode))
+          return json(
+            { error: "Enter a valid LP Express barcode (letters and digits)" },
+            400
+          )
+        const { data: rows, error: rowsError } = await service()
+          .from("orders")
+          .select("id, lp_barcode")
+          .in("id", orderIds)
+        if (rowsError || rows?.length !== orderIds.length)
+          return json({ error: "Some orders were not found" }, 404)
+        if (rows.some((o) => o.lp_barcode))
+          return json({ error: "Some orders already have a label" }, 400)
+
+        const { error: updateError } = await service()
+          .from("orders")
+          .update({
+            lp_barcode: barcode,
+            lp_tracking_state: "LABEL_CREATED",
+            lp_label_created_at: new Date().toISOString(),
+          })
+          .in("id", orderIds)
+        if (updateError) return json({ error: "Could not save the code" }, 500)
+        return json({ barcode })
       }
 
       case "create-return-label": {

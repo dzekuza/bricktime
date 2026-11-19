@@ -26,6 +26,8 @@ export interface Order {
   deliveryPostalCode?: string | null
   deliveryCity?: string | null
   barcode?: string | null // outbound
+  // Null when the barcode was entered by hand (shipment made on the LP site), so no label PDF exists.
+  parcelId?: string | null
   trackingState?: string | null
   returnBarcode?: string | null
   returnTrackingState?: string | null
