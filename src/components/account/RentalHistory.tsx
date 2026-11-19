@@ -1,5 +1,7 @@
 import { ImagePlaceholder } from "@/components/ImagePlaceholder"
 import { STATUS_BADGES } from "@/components/account/order-status"
+import { MysteryLock } from "@/components/account/MysteryLock"
+import { isMysteryHidden, MYSTERY_TITLE } from "@/components/account/mystery"
 import type { RentedOrder } from "@/components/account/RentedOrderCard"
 
 // Dates arrive either as a plain date (start_date) or a full timestamp.
@@ -30,23 +32,25 @@ function HistoryDate({
 
 function HistoryRow({ order }: { order: RentedOrder }) {
   const badge = STATUS_BADGES[order.status]
+  const hidden = isMysteryHidden(order)
   return (
     <li className="flex flex-col gap-3 border-b-2 border-ink/10 py-4 last:border-b-0 sm:flex-row sm:items-center sm:gap-5">
       <div className="flex min-w-0 flex-1 items-center gap-4">
-        <div className="size-14 shrink-0 overflow-hidden rounded-xl border-2 border-ink/10 bg-cream">
+        <div className="relative size-14 shrink-0 overflow-hidden rounded-xl border-2 border-ink/10 bg-cream">
           {order.productImage ? (
             <img
               src={order.productImage}
               alt=""
-              className="size-full object-contain"
+              className={`size-full object-contain ${hidden ? "blur-md" : ""}`}
             />
           ) : (
             <ImagePlaceholder compact />
           )}
+          {hidden && <MysteryLock compact />}
         </div>
         <div className="min-w-0">
           <p className="truncate font-display text-[15px] text-ink">
-            {order.productTitle}
+            {hidden ? MYSTERY_TITLE : order.productTitle}
           </p>
           {badge && (
             <span

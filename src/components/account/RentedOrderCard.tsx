@@ -1,12 +1,15 @@
 import { OrderTracking } from "@/components/OrderTracking"
 import { ImagePlaceholder } from "@/components/ImagePlaceholder"
 import { STATUS_BADGES } from "@/components/account/order-status"
+import { MysteryLock } from "@/components/account/MysteryLock"
+import { isMysteryHidden, MYSTERY_TITLE } from "@/components/account/mystery"
 
 export interface RentedOrder {
   id: string
   productId: number
   productTitle: string
   productImage: string | null
+  isMystery?: boolean
   status: string
   startDate: string
   dueDate: string
@@ -58,6 +61,7 @@ export function RentedOrderCard({
   onDownloadLabel,
 }: RentedOrderCardProps) {
   const badge = STATUS_BADGES[order.status]
+  const hidden = isMysteryHidden(order)
   const canReturn = ["active", "overdue", "return_declined"].includes(
     order.status
   )
@@ -74,12 +78,13 @@ export function RentedOrderCard({
         {order.productImage ? (
           <img
             src={order.productImage}
-            alt={order.productTitle}
-            className="h-full w-full object-contain p-3"
+            alt={hidden ? "" : order.productTitle}
+            className={`h-full w-full object-contain p-3 ${hidden ? "blur-xl" : ""}`}
           />
         ) : (
           <ImagePlaceholder />
         )}
+        {hidden && <MysteryLock />}
       </div>
 
       <div className="flex flex-col gap-2.5">
@@ -91,7 +96,7 @@ export function RentedOrderCard({
           </span>
         )}
         <h3 className="line-clamp-2 min-h-[2.2em] font-display text-[19px] leading-[1.1] text-ink uppercase">
-          {order.productTitle}
+          {hidden ? MYSTERY_TITLE : order.productTitle}
         </h3>
       </div>
 

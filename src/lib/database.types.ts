@@ -1027,6 +1027,7 @@ export type Database = {
           delivery_street: string | null
           due_date: string
           home_delivery: boolean
+          is_mystery: boolean
           id: string
           lp_barcode: string | null
           lp_label_created_at: string | null
@@ -1063,6 +1064,7 @@ export type Database = {
           delivery_street?: string | null
           due_date: string
           home_delivery?: boolean
+          is_mystery?: boolean
           id?: string
           lp_barcode?: string | null
           lp_label_created_at?: string | null
@@ -1099,6 +1101,7 @@ export type Database = {
           delivery_street?: string | null
           due_date?: string
           home_delivery?: boolean
+          is_mystery?: boolean
           id?: string
           lp_barcode?: string | null
           lp_label_created_at?: string | null
