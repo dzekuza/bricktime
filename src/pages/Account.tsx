@@ -17,6 +17,7 @@ import { ProfileEditDialog } from "@/components/ProfileEditDialog"
 import { DeleteAccountDialog } from "@/components/DeleteAccountDialog"
 import { fetchLabelPdf, downloadPdf } from "@/lib/lpexpress"
 import { Seo } from "@/components/Seo"
+import { AuthForm } from "@/components/AuthForm"
 import { GiftCardTile } from "@/components/account/GiftCardTile"
 import { PaymentHistory } from "@/components/account/PaymentHistory"
 import {
@@ -237,15 +238,17 @@ function AchievementsSection({
 // ── page ───────────────────────────────────────────────────────────────────
 export default function Account() {
   const navigate = useNavigate()
-  const { user, profile, signOut, refreshProfile } = useAuth()
+  const {
+    user,
+    profile,
+    loading: authLoading,
+    signOut,
+    refreshProfile,
+  } = useAuth()
   const userId = user?.id
   const [deleteAccountOpen, setDeleteAccountOpen] = useState(false)
   const { subscriptions: dbPlans } = useSubscriptions()
-  const {
-    totalCredits,
-    remainingCredits,
-    overBudgetCredits,
-  } = useCredits()
+  const { totalCredits, remainingCredits, overBudgetCredits } = useCredits()
   const { achievements } = useAchievements()
   const tierOptions = useMemo(
     () =>
@@ -751,11 +754,19 @@ export default function Account() {
   if (!user) {
     return (
       <div className="min-h-screen bg-paper">
+        <Seo title="Prisijungti" path="/account" noindex />
         <Nav />
-        <div className="flex flex-col items-center justify-center gap-4 py-32">
-          <p className="font-mono text-[14px] text-ink/50">
-            Prisijunk norėdamas peržiūrėti paskyrą.
-          </p>
+        <div className="mx-auto flex max-w-[420px] flex-col gap-4 px-4 py-16 md:py-24">
+          {!authLoading && (
+            <div className="brick-card flex flex-col gap-4 bg-paper p-6 md:p-8">
+              <h1 className="heading-display text-d-md">Prisijunk</h1>
+              <p className="font-mono text-[13px] text-ink/60">
+                Prisijunk arba susikurk paskyrą, kad matytum savo nuomas ir
+                prenumeratą.
+              </p>
+              <AuthForm onClose={() => undefined} />
+            </div>
+          )}
         </div>
         <Footer />
       </div>
