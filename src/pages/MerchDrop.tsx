@@ -116,7 +116,9 @@ export default function MerchDrop() {
   const inCartQuantity =
     lines.find((l) => l.itemId === item.id && l.size === selectedSize)
       ?.quantity ?? 0
-  const sizeStock = selectedSize ? (item.stock[selectedSize] ?? 0) : 0
+  // Checkout only accepts whole-number stock, so anything else counts as none.
+  const rawStock = selectedSize ? item.stock[selectedSize] : 0
+  const sizeStock = Number.isSafeInteger(rawStock) ? rawStock : 0
   const canAddToCart =
     selectedSize !== null &&
     inCartQuantity < Math.min(sizeStock, MERCH_CART_MAX_QUANTITY)

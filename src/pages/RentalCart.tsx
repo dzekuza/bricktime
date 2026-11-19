@@ -25,6 +25,7 @@ type CartProduct = {
   image_url: string | null
   value: number | null
   allowed_tiers: string[]
+  status: string
 }
 
 type RowProblem = "missing" | "tier" | "taken" | null
@@ -56,11 +57,19 @@ export default function RentalCart() {
   const returnSessionId =
     params.get("courier_paid") === "true" ? params.get("session_id") : null
   const paidReturn = usePaidCourierReturn(user?.id, returnSessionId)
+  // The sets this payment covered travel in the return URL, so only those are
+  // taken out of the cart: a refreshed or old success link can't empty sets
+  // added since.
+  const paidSets = params.get("sets")
   useEffect(() => {
     if (paidReturn !== "placed" || placedCount !== null) return
-    setPlacedCount(productIds.length)
-    clear()
-  }, [paidReturn, placedCount, productIds.length, clear])
+    const ids = (paidSets ?? "")
+      .split(",")
+      .map(Number)
+      .filter(Number.isSafeInteger)
+    ids.forEach(remove)
+    setPlacedCount(ids.length)
+  }, [paidReturn, placedCount, paidSets, remove])
 
   const idsKey = [...productIds].sort((a, b) => a - b).join(",")
   useEffect(() => {
@@ -71,7 +80,7 @@ export default function RentalCart() {
     let isCancelled = false
     supabase
       .from("products")
-      .select("id, title, image_url, value, allowed_tiers")
+      .select("id, title, image_url, value, allowed_tiers, status")
       .in("id", idsKey.split(",").map(Number))
       .then(({ data, error }) => {
         if (isCancelled) return
@@ -105,7 +114,8 @@ export default function RentalCart() {
         if (!product) problem = "missing"
         else if (!plan || !product.allowed_tiers.includes(plan))
           problem = "tier"
-        else if (available.get(id) === 0) problem = "taken"
+        else if (product.status === "sold_out" || available.get(id) === 0)
+          problem = "taken"
         return { id, product, problem }
       }),
     [productIds, products, plan, available]
@@ -199,7 +209,7 @@ export default function RentalCart() {
         {
           body: {
             productIds: rows.map((r) => r.id),
-            successUrl: `${origin}/rinkiniai/krepselis?courier_paid=true&session_id={CHECKOUT_SESSION_ID}`,
+            successUrl: `${origin}/rinkiniai/krepselis?courier_paid=true&session_id={CHECKOUT_SESSION_ID}&sets=${rows.map((r) => r.id).join(",")}`,
             cancelUrl: `${origin}/rinkiniai/krepselis`,
           },
         }
@@ -304,6 +314,14 @@ export default function RentalCart() {
                   cartValue={totalValue}
                   remaining={remainingCredits}
                 />
+                {isOverBudget && plan !== "mega" && (
+                  <Link
+                    to="/subscribe"
+                    className="brick-hover-sm mt-4 flex h-11 w-full items-center justify-center rounded-full border-2 border-ink bg-brand-orange px-4 text-[14px] font-bold text-paper transition-all"
+                  >
+                    Pasirink didesnį planą →
+                  </Link>
+                )}
 
                 <p className="label-mono mt-6 mb-2 text-ink/50">
                   Pristatymo būdas

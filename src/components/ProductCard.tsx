@@ -216,10 +216,14 @@ export function ProductCard({
   const tier = tierConfig[displayTier]
 
   return (
-    <Link
-      to={`/drop/${product.id}`}
-      className="group brick-card brick-card-hover flex flex-col overflow-hidden bg-paper text-ink no-underline"
-    >
+    <div className="group brick-card brick-card-hover relative flex flex-col overflow-hidden bg-paper text-ink">
+      {/* Covers the card so all of it opens the set, while the cart button
+          sits above it as a separate control rather than inside the link. */}
+      <Link
+        to={`/drop/${product.id}`}
+        aria-label={product.title}
+        className="absolute inset-0 z-10"
+      />
       <StudBg
         image={product.image}
         className="relative h-[280px] border-b-2 border-ink"
@@ -246,6 +250,7 @@ export function ProductCard({
         )}
         <ProductCardCartButton
           productId={product.id}
+          title={product.title}
           allowedTiers={product.allowedTiers}
           isRentedOut={product.status === "sold_out"}
         />
@@ -323,6 +328,6 @@ export function ProductCard({
           <ArrowRightIcon className="size-4" />
         </div>
       </div>
-    </Link>
+    </div>
   )
 }
