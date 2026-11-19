@@ -96,10 +96,15 @@ const BARCODE_PATTERN = /^[A-Za-z0-9]{8,30}$/
 
 const PARCEL_SIZES = ["XS", "S", "M", "L", "XL"] as const
 
-/** Locker slot for a return parcel holding `count` sets when the caller gives no size. */
-const RETURN_SIZE_BY_SETS = ["S", "M", "L", "XL"] as const
-const returnSizeForCount = (count: number) =>
-  RETURN_SIZE_BY_SETS[Math.min(Math.max(count, 1), RETURN_SIZE_BY_SETS.length) - 1]
+/** Locker slot for a return parcel: the largest set's size, one step up when several sets share it. */
+function returnSizeForSets(sizes: string[]) {
+  const largest = Math.max(
+    ...sizes.map((s) => PARCEL_SIZES.indexOf(s as (typeof PARCEL_SIZES)[number])),
+    0
+  )
+  const bump = sizes.length > 1 ? 1 : 0
+  return PARCEL_SIZES[Math.min(largest + bump, PARCEL_SIZES.length - 1)]
+}
 
 /** Load an order and confirm the caller may act on it (owner or admin). */
 async function requireOwnedOrder(req: Request, orderId: string) {
@@ -382,10 +387,29 @@ Deno.serve(async (req) => {
             400
           )
 
+        let size: (typeof PARCEL_SIZES)[number] | undefined = payload.size
+        if (!size) {
+          // Admin sets each set's shipping size; size the return parcel from them.
+          const { data: orderRows } = await service()
+            .from("orders")
+            .select("product_id")
+            .in("id", orderIds)
+          const productIds = (orderRows ?? []).map((o) => o.product_id)
+          const { data: productRows } = await service()
+            .from("products")
+            .select("id, shipping_size")
+            .in("id", productIds)
+          const sizes = productIds.map(
+            (id) =>
+              productRows?.find((p) => p.id === id)?.shipping_size ?? "S"
+          )
+          size = returnSizeForSets(sizes)
+        }
+
         const result = await createReturnLabel({
           terminalId: payload.terminalId,
           customer: payload.customer, // { name, phone, email }
-          size: payload.size ?? returnSizeForCount(orderIds.length),
+          size,
         })
 
         await service()

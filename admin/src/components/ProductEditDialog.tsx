@@ -36,6 +36,7 @@ import {
   type KitItem,
 } from "@/data/products"
 import { SERIES } from "@/lib/series"
+import { PARCEL_SIZES, type ParcelSize } from "@/lib/lpexpress"
 
 interface ProductEditDialogProps {
   product: Product | null
@@ -90,6 +91,7 @@ const BLANK: Omit<Product, "id"> = {
   early_access_tiers: [],
   early_access_hours: 48,
   isDangerous: false,
+  shipping_size: "S",
 }
 
 export function ProductEditDialog({
@@ -1342,6 +1344,31 @@ export function ProductEditDialog({
                     featured still appear in the full catalogue.
                   </p>
                 </div>
+              </div>
+
+              <Separator />
+
+              <div className="flex flex-col gap-1.5">
+                <Label>Shipping size</Label>
+                <Select
+                  value={form.shipping_size ?? "S"}
+                  onValueChange={(v) => set("shipping_size", v as ParcelSize)}
+                >
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PARCEL_SIZES.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  LP Express locker slot for this set. Sizes the prepaid return
+                  parcel when the customer sends it back.
+                </p>
               </div>
 
               <Separator />
