@@ -11,14 +11,25 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ParcelOptionsFields } from "@/components/ParcelOptionsFields"
-import { createLabel, toWeightGrams, type ParcelSize } from "@/lib/lpexpress"
+import { CourierOverrideFields } from "@/components/CourierOverrideFields"
+import { ManualTrackingForm } from "@/components/ManualTrackingForm"
+import {
+  createLabel,
+  toWeightGrams,
+  validateCourierAddress,
+  trimCourierAddress,
+  courierOrderPatch,
+  EMPTY_COURIER_ADDRESS,
+  type CourierAddress,
+  type ParcelSize,
+} from "@/lib/lpexpress"
 import type { Order } from "@/data/orders"
 
 interface ShipTogetherDialogProps {
   orders: Order[]
   open: boolean
   onOpenChange: (open: boolean) => void
-  onShipped: (orderIds: string[], barcode: string | null) => void
+  onShipped: (orderIds: string[], patch: Partial<Order>) => void
 }
 
 /** Why these orders can't share one parcel, or null when they can. */
@@ -59,6 +70,10 @@ export function ShipTogetherDialog({
   const [size, setSize] = useState<ParcelSize>("L")
   const [weightKg, setWeightKg] = useState("3")
   const [courierPickup, setCourierPickup] = useState(false)
+  const [sendByCourier, setSendByCourier] = useState(false)
+  const [courierAddress, setCourierAddress] = useState<CourierAddress>(
+    EMPTY_COURIER_ADDRESS
+  )
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -71,6 +86,8 @@ export function ShipTogetherDialog({
     setSize("L")
     setWeightKg("3")
     setCourierPickup(false)
+    setSendByCourier(false)
+    setCourierAddress(EMPTY_COURIER_ADDRESS)
     setError(null)
   }, [open, first?.id, first?.deliveryPhone])
 
@@ -81,9 +98,18 @@ export function ShipTogetherDialog({
       setError("Enter a valid phone (e.g. +37060000000)")
       return
     }
-    const weight = first.homeDelivery ? toWeightGrams(weightKg) : undefined
-    if (first.homeDelivery && weight === undefined) {
+    const isCourier = !!first.homeDelivery || sendByCourier
+    const weight = isCourier ? toWeightGrams(weightKg) : undefined
+    if (isCourier && weight === undefined) {
       setError("Enter a weight between 0.1 and 30 kg")
+      return
+    }
+    const rerouting = sendByCourier && !first.homeDelivery
+    const addressError = rerouting
+      ? validateCourierAddress(courierAddress)
+      : null
+    if (addressError) {
+      setError(addressError)
       return
     }
 
@@ -98,10 +124,17 @@ export function ShipTogetherDialog({
           name: first.subscriberName,
           phone: p,
           email: first.subscriberEmail,
+          ...(rerouting ? trimCourierAddress(courierAddress) : {}),
         },
-        ...(first.homeDelivery ? { weight } : { size, courierPickup }),
+        ...(rerouting ? { deliveryMethod: "courier" as const } : {}),
+        ...(isCourier ? { weight } : { size, courierPickup }),
       })
-      onShipped(ids, res.barcode)
+      onShipped(ids, {
+        barcode: res.barcode,
+        parcelId: res.parcelId,
+        trackingState: "LABEL_CREATED",
+        ...(rerouting ? courierOrderPatch(courierAddress) : {}),
+      })
       onOpenChange(false)
     } catch (e) {
       setError((e as Error).message)
@@ -132,8 +165,16 @@ export function ShipTogetherDialog({
           <p className="text-sm text-destructive">{blocker}</p>
         ) : (
           <div className="flex flex-col gap-3">
+            {!first?.homeDelivery && (
+              <CourierOverrideFields
+                enabled={sendByCourier}
+                onEnabledChange={setSendByCourier}
+                address={courierAddress}
+                onAddressChange={setCourierAddress}
+              />
+            )}
             <ParcelOptionsFields
-              homeDelivery={!!first?.homeDelivery}
+              homeDelivery={!!first?.homeDelivery || sendByCourier}
               size={size}
               onSizeChange={setSize}
               weightKg={weightKg}
@@ -151,6 +192,16 @@ export function ShipTogetherDialog({
                 className="h-9"
               />
             </div>
+            <ManualTrackingForm
+              orderIds={orders.map((o) => o.id)}
+              onSaved={(barcode) => {
+                onShipped(
+                  orders.map((o) => o.id),
+                  { barcode, parcelId: null, trackingState: "LABEL_CREATED" }
+                )
+                onOpenChange(false)
+              }}
+            />
           </div>
         )}
         {error && <p className="text-sm text-destructive">{error}</p>}

@@ -13,7 +13,20 @@ import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { type Order, type OrderStatus, orderStatusColors } from '@/data/orders'
-import { createLabel, fetchLabelPdf, downloadPdf, toWeightGrams, type ParcelSize } from '@/lib/lpexpress'
+import {
+  createLabel,
+  fetchLabelPdf,
+  downloadPdf,
+  toWeightGrams,
+  validateCourierAddress,
+  trimCourierAddress,
+  courierOrderPatch,
+  EMPTY_COURIER_ADDRESS,
+  type CourierAddress,
+  type ParcelSize,
+} from '@/lib/lpexpress'
+import { CourierOverrideFields } from '@/components/CourierOverrideFields'
+import { ManualTrackingForm } from '@/components/ManualTrackingForm'
 import { ParcelOptionsFields } from '@/components/ParcelOptionsFields'
 
 function noteKey(orderId: string) {
@@ -58,6 +71,8 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
   const [parcelSize, setParcelSize] = useState<ParcelSize>('M')
   const [weightKg, setWeightKg] = useState('2')
   const [courierPickup, setCourierPickup] = useState(false)
+  const [sendByCourier, setSendByCourier] = useState(false)
+  const [courierAddress, setCourierAddress] = useState<CourierAddress>(EMPTY_COURIER_ADDRESS)
 
   useEffect(() => {
     setReturnStep('actions')
@@ -68,6 +83,14 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
     setParcelSize('M')
     setWeightKg('2')
     setCourierPickup(false)
+    setSendByCourier(false)
+    setCourierAddress({
+      street: order?.deliveryStreet ?? '',
+      building: order?.deliveryHouseNo ?? '',
+      flat: order?.deliveryFlat ?? '',
+      postalCode: order?.deliveryPostalCode ?? '',
+      locality: order?.deliveryCity ?? '',
+    })
     setShipErr(null)
     setShipBusy(null)
   }, [order?.id])
@@ -76,16 +99,31 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
     if (!order) return
     const p = phone.trim()
     if (!/^\+?\d{8,15}$/.test(p)) { setShipErr('Enter a valid phone (e.g. +37060000000)'); return }
-    const weight = order.homeDelivery ? toWeightGrams(weightKg) : undefined
-    if (order.homeDelivery && weight === undefined) { setShipErr('Enter a weight between 0.1 and 30 kg'); return }
+    const isCourier = !!order.homeDelivery || sendByCourier
+    const weight = isCourier ? toWeightGrams(weightKg) : undefined
+    if (isCourier && weight === undefined) { setShipErr('Enter a weight between 0.1 and 30 kg'); return }
+    const rerouting = sendByCourier && !order.homeDelivery
+    const addressError = rerouting ? validateCourierAddress(courierAddress) : null
+    if (addressError) { setShipErr(addressError); return }
     setShipBusy('generate'); setShipErr(null)
     try {
       const res = await createLabel({
         orderId: order.id,
-        receiver: { name: order.subscriberName, phone: p, email: order.subscriberEmail },
-        ...(order.homeDelivery ? { weight } : { size: parcelSize, courierPickup }),
+        receiver: {
+          name: order.subscriberName,
+          phone: p,
+          email: order.subscriberEmail,
+          ...(rerouting ? trimCourierAddress(courierAddress) : {}),
+        },
+        ...(rerouting ? { deliveryMethod: 'courier' as const } : {}),
+        ...(isCourier ? { weight } : { size: parcelSize, courierPickup }),
       })
-      onShippingUpdate?.(order.id, { barcode: res.barcode, trackingState: 'LABEL_CREATED' })
+      onShippingUpdate?.(order.id, {
+        barcode: res.barcode,
+        parcelId: res.parcelId,
+        trackingState: 'LABEL_CREATED',
+        ...(rerouting ? courierOrderPatch(courierAddress) : {}),
+      })
     } catch (e) {
       setShipErr((e as Error).message)
     } finally {
@@ -366,8 +404,16 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
                     ? 'Generate courier label to the address above (customer phone required)'
                     : 'Generate outbound label (customer phone required)'}
                 </p>
+                {!order.homeDelivery && (
+                  <CourierOverrideFields
+                    enabled={sendByCourier}
+                    onEnabledChange={setSendByCourier}
+                    address={courierAddress}
+                    onAddressChange={setCourierAddress}
+                  />
+                )}
                 <ParcelOptionsFields
-                  homeDelivery={!!order.homeDelivery}
+                  homeDelivery={!!order.homeDelivery || sendByCourier}
                   size={parcelSize}
                   onSizeChange={setParcelSize}
                   weightKg={weightKg}
@@ -388,6 +434,14 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
                 </div>
               </div>
             )}
+            {!order.barcode && (
+              <ManualTrackingForm
+                orderIds={[order.id]}
+                onSaved={(barcode) =>
+                  onShippingUpdate?.(order.id, { barcode, parcelId: null, trackingState: 'LABEL_CREATED' })
+                }
+              />
+            )}
             {!order.barcode && !order.homeDelivery && !order.terminalName && (
               <p className="text-xs text-muted-foreground">Customer hasn't selected a paštomatas yet.</p>
             )}
@@ -399,7 +453,7 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
 
             {/* Print buttons */}
             <div className="flex flex-wrap gap-2">
-              {order.barcode && (
+              {order.barcode && order.parcelId && (
                 <Button variant="outline" size="sm" onClick={() => printLabel('outbound')} disabled={shipBusy === 'print-outbound'}>
                   {shipBusy === 'print-outbound' ? 'Preparing…' : 'Print outbound label'}
                 </Button>
