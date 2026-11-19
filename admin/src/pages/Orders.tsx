@@ -29,6 +29,12 @@ import { ShipTogetherDialog } from '@/components/ShipTogetherDialog'
 import { MerchOrdersPanel } from '@/components/MerchOrdersPanel'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
+// Orders created together from one cart. Keyed by cart AND customer: the id is
+// only a grouping label, so it never links two different customers.
+function getCartKey(order: Order): string | null {
+  return order.cartId ? `${order.cartId}|${order.subscriberEmail}` : null
+}
+
 export function Orders() {
   const [items, setItems] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
@@ -61,6 +67,7 @@ export function Orders() {
         subscriberEmail: subMap[o.subscriber_id]?.email ?? '',
         productTitle: productMap[o.product_id]?.title ?? `Product #${o.product_id}`,
         productId: o.product_id,
+        cartId: o.cart_id,
         status: o.status as OrderStatus,
         startDate: o.start_date,
         dueDate: o.due_date,
@@ -113,6 +120,25 @@ export function Orders() {
       (statusFilter === 'all' || o.status === statusFilter)
     )
   }), [items, search, statusFilter])
+
+  const cartGroups = useMemo(() => {
+    const groups = new Map<string, Order[]>()
+    for (const o of items) {
+      const key = getCartKey(o)
+      if (key) groups.set(key, [...(groups.get(key) ?? []), o])
+    }
+    return groups
+  }, [items])
+
+  function getCartOrders(order: Order): Order[] {
+    const key = getCartKey(order)
+    return key ? (cartGroups.get(key) ?? []) : []
+  }
+
+  function openShipCart(cartOrders: Order[]) {
+    setShipTogether(cartOrders)
+    setShipTogetherOpen(true)
+  }
 
   const active = items.filter((o) => o.status === 'active').length
   const overdue = items.filter((o) => o.status === 'overdue').length
@@ -174,6 +200,20 @@ export function Orders() {
       accessorKey: 'productTitle',
       header: ({ column }) => <SortableHeader column={column}>Product</SortableHeader>,
       cell: ({ getValue }) => <span className="text-sm">{getValue<string>()}</span>,
+    },
+    {
+      id: 'cart',
+      header: 'Cart',
+      cell: ({ row }) => {
+        const key = getCartKey(row.original)
+        const size = key ? (cartGroups.get(key)?.length ?? 0) : 0
+        return size > 1 ? (
+          <Badge variant="outline" title="Placed together in one cart">
+            Cart · {size} sets
+          </Badge>
+        ) : null
+      },
+      size: 110,
     },
     {
       accessorKey: 'status',
@@ -252,7 +292,7 @@ export function Orders() {
         )
       },
     },
-  ], [])
+  ], [cartGroups])
 
   return (
     <div className="flex flex-col gap-6">
@@ -374,6 +414,8 @@ export function Orders() {
         onOpenChange={setDetailOpen}
         onStatusChange={(order, status, note) => handleSetStatus([order.id], status, note)}
         onShippingUpdate={handleShippingUpdate}
+        cartOrders={detailTarget ? getCartOrders(detailTarget) : []}
+        onShipCart={(cartOrders) => { setDetailOpen(false); openShipCart(cartOrders) }}
       />
         </TabsContent>
 

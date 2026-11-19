@@ -6,6 +6,8 @@ export interface Order {
   subscriberEmail: string
   productTitle: string
   productId: number
+  // Shared by the rentals created together from one set cart; null for single sets.
+  cartId?: string | null
   status: OrderStatus
   startDate: string
   dueDate: string

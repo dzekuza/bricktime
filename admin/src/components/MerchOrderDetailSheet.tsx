@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import { supabase } from "@/lib/supabase"
 import {
   Select,
   SelectContent,
@@ -36,6 +37,14 @@ interface ShippingAddress {
   country?: string | null
 }
 
+interface OrderLine {
+  id: string
+  item_name: string
+  size: string
+  quantity: number
+  unit_price: number
+}
+
 interface MerchOrderDetailSheetProps {
   order: MerchOrder | null
   open: boolean
@@ -52,12 +61,35 @@ export function MerchOrderDetailSheet({
   const [status, setStatus] = useState<MerchOrderStatus>("paid")
   const [tracking, setTracking] = useState("")
   const [isSaving, setIsSaving] = useState(false)
+  // The items to pack. Null while loading; an empty list means an order placed
+  // before carts existed, which is one item shown from the order itself.
+  const [lines, setLines] = useState<OrderLine[] | null>(null)
 
   useEffect(() => {
     if (!order) return
     setStatus(order.status as MerchOrderStatus)
     setTracking(order.tracking_number ?? "")
   }, [order])
+
+  const orderId = order?.id
+  useEffect(() => {
+    if (!orderId) return
+    let isCancelled = false
+    setLines(null)
+    supabase
+      .from("merch_order_items")
+      .select("id, item_name, size, quantity, unit_price")
+      .eq("order_id", orderId)
+      .order("created_at")
+      .then(({ data, error }) => {
+        if (isCancelled) return
+        if (error) console.error("Merch order lines failed:", error.message)
+        setLines(data ?? [])
+      })
+    return () => {
+      isCancelled = true
+    }
+  }, [orderId])
 
   if (!order) return null
 
@@ -97,10 +129,41 @@ export function MerchOrderDetailSheet({
         </SheetHeader>
 
         <div className="flex flex-col gap-5 px-4 pb-6">
-          <DetailSection title="Item">
-            <p className="text-sm font-medium">{order.item_name}</p>
+          <DetailSection
+            title={lines && lines.length > 1 ? "Items to pack" : "Item"}
+          >
+            {lines === null ? (
+              <p className="text-sm text-muted-foreground">Loading items…</p>
+            ) : lines.length === 0 ? (
+              <p className="text-sm font-medium">
+                {order.item_name} · size {order.size}
+              </p>
+            ) : (
+              <ul className="flex flex-col gap-1.5">
+                {lines.map((line) => (
+                  <li
+                    key={line.id}
+                    className="flex items-baseline justify-between gap-3 text-sm"
+                  >
+                    <span className="font-medium">
+                      {line.quantity} × {line.item_name}
+                      <span className="text-muted-foreground">
+                        {" "}
+                        · size {line.size}
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-muted-foreground tabular-nums">
+                      €{(Number(line.unit_price) * line.quantity).toFixed(2)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
             <p className="text-sm text-muted-foreground">
-              Size {order.size} · €{Number(order.amount).toFixed(2)}
+              {lines && lines.length > 0
+                ? `${lines.reduce((sum, l) => sum + l.quantity, 0)} pieces · `
+                : ""}
+              Paid €{Number(order.amount).toFixed(2)}
             </p>
             <Badge
               variant={
@@ -119,6 +182,11 @@ export function MerchOrderDetailSheet({
 
           <DetailSection title="Ship to">
             <p className="text-sm font-medium">{order.buyer_name ?? "—"}</p>
+            <p className="text-sm text-muted-foreground">
+              {order.delivery_method === "terminal"
+                ? `Parcel terminal: ${order.lp_terminal_name ?? "—"}`
+                : "Courier to the address"}
+            </p>
             {addressLines.map((line) => (
               <p key={line} className="text-sm text-muted-foreground">
                 {line}

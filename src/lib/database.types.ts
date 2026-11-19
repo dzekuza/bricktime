@@ -1016,6 +1016,7 @@ export type Database = {
       orders: {
         Row: {
           amount: number
+          cart_id: string | null
           created_at: string
           delivery_city: string | null
           delivery_flat: string | null
@@ -1050,6 +1051,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          cart_id?: string | null
           created_at?: string
           delivery_city?: string | null
           delivery_flat?: string | null
@@ -1084,6 +1086,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          cart_id?: string | null
           created_at?: string
           delivery_city?: string | null
           delivery_flat?: string | null
@@ -1927,6 +1930,7 @@ export type Database = {
         }
         Returns: {
           amount: number
+          cart_id: string | null
           created_at: string
           delivery_city: string | null
           delivery_flat: string | null
