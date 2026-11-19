@@ -25,6 +25,7 @@ import { orderStatusColors, type Order, type OrderStatus } from '@/data/orders'
 import { supabase } from '@/lib/supabase'
 import { DataTable, SortableHeader, selectionColumn } from '@/components/DataTable'
 import { OrderDetailSheet } from '@/components/OrderDetailSheet'
+import { ShipTogetherDialog } from '@/components/ShipTogetherDialog'
 import { MerchOrdersPanel } from '@/components/MerchOrdersPanel'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
@@ -36,6 +37,8 @@ export function Orders() {
   const [detailTarget, setDetailTarget] = useState<Order | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
   const [syncing, setSyncing] = useState(false)
+  const [shipTogether, setShipTogether] = useState<Order[]>([])
+  const [shipTogetherOpen, setShipTogetherOpen] = useState(false)
 
   const load = useCallback(async () => {
     const [
@@ -138,6 +141,12 @@ export function Orders() {
   function handleShippingUpdate(orderId: string, patch: Partial<Order>) {
     setItems((prev) => prev.map((o) => o.id === orderId ? { ...o, ...patch } : o))
     setDetailTarget((prev) => prev && prev.id === orderId ? { ...prev, ...patch } : prev)
+  }
+
+  function handleShippedTogether(orderIds: string[], barcode: string | null) {
+    const patch: Partial<Order> = { barcode, trackingState: 'LABEL_CREATED' }
+    setItems((prev) => prev.map((o) => orderIds.includes(o.id) ? { ...o, ...patch } : o))
+    setDetailTarget((prev) => prev && orderIds.includes(prev.id) ? { ...prev, ...patch } : prev)
   }
 
   const columns = useMemo<ColumnDef<Order, unknown>[]>(() => [
@@ -328,6 +337,13 @@ export function Orders() {
         onRowClick={openDetail}
         renderBulkActions={(rows, clear) => (
           <>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => { setShipTogether(rows); setShipTogetherOpen(true); clear() }}
+            >
+              Ship together
+            </Button>
             <Button variant="outline" size="sm" onClick={() => { handleSetStatus(rows.map(r => r.id), 'active'); clear() }}>
               Mark active
             </Button>
@@ -344,6 +360,13 @@ export function Orders() {
       <p className="text-xs text-muted-foreground">
         Showing {filtered.length} of {items.length} orders
       </p>
+
+      <ShipTogetherDialog
+        orders={shipTogether}
+        open={shipTogetherOpen}
+        onOpenChange={setShipTogetherOpen}
+        onShipped={handleShippedTogether}
+      />
 
       <OrderDetailSheet
         order={detailTarget}
