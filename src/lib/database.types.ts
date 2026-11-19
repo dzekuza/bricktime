@@ -2061,6 +2061,16 @@ export type Database = {
         }
         Returns: string
       }
+      record_paid_courier_rentals: {
+        Args: {
+          p_amount: number
+          p_dry_run?: boolean
+          p_product_ids: number[]
+          p_stripe_session_id: string
+          p_subscriber_id: string
+        }
+        Returns: number
+      }
       redeem_coupon: { Args: { p_code: string }; Returns: undefined }
       refresh_my_achievements: { Args: never; Returns: undefined }
       toggle_like: {
