@@ -191,7 +191,13 @@ export function SubscriberProfileSheet({
           setSheetOrders([])
           return
         }
-        const productIds = [...new Set(orderRows.map((o) => o.product_id))]
+        const productIds = [
+          ...new Set(
+            orderRows
+              .map((o) => o.product_id)
+              .filter((id): id is number => id !== null)
+          ),
+        ]
         const { data: productRows } = await supabase
           .from("products")
           .select("id, title")
@@ -203,7 +209,9 @@ export function SubscriberProfileSheet({
           orderRows.map((o) => ({
             id: o.id,
             productTitle:
-              productMap[o.product_id] ?? `Product #${o.product_id}`,
+              o.product_id === null
+                ? "Mystery Box (no set yet)"
+                : (productMap[o.product_id] ?? `Product #${o.product_id}`),
             startDate: o.start_date,
             dueDate: o.due_date,
             returnedAt: o.returned_at,

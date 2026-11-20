@@ -15,6 +15,7 @@ const corsHeaders = {
 // Orders not yet fully returned — deleting the account would cascade-delete
 // these rows and lose the record of a physical LEGO set still out with the customer.
 const OPEN_ORDER_STATUSES = [
+  "requested",
   "processing",
   "active",
   "overdue",

@@ -418,6 +418,43 @@ async function handleRentalCourierCheckout(session: Stripe.Checkout.Session) {
   )
 }
 
+// The courier fee for a Mystery Box request is paid; create the request. Same
+// refuse-and-refund handling as rental courier fees: rule violations can't be
+// fixed by retrying, other errors throw so Stripe retries (RPC is idempotent).
+async function handleMysteryCourierCheckout(session: Stripe.Checkout.Session) {
+  if (session.payment_status !== "paid") return
+  const userId = session.metadata?.userId
+  if (!userId) {
+    throw new Error(`Mystery courier session ${session.id} is missing userId metadata`)
+  }
+
+  const { error } = await supabase.rpc("record_paid_mystery_courier", {
+    p_subscriber_id: userId,
+    p_stripe_session_id: session.id,
+    p_amount: (session.amount_total ?? 0) / 100,
+  })
+  if (!error) return
+
+  if (!RENTAL_REFUSED_CODES.has(error.code ?? "")) {
+    throw new Error(
+      `record_paid_mystery_courier failed for session ${session.id}: ${error.message}`
+    )
+  }
+
+  console.error("Paid Mystery Box request refused, refunding the fee", {
+    userId,
+    sessionId: session.id,
+    reason: error.message,
+  })
+  if (typeof session.payment_intent !== "string") {
+    throw new Error(`Mystery courier session ${session.id} has no payment intent`)
+  }
+  await stripe.refunds.create(
+    { payment_intent: session.payment_intent },
+    { idempotencyKey: `mystery-courier-refund-${session.id}` }
+  )
+}
+
 // Members can no longer write penalty columns themselves, so the paid
 // penalty is cleared here. Errors throw so Stripe retries the event.
 async function handlePenaltyCheckout(session: Stripe.Checkout.Session) {
@@ -920,6 +957,14 @@ Deno.serve(async (req) => {
           break
         }
 
+        if (
+          session.mode === "payment" &&
+          session.metadata?.type === "mystery_courier"
+        ) {
+          await handleMysteryCourierCheckout(session)
+          break
+        }
+
         if (session.mode === "subscription") {
           await handleSubscriptionCheckout(session)
         }
@@ -937,6 +982,9 @@ Deno.serve(async (req) => {
         }
         if (session.metadata?.type === "rental_courier") {
           await handleRentalCourierCheckout(session)
+        }
+        if (session.metadata?.type === "mystery_courier") {
+          await handleMysteryCourierCheckout(session)
         }
         if (session.mode === "payment" && session.metadata?.code) {
           await handleGiftCardCheckout(session)

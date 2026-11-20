@@ -6,11 +6,12 @@ import { isMysteryHidden, MYSTERY_TITLE } from "@/components/account/mystery"
 
 export interface RentedOrder {
   id: string
-  productId: number
+  productId: number | null
   productTitle: string
   productImage: string | null
   isMystery?: boolean
   status: string
+  createdAt: string
   startDate: string
   dueDate: string
   amount: number

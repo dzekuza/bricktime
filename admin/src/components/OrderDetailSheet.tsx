@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { type Order, type OrderStatus, orderStatusColors } from '@/data/orders'
+import { AssignMysterySet } from '@/components/AssignMysterySet'
 import {
   createLabel,
   fetchLabelPdf,
@@ -294,8 +295,14 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
           <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Product</p>
           <div className="rounded-lg border divide-y">
             <Row label="Title" value={order.productTitle} />
-            <Row label="Product ID" value={`#${order.productId}`} />
+            <Row label="Product ID" value={order.productId === null ? 'Not assigned yet' : `#${order.productId}`} />
           </div>
+
+          {order.status === 'requested' && (
+            <div className="mt-3">
+              <AssignMysterySet order={order} onAssigned={(id, patch) => onShippingUpdate?.(id, patch)} />
+            </div>
+          )}
 
           <Separator className="my-5" />
 
@@ -352,6 +359,9 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
             </>
           )}
 
+          {/* Nothing to ship or re-status until a set is assigned. */}
+          {order.status !== 'requested' && (
+            <>
           {/* Shipping (LP EXPRESS) */}
           <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Shipping (LP EXPRESS)</p>
           <div className="rounded-lg border divide-y">
@@ -488,6 +498,9 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
                 </Button>
               ))}
           </div>
+
+            </>
+          )}
 
           <Separator className="my-5" />
 

@@ -4,6 +4,7 @@ export const STATUS_BADGES: Record<
   string,
   { label: string; className: string }
 > = {
+  requested: { label: "Laukia rinkinio", className: "bg-brand-pink text-ink" },
   active: { label: "Pas tave", className: "bg-brand-mint text-ink" },
   processing: { label: "Ruošiama", className: "bg-brand-sky text-ink" },
   overdue: { label: "Vėluoja", className: "bg-brand-orange text-paper" },
