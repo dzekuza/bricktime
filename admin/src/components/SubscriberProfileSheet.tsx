@@ -91,6 +91,13 @@ export function SubscriberProfileSheet({
     }>
   >([])
   const [penaltyStep, setPenaltyStep] = useState<"idle" | "setting">("idle")
+  const [creditsResetStep, setCreditsResetStep] = useState<
+    "idle" | "confirm" | "done"
+  >("idle")
+  const [creditsResetError, setCreditsResetError] = useState<string | null>(
+    null
+  )
+  const [creditsToFree, setCreditsToFree] = useState<number | null>(null)
   const [penaltyAmount, setPenaltyAmount] = useState("")
   const [penaltyReason, setPenaltyReason] = useState("")
 
@@ -116,6 +123,12 @@ export function SubscriberProfileSheet({
         setPenaltyHistory((data ?? []) as typeof penaltyHistory)
       })
   }
+
+  useEffect(() => {
+    setCreditsResetStep("idle")
+    setCreditsResetError(null)
+    setCreditsToFree(null)
+  }, [subscriber?.id, open])
 
   useEffect(() => {
     if (subscriber) {
@@ -183,7 +196,9 @@ export function SubscriberProfileSheet({
     if (!subscriber || !open) return
     supabase
       .from("orders")
-      .select("id, product_id, start_date, due_date, returned_at, status, amount")
+      .select(
+        "id, product_id, start_date, due_date, returned_at, status, amount"
+      )
       .eq("subscriber_id", subscriber.id)
       .order("created_at", { ascending: false })
       .then(async ({ data: orderRows }) => {
@@ -227,6 +242,36 @@ export function SubscriberProfileSheet({
   }, [subscriber?.id, open])
 
   if (!subscriber) return null
+
+  // Shows what a reset would free before the admin confirms it.
+  async function startCreditsReset() {
+    if (!subscriber) return
+    setCreditsResetError(null)
+    const { data, error } = await supabase.rpc("credits_pending_reset", {
+      p_subscriber_id: subscriber.id,
+    })
+    if (error) {
+      setCreditsResetError(error.message)
+      return
+    }
+    setCreditsToFree(Number(data ?? 0))
+    setCreditsResetStep("confirm")
+  }
+
+  // For mistakes and exceptions: credits of returned sets come back now instead
+  // of at the next charge. Done on the server so its clock sets the cutoff, and logged.
+  async function resetCredits() {
+    if (!subscriber) return
+    setCreditsResetError(null)
+    const { error } = await supabase.rpc("reset_member_credits", {
+      p_subscriber_id: subscriber.id,
+    })
+    if (error) {
+      setCreditsResetError(error.message)
+      return
+    }
+    setCreditsResetStep("done")
+  }
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -488,6 +533,52 @@ export function SubscriberProfileSheet({
                 ))}
               </div>
             </>
+          )}
+
+          <Separator className="my-5" />
+
+          <p className="mb-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+            Credits
+          </p>
+          <p className="mb-2 text-sm text-muted-foreground">
+            Credits of returned sets come back at the next charge. Reset them
+            now only to fix a mistake or make an exception.
+          </p>
+          <div className="flex items-center gap-2">
+            {creditsResetStep === "done" ? (
+              <span className="text-xs text-green-600">Credits reset</span>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  creditsResetStep === "idle"
+                    ? void startCreditsReset()
+                    : void resetCredits()
+                }
+              >
+                {creditsResetStep === "idle"
+                  ? "Reset credits"
+                  : "Confirm reset"}
+              </Button>
+            )}
+            {creditsResetStep === "confirm" && creditsToFree !== null && (
+              <span className="text-xs text-muted-foreground">
+                Frees {creditsToFree} credits.
+              </span>
+            )}
+            {creditsResetStep === "confirm" && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setCreditsResetStep("idle")}
+              >
+                Cancel
+              </Button>
+            )}
+          </div>
+          {creditsResetError && (
+            <p className="mt-2 text-sm text-destructive">{creditsResetError}</p>
           )}
 
           <Separator className="my-5" />

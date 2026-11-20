@@ -10,6 +10,7 @@ import { ImagePlaceholder } from "@/components/ImagePlaceholder"
 import { BricksBudgetBar } from "@/components/rental/BricksBudgetBar"
 import { TerminalPicker } from "@/components/TerminalPicker"
 import { useAuth } from "@/hooks/useAuth"
+import { CreditsResetNotice } from "@/components/CreditsResetNotice"
 import { useCredits } from "@/hooks/useCredits"
 import { usePaidCourierReturn } from "@/hooks/usePaidCourierReturn"
 import { useProductAvailability } from "@/hooks/useProductAvailability"
@@ -33,7 +34,7 @@ type RowProblem = "missing" | "tier" | "taken" | null
 export default function RentalCart() {
   const { user, profile } = useAuth()
   const { productIds, remove, clear } = useRentalCart()
-  const { remainingCredits } = useCredits()
+  const { remainingCredits, usedCredits } = useCredits()
   const { available } = useProductAvailability()
   const [terminal, setTerminal] = useSavedTerminal()
   const [products, setProducts] = useState<Record<number, CartProduct> | null>(
@@ -314,6 +315,9 @@ export default function RentalCart() {
                   cartValue={totalValue}
                   remaining={remainingCredits}
                 />
+                {isOverBudget && (
+                  <CreditsResetNotice usedCredits={usedCredits} className="mt-3 text-[13px] font-bold text-ink/70" />
+                )}
                 {isOverBudget && plan !== "mega" && (
                   <Link
                     to="/subscribe"

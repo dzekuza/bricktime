@@ -1610,6 +1610,7 @@ export type Database = {
           city: string | null
           current_period_end: string | null
           current_period_start: string | null
+          credits_reset_at: string | null
           email: string
           flat: string | null
           home_delivery: boolean
@@ -1644,6 +1645,7 @@ export type Database = {
           city?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
+          credits_reset_at?: string | null
           email: string
           flat?: string | null
           home_delivery?: boolean
@@ -1678,6 +1680,7 @@ export type Database = {
           city?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
+          credits_reset_at?: string | null
           email?: string
           flat?: string | null
           home_delivery?: boolean
@@ -2125,6 +2128,8 @@ export type Database = {
         Args: { p_feed_item_id: string; p_session_id: string }
         Returns: undefined
       }
+      reset_member_credits: { Args: { p_subscriber_id: string }; Returns: number }
+      credits_pending_reset: { Args: { p_subscriber_id: string }; Returns: number }
       billing_window: {
         Args: { p_subscriber_id: string }
         Returns: { window_end: string | null; window_start: string }[]

@@ -94,12 +94,9 @@ export function MysteryBoxRequest({
     if (paidReturn === "missing")
       return "Užsakymo sukurti nepavyko, mokestis bus grąžintas. Bandyk dar kartą arba susisiek su mumis."
     if (canRequest) return "Užsakyk kitą Mystery Box – rinkinį parinksime mes."
-    if (countdown)
-      return holdsBox
-        ? `Kitą Mystery Box galėsi užsisakyti po ${countdown}, jei grąžinsi turimą rinkinį.`
-        : `Kitą Mystery Box galėsi užsisakyti po ${countdown}.`
+    if (countdown) return `Kitą Mystery Box galėsi užsisakyti po ${countdown}.`
     if (holdsBox)
-      return "Grąžink turimą Mystery Box, kad galėtum užsisakyti kitą."
+      return "Kitą Mystery Box galėsi užsisakyti, kai grąžinsi turimą rinkinį."
     return "Kraunama…"
   })()
 
