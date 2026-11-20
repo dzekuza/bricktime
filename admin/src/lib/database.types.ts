@@ -1041,7 +1041,7 @@ export type Database = {
           lp_terminal_id: string | null
           lp_terminal_name: string | null
           lp_tracking_state: string | null
-          product_id: number
+          product_id: number | null
           return_note: string | null
           return_requested_at: string | null
           returned_at: string | null
@@ -1078,7 +1078,7 @@ export type Database = {
           lp_terminal_id?: string | null
           lp_terminal_name?: string | null
           lp_tracking_state?: string | null
-          product_id: number
+          product_id: number | null
           return_note?: string | null
           return_requested_at?: string | null
           returned_at?: string | null
@@ -1115,7 +1115,7 @@ export type Database = {
           lp_terminal_id?: string | null
           lp_terminal_name?: string | null
           lp_tracking_state?: string | null
-          product_id?: number
+          product_id?: number | null
           return_note?: string | null
           return_requested_at?: string | null
           returned_at?: string | null
@@ -2102,8 +2102,21 @@ export type Database = {
         }
         Returns: number
       }
+      record_paid_mystery_courier: {
+        Args: {
+          p_amount: number
+          p_dry_run?: boolean
+          p_stripe_session_id: string
+          p_subscriber_id: string
+        }
+        Returns: string
+      }
       redeem_coupon: { Args: { p_code: string }; Returns: undefined }
       refresh_my_achievements: { Args: never; Returns: undefined }
+      request_mystery_box: {
+        Args: { p_terminal_id?: string; p_terminal_name?: string }
+        Returns: string
+      }
       toggle_like: {
         Args: { p_feed_item_id: string; p_subscriber_id: string }
         Returns: undefined
@@ -2111,6 +2124,10 @@ export type Database = {
       toggle_like_anon: {
         Args: { p_feed_item_id: string; p_session_id: string }
         Returns: undefined
+      }
+      billing_window: {
+        Args: { p_subscriber_id: string }
+        Returns: { window_end: string | null; window_start: string }[]
       }
       used_credits: { Args: { p_subscriber_id: string }; Returns: number }
     }
@@ -2125,6 +2142,7 @@ export type Database = {
         | "first_drop"
         | "streak"
       order_status:
+        | "requested"
         | "processing"
         | "active"
         | "overdue"
@@ -2279,6 +2297,7 @@ export const Constants = {
         "streak",
       ],
       order_status: [
+        "requested",
         "processing",
         "active",
         "overdue",

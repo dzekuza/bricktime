@@ -1,13 +1,17 @@
 import type { ParcelSize } from "@/lib/lpexpress"
 
-export type OrderStatus = 'active' | 'returned' | 'overdue' | 'processing' | 'return_requested' | 'return_declined'
+export type OrderStatus = 'requested' | 'active' | 'returned' | 'overdue' | 'processing' | 'return_requested' | 'return_declined'
 
 export interface Order {
   id: string
   subscriberName: string
+  subscriberId?: string
   subscriberEmail: string
+  // Plan name of the customer, e.g. a Mystery Box plan.
+  planName?: string
   productTitle: string
-  productId: number
+  // Null for a Mystery Box request that has no set yet.
+  productId: number | null
   // Product's admin-set locker size; prefills the outbound parcel size.
   productShippingSize?: ParcelSize
   // Shared by the rentals created together from one set cart; null for single sets.
@@ -49,6 +53,7 @@ export const orders: Order[] = [
 ]
 
 export const orderStatusColors: Record<OrderStatus, string> = {
+  requested: 'bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300',
   active: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
   returned: 'bg-secondary text-secondary-foreground',
   overdue: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',

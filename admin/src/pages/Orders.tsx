@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { MoreHorizontalIcon, PlusIcon, RefreshCwIcon, SearchIcon } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { orderStatusColors, type Order, type OrderStatus } from '@/data/orders'
+import { tierLabels, type Tier } from '@/data/products'
 import { supabase } from '@/lib/supabase'
 import type { ParcelSize } from '@/lib/lpexpress'
 import { DataTable, SortableHeader, selectionColumn } from '@/components/DataTable'
@@ -49,6 +50,9 @@ export function Orders() {
   const [shipTogether, setShipTogether] = useState<Order[]>([])
   const [shipTogetherOpen, setShipTogetherOpen] = useState(false)
   const [createOpen, setCreateOpen] = useState(false)
+  // The table columns are memoised, so their status handler reads the latest orders through a ref.
+  const itemsRef = useRef(items)
+  useEffect(() => { itemsRef.current = items }, [items])
 
   const load = useCallback(async () => {
     const [
@@ -57,7 +61,7 @@ export function Orders() {
       { data: productRows },
     ] = await Promise.all([
       supabase.from('orders').select('*').order('created_at', { ascending: false }),
-      supabase.from('subscribers').select('id, name, email'),
+      supabase.from('subscribers').select('id, name, email, plan'),
       supabase.from('products').select('id, title, shipping_size'),
     ])
 
@@ -69,9 +73,17 @@ export function Orders() {
         id: o.id,
         subscriberName: subMap[o.subscriber_id]?.name ?? o.subscriber_id,
         subscriberEmail: subMap[o.subscriber_id]?.email ?? '',
-        productTitle: productMap[o.product_id]?.title ?? `Product #${o.product_id}`,
+        subscriberId: o.subscriber_id,
+        planName: subMap[o.subscriber_id]?.plan,
+        productTitle:
+          o.product_id === null
+            ? 'Mystery Box (no set yet)'
+            : (productMap[o.product_id]?.title ?? `Product #${o.product_id}`),
         productId: o.product_id,
-        productShippingSize: productMap[o.product_id]?.shipping_size as ParcelSize | undefined,
+        productShippingSize:
+          o.product_id === null
+            ? undefined
+            : (productMap[o.product_id]?.shipping_size as ParcelSize | undefined),
         cartId: o.cart_id,
         status: o.status as OrderStatus,
         startDate: o.start_date,
@@ -146,6 +158,7 @@ export function Orders() {
     setShipTogetherOpen(true)
   }
 
+  const awaitingSet = items.filter((o) => o.status === 'requested').length
   const active = items.filter((o) => o.status === 'active').length
   const overdue = items.filter((o) => o.status === 'overdue').length
   const pendingReturns = items.filter((o) => o.status === 'return_requested').length
@@ -159,7 +172,10 @@ export function Orders() {
     setDetailOpen(true)
   }
 
-  async function handleSetStatus(ids: string[], status: OrderStatus, note?: string) {
+  async function handleSetStatus(requestedIds: string[], status: OrderStatus, note?: string) {
+    // A Mystery Box request has no set yet; it only moves on once a set is assigned.
+    const ids = requestedIds.filter((id) => itemsRef.current.find((o) => o.id === id)?.status !== 'requested')
+    if (ids.length === 0) return
     const { error } = await supabase
       .from('orders')
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -190,6 +206,9 @@ export function Orders() {
         <div className="flex flex-col gap-0.5">
           <span className="text-sm font-medium">{row.original.subscriberName}</span>
           <span className="text-xs text-muted-foreground">{row.original.subscriberEmail}</span>
+          {row.original.planName && (
+            <span className="text-xs text-muted-foreground">{tierLabels[row.original.planName as Tier] ?? row.original.planName}</span>
+          )}
         </div>
       ),
     },
@@ -291,15 +310,15 @@ export function Orders() {
                   </DropdownMenuGroup>
                 </>
               )}
-              <DropdownMenuSeparator />
+              {order.status !== 'requested' && <DropdownMenuSeparator />}
               <DropdownMenuGroup>
-                {order.status !== 'active' && (
+                {order.status !== 'requested' && order.status !== 'active' && (
                   <DropdownMenuItem onSelect={() => handleSetStatus([order.id], 'active')}>Mark as active</DropdownMenuItem>
                 )}
-                {order.status !== 'returned' && (
+                {order.status !== 'requested' && order.status !== 'returned' && (
                   <DropdownMenuItem onSelect={() => handleSetStatus([order.id], 'returned')}>Mark as returned</DropdownMenuItem>
                 )}
-                {order.status !== 'overdue' && (
+                {order.status !== 'requested' && order.status !== 'overdue' && (
                   <DropdownMenuItem onSelect={() => handleSetStatus([order.id], 'overdue')}>Mark as overdue</DropdownMenuItem>
                 )}
               </DropdownMenuGroup>
@@ -337,7 +356,15 @@ export function Orders() {
 
         <TabsContent value="rentals" className="flex flex-col gap-6">
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Awaiting set</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={cn('text-2xl font-bold', awaitingSet > 0 && 'text-violet-600')}>{awaitingSet}</div>
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Active rentals</CardTitle>
@@ -383,6 +410,7 @@ export function Orders() {
           <SelectTrigger className="w-[150px]"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="requested">Awaiting set</SelectItem>
             <SelectItem value="active">Active</SelectItem>
             <SelectItem value="processing">Processing</SelectItem>
             <SelectItem value="returned">Returned</SelectItem>

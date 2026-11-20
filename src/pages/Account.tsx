@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { calculatePoints, type AchievementDef } from "@/data/community"
 import Nav from "@/components/Nav"
@@ -24,6 +24,7 @@ import {
   RentedOrderCard,
   type RentedOrder,
 } from "@/components/account/RentedOrderCard"
+import { MysteryBoxRequest } from "@/components/account/MysteryBoxRequest"
 import { RentalHistory } from "@/components/account/RentalHistory"
 import { PauseSubscription } from "@/components/account/PauseSubscription"
 import { readFunctionError } from "@/lib/function-error"
@@ -274,6 +275,11 @@ export default function Account() {
   // Every rental incl. returned ones, newest first.
   const [rentalHistory, setRentalHistory] = useState<RentedOrder[]>([])
   const [ordersLoading, setOrdersLoading] = useState(true)
+  const [ordersVersion, setOrdersVersion] = useState(0)
+  const handleMysteryRequested = useCallback(
+    () => setOrdersVersion((v) => v + 1),
+    []
+  )
   const [returnDialogOrder, setReturnDialogOrder] =
     useState<RentedOrder | null>(null)
   const [profileOpen, setProfileOpen] = useState(false)
@@ -500,9 +506,15 @@ export default function Account() {
         id: o.id,
         productId: o.product_id,
         productTitle:
-          productMap[o.product_id]?.title ?? `Produktas #${o.product_id}`,
-        productImage: productMap[o.product_id]?.image_url ?? null,
+          o.product_id === null
+            ? "Mystery Box"
+            : (productMap[o.product_id]?.title ?? `Produktas #${o.product_id}`),
+        productImage:
+          o.product_id === null
+            ? null
+            : (productMap[o.product_id]?.image_url ?? null),
         isMystery: o.is_mystery,
+        createdAt: o.created_at,
         status: o.status,
         startDate: o.start_date,
         dueDate: o.due_date,
@@ -521,7 +533,7 @@ export default function Account() {
       setRentalHistory(allOrders)
       setOrdersLoading(false)
     })
-  }, [user])
+  }, [user, ordersVersion])
 
   useEffect(() => {
     if (!user?.email) return
@@ -1060,6 +1072,17 @@ export default function Account() {
             </span>
           </h2>
 
+          {user &&
+            subscriber?.plan?.startsWith("mystery") &&
+            subscriber.status === "active" &&
+            !ordersLoading && (
+              <MysteryBoxRequest
+                userId={user.id}
+                orders={rentalHistory}
+                onRequested={handleMysteryRequested}
+              />
+            )}
+
           {ordersLoading ? (
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[0, 1, 2].map((i) => (
@@ -1260,7 +1283,7 @@ export default function Account() {
 
       <Footer />
 
-      {missingPartOrder && user && (
+      {missingPartOrder && missingPartOrder.productId !== null && user && (
         <MissingPartDialog
           open={missingPartOrder !== null}
           onOpenChange={(open) => {
