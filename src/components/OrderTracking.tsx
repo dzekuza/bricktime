@@ -44,7 +44,7 @@ export function OrderTracking({ barcode }: OrderTrackingProps) {
 
   if (error) {
     return (
-      <div className="font-mono text-[12px] tracking-[.08em] text-ink/50 uppercase">
+      <div className="font-mono text-[12px] tracking-[.08em] text-ink/60 uppercase">
         Sekimas: <span className="font-bold text-ink">{barcode}</span>
       </div>
     )
@@ -74,7 +74,7 @@ export function OrderTracking({ barcode }: OrderTrackingProps) {
           {open ? "−" : "+"}
         </span>
       </button>
-      <p className="mt-2 font-mono text-[12px] tracking-[.08em] text-ink/50 uppercase">
+      <p className="mt-2 font-mono text-[12px] tracking-[.08em] text-ink/60 uppercase">
         Nr. <span className="font-bold text-ink">{barcode}</span>
       </p>
 
