@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { type Order, type OrderStatus, orderStatusColors } from '@/data/orders'
 import { AssignMysterySet } from '@/components/AssignMysterySet'
+import { tierLabels, type Tier } from '@/data/products'
 import {
   createLabel,
   fetchLabelPdf,
@@ -282,6 +283,7 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
           <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Subscriber</p>
           <div className="rounded-lg border divide-y">
             <Row label="Name" value={order.subscriberName} />
+            {order.planName && <Row label="Plan" value={tierLabels[order.planName as Tier] ?? order.planName} />}
             <Row label="Email" value={
               <a href={`mailto:${order.subscriberEmail}`} className="text-primary hover:underline">
                 {order.subscriberEmail}

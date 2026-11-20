@@ -446,6 +446,19 @@ async function handleMysteryCourierCheckout(session: Stripe.Checkout.Session) {
     sessionId: session.id,
     reason: error.message,
   })
+  // Recorded before the refund so a redelivery can't later turn this refused
+  // payment into a request (record_paid_mystery_courier honours the record).
+  const { error: rejectError } = await supabase
+    .from("rejected_checkout_sessions")
+    .upsert(
+      { session_id: session.id, reason: error.message },
+      { onConflict: "session_id", ignoreDuplicates: true }
+    )
+  if (rejectError) {
+    throw new Error(
+      `Recording the refused session ${session.id} failed: ${rejectError.message}`
+    )
+  }
   if (typeof session.payment_intent !== "string") {
     throw new Error(`Mystery courier session ${session.id} has no payment intent`)
   }

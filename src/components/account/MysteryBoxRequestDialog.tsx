@@ -114,6 +114,7 @@ export function MysteryBoxRequestDialog({
           <button
             type="button"
             onClick={() => setDelivery("locker")}
+            aria-pressed={delivery === "locker"}
             className={optionClass(delivery === "locker")}
           >
             <span>Paštomatas</span>
@@ -122,6 +123,7 @@ export function MysteryBoxRequestDialog({
           <button
             type="button"
             onClick={() => setDelivery("courier")}
+            aria-pressed={delivery === "courier"}
             className={optionClass(delivery === "courier")}
           >
             <span>Kurjeris į duris</span>

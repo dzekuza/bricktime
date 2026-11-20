@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { orderStatusColors, type Order, type OrderStatus } from '@/data/orders'
+import { tierLabels, type Tier } from '@/data/products'
 import { supabase } from '@/lib/supabase'
 import type { ParcelSize } from '@/lib/lpexpress'
 import { DataTable, SortableHeader, selectionColumn } from '@/components/DataTable'
@@ -205,6 +206,9 @@ export function Orders() {
         <div className="flex flex-col gap-0.5">
           <span className="text-sm font-medium">{row.original.subscriberName}</span>
           <span className="text-xs text-muted-foreground">{row.original.subscriberEmail}</span>
+          {row.original.planName && (
+            <span className="text-xs text-muted-foreground">{tierLabels[row.original.planName as Tier] ?? row.original.planName}</span>
+          )}
         </div>
       ),
     },
