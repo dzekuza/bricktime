@@ -5,18 +5,22 @@
 -- billing window in which it shipped, even if it is returned. Returned sets
 -- therefore free their credits at the next window start, i.e. the next charge
 -- (monthly anniversary on annual plans, see billing_window). An order that
--- never shipped (admin cancelled it by marking it returned) frees them at once.
--- Admins can reset a member's window by hand with subscribers.credits_reset_at.
+-- never shipped (admin cancelled it by marking it returned, or its label was
+-- cancelled) frees them at once. "Shipped" = a label exists that was not
+-- cancelled; the window test uses the label time, so a request created earlier
+-- and assigned later is judged by when it was sent.
+-- Admins can reset a member's credits by hand (reset_member_credits, logged);
+-- the reset only affects credits, not the Mystery Box once-per-period rule.
 --
--- Rollback: restore used_credits from 20261118120000_returned_sets_free_budget_immediately.sql,
--- billing_window from 20261120150100_mystery_box_requests.sql and
--- guard_subscriber_billing_columns from its previous migration; drop
--- credits_pending_reset; then drop subscribers.credits_reset_at.
+-- Rollback: restore used_credits from 20261118120000_returned_sets_free_budget_immediately.sql
+-- and guard_subscriber_billing_columns from its previous migration; drop
+-- reset_member_credits, credits_reset_log, credits_pending_reset,
+-- credits_window_start; drop subscribers.credits_reset_at.
 
 alter table public.subscribers
   add column if not exists credits_reset_at timestamptz;
 
--- A member must not be able to reset their own window.
+-- A member must not be able to reset their own credits.
 create or replace function public.guard_subscriber_billing_columns()
 returns trigger
 language plpgsql
@@ -80,52 +84,25 @@ begin
 end;
 $$;
 
--- Same window as before, but never earlier than an admin's manual reset.
-create or replace function public.billing_window(p_subscriber_id uuid)
-returns table (window_start timestamptz, window_end timestamptz)
+-- billing_window is also what the Mystery Box limit reads, so it stays as it is.
+revoke all on function public.billing_window(uuid) from public, anon;
+grant execute on function public.billing_window(uuid) to authenticated;
+
+-- Where the credit window starts: the billing window, but never before an admin's reset.
+create or replace function public.credits_window_start(p_subscriber_id uuid)
+returns timestamptz
 language sql
 stable
 set search_path = ''
 as $$
-  select
-    greatest(
-      case
-        when s.current_period_start is null then now() - interval '1 month'
-        when s.current_period_end is not null
-         and s.current_period_end - s.current_period_start > interval '40 days' then coalesce(
-          (
-            select max(step_start)
-              from generate_series(0, 11) as m
-             cross join lateral (
-               select ((s.current_period_start at time zone 'UTC') + make_interval(months => m)) at time zone 'UTC' as step_start
-             ) step
-             where step_start <= now()
-          ),
-          s.current_period_start
-        )
-        else s.current_period_start
-      end,
-      s.credits_reset_at
-    ),
-    case
-      when s.current_period_start is not null
-       and s.current_period_end is not null
-       and s.current_period_end - s.current_period_start > interval '40 days' then coalesce(
-        (
-          select min(step_start)
-            from generate_series(1, 12) as m
-           cross join lateral (
-             select ((s.current_period_start at time zone 'UTC') + make_interval(months => m)) at time zone 'UTC' as step_start
-           ) step
-           where step_start > now()
-        ),
-        s.current_period_end
-      )
-      else s.current_period_end
-    end
-  from public.subscribers s
-  where s.id = p_subscriber_id;
+  select greatest(w.window_start, s.credits_reset_at)
+    from public.subscribers s
+   cross join lateral public.billing_window(s.id) w
+   where s.id = p_subscriber_id;
 $$;
+
+revoke all on function public.credits_window_start(uuid) from public, anon;
+grant execute on function public.credits_window_start(uuid) to authenticated;
 
 create or replace function public.used_credits(p_subscriber_id uuid)
 returns numeric
@@ -141,8 +118,9 @@ as $$
        o.status <> 'returned'
        or (
          o.lp_barcode is not null
-         and o.created_at >= coalesce(
-           (select window_start from public.billing_window(p_subscriber_id)),
+         and o.lp_tracking_state is distinct from 'LABEL_CANCELLED'
+         and coalesce(o.lp_label_created_at, o.created_at) >= coalesce(
+           public.credits_window_start(p_subscriber_id),
            now() - interval '1 month'
          )
        )
@@ -162,10 +140,59 @@ as $$
    where o.subscriber_id = p_subscriber_id
      and o.status = 'returned'
      and o.lp_barcode is not null
-     and o.created_at >= coalesce(
-       (select window_start from public.billing_window(p_subscriber_id)),
+     and o.lp_tracking_state is distinct from 'LABEL_CANCELLED'
+     and coalesce(o.lp_label_created_at, o.created_at) >= coalesce(
+       public.credits_window_start(p_subscriber_id),
        now() - interval '1 month'
      );
 $$;
 
+revoke all on function public.credits_pending_reset(uuid) from public, anon;
 grant execute on function public.credits_pending_reset(uuid) to authenticated;
+
+-- Who reset whose credits, and what it freed.
+create table if not exists public.credits_reset_log (
+  id uuid primary key default gen_random_uuid(),
+  subscriber_id uuid not null references public.subscribers(id) on delete cascade,
+  reset_by uuid,
+  freed_credits numeric not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.credits_reset_log enable row level security;
+
+create policy credits_reset_log_admin_select on public.credits_reset_log
+  for select using (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin');
+
+-- Admin reset with the database clock, so a skewed browser can't shift the cutoff.
+create or replace function public.reset_member_credits(p_subscriber_id uuid)
+returns numeric
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_freed numeric;
+begin
+  if (select auth.jwt() -> 'app_metadata' ->> 'role') is distinct from 'admin' then
+    raise exception 'Only admins can reset credits' using errcode = '42501';
+  end if;
+
+  v_freed := public.credits_pending_reset(p_subscriber_id);
+
+  update public.subscribers
+     set credits_reset_at = now()
+   where id = p_subscriber_id;
+  if not found then
+    raise exception 'Subscriber not found' using errcode = 'no_data_found';
+  end if;
+
+  insert into public.credits_reset_log (subscriber_id, reset_by, freed_credits)
+  values (p_subscriber_id, auth.uid(), v_freed);
+
+  return v_freed;
+end;
+$$;
+
+revoke all on function public.reset_member_credits(uuid) from public, anon;
+grant execute on function public.reset_member_credits(uuid) to authenticated;

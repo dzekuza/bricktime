@@ -250,7 +250,8 @@ export default function Account() {
   const userId = user?.id
   const [deleteAccountOpen, setDeleteAccountOpen] = useState(false)
   const { subscriptions: dbPlans } = useSubscriptions()
-  const { totalCredits, remainingCredits, overBudgetCredits } = useCredits()
+  const { totalCredits, remainingCredits, overBudgetCredits, usedCredits } =
+    useCredits()
   const { achievements } = useAchievements()
   const tierOptions = useMemo(
     () =>
@@ -905,7 +906,7 @@ export default function Account() {
                   {overBudgetCredits} briksių.
                 </p>
               )}
-              <CreditsResetNotice className="mt-4 text-[13px] font-bold text-ink/70" />
+              <CreditsResetNotice usedCredits={usedCredits} className="mt-4 text-[13px] font-bold text-ink/70" />
 
               <div className="mt-auto flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t-2 border-ink/10 pt-5">
                 <button

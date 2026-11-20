@@ -329,7 +329,7 @@ export default function Checkout() {
       ] ?? tierByName.standard,
     [product, tierParam]
   )
-  const { remainingCredits, overBudgetCredits } = useCredits()
+  const { remainingCredits, overBudgetCredits, usedCredits } = useCredits()
   const { available: productAvailability } = useProductAvailability()
   const hasTier = useMemo(
     () =>
@@ -1583,7 +1583,7 @@ export default function Checkout() {
                       Šiam produktui reikia {product?.value ?? 0} Kr., o tau
                       liko {remainingCredits} Kr.
                     </p>
-                    <CreditsResetNotice className="mt-1 text-[13px] font-bold text-ink/70" />
+                    <CreditsResetNotice usedCredits={usedCredits} className="mt-1 text-[13px] font-bold text-ink/70" />
                   </div>
 
                   <div className="mt-auto pt-6">

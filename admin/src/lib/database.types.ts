@@ -2128,6 +2128,7 @@ export type Database = {
         Args: { p_feed_item_id: string; p_session_id: string }
         Returns: undefined
       }
+      reset_member_credits: { Args: { p_subscriber_id: string }; Returns: number }
       credits_pending_reset: { Args: { p_subscriber_id: string }; Returns: number }
       billing_window: {
         Args: { p_subscriber_id: string }

@@ -34,7 +34,7 @@ type RowProblem = "missing" | "tier" | "taken" | null
 export default function RentalCart() {
   const { user, profile } = useAuth()
   const { productIds, remove, clear } = useRentalCart()
-  const { remainingCredits } = useCredits()
+  const { remainingCredits, usedCredits } = useCredits()
   const { available } = useProductAvailability()
   const [terminal, setTerminal] = useSavedTerminal()
   const [products, setProducts] = useState<Record<number, CartProduct> | null>(
@@ -316,7 +316,7 @@ export default function RentalCart() {
                   remaining={remainingCredits}
                 />
                 {isOverBudget && (
-                  <CreditsResetNotice className="mt-3 text-[13px] font-bold text-ink/70" />
+                  <CreditsResetNotice usedCredits={usedCredits} className="mt-3 text-[13px] font-bold text-ink/70" />
                 )}
                 {isOverBudget && plan !== "mega" && (
                   <Link

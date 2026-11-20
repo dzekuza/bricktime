@@ -97,6 +97,7 @@ export function SubscriberProfileSheet({
   const [creditsResetError, setCreditsResetError] = useState<string | null>(
     null
   )
+  const [creditsToFree, setCreditsToFree] = useState<number | null>(null)
   const [penaltyAmount, setPenaltyAmount] = useState("")
   const [penaltyReason, setPenaltyReason] = useState("")
 
@@ -126,6 +127,7 @@ export function SubscriberProfileSheet({
   useEffect(() => {
     setCreditsResetStep("idle")
     setCreditsResetError(null)
+    setCreditsToFree(null)
   }, [subscriber?.id, open])
 
   useEffect(() => {
@@ -241,14 +243,29 @@ export function SubscriberProfileSheet({
 
   if (!subscriber) return null
 
-  // For mistakes and exceptions: credits of returned sets come back now instead of at the next charge.
+  // Shows what a reset would free before the admin confirms it.
+  async function startCreditsReset() {
+    if (!subscriber) return
+    setCreditsResetError(null)
+    const { data, error } = await supabase.rpc("credits_pending_reset", {
+      p_subscriber_id: subscriber.id,
+    })
+    if (error) {
+      setCreditsResetError(error.message)
+      return
+    }
+    setCreditsToFree(Number(data ?? 0))
+    setCreditsResetStep("confirm")
+  }
+
+  // For mistakes and exceptions: credits of returned sets come back now instead
+  // of at the next charge. Done on the server so its clock sets the cutoff, and logged.
   async function resetCredits() {
     if (!subscriber) return
     setCreditsResetError(null)
-    const { error } = await supabase
-      .from("subscribers")
-      .update({ credits_reset_at: new Date().toISOString() })
-      .eq("id", subscriber.id)
+    const { error } = await supabase.rpc("reset_member_credits", {
+      p_subscriber_id: subscriber.id,
+    })
     if (error) {
       setCreditsResetError(error.message)
       return
@@ -536,7 +553,7 @@ export function SubscriberProfileSheet({
                 variant="outline"
                 onClick={() =>
                   creditsResetStep === "idle"
-                    ? setCreditsResetStep("confirm")
+                    ? void startCreditsReset()
                     : void resetCredits()
                 }
               >
@@ -544,6 +561,11 @@ export function SubscriberProfileSheet({
                   ? "Reset credits"
                   : "Confirm reset"}
               </Button>
+            )}
+            {creditsResetStep === "confirm" && creditsToFree !== null && (
+              <span className="text-xs text-muted-foreground">
+                Frees {creditsToFree} credits.
+              </span>
             )}
             {creditsResetStep === "confirm" && (
               <Button
