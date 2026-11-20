@@ -44,8 +44,8 @@ export function OrderTracking({ barcode }: OrderTrackingProps) {
 
   if (error) {
     return (
-      <div className="font-mono text-[10px] tracking-[.14em] text-ink/40 uppercase">
-        Sekimas: {barcode}
+      <div className="font-mono text-[12px] tracking-[.08em] text-ink/60 uppercase">
+        Sekimas: <span className="font-bold text-ink">{barcode}</span>
       </div>
     )
   }
@@ -70,21 +70,21 @@ export function OrderTracking({ barcode }: OrderTrackingProps) {
             {stateText}
           </span>
         </div>
-        <span className="shrink-0 font-mono text-[14px] leading-none text-ink/50">
+        <span className="shrink-0 font-mono text-[18px] leading-none font-bold text-ink">
           {open ? "−" : "+"}
         </span>
       </button>
-      <p className="mt-2 font-mono text-[10px] tracking-[.1em] text-ink/50 uppercase">
-        Nr. {barcode}
+      <p className="mt-2 font-mono text-[12px] tracking-[.08em] text-ink/60 uppercase">
+        Nr. <span className="font-bold text-ink">{barcode}</span>
       </p>
 
       {open && (
         <ol className="mt-3 space-y-2 border-t-2 border-ink/10 pt-3">
           {events === null && (
-            <li className="font-mono text-[11px] text-ink/40">Kraunama…</li>
+            <li className="font-mono text-[12px] text-ink/60">Kraunama…</li>
           )}
           {events?.length === 0 && (
-            <li className="font-mono text-[11px] text-ink/40">
+            <li className="font-mono text-[12px] text-ink/60">
               Kol kas įvykių nėra
             </li>
           )}
@@ -92,11 +92,11 @@ export function OrderTracking({ barcode }: OrderTrackingProps) {
             <li key={i} className="flex items-start gap-2">
               <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-brand-mint" />
               <div className="min-w-0">
-                <p className="text-[12px] text-ink">
+                <p className="text-[13px] font-bold text-ink">
                   {e.publicStateText ?? e.publicEventType}
                 </p>
                 {(eventTime(e) || e.location) && (
-                  <p className="font-mono text-[10px] text-ink/50">
+                  <p className="font-mono text-[11px] text-ink/60">
                     {[
                       eventTime(e)
                         ? new Date(eventTime(e)!).toLocaleString("lt-LT")
