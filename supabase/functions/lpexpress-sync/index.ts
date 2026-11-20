@@ -44,8 +44,12 @@ function isAuthorized(req: Request): boolean {
 }
 
 function eventTime(e: LpTrackingEvent): number {
-  const value = e.eventDate ?? e.date
-  return value ? Date.parse(value) || 0 : 0
+  // First usable timestamp: an empty or unparsable eventDate still falls back to `date`.
+  for (const value of [e.eventDate, e.date]) {
+    const time = value ? Date.parse(value) : Number.NaN
+    if (Number.isFinite(time)) return time
+  }
+  return 0
 }
 
 /** Latest state by event date; falls back to the current stored state when the
