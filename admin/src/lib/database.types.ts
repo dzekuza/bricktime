@@ -2127,7 +2127,7 @@ export type Database = {
       }
       billing_window: {
         Args: { p_subscriber_id: string }
-        Returns: { window_end: string; window_start: string }[]
+        Returns: { window_end: string | null; window_start: string }[]
       }
       used_credits: { Args: { p_subscriber_id: string }; Returns: number }
     }

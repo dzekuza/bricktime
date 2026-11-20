@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { calculatePoints, type AchievementDef } from "@/data/community"
 import Nav from "@/components/Nav"
@@ -276,6 +276,10 @@ export default function Account() {
   const [rentalHistory, setRentalHistory] = useState<RentedOrder[]>([])
   const [ordersLoading, setOrdersLoading] = useState(true)
   const [ordersVersion, setOrdersVersion] = useState(0)
+  const handleMysteryRequested = useCallback(
+    () => setOrdersVersion((v) => v + 1),
+    []
+  )
   const [returnDialogOrder, setReturnDialogOrder] =
     useState<RentedOrder | null>(null)
   const [profileOpen, setProfileOpen] = useState(false)
@@ -1075,7 +1079,7 @@ export default function Account() {
               <MysteryBoxRequest
                 userId={user.id}
                 orders={rentalHistory}
-                onRequested={() => setOrdersVersion((v) => v + 1)}
+                onRequested={handleMysteryRequested}
               />
             )}
 

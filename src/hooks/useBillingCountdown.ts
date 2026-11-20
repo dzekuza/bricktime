@@ -8,7 +8,14 @@ export function useBillingCountdown(endsAt: string | null): string | null {
 
   useEffect(() => {
     if (!endsAt) return
-    const timer = setInterval(() => setNow(Date.now()), TICK_MS)
+    const endMs = new Date(endsAt).getTime()
+    if (Date.now() >= endMs) return
+    const timer = setInterval(() => {
+      const current = Date.now()
+      setNow(current)
+      // Nothing left to count: stop ticking instead of re-rendering for nothing.
+      if (current >= endMs) clearInterval(timer)
+    }, TICK_MS)
     return () => clearInterval(timer)
   }, [endsAt])
 

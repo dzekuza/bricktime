@@ -300,7 +300,11 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
 
           {order.status === 'requested' && (
             <div className="mt-3">
-              <AssignMysterySet order={order} onAssigned={(id, patch) => onShippingUpdate?.(id, patch)} />
+              <AssignMysterySet order={order} onAssigned={(id, patch) => {
+                  onShippingUpdate?.(id, patch)
+                  // The size picker was initialised before a set existed.
+                  if (patch.productShippingSize) setParcelSize(patch.productShippingSize)
+                }} />
             </div>
           )}
 

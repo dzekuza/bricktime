@@ -198,10 +198,14 @@ export function SubscriberProfileSheet({
               .filter((id): id is number => id !== null)
           ),
         ]
-        const { data: productRows } = await supabase
-          .from("products")
-          .select("id, title")
-          .in("id", productIds)
+        // A subscriber with only unassigned requests has no products to look up.
+        const { data: productRows } =
+          productIds.length === 0
+            ? { data: [] as { id: number; title: string }[] }
+            : await supabase
+                .from("products")
+                .select("id, title")
+                .in("id", productIds)
         const productMap = Object.fromEntries(
           (productRows ?? []).map((p) => [p.id, p.title])
         )

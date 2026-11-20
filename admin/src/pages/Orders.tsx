@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { MoreHorizontalIcon, PlusIcon, RefreshCwIcon, SearchIcon } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
@@ -49,6 +49,9 @@ export function Orders() {
   const [shipTogether, setShipTogether] = useState<Order[]>([])
   const [shipTogetherOpen, setShipTogetherOpen] = useState(false)
   const [createOpen, setCreateOpen] = useState(false)
+  // The table columns are memoised, so their status handler reads the latest orders through a ref.
+  const itemsRef = useRef(items)
+  useEffect(() => { itemsRef.current = items }, [items])
 
   const load = useCallback(async () => {
     const [
@@ -168,7 +171,10 @@ export function Orders() {
     setDetailOpen(true)
   }
 
-  async function handleSetStatus(ids: string[], status: OrderStatus, note?: string) {
+  async function handleSetStatus(requestedIds: string[], status: OrderStatus, note?: string) {
+    // A Mystery Box request has no set yet; it only moves on once a set is assigned.
+    const ids = requestedIds.filter((id) => itemsRef.current.find((o) => o.id === id)?.status !== 'requested')
+    if (ids.length === 0) return
     const { error } = await supabase
       .from('orders')
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -300,15 +306,15 @@ export function Orders() {
                   </DropdownMenuGroup>
                 </>
               )}
-              <DropdownMenuSeparator />
+              {order.status !== 'requested' && <DropdownMenuSeparator />}
               <DropdownMenuGroup>
-                {order.status !== 'active' && (
+                {order.status !== 'requested' && order.status !== 'active' && (
                   <DropdownMenuItem onSelect={() => handleSetStatus([order.id], 'active')}>Mark as active</DropdownMenuItem>
                 )}
-                {order.status !== 'returned' && (
+                {order.status !== 'requested' && order.status !== 'returned' && (
                   <DropdownMenuItem onSelect={() => handleSetStatus([order.id], 'returned')}>Mark as returned</DropdownMenuItem>
                 )}
-                {order.status !== 'overdue' && (
+                {order.status !== 'requested' && order.status !== 'overdue' && (
                   <DropdownMenuItem onSelect={() => handleSetStatus([order.id], 'overdue')}>Mark as overdue</DropdownMenuItem>
                 )}
               </DropdownMenuGroup>
