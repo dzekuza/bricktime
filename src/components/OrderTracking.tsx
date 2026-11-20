@@ -5,18 +5,22 @@ interface OrderTrackingProps {
   barcode: string
 }
 
-/** Maps LP EXPRESS public state → a badge colour. */
+/** Maps LP EXPRESS public state → a badge colour (same look as the order status badges). */
 const STATE_STYLES: Record<string, string> = {
-  LABEL_CREATED: "bg-blue-100 text-blue-800",
-  ON_THE_WAY: "bg-amber-100 text-amber-800",
-  PARCEL_RECEIVED: "bg-amber-100 text-amber-800",
-  PARCEL_DELIVERED: "bg-green-100 text-green-800",
-  RETURNING: "bg-rose-100 text-rose-800",
-  PARCEL_CANCELED: "bg-neutral-200 text-neutral-700",
+  LABEL_CREATED: "bg-brand-sky text-ink",
+  ON_THE_WAY: "bg-brand-yellow text-ink",
+  PARCEL_RECEIVED: "bg-brand-yellow text-ink",
+  PARCEL_DELIVERED: "bg-brand-mint text-ink",
+  RETURNING: "bg-brand-pink text-ink",
+  PARCEL_CANCELED: "bg-cream text-ink",
 }
 
+/** LP sends `eventDate`; `date` is the older field name. */
+const eventTime = (e: LpTrackingEvent) => e.eventDate ?? e.date
+
 function eventDate(e: LpTrackingEvent): number {
-  return e.date ? Date.parse(e.date) || 0 : 0
+  const value = eventTime(e)
+  return value ? Date.parse(value) || 0 : 0
 }
 
 /** Live LP EXPRESS tracking for one parcel barcode. */
@@ -40,7 +44,7 @@ export function OrderTracking({ barcode }: OrderTrackingProps) {
 
   if (error) {
     return (
-      <div className="mt-3 font-mono text-[10px] tracking-[.14em] text-ink/40 uppercase">
+      <div className="font-mono text-[10px] tracking-[.14em] text-ink/40 uppercase">
         Sekimas: {barcode}
       </div>
     )
@@ -51,7 +55,7 @@ export function OrderTracking({ barcode }: OrderTrackingProps) {
   const stateText = latest?.publicStateText ?? "Siunta sukurta"
 
   return (
-    <div className="mt-3 rounded-xl border-2 border-ink/10 bg-ink/[.02] px-3 py-2.5">
+    <div className="rounded-2xl border-2 border-ink/15 bg-cream px-4 py-3">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -59,33 +63,46 @@ export function OrderTracking({ barcode }: OrderTrackingProps) {
       >
         <div className="flex min-w-0 items-center gap-2">
           <span
-            className={`inline-block shrink-0 rounded-full px-2.5 py-1 font-mono text-[10px] tracking-[.12em] uppercase ${
-              STATE_STYLES[stateType] ?? "bg-neutral-100 text-neutral-700"
+            className={`inline-block shrink-0 rounded-full border-2 border-ink px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-[.1em] uppercase ${
+              STATE_STYLES[stateType] ?? "bg-cream text-ink"
             }`}
           >
             {stateText}
           </span>
         </div>
-        <span className="shrink-0 font-mono text-[14px] leading-none text-ink/40">{open ? "−" : "+"}</span>
+        <span className="shrink-0 font-mono text-[14px] leading-none text-ink/50">
+          {open ? "−" : "+"}
+        </span>
       </button>
-      <p className="mt-1.5 font-mono text-[10px] tracking-[.1em] text-ink/40 uppercase">
+      <p className="mt-2 font-mono text-[10px] tracking-[.1em] text-ink/50 uppercase">
         Nr. {barcode}
       </p>
 
       {open && (
         <ol className="mt-3 space-y-2 border-t-2 border-ink/10 pt-3">
-          {events === null && <li className="font-mono text-[11px] text-ink/40">Kraunama…</li>}
+          {events === null && (
+            <li className="font-mono text-[11px] text-ink/40">Kraunama…</li>
+          )}
           {events?.length === 0 && (
-            <li className="font-mono text-[11px] text-ink/40">Kol kas įvykių nėra</li>
+            <li className="font-mono text-[11px] text-ink/40">
+              Kol kas įvykių nėra
+            </li>
           )}
           {events?.map((e, i) => (
             <li key={i} className="flex items-start gap-2">
               <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-brand-mint" />
               <div className="min-w-0">
-                <p className="text-[12px] text-ink">{e.publicStateText ?? e.publicEventType}</p>
-                {(e.date || e.location) && (
-                  <p className="font-mono text-[10px] text-ink/40">
-                    {[e.date ? new Date(e.date).toLocaleString("lt-LT") : null, e.location]
+                <p className="text-[12px] text-ink">
+                  {e.publicStateText ?? e.publicEventType}
+                </p>
+                {(eventTime(e) || e.location) && (
+                  <p className="font-mono text-[10px] text-ink/50">
+                    {[
+                      eventTime(e)
+                        ? new Date(eventTime(e)!).toLocaleString("lt-LT")
+                        : null,
+                      e.location,
+                    ]
                       .filter(Boolean)
                       .join(" · ")}
                   </p>

@@ -116,10 +116,15 @@ export function RentedOrderCard({
       </dl>
 
       {/* Live LP EXPRESS tracking — outbound, then return */}
-      {order.barcode && <OrderTracking barcode={order.barcode} />}
+      {order.barcode && (
+        <div>
+          <p className="label-mono mb-2 text-ink/40">Siunta</p>
+          <OrderTracking barcode={order.barcode} />
+        </div>
+      )}
       {order.returnBarcode && (
         <div>
-          <p className="label-mono mb-1 text-ink/40">Grąžinimo siunta</p>
+          <p className="label-mono mb-2 text-ink/40">Grąžinimo siunta</p>
           <OrderTracking barcode={order.returnBarcode} />
         </div>
       )}
