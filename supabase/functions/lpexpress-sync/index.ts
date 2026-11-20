@@ -43,15 +43,16 @@ function isAuthorized(req: Request): boolean {
   }
 }
 
-function eventDate(e: LpTrackingEvent): number {
-  return e.date ? Date.parse(e.date) || 0 : 0
+function eventTime(e: LpTrackingEvent): number {
+  const value = e.eventDate ?? e.date
+  return value ? Date.parse(value) || 0 : 0
 }
 
 /** Latest state by event date; falls back to the current stored state when the
  *  barcode has no events yet. */
 function latestState(events: LpTrackingEvent[], fallback: string | null): string | null {
   if (events.length === 0) return fallback
-  return [...events].sort((a, b) => eventDate(b) - eventDate(a))[0].publicStateType ?? fallback
+  return [...events].sort((a, b) => eventTime(b) - eventTime(a))[0].publicStateType ?? fallback
 }
 
 Deno.serve(async (req) => {
