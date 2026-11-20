@@ -25,6 +25,9 @@ const service = () =>
 /** Public tracking state that means the parcel reached the customer. */
 const DELIVERED_STATE = "PARCEL_DELIVERED"
 
+/** States we already understand; anything else is logged so the arrival state for lockers can be identified. */
+const KNOWN_STATES = new Set(["LABEL_CREATED", DELIVERED_STATE])
+
 /** Authorized caller = the service-role key (pg_cron) OR a signed-in admin user
  *  (app_metadata.role='admin', the dashboard "Sync tracking" button). The gateway
  *  (verify_jwt) has already validated the JWT signature. */
@@ -71,6 +74,18 @@ Deno.serve(async (req) => {
       const events = await getTracking(order.lp_barcode!)
       const delivered = events.some((e) => e.publicStateType === DELIVERED_STATE)
       const nextState = delivered ? DELIVERED_STATE : latestState(events, order.lp_tracking_state)
+
+      const unfamiliar = [
+        ...new Set(
+          events
+            .map((e) => e.publicStateType)
+            .filter((state): state is string => !!state && !KNOWN_STATES.has(state))
+        ),
+      ]
+      if (unfamiliar.length > 0)
+        console.log(
+          JSON.stringify({ msg: "lp unfamiliar tracking states", barcode: order.lp_barcode, states: unfamiliar })
+        )
 
       const patch: Record<string, unknown> = {}
       if (nextState !== order.lp_tracking_state) patch.lp_tracking_state = nextState
