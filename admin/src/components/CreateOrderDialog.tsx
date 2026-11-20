@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { SetPicker } from "@/components/SetPicker"
 import { supabase } from "@/lib/supabase"
 
 interface CustomerOption {
@@ -34,11 +35,6 @@ interface CustomerOption {
   postalCode: string | null
   terminalId: string | null
   terminalName: string | null
-}
-
-interface ProductOption {
-  id: number
-  title: string
 }
 
 interface CreateOrderDialogProps {
@@ -62,10 +58,9 @@ export function CreateOrderDialog({
   onCreated,
 }: CreateOrderDialogProps) {
   const [customers, setCustomers] = useState<CustomerOption[]>([])
-  const [products, setProducts] = useState<ProductOption[]>([])
   const [customerSearch, setCustomerSearch] = useState("")
   const [customerId, setCustomerId] = useState("")
-  const [productId, setProductId] = useState("")
+  const [productId, setProductId] = useState<number | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -73,42 +68,35 @@ export function CreateOrderDialog({
     if (!open) return
     setCustomerSearch("")
     setCustomerId("")
-    setProductId("")
+    setProductId(null)
     setError(null)
-    void Promise.all([
-      supabase
-        .from("subscribers")
-        .select(
-          "id, name, last_name, email, plan, phone, home_delivery, street, house_no, flat, city, postal_code, lp_terminal_id, lp_terminal_name"
-        )
-        .eq("status", "active")
-        .order("name"),
-      supabase
-        .from("products")
-        .select("id, title")
-        .neq("status", "sold_out")
-        .order("title"),
-    ]).then(([{ data: subs }, { data: prods }]) => {
-      setCustomers(
-        (subs ?? []).map((s) => ({
-          id: s.id,
-          name: s.name ?? "",
-          lastName: s.last_name,
-          email: s.email ?? "",
-          plan: s.plan,
-          phone: s.phone,
-          homeDelivery: s.home_delivery,
-          street: s.street,
-          houseNo: s.house_no,
-          flat: s.flat,
-          city: s.city,
-          postalCode: s.postal_code,
-          terminalId: s.lp_terminal_id,
-          terminalName: s.lp_terminal_name,
-        }))
+    void supabase
+      .from("subscribers")
+      .select(
+        "id, name, last_name, email, plan, phone, home_delivery, street, house_no, flat, city, postal_code, lp_terminal_id, lp_terminal_name"
       )
-      setProducts(prods ?? [])
-    })
+      .eq("status", "active")
+      .order("name")
+      .then(({ data: subs }) => {
+        setCustomers(
+          (subs ?? []).map((s) => ({
+            id: s.id,
+            name: s.name ?? "",
+            lastName: s.last_name,
+            email: s.email ?? "",
+            plan: s.plan,
+            phone: s.phone,
+            homeDelivery: s.home_delivery,
+            street: s.street,
+            houseNo: s.house_no,
+            flat: s.flat,
+            city: s.city,
+            postalCode: s.postal_code,
+            terminalId: s.lp_terminal_id,
+            terminalName: s.lp_terminal_name,
+          }))
+        )
+      })
   }, [open])
 
   const filteredCustomers = useMemo(() => {
@@ -130,7 +118,7 @@ export function CreateOrderDialog({
         : "No saved locker. Set the delivery when shipping."
 
   async function handleCreate() {
-    if (!customer || !productId) return
+    if (!customer || productId === null) return
     setBusy(true)
     setError(null)
     const today = new Date()
@@ -138,7 +126,7 @@ export function CreateOrderDialog({
     due.setDate(due.getDate() + RENTAL_DAYS)
     const { error: insertError } = await supabase.from("orders").insert({
       subscriber_id: customer.id,
-      product_id: Number(productId),
+      product_id: productId,
       amount: 0,
       start_date: toDateString(today),
       due_date: toDateString(due),
@@ -173,7 +161,7 @@ export function CreateOrderDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create order</DialogTitle>
           <DialogDescription>
@@ -210,18 +198,12 @@ export function CreateOrderDialog({
 
           <div className="flex min-w-0 flex-col gap-1.5">
             <Label>Set</Label>
-            <Select value={productId} onValueChange={setProductId}>
-              <SelectTrigger className={TRIGGER_CLASS}>
-                <SelectValue placeholder="Select set" />
-              </SelectTrigger>
-              <SelectContent>
-                {products.map((p) => (
-                  <SelectItem key={p.id} value={String(p.id)}>
-                    {p.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SetPicker
+              customerId={customerId || null}
+              customerPlan={customer?.plan ?? null}
+              value={productId}
+              onChange={setProductId}
+            />
           </div>
 
           {error && <p className="text-sm text-destructive">{error}</p>}
@@ -233,7 +215,7 @@ export function CreateOrderDialog({
           </Button>
           <Button
             onClick={() => void handleCreate()}
-            disabled={busy || !customer || !productId}
+            disabled={busy || !customer || productId === null}
           >
             {busy ? "Creating…" : "Create order"}
           </Button>
