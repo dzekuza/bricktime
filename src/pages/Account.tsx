@@ -10,6 +10,7 @@ import { supabase } from "@/lib/supabase"
 import { waitForSubscriberBilling } from "@/lib/wait-for-subscriber"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
 import { useAchievements } from "@/hooks/useAchievements"
+import { CreditsResetNotice } from "@/components/CreditsResetNotice"
 import { useCredits } from "@/hooks/useCredits"
 import { MissingPartDialog } from "@/components/MissingPartDialog"
 import { ReturnDialog } from "@/components/ReturnDialog"
@@ -901,10 +902,10 @@ export default function Account() {
               {overBudgetCredits > 0 && (
                 <p className="mt-4 text-[13px] text-ink/60">
                   Turimi rinkiniai viršija tavo plano biudžetą{" "}
-                  {overBudgetCredits} briksių. Grąžink rinkinį – jo briksiai
-                  atsilaisvins iškart ir galėsi pasirinkti naują.
+                  {overBudgetCredits} briksių.
                 </p>
               )}
+              <CreditsResetNotice className="mt-4 text-[13px] font-bold text-ink/70" />
 
               <div className="mt-auto flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t-2 border-ink/10 pt-5">
                 <button

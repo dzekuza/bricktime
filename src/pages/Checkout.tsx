@@ -21,6 +21,7 @@ import {
 } from "@/lib/subscription-branding"
 import { ImagePlaceholder } from "@/components/ImagePlaceholder"
 import { useSubscriptions } from "@/hooks/useSubscriptions"
+import { CreditsResetNotice } from "@/components/CreditsResetNotice"
 import { useCredits } from "@/hooks/useCredits"
 import { useProductAvailability } from "@/hooks/useProductAvailability"
 import { toRentalErrorMessage } from "@/lib/rental"
@@ -1580,9 +1581,9 @@ export default function Checkout() {
                     </h2>
                     <p className="mt-1 text-[13px] text-ink/50">
                       Šiam produktui reikia {product?.value ?? 0} Kr., o tau
-                      liko {remainingCredits} Kr. Grąžink turimą produktą – jo
-                      briksiai atsilaisvins iškart.
+                      liko {remainingCredits} Kr.
                     </p>
+                    <CreditsResetNotice className="mt-1 text-[13px] font-bold text-ink/70" />
                   </div>
 
                   <div className="mt-auto pt-6">

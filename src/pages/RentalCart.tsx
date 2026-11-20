@@ -10,6 +10,7 @@ import { ImagePlaceholder } from "@/components/ImagePlaceholder"
 import { BricksBudgetBar } from "@/components/rental/BricksBudgetBar"
 import { TerminalPicker } from "@/components/TerminalPicker"
 import { useAuth } from "@/hooks/useAuth"
+import { CreditsResetNotice } from "@/components/CreditsResetNotice"
 import { useCredits } from "@/hooks/useCredits"
 import { usePaidCourierReturn } from "@/hooks/usePaidCourierReturn"
 import { useProductAvailability } from "@/hooks/useProductAvailability"
@@ -314,6 +315,9 @@ export default function RentalCart() {
                   cartValue={totalValue}
                   remaining={remainingCredits}
                 />
+                {isOverBudget && (
+                  <CreditsResetNotice className="mt-3 text-[13px] font-bold text-ink/70" />
+                )}
                 {isOverBudget && plan !== "mega" && (
                   <Link
                     to="/subscribe"
