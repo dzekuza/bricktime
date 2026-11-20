@@ -1,9 +1,11 @@
 import { useCallback, useLayoutEffect, useRef, type ReactNode } from "react"
 import { useSiteAccess } from "@/hooks/useSiteAccess"
+import { useSiteGateEnabled } from "@/hooks/useSiteGateEnabled"
 import ComingSoon from "@/pages/ComingSoon"
 
 export default function ComingSoonGate({ children }: { children: ReactNode }) {
   const { granted, unlock } = useSiteAccess()
+  const gateEnabled = useSiteGateEnabled()
   const wasGranted = useRef(granted)
 
   const handleUnlock = useCallback(
@@ -25,7 +27,9 @@ export default function ComingSoonGate({ children }: { children: ReactNode }) {
     wasGranted.current = granted
   }, [granted])
 
-  if (!granted) return <ComingSoon onUnlock={handleUnlock} />
+  if (granted || gateEnabled === false) return <>{children}</>
+  // Blank until the setting loads so neither the gate nor the site flashes.
+  if (gateEnabled === null) return null
 
-  return <>{children}</>
+  return <ComingSoon onUnlock={handleUnlock} />
 }
