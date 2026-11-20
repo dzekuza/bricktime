@@ -95,7 +95,7 @@ function MerchCard({ item }: { item: MerchItem }) {
     >
       {/* Visual */}
       <div
-        className="relative flex aspect-[4/3] items-center justify-center"
+        className={`relative flex items-center justify-center md:aspect-[4/3] ${item.image_url ? "" : "aspect-[4/3]"}`}
         style={{ background: item.bg }}
       >
         <span className="label-mono absolute top-4 left-4 rounded-full border-2 border-ink bg-paper px-3 py-1 text-ink">
@@ -108,7 +108,7 @@ function MerchCard({ item }: { item: MerchItem }) {
             alt={item.name}
             loading="lazy"
             decoding="async"
-            className="h-full w-full object-contain"
+            className="block h-auto w-full md:h-full md:object-contain"
           />
         ) : (
           <div
