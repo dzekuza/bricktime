@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 
 const TICK_MS = 1000
 
-/** Live "18d 34min 10s" countdown to `endsAt`; null when there is no end or it has passed. */
+/** Live "18d 5h 34min" countdown to `endsAt`; null when there is no end or it has passed. */
 export function useBillingCountdown(endsAt: string | null): string | null {
   const [now, setNow] = useState(() => Date.now())
 
@@ -23,9 +23,9 @@ export function useBillingCountdown(endsAt: string | null): string | null {
   const remaining = new Date(endsAt).getTime() - now
   if (remaining <= 0) return null
 
-  const totalSeconds = Math.floor(remaining / 1000)
-  const days = Math.floor(totalSeconds / 86400)
-  const minutes = Math.floor((totalSeconds % 86400) / 60)
-  const seconds = totalSeconds % 60
-  return `${days}d ${minutes}min ${seconds}s`
+  const totalMinutes = Math.floor(remaining / 60_000)
+  const days = Math.floor(totalMinutes / 1440)
+  const hours = Math.floor((totalMinutes % 1440) / 60)
+  const minutes = totalMinutes % 60
+  return `${days}d ${hours}h ${minutes}min`
 }
