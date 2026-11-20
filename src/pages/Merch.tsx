@@ -137,10 +137,6 @@ function MerchCard({ item }: { item: MerchItem }) {
           </span>
         </div>
 
-        <p className="text-[14px] leading-relaxed text-ink/60">
-          {item.description}
-        </p>
-
         <div className="flex flex-wrap gap-1.5">
           {item.sizes.map((size) => (
             <span
