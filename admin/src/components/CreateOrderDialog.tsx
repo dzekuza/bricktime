@@ -47,6 +47,10 @@ interface CreateOrderDialogProps {
   onCreated: () => void
 }
 
+// Long set titles must truncate inside the dialog instead of stretching it.
+const TRIGGER_CLASS =
+  "w-full min-w-0 *:data-[slot=select-value]:block! *:data-[slot=select-value]:truncate"
+
 const RENTAL_DAYS = 30
 const isMysteryPlan = (plan: string) => plan.startsWith("mystery")
 const toDateString = (d: Date) => d.toISOString().slice(0, 10)
@@ -178,8 +182,8 @@ export function CreateOrderDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
+        <div className="flex min-w-0 flex-col gap-4">
+          <div className="flex min-w-0 flex-col gap-1.5">
             <Label htmlFor="order-customer-search">Customer</Label>
             <Input
               id="order-customer-search"
@@ -188,7 +192,7 @@ export function CreateOrderDialog({
               onChange={(e) => setCustomerSearch(e.target.value)}
             />
             <Select value={customerId} onValueChange={setCustomerId}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className={TRIGGER_CLASS}>
                 <SelectValue placeholder="Select customer" />
               </SelectTrigger>
               <SelectContent>
@@ -204,10 +208,10 @@ export function CreateOrderDialog({
             )}
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex min-w-0 flex-col gap-1.5">
             <Label>Set</Label>
             <Select value={productId} onValueChange={setProductId}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className={TRIGGER_CLASS}>
                 <SelectValue placeholder="Select set" />
               </SelectTrigger>
               <SelectContent>
