@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { ComingSoonGateCard } from '@/components/ComingSoonGateCard'
 
 export function Settings() {
   const [emailNotifications, setEmailNotifications] = useState(true)
@@ -42,7 +43,8 @@ export function Settings() {
         </TabsList>
 
         {/* General */}
-        <TabsContent value="general">
+        <TabsContent value="general" className="flex flex-col gap-4">
+          <ComingSoonGateCard />
           <Card>
             <CardHeader>
               <CardTitle>General</CardTitle>
