@@ -1094,6 +1094,29 @@ Deno.serve(async (req) => {
         break
       }
 
+      // Stripe sends this ahead of a renewal (lead time set in Billing
+      // settings); the reminder email itself lives in Omnisend.
+      case "invoice.upcoming": {
+        const invoice = event.data.object as Stripe.Invoice
+        if (!invoice.customer_email || !invoice.subscription) break
+        if ((invoice.amount_due ?? 0) <= 0) break
+        const chargeAtSeconds =
+          invoice.next_payment_attempt ?? invoice.period_end
+        const isSent = await pushOmnisendEvent(
+          "subscription payment upcoming",
+          invoice.customer_email,
+          {
+            amountDue: ((invoice.amount_due ?? 0) / 100).toFixed(2),
+            chargeAt: formatLtDate(new Date(chargeAtSeconds * 1000)),
+            accountUrl: "https://www.bricktime.lt/account",
+          }
+        )
+        if (!isSent) {
+          return json(500, { error: "Omnisend event push failed" })
+        }
+        break
+      }
+
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice
         const customerId =
@@ -1114,15 +1137,10 @@ Deno.serve(async (req) => {
           subscriber &&
           subscriptionId &&
           (await isStoredSubscriptionOtherLive(subscriber.id, subscriptionId))
-        if (subscriber && !isOtherLive) {
-          await supabase
-            .from("subscribers")
-            .update({ status: "paused" })
-            .eq("id", subscriber.id)
-        }
-
         // A failed invoice of a subscription the member has since replaced is
-        // not news, same as for the pause above.
+        // not news, same as for the pause below. Queued before the Omnisend
+        // push, whose failure returns early for a Stripe retry; the
+        // invoice-keyed dedupe makes the repeat harmless.
         if (!isOtherLive) {
           // An invoice can lack customer_email; the alert is useless without
           // who it concerns, so fall back to the Stripe customer's address.
@@ -1141,6 +1159,27 @@ Deno.serve(async (req) => {
             { email: alertEmail, amount: invoice.amount_due / 100 },
             `payment_failed:${invoice.id}`
           )
+        }
+
+        if (subscriber && !isOtherLive) {
+          await supabase
+            .from("subscribers")
+            .update({ status: "paused" })
+            .eq("id", subscriber.id)
+
+          if (invoice.customer_email) {
+            const isSent = await pushOmnisendEvent(
+              "subscription payment failed",
+              invoice.customer_email,
+              {
+                amountDue: ((invoice.amount_due ?? 0) / 100).toFixed(2),
+                accountUrl: "https://www.bricktime.lt/account",
+              }
+            )
+            if (!isSent) {
+              return json(500, { error: "Omnisend event push failed" })
+            }
+          }
         }
         break
       }
