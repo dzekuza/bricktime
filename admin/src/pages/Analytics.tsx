@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { TableSection } from "@/components/TableSection"
 import {
   MousePointerClickIcon,
   EyeIcon,
@@ -354,43 +355,29 @@ export function Analytics() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Populiariausios užklausos</CardTitle>
-            <CardDescription>
-              Top 10 paieškos frazių pagal paspaudimus
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-[300px] w-full" />
-            ) : (
-              <DataTable
+        <TableSection
+          title="Populiariausios užklausos"
+          description="Top 10 paieškos frazių pagal paspaudimus"
+          loading={loading}
+        >
+          <DataTable
                 caption="Populiariausios paieškos užklausos"
                 columns={queryColumns}
                 data={data?.gsc?.topQueries ?? []}
               />
-            )}
-          </CardContent>
-        </Card>
+        </TableSection>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Populiariausi puslapiai</CardTitle>
-            <CardDescription>Top 10 puslapių pagal paspaudimus</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-[300px] w-full" />
-            ) : (
-              <DataTable
+        <TableSection
+          title="Populiariausi puslapiai"
+          description="Top 10 puslapių pagal paspaudimus"
+          loading={loading}
+        >
+          <DataTable
                 caption="Populiariausi puslapiai"
                 columns={pageColumns}
                 data={data?.gsc?.topPages ?? []}
               />
-            )}
-          </CardContent>
-        </Card>
+        </TableSection>
       </div>
     </div>
   )

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
+import { TableSection } from "@/components/TableSection"
 import { toast } from "@/lib/toast"
 import { PlusIcon, PencilIcon, Trash2Icon, TrophyIcon } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
@@ -8,7 +9,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -299,18 +299,9 @@ export function Achievements() {
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Achievement Catalog</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
-          ) : (
-            <DataTable caption="Rewards" columns={columns} data={items} />
-          )}
-        </CardContent>
-      </Card>
+      <TableSection title="Achievement Catalog" loading={loading}>
+        <DataTable caption="Rewards" columns={columns} data={items} />
+      </TableSection>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">

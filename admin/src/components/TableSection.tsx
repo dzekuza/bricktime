@@ -5,24 +5,24 @@ import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 
-interface DashboardTableSectionProps {
+interface TableSectionProps {
   title: string
-  description: string
+  description?: string
   /** Route of the full list, e.g. "/orders". */
   href?: string
   linkLabel?: string
-  loading: boolean
+  loading?: boolean
   children: ReactNode
 }
 
-export function DashboardTableSection({
+export function TableSection({
   title,
   description,
   href,
   linkLabel,
-  loading,
+  loading = false,
   children,
-}: DashboardTableSectionProps) {
+}: TableSectionProps) {
   const headingId = useId()
 
   return (
@@ -32,7 +32,9 @@ export function DashboardTableSection({
           <h2 id={headingId} className="text-base font-medium">
             {title}
           </h2>
-          <p className="text-sm text-muted-foreground">{description}</p>
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
         </div>
         {href && (
           <Button asChild variant="outline" size="sm">

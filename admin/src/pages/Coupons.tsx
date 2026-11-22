@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { TableSection } from "@/components/TableSection"
 import { toast } from "@/lib/toast"
 import { PlusIcon, PencilIcon, Trash2Icon, TicketIcon } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -8,7 +9,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -250,18 +250,9 @@ export function Coupons() {
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">All Codes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
-          ) : (
-            <DataTable caption="Coupons" columns={columns} data={items} />
-          )}
-        </CardContent>
-      </Card>
+      <TableSection title="All Codes" loading={loading}>
+        <DataTable caption="Coupons" columns={columns} data={items} />
+      </TableSection>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
+import { TableSection } from "@/components/TableSection"
 import { AwardIcon, SearchIcon } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { SearchInput } from "@/components/ui/search-input"
@@ -210,23 +211,14 @@ export function Points() {
         />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Leaderboard</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
-          ) : (
-            <DataTable
+      <TableSection title="Leaderboard" loading={loading}>
+        <DataTable
               caption="Points by member"
               columns={columns}
               data={filtered}
               onRowClick={openDetail}
             />
-          )}
-        </CardContent>
-      </Card>
+      </TableSection>
 
       <Sheet open={detailOpen} onOpenChange={setDetailOpen}>
         <SheetContent className="sm:max-w-md">

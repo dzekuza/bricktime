@@ -2,7 +2,7 @@ import { useMemo } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { DataTable } from "@/components/DataTable"
-import { DashboardTableSection } from "@/components/dashboard/DashboardTableSection"
+import { TableSection } from "@/components/TableSection"
 import { Badge } from "@/components/ui/badge"
 import { orderStatusColors } from "@/data/orders"
 import type { RecentOrder } from "@/hooks/use-dashboard-tables"
@@ -40,7 +40,7 @@ export function RecentOrdersTable({ orders, loading }: RecentOrdersTableProps) {
   )
 
   return (
-    <DashboardTableSection
+    <TableSection
       title="Recent orders"
       description="Latest rentals and their status"
       href="/orders"
@@ -52,6 +52,6 @@ export function RecentOrdersTable({ orders, loading }: RecentOrdersTableProps) {
         columns={columns}
         data={orders}
       />
-    </DashboardTableSection>
+    </TableSection>
   )
 }

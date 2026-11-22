@@ -2,7 +2,7 @@ import { useMemo } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { DataTable } from "@/components/DataTable"
-import { DashboardTableSection } from "@/components/dashboard/DashboardTableSection"
+import { TableSection } from "@/components/TableSection"
 import { Badge } from "@/components/ui/badge"
 import {
   planColors,
@@ -66,7 +66,7 @@ export function RecentCustomersTable({
   )
 
   return (
-    <DashboardTableSection
+    <TableSection
       title="New customers"
       description="Most recent sign-ups"
       href="/subscribers"
@@ -74,6 +74,6 @@ export function RecentCustomersTable({
       loading={loading}
     >
       <DataTable caption="New customers" columns={columns} data={customers} />
-    </DashboardTableSection>
+    </TableSection>
   )
 }

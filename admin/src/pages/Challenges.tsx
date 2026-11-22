@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react"
+import { TableSection } from "@/components/TableSection"
 import { toast } from "@/lib/toast"
 import {
   PlusIcon,
@@ -18,7 +19,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -478,18 +478,9 @@ export function Challenges() {
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Time-boxed goals</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
-          ) : (
-            <DataTable caption="Challenges" columns={columns} data={items} />
-          )}
-        </CardContent>
-      </Card>
+      <TableSection title="Time-boxed goals" loading={loading}>
+        <DataTable caption="Challenges" columns={columns} data={items} />
+      </TableSection>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
