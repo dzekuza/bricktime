@@ -9,7 +9,7 @@ Chronological log of notable changes to the project. Newest first.
 
 ## 2026-11-22 — WhatsApp admin alerts: orders, forms, delivery check (stacked on PR #150)
 
-- **Added:** DB triggers (migration `20261122130000`) queue alerts for merch orders, set rentals (one per cart), Mystery Box requests, return requests, the missing-part form, bought gift cards and product reviews; orders created by an admin do not alert. Caps on member-triggered kinds over a rolling 24 hours (not reset at midnight), extra index migration `20261122130100`. Admin card lists every kind and has a "Send test alert" button plus the latest alerts with status. Verified on a scratch Postgres: apply, behaviour, rollback, reapply.
+- **Added:** DB triggers (migration `20261122130000`) queue alerts for merch orders, set rentals (one per cart), Mystery Box requests, return requests, the missing-part form, bought gift cards and product reviews; orders created by an admin do not alert. Caps on member-triggered kinds over a rolling 24 hours (not reset at midnight), extra index migration `20261122130100`. Admin card lists every kind and has a "Send test alert" button (sent even while alerts are off, capped at 10 per rolling 24 hours) plus the latest alerts with status. Verified on a scratch Postgres: apply, behaviour, rollback, reapply.
 - **Not covered:** penalties paid, waitlist signups, community posts, and true delivery receipts (status `sent` means the provider accepted it).
 
 ## 2026-11-22 — WhatsApp admin alerts (PR #150)

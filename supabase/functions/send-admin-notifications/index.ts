@@ -4,8 +4,10 @@
 // 20261122120000_admin_notifications migration). Alerts that arrive while
 // alerts, or their kind, are switched off are marked 'skipped' rather than left
 // pending, so turning them on later does not flush a backlog of stale alerts.
-// Rows are left pending only when WhatsApp is not configured yet or a send
-// failed in a way worth retrying.
+// The one exception is the admin-only 'test' alert, which is sent even while
+// alerts are off so delivery can be checked first (it is capped at 10 per
+// rolling 24 hours). Rows are left pending only when WhatsApp is not
+// configured yet or a send failed in a way worth retrying.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { formatAdminMessage } from "../_shared/admin-notifications.ts"
