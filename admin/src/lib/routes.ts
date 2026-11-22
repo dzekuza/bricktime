@@ -16,6 +16,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/points": "Points",
   "/challenges": "Challenges",
   "/community": "Community",
+  "/assistant": "Assistant",
   "/settings": "Settings",
 }
 

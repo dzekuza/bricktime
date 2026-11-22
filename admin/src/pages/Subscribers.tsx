@@ -1,6 +1,12 @@
 import { useState, useMemo, useEffect, useRef } from "react"
 import { toast } from "@/lib/toast"
-import { MoreHorizontalIcon, SearchIcon, Trash2Icon } from "lucide-react"
+import { Link } from "react-router-dom"
+import {
+  MoreHorizontalIcon,
+  SearchIcon,
+  SparklesIcon,
+  Trash2Icon,
+} from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import { IconButton } from "@/components/ui/icon-button"
@@ -375,13 +381,21 @@ export function Subscribers() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Customers &amp; Subscribers
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {loading ? "Loading…" : `${items.length} total members`}
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Customers &amp; Subscribers
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {loading ? "Loading…" : `${items.length} total members`}
+          </p>
+        </div>
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/assistant?prompt=Find a client named ">
+            <SparklesIcon className="size-4" />
+            Ask assistant
+          </Link>
+        </Button>
       </div>
 
       {/* Stats */}

@@ -53,6 +53,42 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_assistant_actions: {
+        Row: {
+          admin_email: string | null
+          admin_id: string
+          args: Json
+          created_at: string
+          error: string | null
+          id: string
+          status: string
+          summary: string
+          tool: string
+        }
+        Insert: {
+          admin_email?: string | null
+          admin_id?: string
+          args?: Json
+          created_at?: string
+          error?: string | null
+          id?: string
+          status: string
+          summary: string
+          tool: string
+        }
+        Update: {
+          admin_email?: string | null
+          admin_id?: string
+          args?: Json
+          created_at?: string
+          error?: string | null
+          id?: string
+          status?: string
+          summary?: string
+          tool?: string
+        }
+        Relationships: []
+      }
       admin_notifications: {
         Row: {
           attempts: number
@@ -2167,8 +2203,14 @@ export type Database = {
         Args: { p_feed_item_id: string; p_session_id: string }
         Returns: undefined
       }
-      reset_member_credits: { Args: { p_subscriber_id: string }; Returns: number }
-      credits_pending_reset: { Args: { p_subscriber_id: string }; Returns: number }
+      reset_member_credits: {
+        Args: { p_subscriber_id: string }
+        Returns: number
+      }
+      credits_pending_reset: {
+        Args: { p_subscriber_id: string }
+        Returns: number
+      }
       billing_window: {
         Args: { p_subscriber_id: string }
         Returns: { window_end: string | null; window_start: string }[]
