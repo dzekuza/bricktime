@@ -9,7 +9,7 @@ Chronological log of notable changes to the project. Newest first.
 
 ## 2026-11-22 — Telegram channel for admin alerts (stacked on the phase 2 PR)
 
-- **Added:** `_shared/telegram.ts` (Bot API, plain text, no phone number or template) and `_shared/alert-channels.ts`, which sends each alert to every configured channel (WhatsApp and/or Telegram); an alert counts as sent when one channel delivered it, and a failed second channel is shown as a note in the admin log. The bot token is redacted from every error. Admin card wording now says "Admin alerts".
+- **Added:** `_shared/telegram.ts` (Bot API, plain text, no phone number or template) and `_shared/alert-channels.ts`, which sends each alert to every configured channel (WhatsApp and/or Telegram); an alert counts as sent when one channel accepted it (no delivery receipt is checked), and a failed second channel is shown as a note in the admin log. The bot token is redacted from every error. Admin card wording now says "Admin alerts".
 - **Secrets:** `TELEGRAM_BOT_TOKEN` (from @BotFather) and `TELEGRAM_CHAT_ID`. No migration.
 
 ## 2026-11-22 — WhatsApp admin alerts: orders, forms, delivery check (stacked on PR #150)
