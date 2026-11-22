@@ -1332,6 +1332,7 @@ export function ProductEditDialog({
                   <div className="flex items-center justify-between">
                     <Label>Featured</Label>
                     <Switch
+                      aria-label="Featured"
                       checked={form.featured ?? false}
                       onCheckedChange={(v) => set("featured", v)}
                     />

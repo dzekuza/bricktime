@@ -479,6 +479,7 @@ export function Plans() {
                 <div className="flex items-center justify-between">
                   <Label>Featured (Popular badge)</Label>
                   <Switch
+                    aria-label="Featured (Popular badge)"
                     checked={editPlan.featured}
                     onCheckedChange={(v) =>
                       setEditPlan((p) => p && { ...p, featured: v })
@@ -488,6 +489,7 @@ export function Plans() {
                 <div className="flex items-center justify-between">
                   <Label>Active</Label>
                   <Switch
+                    aria-label="Active"
                     checked={editPlan.active}
                     onCheckedChange={(v) =>
                       setEditPlan((p) => p && { ...p, active: v })
@@ -523,6 +525,7 @@ export function Plans() {
                   {editPlan.perks.map((perk, i) => (
                     <div key={i} className="flex items-center gap-2">
                       <Switch
+                        aria-label={`Include feature ${perk.label || i + 1}`}
                         checked={perk.included}
                         onCheckedChange={(v) =>
                           setEditPlan(

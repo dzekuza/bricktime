@@ -242,6 +242,7 @@ export function CategoriesTab() {
               <div className="flex items-center justify-between">
                 <Label>Visible in storefront</Label>
                 <Switch
+                  aria-label="Visible in storefront"
                   checked={form.active}
                   onCheckedChange={(v) => setForm({ ...form, active: v })}
                 />

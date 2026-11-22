@@ -116,10 +116,11 @@ export function Settings() {
                 <div key={item.id} className="flex items-center justify-between gap-4">
                   <div className="flex flex-col gap-0.5">
                     <Label htmlFor={item.id} className="font-medium">{item.label}</Label>
-                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                    <p id={`${item.id}-description`} className="text-sm text-muted-foreground">{item.description}</p>
                   </div>
                   <Switch
                     id={item.id}
+                    aria-describedby={`${item.id}-description`}
                     checked={item.value}
                     onCheckedChange={item.onChange}
                   />

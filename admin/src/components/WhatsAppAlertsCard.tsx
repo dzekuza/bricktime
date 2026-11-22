@@ -117,10 +117,11 @@ export function WhatsAppAlertsCard() {
           <div key={kind.id} className="flex items-center justify-between gap-4">
             <div className="flex flex-col gap-0.5">
               <Label htmlFor={`whatsapp-${kind.id}`}>{kind.label}</Label>
-              <p className="text-sm text-muted-foreground">{kind.description}</p>
+              <p id={`whatsapp-${kind.id}-description`} className="text-sm text-muted-foreground">{kind.description}</p>
             </div>
             <Switch
               id={`whatsapp-${kind.id}`}
+              aria-describedby={`whatsapp-${kind.id}-description`}
               checked={current.kinds[kind.id] !== false}
               disabled={isDisabled || !current.enabled}
               onCheckedChange={(on) =>

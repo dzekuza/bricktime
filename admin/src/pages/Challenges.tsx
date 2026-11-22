@@ -645,6 +645,7 @@ export function Challenges() {
             </div>
             <div className="flex items-center gap-2">
               <Switch
+                aria-label="Active"
                 checked={form.is_active}
                 onCheckedChange={(checked) =>
                   setForm((f) => ({ ...f, is_active: checked }))

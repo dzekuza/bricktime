@@ -230,7 +230,7 @@ export function GiftCards() {
     .reduce((sum, c) => sum + c.amount_cents, 0)
 
   return (
-    <div className="space-y-6 p-6">
+    <div lang="lt" className="space-y-6 p-6">
       <div className="flex items-center gap-3">
         <GiftIcon className="size-6 text-muted-foreground" />
         <h1 className="text-2xl font-bold">Dovanų kortelės</h1>

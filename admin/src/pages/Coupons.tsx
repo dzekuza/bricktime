@@ -211,6 +211,7 @@ export function Coupons() {
       header: 'Active',
       cell: ({ row }) => (
         <Switch
+          aria-label={`Coupon ${row.original.code} active`}
           checked={row.original.active}
           onCheckedChange={() => handleToggleActive(row.original)}
         />
