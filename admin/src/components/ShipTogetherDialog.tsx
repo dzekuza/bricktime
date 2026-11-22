@@ -22,6 +22,7 @@ import {
   courierOrderPatch,
   EMPTY_COURIER_ADDRESS,
   type CourierAddress,
+  defaultParcelSize,
   type ParcelSize,
 } from "@/lib/lpexpress"
 import type { Order } from "@/data/orders"
@@ -64,7 +65,7 @@ function getBlocker(orders: Order[]): string | null {
 /** Biggest of the sets' own sizes; a combined parcel must fit the largest. */
 function largestShippingSize(orders: Order[]): ParcelSize {
   const index = Math.max(
-    ...orders.map((o) => PARCEL_SIZES.indexOf(o.productShippingSize ?? "L")),
+    ...orders.map((o) => PARCEL_SIZES.indexOf(defaultParcelSize(o, "L"))),
     0
   )
   return PARCEL_SIZES[index]

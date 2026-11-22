@@ -28,6 +28,7 @@ import { AssignMysterySet } from '@/components/AssignMysterySet'
 import { tierLabels, type Tier } from '@/data/products'
 import {
   createLabel,
+  defaultParcelSize,
   fetchLabelPdf,
   resetLabel,
   downloadPdf,
@@ -97,7 +98,7 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
     setAdminNote(order ? (localStorage.getItem(noteKey(order.id)) ?? '') : '')
     setNoteSaved(false)
     setPhone(order?.deliveryPhone ?? '')
-    setParcelSize(order?.productShippingSize ?? 'M')
+    setParcelSize(order ? defaultParcelSize(order) : 'M')
     setWeightKg('2')
     setCourierPickup(false)
     setSendByCourier(false)
@@ -335,7 +336,7 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
               <AssignMysterySet order={order} onAssigned={(id, patch) => {
                   onShippingUpdate?.(id, patch)
                   // The size picker was initialised before a set existed.
-                  if (patch.productShippingSize) setParcelSize(patch.productShippingSize)
+                  if (patch.productShippingSize) setParcelSize(defaultParcelSize({ ...order, ...patch }))
                 }} />
             </div>
           )}
