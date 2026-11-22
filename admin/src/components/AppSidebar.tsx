@@ -6,7 +6,6 @@ import {
   CreditCardIcon,
   ShoppingCartIcon,
   SettingsIcon,
-  BrickWallIcon,
   LogOutIcon,
   TicketIcon,
   WrenchIcon,
@@ -20,6 +19,7 @@ import {
   AwardIcon,
   StarIcon,
 } from "lucide-react"
+import brickLogo from "@/assets/brick-logo.svg"
 import { useAuth } from "@/context/AuthContext"
 import {
   Sidebar,
@@ -99,9 +99,11 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <NavLink to="/">
-                <div className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
-                  <BrickWallIcon className="size-4" />
-                </div>
+                <img
+                  src={brickLogo}
+                  alt=""
+                  className="size-8 shrink-0 object-contain"
+                />
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold">BRICKTIME</span>
                   <span className="text-xs text-muted-foreground">Admin</span>
