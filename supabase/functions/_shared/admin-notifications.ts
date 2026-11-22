@@ -84,7 +84,8 @@ export async function enqueueAdminNotification(
   supabase: SupabaseClient,
   kind: AdminNotificationKind,
   payload: Payload,
-  dedupeKey: string
+  dedupeKey: string,
+  { retryDelayMs = 200 }: { retryDelayMs?: number } = {}
 ): Promise<void> {
   for (let attempt = 1; attempt <= ENQUEUE_ATTEMPTS; attempt++) {
     try {
@@ -101,6 +102,6 @@ export async function enqueueAdminNotification(
         error
       )
     }
-    if (attempt < ENQUEUE_ATTEMPTS) await wait(200 * attempt)
+    if (attempt < ENQUEUE_ATTEMPTS) await wait(retryDelayMs * attempt)
   }
 }

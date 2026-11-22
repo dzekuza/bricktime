@@ -1,5 +1,44 @@
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts"
-import { formatAdminMessage } from "./admin-notifications.ts"
+import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2"
+import {
+  enqueueAdminNotification,
+  formatAdminMessage,
+} from "./admin-notifications.ts"
+
+// A client whose insert returns the next scripted result; `calls` counts tries.
+function stubClient(results: Array<{ error: unknown } | "throw">) {
+  const state = { calls: 0 }
+  const client = {
+    from: () => ({
+      insert: () => {
+        const result = results[Math.min(state.calls++, results.length - 1)]
+        if (result === "throw") return Promise.reject(new Error("network down"))
+        return Promise.resolve(result)
+      },
+    }),
+  } as unknown as SupabaseClient
+  return { client, state }
+}
+
+// Keeps the expected failures out of the test output.
+async function withQuietErrors(run: () => Promise<void>) {
+  const original = console.error
+  console.error = () => {}
+  try {
+    await run()
+  } finally {
+    console.error = original
+  }
+}
+
+const enqueue = (client: SupabaseClient) =>
+  enqueueAdminNotification(
+    client,
+    "payment_failed",
+    { email: "j@x.lt" },
+    "payment_failed:in_1",
+    { retryDelayMs: 0 }
+  )
 
 Deno.test("formats a new subscriber on one line", () => {
   assertEquals(
@@ -89,13 +128,70 @@ Deno.test("caps long names", () => {
 })
 
 Deno.test("keeps a long but valid email address", () => {
-  const local = "a".repeat(80)
+  const local = "a".repeat(64)
   assertEquals(
     formatAdminMessage("subscription_cancelled", {
       email: `${local}@example.lt`,
     }),
     `Prenumerata atšaukta: ${local}@example[.]lt`
   )
+})
+
+// Total length 254 is the RFC limit: kept. One more character: replaced.
+const emailOfLength = (length: number) =>
+  `${"a".repeat(64)}@${"b".repeat(length - 64 - 1 - 3)}.lt`
+
+Deno.test("accepts an email of exactly 254 characters", () => {
+  const address = emailOfLength(254)
+  assertEquals(address.length, 254)
+  assertEquals(
+    formatAdminMessage("subscription_cancelled", { email: address }),
+    `Prenumerata atšaukta: ${address.replaceAll(".", "[.]")}`
+  )
+})
+
+Deno.test("replaces an email of 255 characters with a dash", () => {
+  const address = emailOfLength(255)
+  assertEquals(address.length, 255)
+  assertEquals(
+    formatAdminMessage("subscription_cancelled", { email: address }),
+    "Prenumerata atšaukta: —"
+  )
+})
+
+Deno.test("enqueue stops at once on a duplicate key", async () => {
+  const { client, state } = stubClient([{ error: { code: "23505" } }])
+  await enqueue(client)
+  assertEquals(state.calls, 1)
+})
+
+Deno.test("enqueue does not retry after a successful insert", async () => {
+  const { client, state } = stubClient([{ error: null }])
+  await enqueue(client)
+  assertEquals(state.calls, 1)
+})
+
+Deno.test("enqueue retries a transient error until it succeeds", async () => {
+  const { client, state } = stubClient([
+    { error: { code: "08006", message: "connection failure" } },
+    { error: null },
+  ])
+  await withQuietErrors(() => enqueue(client))
+  assertEquals(state.calls, 2)
+})
+
+Deno.test("enqueue gives up after three failed tries without throwing", async () => {
+  const { client, state } = stubClient([
+    { error: { code: "08006", message: "connection failure" } },
+  ])
+  await withQuietErrors(() => enqueue(client))
+  assertEquals(state.calls, 3)
+})
+
+Deno.test("enqueue treats a rejected insert like a failed try", async () => {
+  const { client, state } = stubClient(["throw"])
+  await withQuietErrors(() => enqueue(client))
+  assertEquals(state.calls, 3)
 })
 
 Deno.test("unknown kinds have no message", () => {

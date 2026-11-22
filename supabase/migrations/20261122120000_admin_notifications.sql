@@ -6,7 +6,11 @@
 --           drop trigger subscribers_notify_admin on public.subscribers;
 --           drop function public.notify_admin_new_subscriber();
 --           drop table public.admin_notifications;
---           delete from public.site_settings where key = 'admin_whatsapp';
+--           delete from public.site_settings
+--             where key = 'admin_whatsapp'
+--               and value = '{"enabled": false, "kinds": {}}'::jsonb;
+--           (only the untouched default is removed; a configured setting is
+--           shared admin state, so delete it by hand if that is intended)
 
 create table public.admin_notifications (
   id uuid primary key default gen_random_uuid(),
