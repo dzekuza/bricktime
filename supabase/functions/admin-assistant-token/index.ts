@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "https://esm.sh/@google/genai@3.6.1"
+import { GoogleGenAI, Modality } from "https://esm.sh/@google/genai@3.6.1"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 const corsHeaders = {
@@ -53,7 +53,12 @@ Deno.serve(async (req) => {
         uses: 1,
         newSessionExpireTime: new Date(now + 60_000).toISOString(),
         expireTime: new Date(now + 30 * 60_000).toISOString(),
-        liveConnectConstraints: { model: LIVE_MODEL },
+        // The native-audio model only speaks audio. Without this the token's locked
+        // setup defaults to TEXT and the session is closed with code 1007.
+        liveConnectConstraints: {
+          model: LIVE_MODEL,
+          config: { responseModalities: [Modality.AUDIO] },
+        },
       },
     })
     if (!token.name) return json({ error: "Could not create a token" }, 502)
