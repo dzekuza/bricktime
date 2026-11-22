@@ -1,3 +1,33 @@
+## 2026-11-22 — architecture docs sync to `872d51b`
+
+- **Changed:** two commits since `71d7f92`; only `admin/` changed. Documented `defaultParcelSize` (plan, then set size, then fallback) in the codebase map.
+- **Status:** docs follow HEAD. Not verified by running anything.
+- **Next:** unchanged (rename one `20261122130000` migration before `db push`).
+
+## 2026-11-22 — architecture docs sync to `71d7f92`
+
+- **Changed:** seven commits since `d7c8f36`. Documented the admin-only `reset-label` action (guards, columns cleared) and its admin wrapper, the `ProductCard` gallery scrub, and the `cn()` tailwind-merge extension. Community and sort-popover changes are styling only.
+- **Status:** docs follow HEAD. Not verified by running anything.
+- **Next:** still rename one of the two `20261122130000` migrations before `db push`.
+
+## 2026-11-22 — architecture docs sync to `d7c8f36`
+
+- **Changed:** four commits since `db347f2` (FAQ search, admin notifications bell, admin a11y audit fixes, PR merges). Two new module rows in the map; stale `Account.tsx` refs fixed. The a11y fix touches many admin files with no new exports, so nothing else changed.
+- **Status:** docs follow HEAD.
+- **Next:** rename one of the two `20261122130000` migrations before `db push`.
+
+## 2026-11-22 — architecture docs sync to `db347f2`
+
+- **Changed:** one new commit (`feat: guide Mystery Box buyers to place their order after payment`): three new modules in the map (`MysteryBoxOrderBar`, `MysteryBoxIntroDialog`, `usePendingMysteryOrder`) plus `lib/mystery-box.ts`; stale `App.tsx`/`Nav.tsx`/`Account.tsx` line refs fixed. Chats skipped by request. Shell had a stale `GIT_DIR` env var; git was run with it unset.
+- **Status:** docs follow HEAD.
+- **Next:** rename one of the two `20261122130000` migrations before `db push`.
+
+## 2026-11-22 — architecture docs sync to `3e89105`
+
+- **Changed:** SEO module in the map follows `fix: address review feedback on prerender SEO` (JSON-LD, release-date filter, merch statuses). `ProductCard` change is alt text only. Chats skipped by request.
+- **Status:** docs follow HEAD.
+- **Next:** rename one of the two `20261122130000` migrations before `db push`.
+
 ## 2026-11-22 — architecture docs sync to `701c773`
 
 - **Changed:** map now covers `scripts/postbuild-seo.mjs`, `Seo`, `AddressAutocomplete`, `geoapify`, `countries`, `subscribers.country`. Admin-notification code was already documented. Chats skipped by request.
