@@ -202,6 +202,7 @@ export default function Checkout() {
   const [billing, setBilling] = useState<"monthly" | "annual">(billingParam)
   const [purchasing, setPurchasing] = useState(false)
   const [purchaseError, setPurchaseError] = useState("")
+  const [isWalletPending, setIsWalletPending] = useState(false)
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const { subscriptions: plans } = useSubscriptions()
 
@@ -554,6 +555,7 @@ export default function Checkout() {
     !!user &&
     !userSub &&
     !!requiredPlan &&
+    !purchasing &&
     agreedToTerms &&
     hasPhone &&
     (homeDelivery ? hasAddress : !!terminal) &&
@@ -1975,9 +1977,10 @@ export default function Checkout() {
                     {canUseWallet && (
                       <div className="mb-4">
                         <WalletCheckout
-                          orderKey={`${requiredTier.key}|${billing}|${homeDelivery}`}
+                          orderKey={`${productId ?? ""}|${requiredTier.key}|${billing}|${homeDelivery}`}
                           createSession={createWalletSession}
                           onError={setPurchaseError}
+                          onPendingChange={setIsWalletPending}
                         />
                       </div>
                     )}
@@ -1987,6 +1990,7 @@ export default function Checkout() {
                       }
                       disabled={
                         purchasing ||
+                        isWalletPending ||
                         (!!user && (!requiredPlan || !agreedToTerms))
                       }
                       className="brick-hover-sm flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-brand-orange px-5 py-3.5 text-paper transition-all disabled:cursor-not-allowed disabled:opacity-60 md:rounded-[28px] md:px-6 md:py-4"
@@ -2090,7 +2094,9 @@ export default function Checkout() {
               <button
                 onClick={!user ? () => setShowAuthModal(true) : handleSubscribe}
                 disabled={
-                  purchasing || (!!user && (!requiredPlan || !agreedToTerms))
+                  purchasing ||
+                  isWalletPending ||
+                  (!!user && (!requiredPlan || !agreedToTerms))
                 }
                 className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-brand-orange px-5 py-3.5 text-paper disabled:cursor-not-allowed disabled:opacity-60"
               >

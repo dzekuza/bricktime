@@ -16,6 +16,8 @@ type WalletCheckoutProps = {
   /** Creates a Stripe Checkout Session for the current order; returns its client secret. */
   createSession: () => Promise<string>
   onError: (message: string) => void
+  /** True while a wallet payment is being authorised, so other pay buttons can lock. */
+  onPendingChange: (isPending: boolean) => void
 }
 
 /**
@@ -27,12 +29,14 @@ export function WalletCheckout({
   orderKey,
   createSession,
   onError,
+  onPendingChange,
 }: WalletCheckoutProps) {
   const [session, setSession] = useState<{
     key: string
     secret: string
   } | null>(null)
   const runCreateSession = useEffectEvent(createSession)
+  const reportError = useEffectEvent(onError)
 
   useEffect(() => {
     if (!stripePromise) return
@@ -43,8 +47,14 @@ export function WalletCheckout({
           if (!isCancelled) setSession({ key: orderKey, secret })
         })
         .catch((error: unknown) => {
-          // The hosted pay button reports the same failure to the shopper.
           console.error("Wallet checkout session failed", error)
+          if (!isCancelled) {
+            reportError(
+              error instanceof Error
+                ? error.message
+                : "Mokėjimo nepavyko pradėti. Bandyk dar kartą."
+            )
+          }
         })
     }, SESSION_DEBOUNCE_MS)
     return () => {
@@ -61,12 +71,15 @@ export function WalletCheckout({
       stripe={stripePromise}
       options={{ clientSecret: session.secret }}
     >
-      <WalletButtons onError={onError} />
+      <WalletButtons onError={onError} onPendingChange={onPendingChange} />
     </CheckoutElementsProvider>
   )
 }
 
-function WalletButtons({ onError }: Pick<WalletCheckoutProps, "onError">) {
+function WalletButtons({
+  onError,
+  onPendingChange,
+}: Pick<WalletCheckoutProps, "onError" | "onPendingChange">) {
   const checkout = useCheckoutElements()
   const [isAvailable, setIsAvailable] = useState(false)
 
@@ -92,13 +105,17 @@ function WalletButtons({ onError }: Pick<WalletCheckoutProps, "onError">) {
         }}
         onConfirm={async (event) => {
           if (checkout.type !== "success") return
+          onPendingChange(true)
           const result = await checkout.checkout.confirm({
             expressCheckoutConfirmEvent: event,
           })
+          // On success Stripe redirects away, so the lock only needs lifting on failure.
           if (result.type === "error") {
+            onPendingChange(false)
             onError(result.error.message)
           }
         }}
+        onCancel={() => onPendingChange(false)}
       />
       {isAvailable && (
         <p className="label-mono mt-3 text-center text-ink/40">arba</p>

@@ -1,6 +1,6 @@
 ---
 tags: [architecture]
-updated: 2026-11-18
+updated: 2026-11-23
 ---
 
 # Tech Stack
@@ -31,7 +31,8 @@ Versions from `package.json` at `9b4413c`. Update with a [[changelog]] entry whe
 | Package | Version | Why |
 |---------|---------|-----|
 | @supabase/supabase-js | ^2.105.1 | auth, data, function invoke |
-| Supabase (Postgres, Auth, Edge Functions, pg_cron, vault) | hosted | backend; functions run on Deno and import `stripe@14.21.0` (API `2024-06-20`) from esm.sh |
+| @stripe/stripe-js, @stripe/react-stripe-js | ^10.3.0, ^7.1.0 | on-page Apple Pay / Google Pay button (`WalletCheckout`, Express Checkout Element); the regular Checkout is still a redirect |
+| Supabase (Postgres, Auth, Edge Functions, pg_cron, vault) | hosted | backend; functions run on Deno and import `stripe@14.21.0` (API `2024-06-20`) from esm.sh; wallet (`ui_mode: "elements"`) sessions use `stripe@23.2.0` (API `2026-11-18.endive`) via `_shared/stripe-elements.ts` |
 
 ## Tooling
 | Package | Version | Why |
@@ -45,7 +46,6 @@ Versions from `package.json` at `9b4413c`. Update with a [[changelog]] entry whe
 |---------|---------|-------------|
 | TanStack Query, React Hook Form, Zod | not installed (global defaults, but absent here) | `useState`/hooks and direct `supabase` calls |
 | Next.js / server components | project is a Vite SPA | edge functions for server work |
-| `@stripe/stripe-js` | not installed; Checkout is a redirect | Stripe Checkout URLs from edge functions |
 
 ## Related
 [[system-overview]] · [[changelog]]

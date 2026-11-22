@@ -8,6 +8,7 @@ import { getVatTaxRateId } from "../_shared/vat.ts"
 import {
   isAllowedReturnUrl,
   stripeElements,
+  walletSessionIdempotency,
 } from "../_shared/stripe-elements.ts"
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
@@ -233,11 +234,28 @@ Deno.serve(async (req) => {
       } satisfies Stripe.Checkout.SessionCreateParams
 
       if (isElements) {
-        const session = await stripeElements.checkout.sessions.create({
-          ...sessionParams,
-          ui_mode: "elements",
-          return_url: returnUrl,
-        } as Parameters<typeof stripeElements.checkout.sessions.create>[0])
+        const { idempotencyKey, expiresAt } = await walletSessionIdempotency(
+          "merch-elements",
+          {
+            userId,
+            userEmail: userEmail ?? null,
+            cart: lines,
+            deliveryMethod,
+            terminalId,
+            code: code ?? null,
+            returnUrl,
+          },
+          SESSION_TTL_MINUTES
+        )
+        const session = await stripeElements.checkout.sessions.create(
+          {
+            ...sessionParams,
+            expires_at: expiresAt,
+            ui_mode: "elements",
+            return_url: returnUrl,
+          } as Parameters<typeof stripeElements.checkout.sessions.create>[0],
+          { idempotencyKey }
+        )
         return new Response(
           JSON.stringify({ clientSecret: session.client_secret }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
