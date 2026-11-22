@@ -29,6 +29,8 @@ Names only. Sources: `.env.example` (names), `import.meta.env` in `src/`, `Deno.
 | `SUPABASE_SERVICE_ROLE_KEY` | server | yes | 20 functions (admin writes) |
 | `STRIPE_SECRET_KEY` | server | yes | all Stripe functions, `stripe-webhook` |
 | `STRIPE_WEBHOOK_SECRET` | server | yes | `stripe-webhook` |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | client | needed for the on-page Apple Pay / Google Pay button (hidden when unset); must match the environment of `STRIPE_SECRET_KEY` | `src/lib/stripe.ts` |
+| `CHECKOUT_RETURN_ORIGINS` | server | optional, comma-separated; default `https://www.bricktime.lt,https://bricktime.lt`. Origins a wallet checkout may return to | `_shared/stripe-elements.ts` |
 | `OMNISEND_API_KEY` | server | yes | `omnisend-subscribe`, `stripe-webhook` |
 | `LP_API_BASE`, `LP_USERNAME`, `LP_PASSWORD` | server | yes | `_shared/lpexpress.ts` (`LP_USERNAME`/`LP_PASSWORD` read through the `env()` helper, not a literal `Deno.env.get`) |
 | `LP_SENDER_*` (NAME, EMAIL, PHONE, STREET, BUILDING, LOCALITY, POSTCODE, COUNTRY, FLAT) | server | yes | sender party in `_shared/lpexpress.ts` |
@@ -40,7 +42,7 @@ Names only. Sources: `.env.example` (names), `import.meta.env` in `src/`, `Deno.
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | server | required for Telegram alerts (rows stay pending when no channel is configured) | `_shared/telegram.ts:12` |
 | `WHATSAPP_TEMPLATE_NAME`, `WHATSAPP_TEMPLATE_LANG` | server | optional (defaults `admin_alert`, `lt`) | `_shared/whatsapp.ts:108-109` |
 
-Listed in `.env.example` but not read by any code found: `VITE_STRIPE_PUBLISHABLE_KEY`, `DATABASE_URL`, `VERCEL_OIDC_TOKEN`. Read by code but not in `.env.example`: `VITE_META_PIXEL_ID`, `GA4_PROPERTY_ID`, `GSC_SITE_URL`, `GOOGLE_SERVICE_ACCOUNT_*`, `LP_SENDER_FLAT`, `LP_SENDER_COUNTRY`.
+Listed in `.env.example` but not read by any code found: `DATABASE_URL`, `VERCEL_OIDC_TOKEN`. Read by code but not in `.env.example`: `VITE_META_PIXEL_ID`, `GA4_PROPERTY_ID`, `GSC_SITE_URL`, `GOOGLE_SERVICE_ACCOUNT_*`, `LP_SENDER_FLAT`, `LP_SENDER_COUNTRY`.
 
 ## Access
 
