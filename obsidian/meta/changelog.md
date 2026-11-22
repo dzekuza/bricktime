@@ -67,6 +67,21 @@ Chronological log of notable changes to the project. Newest first.
 
 - **Updated:** `codebase-map` (new Admin notifications module, webhook rows and line numbers, `invoice.upcoming`), `integrations`, `environment-variables` (WhatsApp names), `deepening-candidates` (#8). Chats skipped (automated run).
 
+## 2026-11-22 — Telegram channel for admin alerts (stacked on the phase 2 PR)
+
+- **Added:** `_shared/telegram.ts` (Bot API, plain text, no phone number or template) and `_shared/alert-channels.ts`, which sends each alert to every configured channel (WhatsApp and/or Telegram); an alert counts as sent when one channel accepted it (no delivery receipt is checked), and a failed second channel is shown as a note in the admin log. The bot token is redacted from every error. Admin card wording now says "Admin alerts".
+- **Secrets:** `TELEGRAM_BOT_TOKEN` (from @BotFather) and `TELEGRAM_CHAT_ID`. No migration.
+
+## 2026-11-22 — WhatsApp admin alerts: orders, forms, delivery check (stacked on PR #150)
+
+- **Added:** DB triggers (migration `20261122130000`) queue alerts for merch orders, set rentals (one per cart), Mystery Box requests, return requests, the missing-part form, bought gift cards and product reviews; orders created by an admin do not alert. Caps on member-triggered kinds over a rolling 24 hours (not reset at midnight), extra index migration `20261122130100`. Admin card lists every kind and has a "Send test alert" button (sent even while alerts are off, capped at 10 per rolling 24 hours) plus the latest alerts with status. Verified on a scratch Postgres: apply, behaviour, rollback, reapply.
+- **Not covered:** penalties paid, waitlist signups, community posts, and true delivery receipts (status `sent` means the provider accepted it).
+
+## 2026-11-22 — WhatsApp admin alerts (PR #150)
+
+- **Added:** outbox table `admin_notifications` (migration `20261122120000`), `subscribers` insert trigger, per-minute cron `send-admin-notifications`, edge function of the same name, `_shared/whatsapp.ts` (Meta Cloud API or Twilio), `_shared/admin-notifications.ts`, and `stripe-webhook` enqueues for subscription started, payment failed and cancelled. Admin Settings > Notifications card writes the `admin_whatsapp` site setting (off by default).
+- **Secrets:** `ADMIN_WHATSAPP_TO` plus either `WHATSAPP_TOKEN`/`WHATSAPP_PHONE_NUMBER_ID` (Meta) or `TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN`/`TWILIO_WHATSAPP_FROM` (Twilio). Not merged or deployed yet.
+
 ## 2026-11-22 — architecture docs synced to `3d5f1be`
 
 - **Updated:** `architecture/codebase-map.md` (`synced_commit` 3d5f1be). Only code change since `f3554ce`: admin favicon/title (`admin/index.html`, `admin/public/vite.svg`); no map facts changed. Chats skipped.

@@ -2,7 +2,8 @@ import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { MoreHorizontalIcon, PlusIcon, RefreshCwIcon, SearchIcon } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { IconButton } from "@/components/ui/icon-button"
+import { SearchInput } from "@/components/ui/search-input"
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -23,6 +24,7 @@ import {
 import { cn } from '@/lib/utils'
 import { orderStatusColors, type Order, type OrderStatus } from '@/data/orders'
 import { tierLabels, type Tier } from '@/data/products'
+import { planLabels, type Plan } from '@/data/subscribers'
 import { supabase } from '@/lib/supabase'
 import type { ParcelSize } from '@/lib/lpexpress'
 import { DataTable, SortableHeader, selectionColumn } from '@/components/DataTable'
@@ -44,6 +46,8 @@ export function Orders() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [themeFilter, setThemeFilter] = useState('all')
+  const [planFilter, setPlanFilter] = useState('all')
   const [detailTarget, setDetailTarget] = useState<Order | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
   const [syncing, setSyncing] = useState(false)
@@ -62,7 +66,7 @@ export function Orders() {
     ] = await Promise.all([
       supabase.from('orders').select('*').order('created_at', { ascending: false }),
       supabase.from('subscribers').select('id, name, email, plan'),
-      supabase.from('products').select('id, title, shipping_size'),
+      supabase.from('products').select('id, title, category, shipping_size'),
     ])
 
     const subMap = Object.fromEntries((subRows ?? []).map((s) => [s.id, s]))
@@ -80,6 +84,7 @@ export function Orders() {
             ? 'Mystery Box (no set yet)'
             : (productMap[o.product_id]?.title ?? `Product #${o.product_id}`),
         productId: o.product_id,
+        productTheme: o.product_id === null ? undefined : productMap[o.product_id]?.category,
         productShippingSize:
           o.product_id === null
             ? undefined
@@ -135,9 +140,20 @@ export function Orders() {
       (o.subscriberName.toLowerCase().includes(q) ||
         o.productTitle.toLowerCase().includes(q) ||
         o.id.toLowerCase().includes(q)) &&
-      (statusFilter === 'all' || o.status === statusFilter)
+      (statusFilter === 'all' || o.status === statusFilter) &&
+      (themeFilter === 'all' || o.productTheme === themeFilter) &&
+      (planFilter === 'all' || o.planName === planFilter)
     )
-  }), [items, search, statusFilter])
+  }), [items, search, statusFilter, themeFilter, planFilter])
+
+  const themeOptions = useMemo(
+    () => [...new Set(items.map((o) => o.productTheme).filter((t): t is string => !!t))].sort(),
+    [items],
+  )
+  const planOptions = useMemo(
+    () => [...new Set(items.map((o) => o.planName).filter((p): p is string => !!p))].sort(),
+    [items],
+  )
 
   const cartGroups = useMemo(() => {
     const groups = new Map<string, Order[]>()
@@ -288,10 +304,9 @@ export function Orders() {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="size-8" onClick={(e) => e.stopPropagation()}>
+              <IconButton className="size-8" onClick={(e) => e.stopPropagation()} label={`Actions for order ${order.id}`}>
                 <MoreHorizontalIcon className="size-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
+              </IconButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuGroup>
@@ -399,15 +414,15 @@ export function Orders() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search orders…"
+          <SearchInput
+            label="Search orders" placeholder="Search orders…"
             className="pl-9"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[150px]"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectTrigger className="w-[150px]" aria-label="Filter by status"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All statuses</SelectItem>
             <SelectItem value="requested">Awaiting set</SelectItem>
@@ -419,9 +434,28 @@ export function Orders() {
             <SelectItem value="return_declined">Return declined</SelectItem>
           </SelectContent>
         </Select>
+        <Select value={themeFilter} onValueChange={setThemeFilter}>
+          <SelectTrigger className="w-[160px]" aria-label="Filter by theme"><SelectValue placeholder="Theme" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All themes</SelectItem>
+            {themeOptions.map((t) => (
+              <SelectItem key={t} value={t}>{t}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={planFilter} onValueChange={setPlanFilter}>
+          <SelectTrigger className="w-[170px]" aria-label="Filter by subscription"><SelectValue placeholder="Subscription" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All subscriptions</SelectItem>
+            {planOptions.map((p) => (
+              <SelectItem key={p} value={p}>{planLabels[p as Plan] ?? p}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <DataTable
+        caption="Orders"
         data={filtered}
         columns={columns}
         onRowClick={openDetail}

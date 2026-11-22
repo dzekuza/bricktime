@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { SearchIcon, CheckIcon } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { SearchInput } from "@/components/ui/search-input"
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
@@ -161,7 +161,7 @@ export function MissingParts() {
   const pending = items.filter((r) => r.status === 'pending').length
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Missing Parts</h1>
@@ -206,9 +206,9 @@ export function MissingParts() {
 
       <div className="relative max-w-sm">
         <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
+        <SearchInput
           className="pl-9"
-          placeholder="Search by subscriber, product, set or part code…"
+          label="Search by subscriber, product, set or part code" placeholder="Search by subscriber, product, set or part code…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -218,7 +218,7 @@ export function MissingParts() {
         <p className="text-sm text-muted-foreground">Loading…</p>
       ) : (
         <>
-          <DataTable columns={columns} data={filtered} />
+          <DataTable caption="Missing parts reports" columns={columns} data={filtered} />
           <p className="text-xs text-muted-foreground">
             Showing {filtered.length} of {items.length} requests
           </p>

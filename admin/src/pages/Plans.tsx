@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { PencilIcon, CheckIcon, PlusIcon, Trash2Icon } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { IconButton } from "@/components/ui/icon-button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
@@ -208,16 +209,14 @@ export function Plans() {
                           Popular
                         </Badge>
                       )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
+                      <IconButton
+                        label={`Edit plan ${plan.name ?? plan.id}`}
                         className="size-8 hover:bg-black/10"
                         style={{ color: plan.text_color }}
                         onClick={() => openEdit(plan)}
                       >
                         <PencilIcon className="size-3.5" />
-                        <span className="sr-only">Edit plan</span>
-                      </Button>
+                      </IconButton>
                     </div>
                   </div>
 
@@ -480,6 +479,7 @@ export function Plans() {
                 <div className="flex items-center justify-between">
                   <Label>Featured (Popular badge)</Label>
                   <Switch
+                    aria-label="Featured (Popular badge)"
                     checked={editPlan.featured}
                     onCheckedChange={(v) =>
                       setEditPlan((p) => p && { ...p, featured: v })
@@ -489,6 +489,7 @@ export function Plans() {
                 <div className="flex items-center justify-between">
                   <Label>Active</Label>
                   <Switch
+                    aria-label="Active"
                     checked={editPlan.active}
                     onCheckedChange={(v) =>
                       setEditPlan((p) => p && { ...p, active: v })
@@ -524,6 +525,7 @@ export function Plans() {
                   {editPlan.perks.map((perk, i) => (
                     <div key={i} className="flex items-center gap-2">
                       <Switch
+                        aria-label={`Include feature ${perk.label || i + 1}`}
                         checked={perk.included}
                         onCheckedChange={(v) =>
                           setEditPlan(
@@ -555,9 +557,8 @@ export function Plans() {
                         }
                         placeholder="Feature description"
                       />
-                      <Button
-                        size="icon"
-                        variant="ghost"
+                      <IconButton
+                        label={`Remove feature ${i + 1}`}
                         className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
                         onClick={() =>
                           setEditPlan(
@@ -570,7 +571,7 @@ export function Plans() {
                         }
                       >
                         <Trash2Icon className="size-3.5" />
-                      </Button>
+                      </IconButton>
                     </div>
                   ))}
                 </div>

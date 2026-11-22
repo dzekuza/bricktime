@@ -17,7 +17,7 @@ interface ReviewRow extends Review {
 
 function Stars({ value }: { value: number }) {
   return (
-    <span className="flex items-center gap-0.5">
+    <span className="flex items-center gap-0.5" role="img" aria-label={`${value} out of 5 stars`}>
       {[1, 2, 3, 4, 5].map((n) => (
         <StarIcon
           key={n}
@@ -154,7 +154,7 @@ export function Reviews() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Reviews</h1>
         <p className="text-sm text-muted-foreground">

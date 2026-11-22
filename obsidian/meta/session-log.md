@@ -94,6 +94,12 @@
 - **Status:** facts from code at HEAD; migration/deploy state taken from status, unverified.
 - **Next:** confirm `.env.example` lists the WHATSAPP_* names; document Phase 2 kinds when committed.
 
+## 2026-11-22 — WhatsApp: Twilio provider and admin settings card
+
+- **Changed:** `_shared/whatsapp.ts` now supports Twilio (sandbox free-form text, or `TWILIO_CONTENT_SID` template) next to Meta; new `admin/src/components/WhatsAppAlertsCard.tsx` on Settings > Notifications writes the `admin_whatsapp` site setting. Earlier: sanitizer moved to an allowlist for names and emails.
+- **Status:** `deno check`, admin `tsc -b` and eslint clean; 8 Deno tests passed before this change, none added for the senders. Nothing sent for real.
+- **Next:** pick a provider and set secrets, merge PR #150, deploy functions, enable in admin, then Phase 2.
+
 ## 2026-11-22 — WhatsApp admin notifications (Meta Cloud API), Phase 1
 
 - **Changed:** branch `feat/whatsapp-admin-notifications`, uncommitted. Migration `20261122120000_admin_notifications` (outbox table, `subscribers` insert trigger, `admin_whatsapp` setting off by default, per-minute cron), `_shared/whatsapp.ts`, `_shared/admin-notifications.ts` (+ test), edge function `send-admin-notifications`, and `stripe-webhook` enqueues subscription started, payment failed and cancelled.

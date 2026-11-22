@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
+import { toast } from "@/lib/toast"
 import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { IconButton } from "@/components/ui/icon-button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -122,9 +124,11 @@ export function CategoriesTab() {
           : `Could not delete: ${err.message}`
       )
       setDeleteTarget(null)
+      toast.error(`Could not delete category ${item.name}`)
       return
     }
     setDeleteTarget(null)
+    toast.success(`Category ${item.name} deleted`)
     await load()
   }
 
@@ -174,23 +178,21 @@ export function CategoriesTab() {
                 {!item.active && <Badge variant="outline">Hidden</Badge>}
               </div>
               <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
+                <IconButton
+                  label={`Edit category ${item.name}`}
                   onClick={() => {
                     setEditTarget(item)
                     setEditOpen(true)
                   }}
                 >
                   <PencilIcon className="size-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
+                </IconButton>
+                <IconButton
+                  label={`Delete category ${item.name}`}
                   onClick={() => setDeleteTarget(item)}
                 >
                   <Trash2Icon className="size-4" />
-                </Button>
+                </IconButton>
               </div>
             </div>
           ))
@@ -240,6 +242,7 @@ export function CategoriesTab() {
               <div className="flex items-center justify-between">
                 <Label>Visible in storefront</Label>
                 <Switch
+                  aria-label="Visible in storefront"
                   checked={form.active}
                   onCheckedChange={(v) => setForm({ ...form, active: v })}
                 />

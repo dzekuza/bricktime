@@ -426,9 +426,7 @@ async function handleMysteryCourierCheckout(session: Stripe.Checkout.Session) {
   if (session.payment_status !== "paid") return
   const userId = session.metadata?.userId
   if (!userId) {
-    throw new Error(
-      `Mystery courier session ${session.id} is missing userId metadata`
-    )
+    throw new Error(`Mystery courier session ${session.id} is missing userId metadata`)
   }
 
   const { error } = await supabase.rpc("record_paid_mystery_courier", {
@@ -463,9 +461,7 @@ async function handleMysteryCourierCheckout(session: Stripe.Checkout.Session) {
     )
   }
   if (typeof session.payment_intent !== "string") {
-    throw new Error(
-      `Mystery courier session ${session.id} has no payment intent`
-    )
+    throw new Error(`Mystery courier session ${session.id} has no payment intent`)
   }
   await stripe.refunds.create(
     { payment_intent: session.payment_intent },
@@ -847,7 +843,11 @@ async function handleSubscriptionCheckout(session: Stripe.Checkout.Session) {
   // Not thrown on failure: the rows above are already written and a Stripe
   // retry would redeem the coupon and gift card a second time.
   const email = session.customer_details?.email ?? session.customer_email
-  if (email && !isOtherLive && isFirstDelivery) {
+
+  // Not behind isFirstDelivery: a subscription event or invoice.paid may have
+  // stored the id first, and the alert must still go out. The subscription-keyed
+  // dedupe_key already makes a repeat delivery a no-op.
+  if (email && !isOtherLive) {
     await enqueueAdminNotification(
       supabase,
       "subscription_started",
@@ -859,6 +859,9 @@ async function handleSubscriptionCheckout(session: Stripe.Checkout.Session) {
       },
       `subscription_started:${subscriptionId ?? session.id}`
     )
+  }
+
+  if (email && !isOtherLive && isFirstDelivery) {
     await sendWelcomeEvent(
       session,
       email,
@@ -1046,9 +1049,28 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Replacing subscription A with B deletes A while B owns the row; that
+        // is not a member leaving, so it must not raise a cancellation alert.
+        let isReplaced = false
+        if (event.type === "customer.subscription.deleted") {
+          const owner = await findSubscriber({
+            userId: subscription.metadata?.userId,
+            email: fallbackEmail,
+            customerId:
+              typeof subscription.customer === "string"
+                ? subscription.customer
+                : subscription.customer?.id,
+            subscriptionId: subscription.id,
+          })
+          isReplaced = Boolean(
+            owner &&
+              (await isStoredSubscriptionOtherLive(owner.id, subscription.id))
+          )
+        }
+
         await updateSubscriberByStripeIds(subscription, fallbackEmail)
 
-        if (event.type === "customer.subscription.deleted") {
+        if (event.type === "customer.subscription.deleted" && !isReplaced) {
           await enqueueAdminNotification(
             supabase,
             "subscription_cancelled",
@@ -1115,14 +1137,29 @@ Deno.serve(async (req) => {
           subscriber &&
           subscriptionId &&
           (await isStoredSubscriptionOtherLive(subscriber.id, subscriptionId))
-        // Queued before the Omnisend push, whose failure returns early for a
-        // Stripe retry; the invoice-keyed dedupe makes the repeat harmless.
-        await enqueueAdminNotification(
-          supabase,
-          "payment_failed",
-          { email: invoice.customer_email, amount: invoice.amount_due / 100 },
-          `payment_failed:${invoice.id}`
-        )
+        // A failed invoice of a subscription the member has since replaced is
+        // not news, same as for the pause below. Queued before the Omnisend
+        // push, whose failure returns early for a Stripe retry; the
+        // invoice-keyed dedupe makes the repeat harmless.
+        if (!isOtherLive) {
+          // An invoice can lack customer_email; the alert is useless without
+          // who it concerns, so fall back to the Stripe customer's address.
+          let alertEmail = invoice.customer_email
+          if (!alertEmail && customerId) {
+            try {
+              const customer = await stripe.customers.retrieve(customerId)
+              if (!customer.deleted) alertEmail = customer.email
+            } catch (error) {
+              console.error(`Customer ${customerId} email lookup failed:`, error)
+            }
+          }
+          await enqueueAdminNotification(
+            supabase,
+            "payment_failed",
+            { email: alertEmail, amount: invoice.amount_due / 100 },
+            `payment_failed:${invoice.id}`
+          )
+        }
 
         if (subscriber && !isOtherLive) {
           await supabase

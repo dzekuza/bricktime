@@ -1,12 +1,14 @@
 import { useState, useEffect, useMemo } from "react"
+import { TableSection } from "@/components/TableSection"
+import { toast } from "@/lib/toast"
 import { PlusIcon, PencilIcon, Trash2Icon, TrophyIcon } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
+import { IconButton } from "@/components/ui/icon-button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -184,11 +186,17 @@ export function Achievements() {
   async function handleDelete() {
     if (!deleteTarget) return
     try {
-      await supabase.from("achievements").delete().eq("id", deleteTarget.id)
+      const { error } = await supabase
+        .from("achievements")
+        .delete()
+        .eq("id", deleteTarget.id)
+      if (error) throw error
       setDeleteTarget(null)
+      toast.success(`Reward ${deleteTarget.label} deleted`)
       load()
     } catch (err) {
       console.error("Failed to delete achievement:", err)
+      toast.error("Could not delete the reward. Try again.")
     }
   }
 
@@ -258,21 +266,19 @@ export function Achievements() {
         id: "actions",
         cell: ({ row }) => (
           <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
+            <IconButton
+              label={`Edit reward ${row.original.label}`}
               onClick={() => openEdit(row.original)}
             >
               <PencilIcon className="size-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
+            </IconButton>
+            <IconButton
+              label={`Delete reward ${row.original.label}`}
               className="text-destructive hover:text-destructive"
               onClick={() => setDeleteTarget(row.original)}
             >
               <Trash2Icon className="size-4" />
-            </Button>
+            </IconButton>
           </div>
         ),
       },
@@ -281,11 +287,11 @@ export function Achievements() {
   )
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <TrophyIcon className="size-5" />
-          <h1 className="text-xl font-semibold">Rewards</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Rewards</h1>
         </div>
         <Button onClick={openCreate}>
           <PlusIcon className="size-4" />
@@ -293,18 +299,9 @@ export function Achievements() {
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Achievement Catalog</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
-          ) : (
-            <DataTable columns={columns} data={items} />
-          )}
-        </CardContent>
-      </Card>
+      <TableSection title="Achievement Catalog" loading={loading}>
+        <DataTable caption="Rewards" columns={columns} data={items} />
+      </TableSection>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">

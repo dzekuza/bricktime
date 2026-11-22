@@ -5,15 +5,15 @@
 > it (don't append) whenever the state changes. History belongs in [[session-log]]
 > and [[changelog]], not here.
 
-**Last updated:** 2026-11-20
+**Last updated:** 2026-11-22
 
 ## Current focus
 
-**SEO (2026-11-22, uncommitted on `feat/address-autocomplete`):** build now prerenders meta + fallback text per route (`scripts/postbuild-seo.mjs`), generates the sitemap and a real 404, adds `llms.txt`, Product/FAQPage schema. Not deployed. The `coming_soon_gate` flag is ON for fresh visitors and overrides canonical/title with the gate page on every URL; turn it off at launch.
+**SEO (2026-11-22, PR #161, branch `feat/address-autocomplete`):** build now prerenders meta + fallback text per route (`scripts/postbuild-seo.mjs`), generates the sitemap and a real 404, adds `llms.txt`, Product/FAQPage schema. Not deployed. The `coming_soon_gate` flag is ON for fresh visitors and overrides canonical/title with the gate page on every URL; turn it off at launch.
 
 **Docs note (2026-11-22):** HEAD has two migrations named `20261122130000_*` (`admin_notification_events`, `subscriber_country`); rename one before `db push`.
 
-**WhatsApp admin notifications (2026-11-22, uncommitted on `feat/whatsapp-admin-notifications`):** Phase 1 code written (outbox migration, Meta sender, drain function, webhook hooks); not applied or deployed. Blocked on the Meta app, an approved `admin_alert` template ("BRICKTIME: {{1}}") and three secrets. Phase 2 kinds (merch, mystery box, courier, penalty, gift card) and the admin Settings toggle are still to do.
+**WhatsApp admin notifications (2026-11-22, PR #150, branch `feat/whatsapp-admin-notifications`):** Phase 1 code (outbox migration, drain function, webhook hooks), a Meta or Twilio sender (`WHATSAPP_PROVIDER`, auto-picks Twilio when `TWILIO_ACCOUNT_SID` is set) and an admin Settings > Notifications card (master switch + per-event) are written; not merged, applied or deployed. Blocked on provider setup: Twilio sandbox (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM`, `ADMIN_WHATSAPP_TO`) or Meta (`WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, approved `admin_alert` template). Phase 2 (stacked PR on branch `feat/whatsapp-admin-alerts-phase-2`): triggers for merch orders, rentals, Mystery Box, returns, missing-part form, gift cards and reviews, plus a test button and delivery log in admin; checked on a scratch Postgres, not applied to the live DB. Telegram channel (branch `feat/telegram-admin-alerts`, stacked): bot sender plus fan-out to every configured channel; needs `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`, no phone number. Not merged or deployed, and a real Telegram send has not been verified yet (the bot token is added as a Supabase secret; the chat id is still to be set). Still open: penalties paid, delivery receipts.
 
 **Return parcel size (2026-11-20, uncommitted on `main`):** products have `shipping_size`, set in admin; `create-return-label` uses it (`lpexpress` v14 deployed, migration live). Needs real sizes set per set and a first real return label check.
 
@@ -23,7 +23,7 @@
 
 Branch `fix/subscription-flow` (3 commits, not pushed): account profile refresh after purchase, plan-picker button, and admin Cancel reaching Stripe (`admin-cancel-subscription` v1 live). Still waiting on a real end-to-end test purchase. Uncommitted: "su PVM" note on price surfaces; the 5 leftover active test subs now carry the 21% VAT rate. See [[session-log]].
 
-**Uncommitted TASKS.md pass (2026-11-18):** cancel-confirm dialog, courier price/delivery row + proration breakdown (needs `change-subscription` deploy), admin order address rows + LP error text, rental `returned_at`, `get-analytics` hardening (needs deploy; check GOOGLE*\* secrets), unused PlanChangeSummary/DiscountCodeField removed. Open: mystery_s credits=0 OK, returned-set budget rule question, LP*\* secrets, Stripe dashboard, e2e purchase.
+**Uncommitted TASKS.md pass (2026-11-18):** cancel-confirm dialog, courier price/delivery row + proration breakdown (needs `change-subscription` deploy), admin order address rows + LP error text, rental `returned_at`, `get-analytics` hardening (needs deploy; check `GOOGLE_*` secrets), unused PlanChangeSummary/DiscountCodeField removed. Open: `mystery_s` credits=0 OK, returned-set budget rule question, `LP_*` secrets, Stripe dashboard, e2e purchase.
 
 ## Done recently
 

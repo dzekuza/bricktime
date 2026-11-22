@@ -1,8 +1,10 @@
 import { useState, useMemo, useEffect, useRef } from "react"
+import { toast } from "@/lib/toast"
 import { MoreHorizontalIcon, SearchIcon, Trash2Icon } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { IconButton } from "@/components/ui/icon-button"
+import { SearchInput } from "@/components/ui/search-input"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -194,9 +196,11 @@ export function Subscribers() {
           data?.error ??
           data?.errors?.map((e) => e.message).join(", ")
       )
+      toast.error("Could not delete the customer. Try again.")
       return
     }
     setItems((prev) => prev.filter((s) => !ids.includes(s.id)))
+    toast.success(ids.length === 1 ? "Customer deleted" : `${ids.length} customers deleted`)
   }
 
   function openDelete(sub: Subscriber) {
@@ -206,7 +210,7 @@ export function Subscribers() {
 
   const columns = useMemo<ColumnDef<Subscriber, unknown>[]>(
     () => [
-      selectionColumn<Subscriber>(),
+      selectionColumn<Subscriber>((s) => s.name),
       {
         id: "subscriber",
         accessorKey: "name",
@@ -310,15 +314,13 @@ export function Subscribers() {
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
+                <IconButton
+                  label={`Actions for ${sub.email}`}
                   className="size-8"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <MoreHorizontalIcon className="size-4" />
-                  <span className="sr-only">Open menu</span>
-                </Button>
+                </IconButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuGroup>
@@ -420,8 +422,8 @@ export function Subscribers() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative max-w-sm min-w-[200px] flex-1">
           <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search subscribers…"
+          <SearchInput
+            label="Search subscribers" placeholder="Search subscribers…"
             className="pl-9"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -454,6 +456,7 @@ export function Subscribers() {
       </div>
 
       <DataTable
+        caption="Customers and subscribers"
         data={filtered}
         columns={columns}
         onRowClick={openProfile}
@@ -522,6 +525,7 @@ export function Subscribers() {
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         itemName={deleteTarget?.name ?? ""}
+        description="The customer account and its data will be permanently removed."
         onConfirm={() => {
           if (deleteTarget) {
             handleDelete([deleteTarget.id])
