@@ -12,6 +12,7 @@
 //           "create-return-label" → prepaid return label + set status (auth: order owner)
 //           "label-pdf"           → label PDF, {parcel:'outbound'|'return'} (auth: order owner)
 //           "cancel"              → cancel a shipment for an order     (auth: order owner)
+//           "reset-label"         → cancel + clear the outbound label so a new one can be made (admin only)
 //
 // Secrets required — see supabase/functions/_shared/lpexpress.ts header.
 
@@ -93,6 +94,9 @@ const ORDER_COLUMNS =
   "id, subscriber_id, home_delivery, lp_terminal_id, lp_terminal_name, lp_parcel_id, lp_barcode, lp_return_parcel_id, lp_return_barcode, product_id, delivery_name, delivery_phone, delivery_street, delivery_house_no, delivery_flat, delivery_city, delivery_postal_code"
 
 const BARCODE_PATTERN = /^[A-Za-z0-9]{8,30}$/
+
+// Tracking states in which nothing has physically shipped yet.
+const RESETTABLE_TRACKING_STATES = ["LABEL_CREATED", "LABEL_CANCELLED"]
 
 const PARCEL_SIZES = ["XS", "S", "M", "L", "XL"] as const
 
@@ -465,6 +469,51 @@ Deno.serve(async (req) => {
           .update({ lp_tracking_state: "LABEL_CANCELLED" })
           .eq("lp_parcel_id", order.lp_parcel_id)
         return json({ ok: true })
+      }
+
+      case "reset-label": {
+        // Lets the admin start over after a mistake (wrong size, address, code):
+        // the LP parcel is cancelled, then the order is back to "no label yet".
+        if (!isAdmin(req)) return json({ error: "Forbidden" }, 403)
+        const { order } = await requireOwnedOrder(req, payload.orderId)
+        if (!order.lp_barcode)
+          return json({ error: "This order has no label to reset" }, 400)
+
+        const { data: state } = await service()
+          .from("orders")
+          .select("lp_tracking_state")
+          .eq("id", order.id)
+          .single()
+        const trackingState = state?.lp_tracking_state ?? null
+        // Once LP has the parcel moving, a new label would double-ship it.
+        if (
+          trackingState !== null &&
+          !RESETTABLE_TRACKING_STATES.includes(trackingState)
+        )
+          return json(
+            { error: "The parcel is already in transit and can't be reset" },
+            409
+          )
+
+        // A code entered by hand has no LP parcel to cancel.
+        if (order.lp_parcel_id && trackingState !== "LABEL_CANCELLED")
+          await cancelShipment([order.lp_parcel_id])
+
+        // Sets shipped together share one barcode; reset them as one.
+        const { data: cleared, error: clearError } = await service()
+          .from("orders")
+          .update({
+            lp_parcel_id: null,
+            lp_parcel_size: null,
+            lp_barcode: null,
+            lp_tracking_state: null,
+            lp_label_created_at: null,
+          })
+          .eq("lp_barcode", order.lp_barcode)
+          .eq("subscriber_id", order.subscriber_id)
+          .select("id")
+        if (clearError) return json({ error: "Could not reset the label" }, 500)
+        return json({ orderIds: (cleared ?? []).map((o) => o.id) })
       }
 
       default:

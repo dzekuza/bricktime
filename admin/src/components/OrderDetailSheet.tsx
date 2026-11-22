@@ -6,6 +6,17 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -18,6 +29,7 @@ import { tierLabels, type Tier } from '@/data/products'
 import {
   createLabel,
   fetchLabelPdf,
+  resetLabel,
   downloadPdf,
   toWeightGrams,
   validateCourierAddress,
@@ -30,6 +42,9 @@ import {
 import { CourierOverrideFields } from '@/components/CourierOverrideFields'
 import { ManualTrackingForm } from '@/components/ManualTrackingForm'
 import { ParcelOptionsFields } from '@/components/ParcelOptionsFields'
+
+// Tracking states before LP has moved the parcel; later ones can't be reset.
+const RESETTABLE_STATES = ['LABEL_CREATED', 'LABEL_CANCELLED']
 
 function noteKey(orderId: string) {
   return `admin_note_order_${orderId}`
@@ -126,6 +141,21 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
         trackingState: 'LABEL_CREATED',
         ...(rerouting ? courierOrderPatch(courierAddress) : {}),
       })
+    } catch (e) {
+      setShipErr((e as Error).message)
+    } finally {
+      setShipBusy(null)
+    }
+  }
+
+  async function handleResetLabel() {
+    if (!order) return
+    setShipBusy('reset'); setShipErr(null)
+    try {
+      const clearedIds = await resetLabel(order.id)
+      for (const id of clearedIds.length > 0 ? clearedIds : [order.id]) {
+        onShippingUpdate?.(id, { barcode: null, parcelId: null, trackingState: null })
+      }
     } catch (e) {
       setShipErr((e as Error).message)
     } finally {
@@ -473,6 +503,29 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
                 <Button variant="outline" size="sm" onClick={() => printLabel('outbound')} disabled={shipBusy === 'print-outbound'}>
                   {shipBusy === 'print-outbound' ? 'Preparing…' : 'Print outbound label'}
                 </Button>
+              )}
+              {order.barcode && (!order.trackingState || RESETTABLE_STATES.includes(order.trackingState)) && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" size="sm" disabled={shipBusy === 'reset'}>
+                      {shipBusy === 'reset' ? 'Resetting…' : 'Reset label'}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Reset this shipping label?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {order.parcelId
+                          ? 'The shipment is cancelled at LP Express and the label is removed, so you can create a new one. Orders shipped in the same parcel are reset too.'
+                          : 'The saved code is removed so you can create or enter a new one. Orders sharing this code are reset too.'}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Keep label</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleResetLabel}>Reset label</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               )}
               {order.returnBarcode && (
                 <Button variant="outline" size="sm" onClick={() => printLabel('return')} disabled={shipBusy === 'print-return'}>

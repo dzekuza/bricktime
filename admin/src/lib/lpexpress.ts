@@ -125,6 +125,12 @@ export async function cancelShipment(orderId: string): Promise<void> {
   await call({ action: 'cancel', orderId })
 }
 
+/** Cancel the outbound label and clear it so a new one can be created. Returns every order that shared it. */
+export async function resetLabel(orderId: string): Promise<string[]> {
+  const { orderIds } = await call<{ orderIds: string[] }>({ action: 'reset-label', orderId })
+  return orderIds
+}
+
 /** Trigger a browser download of a base64 PDF. */
 export function downloadPdf(base64: string, filename: string) {
   const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0))
