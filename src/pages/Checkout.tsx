@@ -1584,7 +1584,10 @@ export default function Checkout() {
                       Šiam produktui reikia {product?.value ?? 0} Kr., o tau
                       liko {remainingCredits} Kr.
                     </p>
-                    <CreditsResetNotice usedCredits={usedCredits} className="mt-1 text-[13px] font-bold text-ink/70" />
+                    <CreditsResetNotice
+                      usedCredits={usedCredits}
+                      className="mt-1 text-[13px] font-bold text-ink/70"
+                    />
                   </div>
 
                   <div className="mt-auto pt-6">
@@ -1670,7 +1673,7 @@ export default function Checkout() {
                     <p className="label-mono mb-2 text-ink/40">
                       Pristatymo būdas
                     </p>
-                    <div className="flex flex-col gap-2">
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       {[
                         {
                           value: false,
@@ -1691,7 +1694,7 @@ export default function Checkout() {
                           type="button"
                           onClick={() => setHomeDelivery(value)}
                           className={[
-                            "flex items-center justify-between rounded-2xl border-2 px-4 py-3 text-left transition-all",
+                            "flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-2xl border-2 px-4 py-3 text-left transition-all",
                             homeDelivery === value
                               ? "border-ink bg-ink/[.03] shadow-[3px_3px_0_#001B21]"
                               : "border-ink/15 hover:border-ink/40",

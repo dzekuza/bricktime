@@ -46,11 +46,11 @@ export default function StoreRules() {
 
               <aside className="brick-card self-start bg-ink p-6 text-paper md:p-8">
                 <p className="label-mono text-paper/50">Trumpai</p>
-                <div className="mt-5 space-y-4">
+                <div className="mt-5 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
                   {contactRows.map(([label, value]) => (
                     <div
                       key={label}
-                      className="flex flex-col gap-1 border-b border-paper/12 pb-4 last:border-b-0 last:pb-0"
+                      className="flex min-w-0 flex-col gap-1 border-b border-paper/12 pb-4 last:border-b-0 last:pb-0 sm:nth-last-[-n+2]:border-b-0 sm:nth-last-[-n+2]:pb-0"
                     >
                       <span className="font-mono text-[12px] tracking-[0.08em] text-paper/45 uppercase">
                         {label}

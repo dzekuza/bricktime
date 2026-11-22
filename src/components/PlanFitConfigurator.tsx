@@ -109,129 +109,137 @@ export function PlanFitConfigurator({
         </span>
       </h2>
       <p className="mt-3 max-w-[62ch] text-[15px] leading-[1.6] text-ink/65">
-        Su {PLAN_GENITIVE[planKey] ?? planName} planu turėsi {budgetCredits} Kr.
-        kas mėnesį — pasirink produktus žemiau ir pažiūrėk, kiek jų vienu metu
-        tilptų.
+        Su {PLAN_GENITIVE[planKey] ?? planName} planu turėsi {budgetCredits}{" "}
+        Briksiai kas mėnesį — pasirink produktus žemiau ir pažiūrėk, kiek jų
+        vienu metu tilptų.
       </p>
 
-      {/* Budget meter */}
-      <div className="mt-6">
-        <div className="h-4 w-full overflow-hidden rounded-full border-2 border-ink bg-ink/[.03]">
-          <div
-            className={`h-full rounded-full transition-[width] ${overBudget ? "bg-brand-orange" : "bg-brand-mint"}`}
-            style={{ width: `${pct}%` }}
-          />
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,7fr)]">
+        {/* Summary: budget meter + selected items */}
+        <div className="flex flex-col gap-6">
+          {/* Selected items */}
+          {selectedProducts.length > 0 && (
+            <div className="flex flex-col gap-2">
+              {selectedProducts.map((p) => (
+                <div
+                  key={p.id}
+                  className="flex items-center gap-3 rounded-2xl border-2 border-ink/10 px-4 py-3"
+                >
+                  <div className="size-10 shrink-0 overflow-hidden rounded-lg border-2 border-ink/10 bg-white">
+                    {p.imageUrl && (
+                      <img
+                        src={p.imageUrl}
+                        alt={p.title}
+                        className="h-full w-full object-contain p-1"
+                      />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[14px] font-bold text-ink">
+                      {p.title}
+                    </p>
+                    <p className="truncate text-[12px] text-ink/50">
+                      {p.subtitle}
+                    </p>
+                  </div>
+                  <span className="rounded-full border-2 border-ink/20 px-3 py-1 font-mono text-[11px] font-bold text-ink">
+                    {p.value} Briksiai
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => toggleProduct(p.id)}
+                    className="flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-ink/20 text-ink/50 transition-colors hover:border-ink hover:text-ink"
+                    aria-label="Pašalinti"
+                  >
+                    <XIcon className="size-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          {/* Budget meter */}
+          <div>
+            <div className="h-4 w-full overflow-hidden rounded-full border-2 border-ink bg-ink/[.03]">
+              <div
+                className={`h-full rounded-full transition-[width] ${overBudget ? "bg-brand-orange" : "bg-brand-mint"}`}
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-2 font-mono text-[12px] font-bold tracking-[.04em] text-ink uppercase">
+              <span>
+                {selectedProducts.length} produktai · {usedBudget}/
+                {budgetCredits} Briksiai
+              </span>
+              {overBudget ? (
+                <span className="text-brand-orange">
+                  Viršyta {Math.abs(remainingBudget)} Briksiai
+                </span>
+              ) : (
+                <span className="text-ink/50">
+                  {remainingBudget} Briksiai liko
+                </span>
+              )}
+            </div>
+          </div>
         </div>
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-2 font-mono text-[12px] font-bold tracking-[.04em] text-ink uppercase">
-          <span>
-            {selectedProducts.length} produktai · {usedBudget}/{budgetCredits}{" "}
-            Kr.
-          </span>
-          {overBudget ? (
-            <span className="text-brand-orange">
-              Viršyta {Math.abs(remainingBudget)} Kr.
-            </span>
+
+        {/* Add more */}
+        <div>
+          <div className="mb-3 flex flex-col gap-2">
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Ieškoti..."
+              aria-label="Pridėti produktų"
+              className="w-full rounded-full border-2 border-ink/20 px-3 py-1.5 text-[13px] outline-none focus:border-ink"
+            />
+          </div>
+
+          {loading ? (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-24 animate-pulse rounded-2xl bg-ink/10"
+                />
+              ))}
+            </div>
+          ) : products.length === 0 ? (
+            <p className="text-[14px] text-ink/50">
+              Šiam planui šiuo metu nėra produktų peržiūrai.
+            </p>
           ) : (
-            <span className="text-ink/50">{remainingBudget} Kr. liko</span>
+            <div className="grid max-h-[420px] grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3 lg:max-h-[640px]">
+              {pickerProducts.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => toggleProduct(p.id)}
+                  className="flex flex-col items-start gap-1.5 rounded-2xl border-2 border-ink/20 p-2.5 text-left transition-all hover:border-ink/50"
+                >
+                  <div className="relative aspect-square w-full overflow-hidden rounded-lg border-2 border-ink/10 bg-white">
+                    {p.imageUrl ? (
+                      <img
+                        src={p.imageUrl}
+                        alt={p.title}
+                        className="h-full w-full object-contain p-2"
+                      />
+                    ) : (
+                      <ImagePlaceholder compact />
+                    )}
+                  </div>
+                  <p className="line-clamp-1 w-full text-[12px] font-bold text-ink">
+                    {p.title}
+                  </p>
+                  <span className="rounded-full border-2 border-ink/20 px-2 py-0.5 font-mono text-[10px] font-bold text-ink">
+                    {p.value} Briksiai
+                  </span>
+                </button>
+              ))}
+            </div>
           )}
         </div>
-      </div>
-
-      {/* Selected items */}
-      {selectedProducts.length > 0 && (
-        <div className="mt-6 flex flex-col gap-2">
-          {selectedProducts.map((p) => (
-            <div
-              key={p.id}
-              className="flex items-center gap-3 rounded-2xl border-2 border-ink/10 px-4 py-3"
-            >
-              <div className="size-10 shrink-0 overflow-hidden rounded-lg border-2 border-ink/10 bg-white">
-                {p.imageUrl && (
-                  <img
-                    src={p.imageUrl}
-                    alt={p.title}
-                    className="h-full w-full object-contain p-1"
-                  />
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[14px] font-bold text-ink">
-                  {p.title}
-                </p>
-                <p className="truncate text-[12px] text-ink/50">{p.subtitle}</p>
-              </div>
-              <span className="rounded-full border-2 border-ink/20 px-3 py-1 font-mono text-[11px] font-bold text-ink">
-                {p.value} Kr.
-              </span>
-              <button
-                type="button"
-                onClick={() => toggleProduct(p.id)}
-                className="flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-ink/20 text-ink/50 transition-colors hover:border-ink hover:text-ink"
-                aria-label="Pašalinti"
-              >
-                <XIcon className="size-3.5" />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Add more */}
-      <div className="mt-6">
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <p className="label-mono text-ink/40">Pridėti produktų</p>
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ieškoti..."
-            className="min-w-0 flex-1 rounded-full border-2 border-ink/20 px-3 py-1.5 text-[13px] outline-none focus:border-ink"
-          />
-        </div>
-
-        {loading ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-24 animate-pulse rounded-2xl bg-ink/10"
-              />
-            ))}
-          </div>
-        ) : products.length === 0 ? (
-          <p className="text-[14px] text-ink/50">
-            Šiam planui šiuo metu nėra produktų peržiūrai.
-          </p>
-        ) : (
-          <div className="grid max-h-[420px] grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-            {pickerProducts.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => toggleProduct(p.id)}
-                className="flex flex-col items-start gap-1.5 rounded-2xl border-2 border-ink/20 p-2.5 text-left transition-all hover:border-ink/50"
-              >
-                <div className="relative aspect-square w-full overflow-hidden rounded-lg border-2 border-ink/10 bg-white">
-                  {p.imageUrl ? (
-                    <img
-                      src={p.imageUrl}
-                      alt={p.title}
-                      className="h-full w-full object-contain p-2"
-                    />
-                  ) : (
-                    <ImagePlaceholder compact />
-                  )}
-                </div>
-                <p className="line-clamp-1 w-full text-[12px] font-bold text-ink">
-                  {p.title}
-                </p>
-                <span className="rounded-full border-2 border-ink/20 px-2 py-0.5 font-mono text-[10px] font-bold text-ink">
-                  {p.value} Kr.
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   )
