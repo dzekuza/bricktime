@@ -34,6 +34,7 @@ import type { LpTerminal } from "@/lib/lpexpress"
 import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
 import { VatNote } from "@/components/VatNote"
+import { WalletCheckout } from "@/components/WalletCheckout"
 import { PlanFitConfigurator } from "@/components/PlanFitConfigurator"
 import { getDisplayPlan } from "@/lib/product-filters"
 import { UpgradePriceNotes } from "@/components/checkout/UpgradePriceNotes"
@@ -544,6 +545,39 @@ export default function Checkout() {
   function confirmPlanChange() {
     setPlanChangeQuote(null)
     return startSubscribe(true)
+  }
+
+  // The on-page Apple Pay / Google Pay button is only for a new subscription.
+  // An existing one is swapped in place, and a discount code or gift card is
+  // held while a session is open, so both keep the regular pay button.
+  const canUseWallet =
+    !!user &&
+    !userSub &&
+    !!requiredPlan &&
+    agreedToTerms &&
+    hasPhone &&
+    (homeDelivery ? hasAddress : !!terminal) &&
+    !appliedCoupon &&
+    !appliedGiftCard
+
+  async function createWalletSession(): Promise<string> {
+    const origin = window.location.origin
+    const returnUrl = productId
+      ? `${origin}/checkout?product=${productId}&success=true&plan=${requiredTier.key}`
+      : `${origin}/account?plan_changed=true&plan=${requiredTier.key}`
+    const { data, error } = await supabase.functions.invoke("create-checkout", {
+      body: {
+        planKey: requiredTier.key,
+        billing,
+        homeDelivery,
+        uiMode: "elements",
+        returnUrl,
+      },
+    })
+    if (error || !data?.clientSecret) {
+      throw new Error(await readFunctionError(error, "Wallet checkout failed"))
+    }
+    return data.clientSecret
   }
 
   async function startSubscribe(isConfirmed: boolean) {
@@ -1938,6 +1972,15 @@ export default function Checkout() {
                       className="mb-4"
                     />
                     <VatNote className="mb-4 text-center" />
+                    {canUseWallet && (
+                      <div className="mb-4">
+                        <WalletCheckout
+                          orderKey={`${requiredTier.key}|${billing}|${homeDelivery}`}
+                          createSession={createWalletSession}
+                          onError={setPurchaseError}
+                        />
+                      </div>
+                    )}
                     <button
                       onClick={
                         !user ? () => setShowAuthModal(true) : handleSubscribe

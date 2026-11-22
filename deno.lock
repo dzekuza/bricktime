@@ -94,7 +94,8 @@
     "https://esm.sh/side-channel@1.1.1/denonext/side-channel.mjs": "4128535b2cbb605d142594272a90adef511c250130167eba0e06b0168a03b556",
     "https://esm.sh/side-channel@1.1.1?target=denonext": "95435f8b4cfb2827b11a0a384b7a5a82cf42e7d54435276084aef40717129eac",
     "https://esm.sh/stripe@14.21.0": "f6487cd8974b4c445fe2ed8188d0a680f425bedf793abdead16796e719749d30",
-    "https://esm.sh/stripe@14.21.0/denonext/stripe.mjs": "675855e4b1ab9af008b097a62e56ba6861b270f5261f23b326aad227cab1e2ce"
+    "https://esm.sh/stripe@14.21.0/denonext/stripe.mjs": "675855e4b1ab9af008b097a62e56ba6861b270f5261f23b326aad227cab1e2ce",
+    "https://esm.sh/stripe@23.2.0": "884d115e5e07217a05702f594babf7aa2bf1f3ec76880abea3118b7da71b964b"
   },
   "workspace": {
     "packageJson": {
@@ -102,6 +103,8 @@
         "npm:@eslint/js@^9.39.4",
         "npm:@fontsource-variable/geist@^5.2.8",
         "npm:@gsap/react@^2.1.2",
+        "npm:@stripe/react-stripe-js@^7.1.0",
+        "npm:@stripe/stripe-js@^10.3.0",
         "npm:@supabase/supabase-js@^2.105.1",
         "npm:@tailwindcss/vite@^4.2.1",
         "npm:@types/node@^24.12.0",

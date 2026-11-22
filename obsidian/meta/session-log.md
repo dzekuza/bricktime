@@ -1,3 +1,9 @@
+## 2026-11-23 — Apple Pay / Google Pay on the carts (uncommitted on `feat/apple-pay-express`)
+
+- **Changed:** `create-merch-checkout` and `create-checkout` accept `uiMode: "elements"` + `returnUrl` and return a `clientSecret` (new `_shared/stripe-elements.ts`, Stripe API `2026-11-18.endive`, hosted path unchanged); `src/components/WalletCheckout.tsx` (Express Checkout Element) on the merch cart and on the new-subscription panel in `Checkout.tsx`; deps `@stripe/stripe-js`, `@stripe/react-stripe-js`. Not shown with a discount code or gift card (they are held while a session is open), nor for plan swaps.
+- **Status:** typecheck, eslint, `deno check` and `vite build` pass; session shapes validated against the Stripe test account. Apple Pay itself not tried (needs HTTPS domain, domain file, device).
+- **Next:** add `public/.well-known/apple-developer-merchantid-domain-association`, register `www.bricktime.lt` in Stripe (test and live), set `VITE_STRIPE_PUBLISHABLE_KEY`, deploy both functions, test with a real wallet and check the webhook still creates the order.
+
 ## 2026-11-22 — architecture docs sync to `872d51b`
 
 - **Changed:** two commits since `71d7f92`; only `admin/` changed. Documented `defaultParcelSize` (plan, then set size, then fallback) in the codebase map.

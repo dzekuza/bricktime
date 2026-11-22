@@ -7,6 +7,10 @@ import {
 import { applyCoupon } from "../_shared/coupon.ts"
 import { assertNoDowngradeWhileHolding } from "../_shared/downgrade-guard.ts"
 import { getVatTaxRateId } from "../_shared/vat.ts"
+import {
+  isAllowedReturnUrl,
+  stripeElements,
+} from "../_shared/stripe-elements.ts"
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2024-06-20",
@@ -55,10 +59,19 @@ Deno.serve(async (req) => {
       billing,
       successUrl,
       cancelUrl,
+      uiMode,
+      returnUrl,
       giftCardCode,
       couponCode,
       homeDelivery,
     } = await req.json()
+
+    // "elements" = the on-page Express Checkout button (Apple Pay, Google Pay);
+    // anything else is the hosted Stripe Checkout redirect.
+    const isElements = uiMode === "elements"
+    if (isElements && !isAllowedReturnUrl(returnUrl)) {
+      throw new Error("Invalid return URL")
+    }
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -268,70 +281,87 @@ Deno.serve(async (req) => {
             })
           : null
 
-      const session = await stripe.checkout.sessions.create(
-        {
-          expires_at: Math.floor(Date.now() / 1000) + SESSION_TTL_MINUTES * 60,
-          mode: "subscription",
-          // Checkout writes its page language onto the customer, which then
-          // decides the invoice language; without this it follows the browser
-          // (en-GB) and undoes the lt locale set elsewhere.
-          locale: "lt",
-          line_items: [
-            {
-              price_data: {
-                currency: "eur",
-                product_data: { name: plan.name ?? `BRICKTIME ${planKey}` },
-                unit_amount: unitAmount,
-                recurring: { interval },
-              },
-              quantity: 1,
+      const sessionParams = {
+        expires_at: Math.floor(Date.now() / 1000) + SESSION_TTL_MINUTES * 60,
+        mode: "subscription" as const,
+        // Checkout writes its page language onto the customer, which then
+        // decides the invoice language; without this it follows the browser
+        // (en-GB) and undoes the lt locale set elsewhere.
+        locale: "lt",
+        line_items: [
+          {
+            price_data: {
+              currency: "eur",
+              product_data: { name: plan.name ?? `BRICKTIME ${planKey}` },
+              unit_amount: unitAmount,
+              recurring: { interval },
             },
-            ...(chargeHomeDeliveryFee
-              ? [
-                  {
-                    price_data: {
-                      currency: "eur",
-                      product_data: { name: "Pristatymas į duris" },
-                      unit_amount: 300 * monthsPerInterval,
-                      recurring: { interval },
-                    },
-                    quantity: 1,
+            quantity: 1,
+          },
+          ...(chargeHomeDeliveryFee
+            ? [
+                {
+                  price_data: {
+                    currency: "eur",
+                    product_data: { name: "Pristatymas į duris" },
+                    unit_amount: 300 * monthsPerInterval,
+                    recurring: { interval },
                   },
-                ]
-              : []),
-          ],
-          ...((giftCardCoupon || stripeCouponId) && {
-            discounts: [{ coupon: (giftCardCoupon?.id ?? stripeCouponId)! }],
+                  quantity: 1,
+                },
+              ]
+            : []),
+        ],
+        ...((giftCardCoupon || stripeCouponId) && {
+          discounts: [{ coupon: (giftCardCoupon?.id ?? stripeCouponId)! }],
+        }),
+        customer: customerId,
+        client_reference_id: userId,
+        metadata: {
+          userId,
+          planKey,
+          billing: billing ?? "monthly",
+          homeDelivery: homeDelivery ? "true" : "false",
+          ...(giftCardCoupon && {
+            giftCardCode: String(giftCardCode).toUpperCase(),
           }),
-          customer: customerId,
-          client_reference_id: userId,
-          success_url: successUrl,
-          cancel_url: cancelUrl,
+          ...(appliedCouponCode && { couponCode: appliedCouponCode }),
+        },
+        subscription_data: {
+          default_tax_rates: [vatTaxRateId],
           metadata: {
             userId,
             planKey,
             billing: billing ?? "monthly",
             homeDelivery: homeDelivery ? "true" : "false",
-            ...(giftCardCoupon && {
-              giftCardCode: String(giftCardCode).toUpperCase(),
-            }),
-            ...(appliedCouponCode && { couponCode: appliedCouponCode }),
-          },
-          subscription_data: {
-            default_tax_rates: [vatTaxRateId],
-            metadata: {
-              userId,
-              planKey,
-              billing: billing ?? "monthly",
-              homeDelivery: homeDelivery ? "true" : "false",
-            },
           },
         },
-        // Two checkouts racing past the duplicate check above (a double
-        // click) share this key, so Stripe opens one session, not two.
-        {
-          idempotencyKey: `checkout-${userId}-${planKey}-${billing ?? "monthly"}-${Math.floor(Date.now() / 10_000)}`,
-        }
+      } satisfies Stripe.Checkout.SessionCreateParams
+
+      // Two checkouts racing past the duplicate check above (a double
+      // click) share this key, so Stripe opens one session, not two. The
+      // wallet flow gets its own key: the same key with different parameters
+      // (hosted vs elements) would be rejected as an idempotency conflict.
+      const idempotencyKey = `checkout-${userId}-${planKey}-${billing ?? "monthly"}${isElements ? "-elements" : ""}-${Math.floor(Date.now() / 10_000)}`
+
+      if (isElements) {
+        const session = await stripeElements.checkout.sessions.create(
+          {
+            ...sessionParams,
+            ui_mode: "elements",
+            return_url: returnUrl,
+          } as Parameters<typeof stripeElements.checkout.sessions.create>[0],
+          { idempotencyKey }
+        )
+        return new Response(
+          JSON.stringify({ clientSecret: session.client_secret }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        )
+      }
+
+      const session = await stripe.checkout.sessions.create(
+        { ...sessionParams, success_url: successUrl, cancel_url: cancelUrl },
+        { idempotencyKey }
       )
 
       return new Response(JSON.stringify({ url: session.url }), {

@@ -8,6 +8,7 @@ import { Seo } from "@/components/Seo"
 import { Button } from "@/components/ui/button"
 import { ImagePlaceholder } from "@/components/ImagePlaceholder"
 import { VatNote } from "@/components/VatNote"
+import { WalletCheckout } from "@/components/WalletCheckout"
 import {
   MerchDiscountCode,
   type AppliedMerchCode,
@@ -135,27 +136,47 @@ export default function MerchCart() {
   const canCheckout =
     rows.length > 0 && !hasUnavailable && isDeliveryReady && !buying
 
+  const origin = window.location.origin
+  const returnUrl = `${origin}/merch/aciu?session_id={CHECKOUT_SESSION_ID}&cart=1`
+  const checkoutBody = {
+    items: rows.map((r) => ({
+      itemId: r.itemId,
+      size: r.size,
+      quantity: r.quantity,
+    })),
+    userEmail: user?.email ?? undefined,
+    deliveryMethod,
+    ...(deliveryMethod === "terminal" &&
+      terminal && { terminal: { id: terminal.id, name: terminal.name } }),
+    ...(activeCode && { code: activeCode.code }),
+  }
+  // A discount code or gift card is held while a session is open, so the
+  // wallet button is only offered without one; those orders use the pay button.
+  const canUseWallet = canCheckout && !activeCode
+  const walletOrderKey = JSON.stringify(checkoutBody)
+
+  async function createWalletSession(): Promise<string> {
+    const { data, error } = await supabase.functions.invoke(
+      "create-merch-checkout",
+      { body: { ...checkoutBody, uiMode: "elements", returnUrl } }
+    )
+    if (error || !data?.clientSecret) {
+      throw new Error(await readFunctionError(error, "Wallet checkout failed"))
+    }
+    return data.clientSecret
+  }
+
   async function handleCheckout() {
     if (!canCheckout) return
     setBuying(true)
     setBuyError(null)
-    const origin = window.location.origin
     const { data, error } = await supabase.functions.invoke(
       "create-merch-checkout",
       {
         body: {
-          items: rows.map((r) => ({
-            itemId: r.itemId,
-            size: r.size,
-            quantity: r.quantity,
-          })),
-          userEmail: user?.email ?? undefined,
-          successUrl: `${origin}/merch/aciu?session_id={CHECKOUT_SESSION_ID}&cart=1`,
+          ...checkoutBody,
+          successUrl: returnUrl,
           cancelUrl: `${origin}/merch/krepselis`,
-          deliveryMethod,
-          ...(deliveryMethod === "terminal" &&
-            terminal && { terminal: { id: terminal.id, name: terminal.name } }),
-          ...(activeCode && { code: activeCode.code }),
         },
       }
     )
@@ -238,6 +259,14 @@ export default function MerchCart() {
                   </div>
                 </dl>
                 <VatNote className="mt-2" />
+
+                {canUseWallet && (
+                  <WalletCheckout
+                    orderKey={walletOrderKey}
+                    createSession={createWalletSession}
+                    onError={setBuyError}
+                  />
+                )}
 
                 <Button
                   size="lg"

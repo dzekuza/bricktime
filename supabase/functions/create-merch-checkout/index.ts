@@ -5,6 +5,10 @@ import {
 } from "https://esm.sh/@supabase/supabase-js@2"
 
 import { getVatTaxRateId } from "../_shared/vat.ts"
+import {
+  isAllowedReturnUrl,
+  stripeElements,
+} from "../_shared/stripe-elements.ts"
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2024-06-20",
@@ -35,11 +39,20 @@ Deno.serve(async (req) => {
       size,
       successUrl,
       cancelUrl,
+      uiMode,
+      returnUrl,
       userEmail,
       code,
       deliveryMethod,
       terminal,
     } = await req.json()
+
+    // "elements" = the on-page Express Checkout button (Apple Pay, Google Pay);
+    // anything else is the hosted Stripe Checkout redirect.
+    const isElements = uiMode === "elements"
+    if (isElements && !isAllowedReturnUrl(returnUrl)) {
+      throw new Error("Invalid return URL")
+    }
 
     // `itemId` + `size` is the single-item shape from before the cart.
     const lines = parseLines(items ?? [{ itemId, size, quantity: 1 }])
@@ -136,9 +149,9 @@ Deno.serve(async (req) => {
           : null
 
       const vatTaxRateId = await getVatTaxRateId(stripe)
-      const session = await stripe.checkout.sessions.create({
+      const sessionParams = {
         expires_at: Math.floor(Date.now() / 1000) + SESSION_TTL_MINUTES * 60,
-        mode: "payment",
+        mode: "payment" as const,
         // Keeps the customer's invoice language Lithuanian (see create-checkout).
         locale: "lt",
         line_items: [
@@ -178,8 +191,6 @@ Deno.serve(async (req) => {
         // A held code must settle inside its hold. Delayed methods can take
         // days, long after the hold lapses and someone else claims the code.
         ...(isHoldingCode && { payment_method_types: ["card"] }),
-        success_url: successUrl,
-        cancel_url: cancelUrl,
         ...(stripeCoupon && { discounts: [{ coupon: stripeCoupon.id }] }),
         metadata: {
           type: "merch",
@@ -219,8 +230,25 @@ Deno.serve(async (req) => {
             ],
           },
         }),
-      })
+      } satisfies Stripe.Checkout.SessionCreateParams
 
+      if (isElements) {
+        const session = await stripeElements.checkout.sessions.create({
+          ...sessionParams,
+          ui_mode: "elements",
+          return_url: returnUrl,
+        } as Parameters<typeof stripeElements.checkout.sessions.create>[0])
+        return new Response(
+          JSON.stringify({ clientSecret: session.client_secret }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        )
+      }
+
+      const session = await stripe.checkout.sessions.create({
+        ...sessionParams,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+      })
       return new Response(JSON.stringify({ url: session.url }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       })
