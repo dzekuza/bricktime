@@ -7,6 +7,14 @@ updated: 2026-11-22
 
 Chronological log of notable changes to the project. Newest first.
 
+## 2026-11-22 — SEO and AI-search readiness
+
+- **Added:** `scripts/postbuild-seo.mjs` (per-route prerendered meta and fallback text, generated `sitemap.xml`, real `404.html`, Product and FAQPage JSON-LD in the static HTML), `public/llms.txt`, `lang="lt"`; `vercel.json` now lists app routes explicitly instead of a catch-all. Unreleased products are left out of the sitemap.
+
+## 2026-11-22 — architecture docs incremental sync to `701c773`
+
+- **Updated:** `codebase-map` (`synced_commit`; new section for the post-build SEO step, `<Seo>`, address search, `subscribers.country`). Chats and CRM skipped by request.
+
 ## 2026-11-22 — architecture docs incremental sync to `5c7c699`
 
 - **Updated:** `codebase-map` (`synced_commit`, `SetPicker` row, Orders filters note). 24 files, all in `admin/`; no storefront or edge function change.

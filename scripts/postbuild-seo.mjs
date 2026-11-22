@@ -134,7 +134,7 @@ const truncate = (value, max) => {
   return text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text
 }
 
-function buildHead({ title, description, urlPath, image, noindex }) {
+function buildHead({ title, description, urlPath, image, noindex, jsonLd }) {
   const url = `${SITE_URL}${urlPath}`
   const fullTitle = title === SITE_NAME || title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`
   const t = escapeHtml(fullTitle)
@@ -154,6 +154,12 @@ function buildHead({ title, description, urlPath, image, noindex }) {
     `<meta data-prerender="true" name="twitter:title" content="${t}" />`,
     `<meta data-prerender="true" name="twitter:description" content="${d}" />`,
     `<meta data-prerender="true" name="twitter:image" content="${escapeHtml(image)}" />`,
+    ...(jsonLd
+      ? [
+          // "<" is escaped so a title like "</script>" cannot break out of the tag.
+          `<script data-prerender="true" type="application/ld+json">${JSON.stringify(jsonLd).replaceAll("<", "\\u003c")}</script>`,
+        ]
+      : []),
   ].join("\n    ")
 }
 
@@ -207,6 +213,20 @@ async function fetchRows(table, query) {
 async function main() {
   const template = await readFile(path.join(DIST, "index.html"), "utf8")
 
+  const faqs = await fetchRows("faq_items", "select=question,answer&order=sort_order")
+  const faqSchema =
+    faqs.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqs.map((faq) => ({
+            "@type": "Question",
+            name: faq.question,
+            acceptedAnswer: { "@type": "Answer", text: faq.answer },
+          })),
+        }
+      : undefined
+
   for (const route of STATIC_ROUTES) {
     await writePage(template, {
       heading: route.title,
@@ -214,31 +234,55 @@ async function main() {
       description: route.description,
       urlPath: route.path,
       image: DEFAULT_IMAGE,
+      jsonLd: route.path === "/duk" ? faqSchema : undefined,
     })
   }
 
-  const products = await fetchRows(
+  const now = Date.now()
+  const allProducts = await fetchRows(
     "products",
-    "select=id,title,subtitle,description,image_url&order=id.desc"
+    "select=id,title,subtitle,description,category,min_age,image_url,gallery,release_date&order=id.desc"
+  )
+  // The archive hides drops whose release_date is still in the future; do the same here
+  // so the sitemap and prerendered pages never advertise an unreleased set.
+  const products = allProducts.filter(
+    (product) => !product.release_date || new Date(product.release_date).getTime() <= now
   )
   for (const product of products) {
+    const description = truncate(
+      product.subtitle ||
+        product.description ||
+        "LEGO® rinkinys iš Brick Time katalogo – prieinamas su prenumerata.",
+      200
+    )
+    const images = [product.image_url, ...(product.gallery ?? [])].filter(
+      (url) => typeof url === "string" && url.startsWith("http")
+    )
     await writePage(template, {
       heading: product.title,
       title: product.title,
-      description: truncate(
-        product.subtitle ||
-          product.description ||
-          "LEGO® rinkinys iš Brick Time katalogo – prieinamas su prenumerata.",
-        200
-      ),
+      description,
       urlPath: `/drop/${product.id}`,
-      image: product.image_url?.startsWith("http") ? product.image_url : DEFAULT_IMAGE,
+      image: images[0] ?? DEFAULT_IMAGE,
+      // Mirrors the Product schema <Drop> renders client-side.
+      jsonLd: {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: product.title,
+        description: description || undefined,
+        image: images.length > 0 ? images : undefined,
+        category: product.category,
+        brand: { "@type": "Brand", name: "LEGO" },
+        audience: product.min_age
+          ? { "@type": "PeopleAudience", suggestedMinAge: product.min_age }
+          : undefined,
+      },
     })
   }
 
   const merch = await fetchRows(
     "merch_items",
-    "select=slug,name,description&status=eq.active&order=sort_order"
+    "select=slug,name,description,image_url&status=in.(active,coming-soon)&order=sort_order"
   )
   for (const item of merch) {
     await writePage(template, {
@@ -246,7 +290,7 @@ async function main() {
       title: item.name,
       description: truncate(item.description || "Brick Time apranga LEGO® fanams.", 200),
       urlPath: `/merch/${item.slug}`,
-      image: DEFAULT_IMAGE,
+      image: item.image_url?.startsWith("http") ? item.image_url : DEFAULT_IMAGE,
     })
   }
 

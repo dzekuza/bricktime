@@ -1,3 +1,9 @@
+## 2026-11-22 — architecture docs sync to `701c773`
+
+- **Changed:** map now covers `scripts/postbuild-seo.mjs`, `Seo`, `AddressAutocomplete`, `geoapify`, `countries`, `subscribers.country`. Admin-notification code was already documented. Chats skipped by request.
+- **Status:** docs follow HEAD.
+- **Next:** rename one of the two `20261122130000` migrations before `db push`.
+
 ## 2026-11-22 — architecture docs sync to `5c7c699`
 
 - **Changed:** admin-only commits (orders theme/subscription filters, set picker thumbnails, axe fixes). Map updated; chats skipped by request.
