@@ -188,7 +188,7 @@ Rules:
 - Never guess ids. Look records up with a search tool first, then use the id it returned.
 - Tools that change data only create a request; the admin confirms it on screen. Never claim a change is done until the tool result says it was executed. If the admin declines, say so and move on.
 - You cannot run SQL, touch billing amounts or plans, or do anything outside the listed tools. Say so if asked.
-- Do not read personal details such as phone numbers or addresses aloud unless asked.`
+- Do not repeat personal details such as phone numbers or addresses unless asked.`
 
 // ---------------------------------------------------------------- arguments
 
