@@ -234,27 +234,32 @@ Deno.serve(async (req) => {
       } satisfies Stripe.Checkout.SessionCreateParams
 
       if (isElements) {
-        const { idempotencyKey, expiresAt } = await walletSessionIdempotency(
-          "merch-elements",
-          {
-            userId,
-            userEmail: userEmail ?? null,
-            cart: lines,
-            deliveryMethod,
-            terminalId,
-            code: code ?? null,
-            returnUrl,
-          },
-          SESSION_TTL_MINUTES
-        )
+        // Only a verified account can share a retry key. A guest request has
+        // nothing in it that is unique to the shopper, so two guests with the
+        // same cart in the same moment would be handed one session (and one
+        // client secret) and could overwrite each other's delivery details.
+        const retryGuard = userId
+          ? await walletSessionIdempotency(
+              "merch-elements",
+              {
+                userId,
+                cart: lines,
+                deliveryMethod,
+                terminalId,
+                code: code ?? null,
+                returnUrl,
+              },
+              SESSION_TTL_MINUTES
+            )
+          : null
         const session = await stripeElements.checkout.sessions.create(
           {
             ...sessionParams,
-            expires_at: expiresAt,
+            ...(retryGuard && { expires_at: retryGuard.expiresAt }),
             ui_mode: "elements",
             return_url: returnUrl,
           } as Parameters<typeof stripeElements.checkout.sessions.create>[0],
-          { idempotencyKey }
+          retryGuard ? { idempotencyKey: retryGuard.idempotencyKey } : undefined
         )
         return new Response(
           JSON.stringify({ clientSecret: session.client_secret }),
