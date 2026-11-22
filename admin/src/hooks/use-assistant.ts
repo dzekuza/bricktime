@@ -1,20 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-import {
-  GoogleGenAI,
-  Modality,
-  type FunctionCall,
-  type LiveServerMessage,
-  type Session,
-} from "@google/genai"
+import type { Content, FunctionCall, Part } from "@google/genai"
 
 import { useAuth } from "@/context/AuthContext"
 import { supabase } from "@/lib/supabase"
-import {
-  createAudioPlayer,
-  startMicCapture,
-  type AudioPlayer,
-  type MicCapture,
-} from "@/lib/assistant/audio"
 import {
   SYSTEM_INSTRUCTION,
   TOOL_DECLARATIONS,
@@ -27,7 +15,7 @@ import {
   type PendingAction,
 } from "@/lib/assistant/tools"
 
-export type AssistantStatus = "idle" | "connecting" | "ready" | "error"
+export type AssistantStatus = "idle" | "thinking" | "error"
 export type ActionOutcome =
   | "awaiting"
   | "running"
@@ -45,15 +33,22 @@ export type AssistantMessage =
       error?: string
     }
 
-const AUDIO_MIME = "audio/pcm;rate=16000"
+// Stops a model that keeps calling tools from looping forever.
+const MAX_TOOL_ROUNDS = 8
 
-async function fetchToken(): Promise<{ token: string; model: string }> {
+async function askModel(contents: Content[]): Promise<Content> {
   const { data, error } = await supabase.functions.invoke<{
-    token?: string
-    model?: string
+    content?: Content
     error?: string
-  }>("admin-assistant-token")
+  }>("admin-assistant-chat", {
+    body: {
+      contents,
+      systemInstruction: SYSTEM_INSTRUCTION,
+      functionDeclarations: TOOL_DECLARATIONS,
+    },
+  })
   if (error) {
+    // The generic "non-2xx" message hides the function's own error body.
     const res = (error as { context?: Response }).context
     const detail: unknown = await res?.json?.().catch(() => null)
     throw new Error(
@@ -62,10 +57,10 @@ async function fetchToken(): Promise<{ token: string; model: string }> {
         : error.message
     )
   }
-  if (!data?.token || !data.model) {
-    throw new Error(data?.error ?? "Could not start the assistant")
+  if (!data?.content) {
+    throw new Error(data?.error ?? "No answer from the assistant")
   }
-  return { token: data.token, model: data.model }
+  return data.content
 }
 
 export function useAssistant() {
@@ -75,41 +70,18 @@ export function useAssistant() {
   const [status, setStatus] = useState<AssistantStatus>("idle")
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [messages, setMessages] = useState<AssistantMessage[]>([])
-  const [isMicOn, setIsMicOn] = useState(false)
-  const [isMuted, setIsMuted] = useState(false)
 
-  const sessionRef = useRef<Session | null>(null)
-  const micRef = useRef<MicCapture | null>(null)
-  const playerRef = useRef<AudioPlayer | null>(null)
+  // What the model sees, kept as the API returned it (thought signatures included).
+  const history = useRef<Content[]>([])
   const nextId = useRef(1)
-  const isConnecting = useRef(false)
-  const connectGeneration = useRef(0)
-  const isStartingMic = useRef(false)
-  // Which side the transcript currently being streamed belongs to.
-  const openTurn = useRef<"user" | "assistant" | null>(null)
+  const isBusy = useRef(false)
+  // Bumped by reset/unmount so a turn that is still running stops quietly.
+  const generation = useRef(0)
   const decisions = useRef(new Map<string, (isApproved: boolean) => void>())
   const adminEmailRef = useRef(adminEmail)
   useEffect(() => {
     adminEmailRef.current = adminEmail
   }, [adminEmail])
-
-  const appendTranscript = useCallback(
-    (role: "user" | "assistant", text: string) => {
-      setMessages((prev) => {
-        const last = prev[prev.length - 1]
-        if (
-          openTurn.current === role &&
-          last?.kind === "text" &&
-          last.role === role
-        ) {
-          return [...prev.slice(0, -1), { ...last, text: last.text + text }]
-        }
-        return [...prev, { id: nextId.current++, kind: "text", role, text }]
-      })
-      openTurn.current = role
-    },
-    []
-  )
 
   const patchAction = useCallback(
     (actionId: string, patch: { outcome: ActionOutcome; error?: string }) => {
@@ -125,16 +97,15 @@ export function useAssistant() {
   )
 
   const handleWriteCall = useCallback(
-    async (call: FunctionCall & { name: string }) => {
-      const action = await prepareWriteTool(
-        call.name as Parameters<typeof prepareWriteTool>[0],
-        call.args ?? {}
-      )
+    async (
+      name: Parameters<typeof prepareWriteTool>[0],
+      args: Record<string, unknown>
+    ) => {
+      const action = await prepareWriteTool(name, args)
       setMessages((prev) => [
         ...prev,
         { id: nextId.current++, kind: "action", action, outcome: "awaiting" },
       ])
-      openTurn.current = null
 
       // The model's turn is blocked until the admin answers on the card.
       const isApproved = await new Promise<boolean>((resolve) => {
@@ -173,214 +144,107 @@ export function useAssistant() {
     [patchAction]
   )
 
-  const handleToolCalls = useCallback(
-    async (session: Session, calls: FunctionCall[]) => {
-      const functionResponses = []
-      for (const call of calls) {
-        const name = call.name ?? ""
-        try {
-          const output = isWriteTool(name)
-            ? await handleWriteCall({ ...call, name })
-            : await runReadTool(name, call.args ?? {})
-          functionResponses.push({ id: call.id, name, response: { output } })
-        } catch (err) {
-          functionResponses.push({
+  const runToolCall = useCallback(
+    async (call: FunctionCall): Promise<Part> => {
+      const name = call.name ?? ""
+      const args = call.args ?? {}
+      try {
+        const output = isWriteTool(name)
+          ? await handleWriteCall(name, args)
+          : await runReadTool(name, args)
+        return { functionResponse: { id: call.id, name, response: { output } } }
+      } catch (err) {
+        return {
+          functionResponse: {
             id: call.id,
             name,
             response: { error: (err as Error).message },
-          })
+          },
         }
-      }
-      try {
-        session.sendToolResponse({ functionResponses })
-      } catch {
-        // The session closed while the admin was deciding; nothing left to answer.
       }
     },
     [handleWriteCall]
   )
 
-  const handleMessage = useCallback(
-    (session: Session, message: LiveServerMessage) => {
-      if (message.toolCall?.functionCalls) {
-        void handleToolCalls(session, message.toolCall.functionCalls)
+  const runTurn = useCallback(
+    async (myGeneration: number) => {
+      for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+        const content = await askModel(history.current)
+        if (myGeneration !== generation.current) return
+        history.current.push(content)
+
+        const parts = content.parts ?? []
+        const text = parts
+          .filter((part) => !part.thought)
+          .map((part) => part.text ?? "")
+          .join("")
+          .trim()
+        if (text) {
+          setMessages((prev) => [
+            ...prev,
+            { id: nextId.current++, kind: "text", role: "assistant", text },
+          ])
+        }
+
+        const calls = parts.flatMap((part) =>
+          part.functionCall ? [part.functionCall] : []
+        )
+        if (calls.length === 0) return
+
+        const responses: Part[] = []
+        for (const call of calls) responses.push(await runToolCall(call))
+        if (myGeneration !== generation.current) return
+        history.current.push({ role: "user", parts: responses })
       }
-      const content = message.serverContent
-      if (!content) return
-      for (const part of content.modelTurn?.parts ?? []) {
-        if (part.inlineData?.data)
-          playerRef.current?.enqueue(part.inlineData.data)
-      }
-      if (content.inputTranscription?.text) {
-        appendTranscript("user", content.inputTranscription.text)
-      }
-      if (content.outputTranscription?.text) {
-        appendTranscript("assistant", content.outputTranscription.text)
-      }
-      if (content.interrupted) playerRef.current?.clear()
-      if (content.turnComplete) openTurn.current = null
+      throw new Error("The assistant made too many tool calls in a row")
     },
-    [appendTranscript, handleToolCalls]
+    [runToolCall]
   )
 
-  const stopMic = useCallback(() => {
-    micRef.current?.stop()
-    micRef.current = null
-    setIsMicOn(false)
-    sessionRef.current?.sendRealtimeInput({ audioStreamEnd: true })
-  }, [])
+  const sendText = useCallback(
+    async (text: string) => {
+      const trimmed = text.trim()
+      if (!trimmed || isBusy.current) return
+      isBusy.current = true
+      const myGeneration = generation.current
+      setErrorMessage(null)
+      setStatus("thinking")
+      setMessages((prev) => [
+        ...prev,
+        { id: nextId.current++, kind: "text", role: "user", text: trimmed },
+      ])
+      history.current.push({ role: "user", parts: [{ text: trimmed }] })
+      try {
+        await runTurn(myGeneration)
+        if (myGeneration === generation.current) setStatus("idle")
+      } catch (err) {
+        if (myGeneration !== generation.current) return
+        setErrorMessage((err as Error).message)
+        setStatus("error")
+      } finally {
+        if (myGeneration === generation.current) isBusy.current = false
+      }
+    },
+    [runTurn]
+  )
 
-  const disconnect = useCallback(() => {
-    // Makes a connect that is still in flight close itself when it resolves.
-    connectGeneration.current += 1
-    isConnecting.current = false
-    micRef.current?.stop()
-    micRef.current = null
-    setIsMicOn(false)
-    sessionRef.current?.close()
-    sessionRef.current = null
-    playerRef.current?.close()
-    playerRef.current = null
-    // A request still waiting on the admin must not stay confirmable.
+  /** Starts a fresh conversation; a change still waiting on the admin is declined. */
+  const reset = useCallback(() => {
+    generation.current += 1
+    isBusy.current = false
     decisions.current.forEach((resolve) => resolve(false))
-    setStatus("idle")
-  }, [])
-
-  const connect = useCallback(async () => {
-    if (sessionRef.current || isConnecting.current) return
-    isConnecting.current = true
-    const generation = connectGeneration.current
-    setStatus("connecting")
+    history.current = []
+    setMessages([])
     setErrorMessage(null)
-    try {
-      // Created inside the click so the browser lets it play.
-      playerRef.current = createAudioPlayer()
-      playerRef.current.setMuted(isMuted)
-      const { token, model } = await fetchToken()
-      const ai = new GoogleGenAI({
-        apiKey: token,
-        httpOptions: { apiVersion: "v1alpha" },
-      })
-      // The session isn't assigned until connect resolves, so callbacks that
-      // fire earlier look it up lazily.
-      const live: { current: Session | null } = { current: null }
-      live.current = await ai.live.connect({
-        model,
-        config: {
-          responseModalities: [Modality.AUDIO],
-          systemInstruction: SYSTEM_INSTRUCTION,
-          tools: [{ functionDeclarations: TOOL_DECLARATIONS }],
-          inputAudioTranscription: {},
-          outputAudioTranscription: {},
-        },
-        callbacks: {
-          onmessage: (message) => {
-            if (live.current) handleMessage(live.current, message)
-          },
-          onerror: (event) => {
-            setErrorMessage(event.message || "The assistant connection failed")
-            setStatus("error")
-          },
-          onclose: () => {
-            if (sessionRef.current === live.current) {
-              sessionRef.current = null
-              decisions.current.forEach((resolve) => resolve(false))
-              micRef.current?.stop()
-              micRef.current = null
-              setIsMicOn(false)
-              playerRef.current?.close()
-              playerRef.current = null
-              setStatus((current) => (current === "error" ? current : "idle"))
-            }
-          },
-        },
-      })
-      if (generation !== connectGeneration.current) {
-        live.current.close()
-        return
-      }
-      sessionRef.current = live.current
-      setStatus("ready")
-    } catch (err) {
-      if (generation !== connectGeneration.current) return
-      playerRef.current?.close()
-      playerRef.current = null
-      setErrorMessage((err as Error).message)
-      setStatus("error")
-    } finally {
-      if (generation === connectGeneration.current) isConnecting.current = false
-    }
-  }, [handleMessage, isMuted])
-
-  const sendText = useCallback((text: string) => {
-    const trimmed = text.trim()
-    const session = sessionRef.current
-    if (!trimmed || !session) return
-    openTurn.current = null
-    setMessages((prev) => [
-      ...prev,
-      { id: nextId.current++, kind: "text", role: "user", text: trimmed },
-    ])
-    // Cut off any speech still playing, like a spoken interruption would.
-    playerRef.current?.clear()
-    session.sendRealtimeInput({ text: trimmed })
-  }, [])
-
-  const toggleMic = useCallback(async () => {
-    if (micRef.current) {
-      stopMic()
-      return
-    }
-    const session = sessionRef.current
-    if (!session || isStartingMic.current) return
-    isStartingMic.current = true
-    try {
-      const capture = await startMicCapture((data) =>
-        session.sendRealtimeInput({ audio: { data, mimeType: AUDIO_MIME } })
-      )
-      // The session may have ended while the browser asked for permission.
-      if (sessionRef.current !== session) {
-        capture.stop()
-        return
-      }
-      micRef.current = capture
-      setIsMicOn(true)
-    } catch (err) {
-      setErrorMessage(
-        (err as Error).name === "NotAllowedError"
-          ? "Microphone access was denied"
-          : "Could not open the microphone"
-      )
-    } finally {
-      isStartingMic.current = false
-    }
-  }, [stopMic])
-
-  const toggleMuted = useCallback(() => {
-    setIsMuted((prev) => {
-      playerRef.current?.setMuted(!prev)
-      return !prev
-    })
+    setStatus("idle")
   }, [])
 
   const resolveAction = useCallback((actionId: string, isApproved: boolean) => {
     decisions.current.get(actionId)?.(isApproved)
   }, [])
 
-  // Leaving the page ends the session, the microphone and any open request.
-  useEffect(() => disconnect, [disconnect])
+  // Leaving the admin app drops any request that is still awaiting confirmation.
+  useEffect(() => reset, [reset])
 
-  return {
-    status,
-    errorMessage,
-    messages,
-    isMicOn,
-    isMuted,
-    connect,
-    disconnect,
-    sendText,
-    toggleMic,
-    toggleMuted,
-    resolveAction,
-  }
+  return { status, errorMessage, messages, sendText, reset, resolveAction }
 }

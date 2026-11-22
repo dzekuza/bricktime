@@ -1,13 +1,5 @@
 import { useEffect, useRef } from "react"
-import {
-  MicIcon,
-  MicOffIcon,
-  SendIcon,
-  SparklesIcon,
-  Volume2Icon,
-  VolumeXIcon,
-  XIcon,
-} from "lucide-react"
+import { SendIcon, SparklesIcon, XIcon } from "lucide-react"
 
 import { ActionConfirmCard } from "@/components/assistant/ActionConfirmCard"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -33,15 +25,15 @@ export function AssistantPanel() {
     session: assistant,
   } = useAssistantPanel()
   const endRef = useRef<HTMLDivElement>(null)
-  const isReady = assistant.status === "ready"
+  const isThinking = assistant.status === "thinking"
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" })
-  }, [assistant.messages])
+  }, [assistant.messages, isThinking])
 
   function handleSend(text: string) {
-    if (!text.trim()) return
-    assistant.sendText(text)
+    if (!text.trim() || isThinking) return
+    void assistant.sendText(text)
     setDraft("")
   }
 
@@ -58,9 +50,9 @@ export function AssistantPanel() {
           Assistant
         </div>
         <div className="flex items-center gap-1">
-          {isReady && (
-            <Button variant="outline" size="sm" onClick={assistant.disconnect}>
-              End session
+          {assistant.messages.length > 0 && (
+            <Button variant="outline" size="sm" onClick={assistant.reset}>
+              New chat
             </Button>
           )}
           <IconButton label="Close assistant" onClick={closePanel}>
@@ -75,26 +67,12 @@ export function AssistantPanel() {
             <AlertDescription>{assistant.errorMessage}</AlertDescription>
           </Alert>
         )}
-        {assistant.status !== "ready" && (
+        {assistant.messages.length === 0 && (
           <div className="flex flex-col items-start gap-2 text-sm text-muted-foreground">
             <p>
-              Ask about orders and clients by voice or text, in Lithuanian or
-              English. Changes only run after you confirm them.
+              Ask about orders and clients, in Lithuanian or English. Changes
+              only run after you confirm them. For example:
             </p>
-            <Button
-              size="sm"
-              onClick={() => void assistant.connect()}
-              disabled={assistant.status === "connecting"}
-            >
-              {assistant.status === "connecting"
-                ? "Connecting…"
-                : "Start session"}
-            </Button>
-          </div>
-        )}
-        {isReady && assistant.messages.length === 0 && (
-          <div className="flex flex-col items-start gap-2 text-sm text-muted-foreground">
-            <p>Type below or turn on the microphone. For example:</p>
             {SUGGESTIONS.map((suggestion) => (
               <Button
                 key={suggestion}
@@ -134,6 +112,11 @@ export function AssistantPanel() {
             />
           )
         )}
+        {isThinking && (
+          <p role="status" className="text-sm text-muted-foreground">
+            Thinking…
+          </p>
+        )}
         <div ref={endRef} />
       </div>
 
@@ -149,34 +132,12 @@ export function AssistantPanel() {
           placeholder="Ask about an order or a client…"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
-          disabled={!isReady}
         />
-        <IconButton
-          type="button"
-          variant={assistant.isMicOn ? "default" : "outline"}
-          label={
-            assistant.isMicOn ? "Turn microphone off" : "Turn microphone on"
-          }
-          aria-pressed={assistant.isMicOn}
-          disabled={!isReady}
-          onClick={() => void assistant.toggleMic()}
-        >
-          {assistant.isMicOn ? <MicIcon /> : <MicOffIcon />}
-        </IconButton>
-        <IconButton
-          type="button"
-          variant="outline"
-          label={assistant.isMuted ? "Unmute replies" : "Mute spoken replies"}
-          aria-pressed={assistant.isMuted}
-          onClick={assistant.toggleMuted}
-        >
-          {assistant.isMuted ? <VolumeXIcon /> : <Volume2Icon />}
-        </IconButton>
         <IconButton
           type="submit"
           variant="default"
           label="Send message"
-          disabled={!isReady || !draft.trim()}
+          disabled={isThinking || !draft.trim()}
         >
           <SendIcon />
         </IconButton>
