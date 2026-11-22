@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react"
 import { SearchIcon, GiftIcon, CalendarClockIcon } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
-import { Input } from "@/components/ui/input"
+import { SearchInput } from "@/components/ui/search-input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -230,10 +230,10 @@ export function GiftCards() {
     .reduce((sum, c) => sum + c.amount_cents, 0)
 
   return (
-    <div className="space-y-6 p-6">
+    <div lang="lt" className="flex flex-col gap-6">
       <div className="flex items-center gap-3">
         <GiftIcon className="size-6 text-muted-foreground" />
-        <h1 className="text-2xl font-bold">Dovanų kortelės</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Dovanų kortelės</h1>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -281,9 +281,9 @@ export function GiftCards() {
 
       <div className="relative max-w-sm">
         <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
+        <SearchInput
           className="pl-9"
-          placeholder="Ieškoti pagal kodą, el. paštą..."
+          label="Ieškoti pagal kodą, el. paštą" placeholder="Ieškoti pagal kodą, el. paštą..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -293,7 +293,7 @@ export function GiftCards() {
         <p className="text-sm text-muted-foreground">Kraunama…</p>
       ) : (
         <>
-          <DataTable columns={columns} data={filtered} />
+          <DataTable caption="Dovanų kortelės" columns={columns} data={filtered} />
           <p className="text-xs text-muted-foreground">
             {filtered.length} įrašų
           </p>

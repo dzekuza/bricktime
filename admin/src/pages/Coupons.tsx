@@ -1,12 +1,14 @@
 import { useState, useEffect, useMemo } from 'react'
+import { TableSection } from "@/components/TableSection"
+import { toast } from "@/lib/toast"
 import { PlusIcon, PencilIcon, Trash2Icon, TicketIcon } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
+import { IconButton } from "@/components/ui/icon-button"
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -114,15 +116,16 @@ export function Coupons() {
         expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
         active: form.active,
       }
-      if (editTarget) {
-        await supabase.from('coupons').update(payload).eq('id', editTarget.id)
-      } else {
-        await supabase.from('coupons').insert(payload)
-      }
+      const { error } = editTarget
+        ? await supabase.from('coupons').update(payload).eq('id', editTarget.id)
+        : await supabase.from('coupons').insert(payload)
+      if (error) throw error
       setDialogOpen(false)
+      toast.success(editTarget ? 'Coupon updated' : 'Coupon created')
       load()
     } catch (err) {
       console.error('Failed to save coupon:', err)
+      toast.error('Could not save the coupon. Try again.')
     } finally {
       setSaving(false)
     }
@@ -130,21 +133,27 @@ export function Coupons() {
 
   async function handleToggleActive(coupon: Coupon) {
     try {
-      await supabase.from('coupons').update({ active: !coupon.active }).eq('id', coupon.id)
+      const { error } = await supabase.from('coupons').update({ active: !coupon.active }).eq('id', coupon.id)
+      if (error) throw error
+      toast.success(`Coupon ${coupon.code} ${coupon.active ? 'deactivated' : 'activated'}`)
       load()
     } catch (err) {
       console.error('Failed to toggle coupon:', err)
+      toast.error('Could not update the coupon. Try again.')
     }
   }
 
   async function handleDelete() {
     if (!deleteTarget) return
     try {
-      await supabase.from('coupons').delete().eq('id', deleteTarget.id)
+      const { error } = await supabase.from('coupons').delete().eq('id', deleteTarget.id)
+      if (error) throw error
       setDeleteTarget(null)
+      toast.success(`Coupon ${deleteTarget.code} deleted`)
       load()
     } catch (err) {
       console.error('Failed to delete coupon:', err)
+      toast.error('Could not delete the coupon. Try again.')
     }
   }
 
@@ -202,6 +211,7 @@ export function Coupons() {
       header: 'Active',
       cell: ({ row }) => (
         <Switch
+          aria-label={`Coupon ${row.original.code} active`}
           checked={row.original.active}
           onCheckedChange={() => handleToggleActive(row.original)}
         />
@@ -211,17 +221,16 @@ export function Coupons() {
       id: 'actions',
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" onClick={() => openEdit(row.original)}>
+          <IconButton onClick={() => openEdit(row.original)} label={`Edit coupon ${row.original.code}`}>
             <PencilIcon className="size-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
+          </IconButton>
+          <IconButton
+            label={`Delete coupon ${row.original.code}`}
             className="text-destructive hover:text-destructive"
             onClick={() => setDeleteTarget(row.original)}
           >
             <Trash2Icon className="size-4" />
-          </Button>
+          </IconButton>
         </div>
       ),
     },
@@ -229,11 +238,11 @@ export function Coupons() {
   ], [])
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <TicketIcon className="size-5" />
-          <h1 className="text-xl font-semibold">Coupons</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Coupons</h1>
         </div>
         <Button onClick={openCreate}>
           <PlusIcon className="size-4" />
@@ -241,18 +250,9 @@ export function Coupons() {
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">All Codes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
-          ) : (
-            <DataTable columns={columns} data={items} />
-          )}
-        </CardContent>
-      </Card>
+      <TableSection title="All Codes" loading={loading}>
+        <DataTable caption="Coupons" columns={columns} data={items} />
+      </TableSection>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">

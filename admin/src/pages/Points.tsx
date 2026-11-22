@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from "react"
+import { TableSection } from "@/components/TableSection"
 import { AwardIcon, SearchIcon } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
-import { Input } from "@/components/ui/input"
+import { SearchInput } from "@/components/ui/search-input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -161,10 +162,10 @@ export function Points() {
   )
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center gap-2">
         <AwardIcon className="size-5" />
-        <h1 className="text-xl font-semibold">Points</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Points</h1>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -202,30 +203,22 @@ export function Points() {
 
       <div className="relative max-w-sm">
         <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search members…"
+        <SearchInput
+          label="Search members" placeholder="Search members…"
           className="pl-9"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Leaderboard</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
-          ) : (
-            <DataTable
+      <TableSection title="Leaderboard" loading={loading}>
+        <DataTable
+              caption="Points by member"
               columns={columns}
               data={filtered}
               onRowClick={openDetail}
             />
-          )}
-        </CardContent>
-      </Card>
+      </TableSection>
 
       <Sheet open={detailOpen} onOpenChange={setDetailOpen}>
         <SheetContent className="sm:max-w-md">

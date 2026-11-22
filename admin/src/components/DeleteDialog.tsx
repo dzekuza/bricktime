@@ -13,17 +13,24 @@ interface DeleteDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   itemName: string
+  description?: string
   onConfirm: () => void
 }
 
-export function DeleteDialog({ open, onOpenChange, itemName, onConfirm }: DeleteDialogProps) {
+export function DeleteDialog({
+  open,
+  onOpenChange,
+  itemName,
+  description = 'This action cannot be undone.',
+  onConfirm,
+}: DeleteDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete "{itemName}"?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. The product will be permanently removed from the catalogue.
+            {description}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

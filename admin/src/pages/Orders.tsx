@@ -2,7 +2,8 @@ import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { MoreHorizontalIcon, PlusIcon, RefreshCwIcon, SearchIcon } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { IconButton } from "@/components/ui/icon-button"
+import { SearchInput } from "@/components/ui/search-input"
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -288,10 +289,9 @@ export function Orders() {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="size-8" onClick={(e) => e.stopPropagation()}>
+              <IconButton className="size-8" onClick={(e) => e.stopPropagation()} label={`Actions for order ${order.id}`}>
                 <MoreHorizontalIcon className="size-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
+              </IconButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuGroup>
@@ -399,8 +399,8 @@ export function Orders() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search orders…"
+          <SearchInput
+            label="Search orders" placeholder="Search orders…"
             className="pl-9"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -422,6 +422,7 @@ export function Orders() {
       </div>
 
       <DataTable
+        caption="Orders"
         data={filtered}
         columns={columns}
         onRowClick={openDetail}

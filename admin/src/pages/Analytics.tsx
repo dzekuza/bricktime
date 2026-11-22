@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { TableSection } from "@/components/TableSection"
 import {
   MousePointerClickIcon,
   EyeIcon,
@@ -21,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { ChartDataTable } from "@/components/ChartDataTable"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   ChartContainer,
@@ -156,7 +158,7 @@ export function Analytics() {
   }, [days])
 
   return (
-    <div className="flex flex-col gap-6">
+    <div lang="lt" className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Analitika</h1>
@@ -236,40 +238,52 @@ export function Analytics() {
             {loading ? (
               <Skeleton className="h-[250px] w-full" />
             ) : data?.ga ? (
-              <ChartContainer
-                config={gaChartConfig}
-                className="h-[250px] w-full"
-              >
-                <LineChart data={data.ga.series}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="date"
-                    tickFormatter={formatDate}
-                    tickLine={false}
-                    axisLine={false}
-                    minTickGap={24}
-                  />
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent
-                        labelFormatter={(label) => formatDate(String(label))}
-                      />
-                    }
-                  />
-                  <Line
-                    dataKey="sessions"
-                    stroke="var(--color-sessions)"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    dataKey="users"
-                    stroke="var(--color-users)"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ChartContainer>
+              <>
+                <ChartDataTable
+                  caption="Srautas per laikotarpį"
+                  columns={[
+                    { key: "date", label: "Data" },
+                    { key: "sessions", label: "Sesijos" },
+                    { key: "users", label: "Vartotojai" },
+                  ]}
+                  rows={data.ga.series}
+                />
+                <ChartContainer
+                  aria-hidden="true"
+                  config={gaChartConfig}
+                  className="h-[250px] w-full"
+                >
+                  <LineChart data={data.ga.series}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={formatDate}
+                      tickLine={false}
+                      axisLine={false}
+                      minTickGap={24}
+                    />
+                    <ChartTooltip
+                      content={
+                        <ChartTooltipContent
+                          labelFormatter={(label) => formatDate(String(label))}
+                        />
+                      }
+                    />
+                    <Line
+                      dataKey="sessions"
+                      stroke="var(--color-sessions)"
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                    <Line
+                      dataKey="users"
+                      stroke="var(--color-users)"
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                  </LineChart>
+                </ChartContainer>
+              </>
             ) : (
               <p className="text-sm text-muted-foreground">Nėra duomenų</p>
             )}
@@ -287,40 +301,52 @@ export function Analytics() {
             {loading ? (
               <Skeleton className="h-[250px] w-full" />
             ) : data?.gsc ? (
-              <ChartContainer
-                config={gscChartConfig}
-                className="h-[250px] w-full"
-              >
-                <LineChart data={data.gsc.series}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="date"
-                    tickFormatter={formatDate}
-                    tickLine={false}
-                    axisLine={false}
-                    minTickGap={24}
-                  />
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent
-                        labelFormatter={(label) => formatDate(String(label))}
-                      />
-                    }
-                  />
-                  <Line
-                    dataKey="clicks"
-                    stroke="var(--color-clicks)"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    dataKey="impressions"
-                    stroke="var(--color-impressions)"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ChartContainer>
+              <>
+                <ChartDataTable
+                  caption="Paieškos rodikliai per laikotarpį"
+                  columns={[
+                    { key: "date", label: "Data" },
+                    { key: "clicks", label: "Paspaudimai" },
+                    { key: "impressions", label: "Rodymai" },
+                  ]}
+                  rows={data.gsc.series}
+                />
+                <ChartContainer
+                  aria-hidden="true"
+                  config={gscChartConfig}
+                  className="h-[250px] w-full"
+                >
+                  <LineChart data={data.gsc.series}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={formatDate}
+                      tickLine={false}
+                      axisLine={false}
+                      minTickGap={24}
+                    />
+                    <ChartTooltip
+                      content={
+                        <ChartTooltipContent
+                          labelFormatter={(label) => formatDate(String(label))}
+                        />
+                      }
+                    />
+                    <Line
+                      dataKey="clicks"
+                      stroke="var(--color-clicks)"
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                    <Line
+                      dataKey="impressions"
+                      stroke="var(--color-impressions)"
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                  </LineChart>
+                </ChartContainer>
+              </>
             ) : (
               <p className="text-sm text-muted-foreground">Nėra duomenų</p>
             )}
@@ -329,41 +355,29 @@ export function Analytics() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Populiariausios užklausos</CardTitle>
-            <CardDescription>
-              Top 10 paieškos frazių pagal paspaudimus
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-[300px] w-full" />
-            ) : (
-              <DataTable
+        <TableSection
+          title="Populiariausios užklausos"
+          description="Top 10 paieškos frazių pagal paspaudimus"
+          loading={loading}
+        >
+          <DataTable
+                caption="Populiariausios paieškos užklausos"
                 columns={queryColumns}
                 data={data?.gsc?.topQueries ?? []}
               />
-            )}
-          </CardContent>
-        </Card>
+        </TableSection>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Populiariausi puslapiai</CardTitle>
-            <CardDescription>Top 10 puslapių pagal paspaudimus</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-[300px] w-full" />
-            ) : (
-              <DataTable
+        <TableSection
+          title="Populiariausi puslapiai"
+          description="Top 10 puslapių pagal paspaudimus"
+          loading={loading}
+        >
+          <DataTable
+                caption="Populiariausi puslapiai"
                 columns={pageColumns}
                 data={data?.gsc?.topPages ?? []}
               />
-            )}
-          </CardContent>
-        </Card>
+        </TableSection>
       </div>
     </div>
   )

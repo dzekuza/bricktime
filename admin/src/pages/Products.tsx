@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react"
+import { toast } from "@/lib/toast"
 import {
   MoreHorizontalIcon,
   PlusIcon,
@@ -7,7 +8,8 @@ import {
 } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { IconButton } from "@/components/ui/icon-button"
+import { SearchInput } from "@/components/ui/search-input"
 import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
@@ -154,9 +156,11 @@ export function Products() {
     const { error } = await supabase.from("products").delete().in("id", ids)
     if (error) {
       console.error("Delete failed:", error.message)
+      toast.error("Could not delete the product. Try again.")
       return
     }
     setItems((prev) => prev.filter((p) => !ids.includes(p.id)))
+    toast.success(ids.length === 1 ? "Product deleted" : `${ids.length} products deleted`)
   }
 
   function openEdit(product: Product) {
@@ -171,7 +175,7 @@ export function Products() {
 
   const columns = useMemo<ColumnDef<Product, unknown>[]>(
     () => [
-      selectionColumn<Product>(),
+      selectionColumn<Product>((p) => p.title),
       {
         accessorKey: "id",
         header: "ID",
@@ -197,7 +201,7 @@ export function Products() {
                 className="size-9 shrink-0 rounded object-cover"
               />
             )}
-            <div className="flex flex-col gap-0.5">
+            <div className="flex w-64 flex-col gap-0.5 whitespace-normal">
               <span className="font-medium">{row.original.title}</span>
               <span className="text-xs text-muted-foreground">
                 {row.original.subtitle}
@@ -325,15 +329,13 @@ export function Products() {
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
+                <IconButton
+                  label={`Actions for ${product.title}`}
                   className="size-8"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <MoreHorizontalIcon className="size-4" />
-                  <span className="sr-only">Open menu</span>
-                </Button>
+                </IconButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuGroup>
@@ -405,8 +407,8 @@ export function Products() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative max-w-sm min-w-[200px] flex-1">
           <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search products…"
+          <SearchInput
+            label="Search products" placeholder="Search products…"
             className="pl-9"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -444,6 +446,7 @@ export function Products() {
         </div>
       ) : (
         <DataTable
+          caption="Products"
           data={filtered}
           columns={columns}
           onRowClick={openEdit}
@@ -526,6 +529,7 @@ export function Products() {
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         itemName={deleteTarget?.title ?? ""}
+        description="The product will be permanently removed from the catalogue."
         onConfirm={() => {
           if (deleteTarget) {
             handleDelete([deleteTarget.id])

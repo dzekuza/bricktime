@@ -1,5 +1,6 @@
 import * as React from 'react'
 import {
+  type Column,
   type ColumnDef,
   type SortingState,
   flexRender,
@@ -20,7 +21,9 @@ import { cn } from '@/lib/utils'
 
 // ── Selection column helper ─────────────────────────────────────────────────
 // eslint-disable-next-line react-refresh/only-export-components
-export function selectionColumn<TData>(): ColumnDef<TData> {
+export function selectionColumn<TData>(
+  getRowLabel?: (row: TData) => string,
+): ColumnDef<TData> {
   return {
     id: 'select',
     header: ({ table }) => (
@@ -30,14 +33,14 @@ export function selectionColumn<TData>(): ColumnDef<TData> {
           (table.getIsSomePageRowsSelected() ? 'indeterminate' : false)
         }
         onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
-        aria-label="Select all"
+        aria-label="Select all rows on this page"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(v) => row.toggleSelected(!!v)}
-        aria-label="Select row"
+        aria-label={getRowLabel ? `Select ${getRowLabel(row.original)}` : 'Select row'}
         onClick={(e) => e.stopPropagation()}
       />
     ),
@@ -47,9 +50,18 @@ export function selectionColumn<TData>(): ColumnDef<TData> {
   }
 }
 
+function getAriaSort<TData>(column: Column<TData, unknown>) {
+  const sorted = column.getIsSorted()
+  if (sorted === 'asc') return 'ascending'
+  if (sorted === 'desc') return 'descending'
+  return column.getCanSort() ? 'none' : undefined
+}
+
 // ── DataTable ───────────────────────────────────────────────────────────────
 interface DataTableProps<TData> {
   data: TData[]
+  /** Accessible name for the table, announced by screen readers. */
+  caption: string
   columns: ColumnDef<TData, unknown>[]
   onRowClick?: (row: TData) => void
   renderBulkActions?: (
@@ -60,6 +72,7 @@ interface DataTableProps<TData> {
 }
 
 export function DataTable<TData>({
+  caption,
   data,
   columns,
   onRowClick,
@@ -108,12 +121,14 @@ export function DataTable<TData>({
       {/* Table */}
       <div className={cn('overflow-hidden border', hasSelection && renderBulkActions ? 'rounded-b-lg' : 'rounded-lg')}>
         <Table>
+          <caption className="sr-only">{caption}</caption>
           <TableHeader>
             {table.getHeaderGroups().map((hg) => (
               <TableRow key={hg.id} className="hover:bg-transparent">
                 {hg.headers.map((header) => (
                   <TableHead
                     key={header.id}
+                    aria-sort={getAriaSort(header.column)}
                     style={{ width: header.column.getSize() !== 150 ? header.column.getSize() : undefined }}
                   >
                     {header.isPlaceholder
@@ -157,7 +172,6 @@ export function DataTable<TData>({
 // ── Sortable header helper ──────────────────────────────────────────────────
 import { ArrowUpDownIcon, ArrowUpIcon, ArrowDownIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import type { Column } from '@tanstack/react-table'
 
 export function SortableHeader<TData>({
   column,

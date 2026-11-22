@@ -1,6 +1,8 @@
 import { useState } from "react"
+import { toast } from "@/lib/toast"
 import { PlusIcon, Trash2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { IconButton } from "@/components/ui/icon-button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -115,9 +117,11 @@ export function HowItWorksTab({
     setSavingSteps(false)
     if (error) {
       console.error("Failed to save steps:", error.message)
+      toast.error("Could not save the steps. Try again.")
       return
     }
     onChangeSteps(rows)
+    toast.success("Steps saved")
     setSavedSteps(true)
     setTimeout(() => setSavedSteps(false), 2000)
   }
@@ -221,14 +225,13 @@ export function HowItWorksTab({
                     </Select>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
+                <IconButton
+                  label="Remove step"
                   className="mt-6 shrink-0 text-muted-foreground hover:text-destructive"
                   onClick={() => removeStep(step.id)}
                 >
                   <Trash2Icon className="size-4" />
-                </Button>
+                </IconButton>
               </div>
             </div>
           ))}

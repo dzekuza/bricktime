@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
+import { toast } from "@/lib/toast"
 import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { IconButton } from "@/components/ui/icon-button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -89,8 +91,10 @@ export function FaqQuestionsTab({ items, onChange }: FaqQuestionsTabProps) {
       .eq("id", item.id)
     if (error) {
       console.error("Failed to delete FAQ item:", error.message)
+      toast.error("Could not delete the question. Try again.")
       return
     }
+    toast.success("Question deleted")
     onChange(items.filter((i) => i.id !== item.id))
     setDeleteTarget(null)
   }
@@ -123,21 +127,19 @@ export function FaqQuestionsTab({ items, onChange }: FaqQuestionsTabProps) {
               </p>
             </div>
             <div className="flex shrink-0 gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
+              <IconButton
+                label={`Edit question ${item.question}`}
                 onClick={() => openEdit(item)}
               >
                 <PencilIcon className="size-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
+              </IconButton>
+              <IconButton
+                label={`Delete question ${item.question}`}
                 className="text-muted-foreground hover:text-destructive"
                 onClick={() => setDeleteTarget(item)}
               >
                 <Trash2Icon className="size-4" />
-              </Button>
+              </IconButton>
             </div>
           </div>
         ))}

@@ -1,4 +1,5 @@
-import { Outlet, useLocation } from "react-router-dom"
+import { useEffect, useRef } from "react"
+import { Link, Outlet, useLocation } from "react-router-dom"
 import {
   SidebarProvider,
   SidebarInset,
@@ -14,22 +15,38 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { AppSidebar } from "@/components/AppSidebar"
-
-const crumbMap: Record<string, string> = {
-  "/": "Dashboard",
-  "/products": "Products",
-  "/subscribers": "Customers & Subscribers",
-  "/plans": "Plans",
-  "/orders": "Orders",
-  "/settings": "Settings",
-}
+import { Toaster } from "@/components/ui/toaster"
+import { getDocumentTitle, getRouteTitle } from "@/lib/routes"
 
 export function AppLayout() {
   const { pathname } = useLocation()
-  const pageTitle = crumbMap[pathname] ?? "Page"
+  const pageTitle = getRouteTitle(pathname)
+  const isFirstRender = useRef(true)
+
+  useEffect(() => {
+    document.title = getDocumentTitle(pathname)
+    // Skip the initial load so the browser's own focus handling is kept.
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+    const target =
+      document.querySelector<HTMLElement>("#main-content h1") ??
+      document.getElementById("main-content")
+    if (target) {
+      target.tabIndex = -1
+      target.focus({ preventScroll: true })
+    }
+  }, [pathname])
 
   return (
     <SidebarProvider>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-md focus:ring-2 focus:ring-ring"
+      >
+        Skip to main content
+      </a>
       <AppSidebar />
       <SidebarInset className="min-w-0">
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
@@ -38,7 +55,9 @@ export function AppLayout() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/">BRICKTIME</BreadcrumbLink>
+                <BreadcrumbLink asChild>
+                  <Link to="/">BRICKTIME</Link>
+                </BreadcrumbLink>
               </BreadcrumbItem>
               {pathname !== "/" && (
                 <>
@@ -51,10 +70,14 @@ export function AppLayout() {
             </BreadcrumbList>
           </Breadcrumb>
         </header>
-        <main className="flex min-w-0 flex-1 flex-col gap-6 p-4 md:p-6">
+        <div
+          id="main-content"
+          className="flex min-w-0 flex-1 flex-col gap-6 p-4 outline-none md:p-6"
+        >
           <Outlet />
-        </main>
+        </div>
       </SidebarInset>
+      <Toaster />
     </SidebarProvider>
   )
 }
