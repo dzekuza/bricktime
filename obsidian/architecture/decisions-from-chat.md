@@ -1,6 +1,6 @@
 ---
 tags: [architecture, decisions]
-updated: 2026-11-19
+updated: 2026-11-20
 ---
 
 # Decisions from chat

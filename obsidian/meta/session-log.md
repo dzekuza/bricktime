@@ -1,3 +1,111 @@
+## 2026-11-20 — architecture docs sync to `f3554ce`
+
+- **Changed:** codebase-map `synced_commit` -> `f3554ce`. The one commit since `ccd3b5d` (`fix: darker tracking labels for contrast`) is colour classes only. Chats and CRM skipped.
+- **Status:** checked with `git diff`.
+- **Next:** none pending.
+
+## 2026-11-20 — architecture docs sync to `ccd3b5d`
+
+- **Changed:** codebase-map `synced_commit` -> `ccd3b5d`; `lpexpress-sync` row updated (`eventTime` `:46`, `Deno.serve` `:62`, difference with browser side resolved after #145); countdown format. OrderTracking/RentedOrderCard/Merch edits are styling only. Chats and CRM skipped.
+- **Status:** checked with `git diff`/`rg`.
+- **Next:** none pending.
+
+## 2026-11-20 — architecture docs sync to `9b75241`
+
+- **Changed:** codebase-map `synced_commit` -> `9b75241`; noted browser/edge-function difference on LP `eventDate` (`OrderTracking.tsx`, `src/lib/lpexpress.ts:21` vs `lpexpress-sync/index.ts:46`). Other changed files were styling only. Chats and CRM skipped.
+- **Status:** checked with `git diff`/`rg`.
+- **Next:** re-sync after `fix/lp-sync-event-date` merges.
+
+## 2026-11-20 — architecture docs sync to `bbaacca`
+
+- **Changed:** codebase-map `synced_commit` -> `bbaacca`; merch card image ratio detail updated (only `src/pages/Merch.tsx` changed). Chats and CRM skipped.
+- **Status:** checked with `git diff`/`rg`.
+- **Next:** re-sync after `fix/lp-sync-event-date` merges.
+
+## 2026-11-20 — architecture docs sync to `68c7931`
+
+- **Changed:** codebase-map `synced_commit` -> `68c7931`. Fixed the previous entry: `d3eaefa` is on `fix/lp-sync-event-date` and not an ancestor of HEAD, so `lpexpress-sync` row reverted to HEAD behaviour. Merch card image ratio noted. Chats and CRM skipped.
+- **Status:** checked with `git diff`/`rg`.
+- **Next:** re-sync after `fix/lp-sync-event-date` merges.
+
+## 2026-11-20 — architecture docs sync to `d3eaefa`
+
+- **Changed:** codebase-map `synced_commit` -> `d3eaefa`. Code changes since `6ad2d2b`: `lpexpress-sync` `eventTime` now reads LP `eventDate` (commit d3eaefa; `LpTrackingEvent.eventDate` in `_shared/lpexpress.ts`). Line ref updated. Chats and CRM skipped.
+- **Status:** checked with `git diff`/`rg`.
+- **Next:** re-sync after the next merge.
+
+## 2026-11-20 — architecture docs sync to `6ad2d2b`
+
+- **Changed:** codebase-map `synced_commit` -> `6ad2d2b`. PR #143 (credits billing window) is now in HEAD, so the "branch-only" flags on `useCreditsReset`, `CreditsResetNotice` and migration `20261121100000` were replaced with "merged". Other code change: merch card image ratio (`src/pages/Merch.tsx`). Chats and CRM skipped.
+- **Status:** checked with `git diff`/`rg`.
+- **Next:** re-sync after the next merge.
+
+## 2026-11-20 — architecture docs sync to `357879a`
+
+- **Changed:** codebase-map `synced_commit` -> `357879a`. HEAD (`fix/merch-card-description`) does not contain `179d56d` (it is on `feat/credits-billing-window`), so the credits-reset rows (`useCreditsReset`, `CreditsResetNotice`, migration `20261121100000`) are marked branch-only. Only code change on HEAD: merch card description removed (`src/pages/Merch.tsx`). Chats and CRM skipped.
+- **Status:** checked with `git diff`/`rg`.
+- **Next:** re-sync after `feat/credits-billing-window` merges.
+
+## 2026-11-20 — architecture docs sync to `179d56d`
+
+- **Changed:** codebase-map: credits come back at the next charge (`179d56d`): `useCreditsReset`, `CreditsResetNotice` on Account/Checkout/RentalCart, SQL `credits_pending_reset`, redefined `used_credits`/`billing_window`, `subscribers.credits_reset_at`. Chats and CRM skipped (automated run).
+- **Status:** lines checked with `rg`.
+- **Next:** none.
+
+## 2026-11-20 — architecture docs sync to `b388322`
+
+- **Changed:** codebase-map: `b388322` no longer uncommitted; admin plan label in Orders/OrderDetailSheet; `aria-pressed` on MysteryBoxRequestDialog; stripe-webhook line refs refreshed (were stale). Chats and CRM skipped (automated run).
+- **Status:** lines checked with `rg`.
+- **Next:** none.
+
+## 2026-11-20 — architecture docs sync to `f6d2c81`
+
+- **Changed:** codebase-map: Mystery Box review fixes (`f6d2c81`): return-URL allow-list and idempotent Checkout in `create-mystery-courier-checkout`, RPC lock-order and locker-name fixes, `MysteryBoxRequest` retry/countdown changes, admin `Orders`/`OrderDetailSheet` guards for `requested`; uncommitted `rejected_checkout_sessions` table + webhook record-before-refund. integrations: one line. Chats and CRM skipped (automated run).
+- **Status:** paths and lines checked with `rg`.
+- **Next:** none.
+
+## 2026-11-20 — architecture docs sync to `d985cd2`
+
+- **Changed:** codebase-map: Mystery Box requests (`b2ab66f`): RPCs `request_mystery_box`, `record_paid_mystery_courier`, `check_mystery_box_request`, `billing_window`, enum `requested`, nullable `orders.product_id`, function `create-mystery-courier-checkout`, webhook `handleMysteryCourierCheckout`, `MysteryBoxRequest*`, `useBillingCountdown`, admin `AssignMysterySet`. integrations: Stripe line. Chats and CRM skipped (automated run).
+- **Status:** paths and lines checked with `rg`.
+- **Next:** none.
+
+## 2026-11-20 — architecture docs sync to `7a7362c`
+
+- **Changed:** codebase-map: `lpexpress-sync` logs unknown tracking states; cron job `lpexpress-delivery-sync` got a 60 s `pg_net` timeout (migration `20261120130000`); admin `SetPicker` added. Chats and CRM skipped (automated run).
+- **Status:** paths and lines checked with `rg`.
+- **Next:** none.
+
+## 2026-11-20 — architecture docs sync to `03e2ea6`
+
+- **Changed:** codebase-map: `useSiteGateEnabled` 5 s timeout; `site_settings` admin policies split (migration `20261120140000`). Chats and CRM skipped (automated run).
+- **Status:** paths and lines checked with `rg`.
+- **Next:** none.
+
+## 2026-11-20 — architecture docs sync to `de535e2`
+
+- **Changed:** codebase-map: coming-soon gate switch (`site_settings`, `useSiteGateEnabled`, `ComingSoonGateCard`). Chats and CRM skipped (automated run).
+- **Status:** paths and lines checked with `rg`.
+- **Next:** none.
+
+## 2026-11-20 — architecture docs sync to `e75e3cf`
+
+- **Changed:** codebase-map: admin `CreateOrderDialog`, `MysteryLock`/`mystery.ts`, migration `orders_is_mystery`. Chats and CRM skipped (automated run).
+- **Status:** paths and lines checked with `rg`/`test -e`.
+- **Next:** none.
+
+## 2026-11-20 — architecture docs sync to `10f692e`
+
+- **Changed:** codebase-map lpexpress section: `returnSize` bumps only across distinct outbound parcels; `orders.lp_parcel_size` migration; line numbers. Chats and CRM skipped (automated run).
+- **Status:** symbols and lines checked with `rg`.
+- **Next:** none.
+
+## 2026-11-20 — architecture docs incremental sync
+
+- **Changed:** codebase-map synced `48bf10a`→`6fe244d` (lpexpress return sizing from `products.shipping_size`, line numbers; rating hook and badge). Chats and CRM not read (automated run).
+- **Status:** paths and symbols checked with `rg`.
+- **Next:** none.
+
 ## 2026-11-20 — product shipping size for return labels
 
 - **Changed:** `products.shipping_size` (XS–XL, default S; migration `products_shipping_size` applied live). Admin product dialog has a "Shipping size" select. `lpexpress` `create-return-label` now sizes the parcel from the sets' sizes (largest, one step up for several sets); deployed as v14. Both `database.types.ts` hand-edited.

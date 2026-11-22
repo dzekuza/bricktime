@@ -46,14 +46,15 @@ Friction only, no solutions. Method: improve-codebase-architecture (module, inte
 - **Files:** `supabase/functions/lpexpress/index.ts`, `_shared/lpexpress.ts`, `src/lib/lpexpress.ts`.
 - **Problem:** Six actions behind one endpoint with `{ action, ...params }`; only one carrier, so the seam is hypothetical. Not a defect today; noted because merch and rentals both ship (see [[decisions-from-chat]] when chat is read).
 - **Deletion test:** deleting `src/lib/lpexpress.ts` would move the `invoke` wiring into three components (earns its keep, thin).
+- **Note (2026-11-20, `6fe244d`):** return-parcel sizing now depends on `products.shipping_size` set by hand in admin, with `S` as silent default for unset sets; the sizing rule lives only in this function.
 - **Strength:** Speculative
 
 ## 7. Image optimiser copied into two apps; one call site bypasses the upload helper
 
 - **Files:** `src/lib/optimise-image.ts`, `admin/src/lib/optimise-image.ts` (identical 75 lines), `admin/src/lib/upload-to-storage.ts`, `src/pages/Community.tsx` (`FeedPanel` inline upload at `:825`).
-- **Problem:** on `perf/image-optimisation` the `optimiseImage` module is duplicated per app (admin shares no code with the storefront, see candidate 5), so a change to size or quality needs two edits. The storefront has no upload helper: only `Community.tsx` calls `optimiseImage`, then writes its own storage sequence.
+- **Problem:** the `optimiseImage` module is duplicated per app (admin shares no code with the storefront, see candidate 5), so a change to size or quality needs two edits. The storefront has no upload helper: only `Community.tsx` calls `optimiseImage`, then writes its own storage sequence.
 - **Deletion test:** deleting the admin copy would move the logic back into callers' absence (a real duplicate, not concentration); deleting `upload-to-storage.ts` would spread bucket, cache and optimise rules over five admin call sites (earns its keep).
-- **Evidence:** commits `7634f18`, `53383b4` (2026-11-19). On `feat/merch-cart`, `41678c5` removed the helper instead (branches diverge).
+- **Evidence:** commits `7634f18`, `53383b4` (2026-11-19). Branches merged into HEAD `52c4de3` (PR #126, #124); the divergence noted earlier is resolved.
 - **Strength:** Speculative
 
 ## Smaller items
