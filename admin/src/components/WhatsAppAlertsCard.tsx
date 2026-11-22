@@ -88,15 +88,16 @@ export function WhatsAppAlertsCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>WhatsApp alerts</CardTitle>
+        <CardTitle>Admin alerts</CardTitle>
         <CardDescription>
-          Sends a WhatsApp message to the admin number when these events happen.
-          Needs the WhatsApp provider secrets to be set on the server.
+          Sends a message to the admin WhatsApp number and/or Telegram chat when
+          these events happen. Needs the WhatsApp or Telegram secrets to be set
+          on the server.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-4">
-          <Label htmlFor="whatsapp-enabled">WhatsApp alerts</Label>
+          <Label htmlFor="whatsapp-enabled">Alerts</Label>
           <div className="flex items-center gap-3">
             {settings && (
               <Badge variant="outline">{current.enabled ? "On" : "Off"}</Badge>

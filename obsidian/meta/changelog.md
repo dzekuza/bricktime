@@ -7,6 +7,11 @@ updated: 2026-11-22
 
 Chronological log of notable changes to the project. Newest first.
 
+## 2026-11-22 — Telegram channel for admin alerts (stacked on the phase 2 PR)
+
+- **Added:** `_shared/telegram.ts` (Bot API, plain text, no phone number or template) and `_shared/alert-channels.ts`, which sends each alert to every configured channel (WhatsApp and/or Telegram); an alert counts as sent when one channel delivered it, and a failed second channel is shown as a note in the admin log. The bot token is redacted from every error. Admin card wording now says "Admin alerts".
+- **Secrets:** `TELEGRAM_BOT_TOKEN` (from @BotFather) and `TELEGRAM_CHAT_ID`. No migration.
+
 ## 2026-11-22 — WhatsApp admin alerts: orders, forms, delivery check (stacked on PR #150)
 
 - **Added:** DB triggers (migration `20261122130000`) queue alerts for merch orders, set rentals (one per cart), Mystery Box requests, return requests, the missing-part form, bought gift cards and product reviews; orders created by an admin do not alert. Caps on member-triggered kinds over a rolling 24 hours (not reset at midnight), extra index migration `20261122130100`. Admin card lists every kind and has a "Send test alert" button (sent even while alerts are off, capped at 10 per rolling 24 hours) plus the latest alerts with status. Verified on a scratch Postgres: apply, behaviour, rollback, reapply.
