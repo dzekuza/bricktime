@@ -6,6 +6,16 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { AddressAutocomplete } from "@/components/AddressAutocomplete"
+import { COUNTRIES, DEFAULT_COUNTRY, toCountryCode } from "@/lib/countries"
+import type { AddressSuggestion } from "@/lib/geoapify"
 import { supabase } from "@/lib/supabase"
 
 export interface ProfileValues {
@@ -17,6 +27,7 @@ export interface ProfileValues {
   flat: string
   city: string
   postal_code: string
+  country: string
 }
 
 interface ProfileEditDialogProps {
@@ -37,6 +48,7 @@ const EMPTY: ProfileValues = {
   flat: "",
   city: "",
   postal_code: "",
+  country: DEFAULT_COUNTRY,
 }
 
 const inputCls =
@@ -87,13 +99,27 @@ export function ProfileEditDialog({
       const cleaned = Object.fromEntries(
         Object.entries(initial).map(([k, val]) => [k, val ?? ""])
       )
-      setV({ ...EMPTY, ...cleaned })
+      setV({
+        ...EMPTY,
+        ...cleaned,
+        country: toCountryCode(initial.country),
+      })
       setError(null)
     }
   }, [open, initial])
 
   const set = (k: keyof ProfileValues) => (val: string) =>
     setV((prev) => ({ ...prev, [k]: val }))
+
+  function applySuggestion(s: AddressSuggestion) {
+    setV((prev) => ({
+      ...prev,
+      street: s.street,
+      house_no: s.house_no || prev.house_no,
+      city: s.city || prev.city,
+      postal_code: s.postal_code || prev.postal_code,
+    }))
+  }
 
   async function save() {
     if (!v.name.trim()) {
@@ -117,6 +143,7 @@ export function ProfileEditDialog({
       flat: v.flat.trim() || null,
       city: v.city.trim() || null,
       postal_code: v.postal_code.trim() || null,
+      country: toCountryCode(v.country),
     }
     const { error: err } = await supabase
       .from("subscribers")
@@ -164,11 +191,31 @@ export function ProfileEditDialog({
             />
           </div>
           <div className="col-span-2">
-            <Field
+            <label className="block">
+              <span className="label-mono mb-1 block text-ink/40">Šalis</span>
+              <Select value={v.country} onValueChange={set("country")}>
+                <SelectTrigger className="h-auto w-full rounded-2xl border-2 border-ink/20 bg-paper px-4 py-3 font-mono text-[14px] text-ink data-[size=default]:h-auto">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {COUNTRIES.map((c) => (
+                    <SelectItem key={c.code} value={c.code}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </label>
+          </div>
+          <div className="col-span-2">
+            <AddressAutocomplete
               label="Gatvė"
               value={v.street}
-              onChange={set("street")}
               placeholder="Pasakų g."
+              country={toCountryCode(v.country)}
+              inputClassName={inputCls}
+              onChange={set("street")}
+              onSelect={applySuggestion}
             />
           </div>
           <Field

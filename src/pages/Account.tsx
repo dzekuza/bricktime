@@ -81,7 +81,7 @@ const avatarOptions = [
 ]
 
 const SUBSCRIBER_COLUMNS =
-  "plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code, home_delivery, pending_plan, pending_schedule_id, cancel_requested, cancel_at, paused_until, current_period_start, current_period_end"
+  "plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code, country, home_delivery, pending_plan, pending_schedule_id, cancel_requested, cancel_at, paused_until, current_period_start, current_period_end"
 
 interface SubscriberData {
   plan: string
@@ -98,6 +98,7 @@ interface SubscriberData {
   flat?: string | null
   city?: string | null
   postal_code?: string | null
+  country?: string | null
   lp_terminal_id?: string | null
   lp_terminal_name?: string | null
   home_delivery?: boolean
@@ -1335,6 +1336,7 @@ export default function Account() {
             flat: subscriber?.flat ?? "",
             city: subscriber?.city ?? "",
             postal_code: subscriber?.postal_code ?? "",
+            country: subscriber?.country ?? "",
           }}
           onSaved={(vals) => {
             setSubscriber((s) => (s ? { ...s, ...vals } : s))

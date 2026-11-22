@@ -232,7 +232,7 @@ export default function Checkout() {
     supabase
       .from("subscribers")
       .select(
-        "plan, status, cancel_at, paused_until, home_delivery, name, last_name, phone, street, house_no, flat, city, postal_code"
+        "plan, status, cancel_at, paused_until, home_delivery, name, last_name, phone, street, house_no, flat, city, postal_code, country"
       )
       .eq("id", user.id)
       .single()
@@ -264,6 +264,7 @@ export default function Checkout() {
             flat: data.flat,
             city: data.city,
             postal_code: data.postal_code,
+            country: data.country,
           })
         }
       })
