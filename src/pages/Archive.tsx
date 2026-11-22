@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from "react"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
-import { XIcon } from "lucide-react"
+import { SearchIcon, XIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { supabase } from "@/lib/supabase"
 import { useCategories } from "@/hooks/useCategories"
 import { SUBSCRIPTION_CHIPS, AGE_CHIPS } from "@/lib/product-filters"
@@ -29,12 +30,20 @@ type SortValue = (typeof SORT_OPTIONS)[number]["value"]
 const PAGE_SIZE = 25
 
 // ── page ───────────────────────────────────────────────────────────────────
+// Lowercase and drop diacritics so "zaidimas" finds "žaidimas".
+const normalizeSearch = (text: string) =>
+  text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+
 export default function Archive() {
   const [tierFilter, setTierFilter] = useState<string[]>([])
   const [seriesFilter, setSeriesFilter] = useState<string[]>([])
   const categories = useCategories()
   const [ageFilter, setAgeFilter] = useState<string[]>([])
   const [sortBy, setSortBy] = useState<SortValue>("newest")
+  const [query, setQuery] = useState("")
   const [rows, setRows] = useState<Record<string, unknown>[]>([])
   const [userTier, setUserTier] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -92,8 +101,14 @@ export default function Archive() {
     [rows, userTier, now, available]
   )
 
+  const searchTerms = normalizeSearch(query).split(/\s+/).filter(Boolean)
+
   const filteredProducts = products
     .filter((p) => {
+      const haystack = normalizeSearch(
+        `${p.title} ${p.subtitle ?? ""} ${p.category}`
+      )
+      const searchOk = searchTerms.every((term) => haystack.includes(term))
       const tierOk =
         tierFilter.length === 0 ||
         p.allowedTiers.some((t) => tierFilter.includes(t))
@@ -104,7 +119,7 @@ export default function Archive() {
         p.minAge == null ||
         ageFilter.includes(String(p.minAge))
       const availableOk = sortBy !== "available" || p.status === "available"
-      return tierOk && seriesOk && ageOk && availableOk
+      return tierOk && seriesOk && ageOk && availableOk && searchOk
     })
     .sort((a, b) => {
       if (sortBy === "bricks-desc") return b.bricks - a.bricks
@@ -119,19 +134,23 @@ export default function Archive() {
     })
 
   const hasActiveFilter =
-    tierFilter.length > 0 || seriesFilter.length > 0 || ageFilter.length > 0
+    tierFilter.length > 0 ||
+    seriesFilter.length > 0 ||
+    ageFilter.length > 0 ||
+    searchTerms.length > 0
 
   function clearFilters() {
     setTierFilter([])
     setSeriesFilter([])
     setAgeFilter([])
+    setQuery("")
   }
 
   // A narrowed result set starts from the first page again, otherwise an
   // expanded list would keep showing everything after the filter changes.
   useEffect(() => {
     setVisibleCount(PAGE_SIZE)
-  }, [tierFilter, seriesFilter, ageFilter, sortBy])
+  }, [tierFilter, seriesFilter, ageFilter, sortBy, query])
 
   const shownProducts = filteredProducts.slice(0, visibleCount)
   const hasMore = filteredProducts.length > shownProducts.length
@@ -177,6 +196,17 @@ export default function Archive() {
             {/* Filters */}
             <div className="mb-8 flex flex-wrap items-center gap-2 md:justify-between md:gap-3">
               <div className="contents md:flex md:flex-wrap md:items-center md:gap-2">
+                <div className="relative w-full md:w-64">
+                  <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink/40" />
+                  <Input
+                    type="search"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Ieškoti rinkinio…"
+                    aria-label="Ieškoti rinkinio"
+                    className="h-auto rounded-full border-2 border-ink bg-white py-1.5 pr-3 pl-9 text-[13px] text-ink md:text-[13px]"
+                  />
+                </div>
                 <FilterPopover
                   label={seriesFilter.length === 0 ? "Visos temos" : "Tema"}
                   options={categories.map((s) => ({ value: s, label: s }))}
