@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react"
 import { toast } from "@/lib/toast"
-import { Link } from "react-router-dom"
+import { useAssistantPanel } from "@/context/AssistantContext"
 import {
   MoreHorizontalIcon,
   SearchIcon,
@@ -59,6 +59,7 @@ function initials(name: string) {
 }
 
 export function Subscribers() {
+  const { openWith: openAssistant } = useAssistantPanel()
   const [items, setItems] = useState<Subscriber[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
@@ -390,11 +391,13 @@ export function Subscribers() {
             {loading ? "Loading…" : `${items.length} total members`}
           </p>
         </div>
-        <Button variant="outline" size="sm" asChild>
-          <Link to="/assistant?prompt=Find a client named ">
-            <SparklesIcon className="size-4" />
-            Ask assistant
-          </Link>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => openAssistant("Find a client named ")}
+        >
+          <SparklesIcon className="size-4" />
+          Ask assistant
         </Button>
       </div>
 

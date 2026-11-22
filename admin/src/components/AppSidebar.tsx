@@ -18,7 +18,6 @@ import {
   FlagIcon,
   AwardIcon,
   StarIcon,
-  SparklesIcon,
 } from "lucide-react"
 import brickLogo from "@/assets/brick-logo.svg"
 import { NotificationsBell } from "@/components/notifications/NotificationsBell"
@@ -43,7 +42,6 @@ const navGroups = [
     label: "Overview",
     items: [
       { label: "Dashboard", to: "/", icon: LayoutDashboardIcon },
-      { label: "Assistant", to: "/assistant", icon: SparklesIcon },
       { label: "Analytics", to: "/analytics", icon: LineChartIcon },
     ],
   },

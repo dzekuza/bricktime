@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { useAssistantPanel } from '@/context/AssistantContext'
 import { MoreHorizontalIcon, PlusIcon, RefreshCwIcon, SearchIcon, SparklesIcon } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
@@ -43,6 +43,7 @@ function getCartKey(order: Order): string | null {
 }
 
 export function Orders() {
+  const { openWith: openAssistant } = useAssistantPanel()
   const [items, setItems] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -359,11 +360,13 @@ export function Orders() {
           <p className="text-muted-foreground text-sm">{loading ? 'Loading…' : `${items.length} total rentals`}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/assistant?prompt=Which rentals need attention?">
-              <SparklesIcon className="size-4" />
-              Ask assistant
-            </Link>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => openAssistant('Which rentals need attention?')}
+          >
+            <SparklesIcon className="size-4" />
+            Ask assistant
           </Button>
           <Button size="sm" onClick={() => setCreateOpen(true)}>
             <PlusIcon className="size-4" />

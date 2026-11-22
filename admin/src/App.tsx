@@ -21,7 +21,6 @@ import { MissingParts } from "@/pages/MissingParts"
 import { Merch } from "@/pages/Merch"
 import { GiftCards } from "@/pages/GiftCards"
 import { Settings } from "@/pages/Settings"
-import { Assistant } from "@/pages/Assistant"
 
 export default function App() {
   return (
@@ -53,7 +52,6 @@ export default function App() {
               <Route path="/missing-parts" element={<MissingParts />} />
               <Route path="/merch" element={<Merch />} />
               <Route path="/gift-cards" element={<GiftCards />} />
-              <Route path="/assistant" element={<Assistant />} />
               <Route path="/settings" element={<Settings />} />
             </Route>
           </Routes>
