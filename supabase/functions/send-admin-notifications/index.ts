@@ -1,9 +1,11 @@
-// Drains the admin_notifications outbox to WhatsApp (Meta Cloud API).
+// Drains the admin_notifications outbox to WhatsApp (Meta Cloud API or Twilio).
 //
 // Service-role only: invoked every minute by pg_cron (see the
-// 20261122120000_admin_notifications migration). Disabled kinds are marked
-// 'skipped' rather than left pending, so turning one on later does not flush
-// a backlog of stale alerts.
+// 20261122120000_admin_notifications migration). Alerts that arrive while
+// alerts, or their kind, are switched off are marked 'skipped' rather than left
+// pending, so turning them on later does not flush a backlog of stale alerts.
+// Rows are left pending only when WhatsApp is not configured yet or a send
+// failed in a way worth retrying.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { formatAdminMessage } from "../_shared/admin-notifications.ts"
@@ -14,6 +16,9 @@ const MAX_ATTEMPTS = 4
 const BATCH_SIZE = 20
 // Older than this and the alert is noise, not news.
 const MAX_AGE_MS = 6 * 60 * 60 * 1000
+// Signup alerts fire before email confirmation, so anyone can make them; the
+// cap bounds what a flood of fake signups can cost in WhatsApp messages.
+const MAX_NEW_SUBSCRIBER_ALERTS_PER_DAY = 20
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -65,8 +70,21 @@ Deno.serve(async (req) => {
   const settings = (setting?.value ?? {}) as Settings
   const configured = isWhatsAppConfigured()
 
-  // Nothing to do until an admin enables it and the secrets exist; rows stay
-  // pending (and age out below) instead of being lost.
+  const { count: sentSignupAlerts, error: capError } = await supabase
+    .from("admin_notifications")
+    .select("id", { count: "exact", head: true })
+    .eq("kind", "new_subscriber")
+    .eq("status", "sent")
+    .gte("sent_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+  if (capError) {
+    console.error("Signup alert count failed:", capError.message)
+    return fail(500, "outbox_read_failed", "Could not read the outbox")
+  }
+  let signupAlertsLeft = Math.max(
+    0,
+    MAX_NEW_SUBSCRIBER_ALERTS_PER_DAY - (sentSignupAlerts ?? 0)
+  )
+
   const { data: rows, error } = await supabase
     .from("admin_notifications")
     .select("id, kind, payload, attempts, created_at")
@@ -85,8 +103,9 @@ Deno.serve(async (req) => {
     const isKindOn =
       settings.enabled === true && settings.kinds?.[row.kind] !== false
     const message = formatAdminMessage(row.kind, row.payload ?? {})
+    const isCapped = row.kind === "new_subscriber" && signupAlertsLeft <= 0
 
-    if (isStale || !isKindOn || !message) {
+    if (isStale || !isKindOn || !message || isCapped) {
       await supabase
         .from("admin_notifications")
         .update({ status: "skipped" })
@@ -126,6 +145,7 @@ Deno.serve(async (req) => {
         console.error(`Marking ${row.id} sent failed: ${sentError.message}`)
       }
       summary.sent++
+      if (row.kind === "new_subscriber") signupAlertsLeft--
       continue
     }
 
@@ -142,6 +162,10 @@ Deno.serve(async (req) => {
       console.error(`Recording failure of ${row.id} failed: ${retryError.message}`)
     }
     isFinal ? summary.failed++ : summary.retry++
+
+    // A throttled or failing provider will fail the rest of the batch too, and
+    // each try would burn an attempt; stop and leave the others pending.
+    if (result.retryable) break
   }
 
   return json(summary)

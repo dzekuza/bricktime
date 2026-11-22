@@ -44,14 +44,33 @@ export function sendWhatsAppAlert(message: string): Promise<SendResult> {
   return getProvider() === "twilio" ? sendViaTwilio(message) : sendViaMeta(message)
 }
 
+// Meta reports several throttling errors as HTTP 400, identified only by the
+// error code in the body: 4 and 17 (API call limits), 80007 (WhatsApp rate
+// limit), 130429 (throughput), 131056 (pair rate limit).
+const META_RETRYABLE_CODES = new Set([4, 17, 80007, 130429, 131056])
+
+function isMetaRetryableBody(body: string): boolean {
+  try {
+    const code = (JSON.parse(body) as { error?: { code?: unknown } }).error?.code
+    return typeof code === "number" && META_RETRYABLE_CODES.has(code)
+  } catch {
+    return false
+  }
+}
+
 // Rate limits and server errors are worth another try; a rejected token,
 // template or number would fail the same way forever.
-async function toResult(res: Response): Promise<SendResult> {
+async function toResult(
+  res: Response,
+  isRetryableBody: (body: string) => boolean = () => false
+): Promise<SendResult> {
   if (res.ok) return { ok: true }
+  const body = await res.text()
   return {
     ok: false,
-    retryable: res.status === 429 || res.status >= 500,
-    error: `${res.status} ${await res.text()}`,
+    retryable:
+      res.status === 429 || res.status >= 500 || isRetryableBody(body),
+    error: `${res.status} ${body}`,
   }
 }
 
@@ -79,7 +98,7 @@ function sendViaMeta(message: string): Promise<SendResult> {
         },
       }),
     }
-  ).then(toResult)
+  ).then((res) => toResult(res, isMetaRetryableBody))
 }
 
 // The sandbox accepts free-form text for 24 hours after the admin messages the

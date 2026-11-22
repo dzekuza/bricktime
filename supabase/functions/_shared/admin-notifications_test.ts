@@ -69,6 +69,14 @@ Deno.test("caps long names", () => {
   assertEquals(message, `Naujas narys: ${"a".repeat(40)} · j@x.lt`)
 })
 
+Deno.test("keeps a long but valid email address", () => {
+  const long = `${"a".repeat(80)}@example.lt`
+  assertEquals(
+    formatAdminMessage("subscription_cancelled", { email: long }),
+    `Prenumerata atšaukta: ${long}`
+  )
+})
+
 Deno.test("unknown kinds have no message", () => {
   assertEquals(formatAdminMessage("nope", {}), null)
 })

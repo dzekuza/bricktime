@@ -9,7 +9,8 @@ export type AdminNotificationKind =
 type Payload = Record<string, unknown>
 
 const MAX_FIELD_LENGTH = 40
-const MAX_EMAIL_LENGTH = 60
+// The RFC limit, so a long but real address keeps the alert identifiable.
+const MAX_EMAIL_LENGTH = 254
 
 // Names and emails come from signup forms, so they are untrusted and WhatsApp
 // turns anything link-shaped into a tappable link. An allowlist (rather than a
@@ -68,22 +69,35 @@ export function formatAdminMessage(
   }
 }
 
+const ENQUEUE_ATTEMPTS = 3
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
 // Never throws: the caller is a webhook whose real work is already done, and a
-// Stripe retry would repeat it. A repeat delivery hits the unique dedupe_key.
+// Stripe retry would repeat it (so a failure here is not redelivered). A short
+// inline retry covers a transient database error; after that the alert is
+// logged as lost. A repeat delivery hits the unique dedupe_key and is a no-op.
 export async function enqueueAdminNotification(
   supabase: SupabaseClient,
   kind: AdminNotificationKind,
   payload: Payload,
   dedupeKey: string
 ): Promise<void> {
-  try {
-    const { error } = await supabase
-      .from("admin_notifications")
-      .insert({ kind, payload, dedupe_key: dedupeKey })
-    if (error && error.code !== "23505") {
-      console.error(`Admin notification "${kind}" not queued: ${error.message}`)
+  for (let attempt = 1; attempt <= ENQUEUE_ATTEMPTS; attempt++) {
+    try {
+      const { error } = await supabase
+        .from("admin_notifications")
+        .insert({ kind, payload, dedupe_key: dedupeKey })
+      if (!error || error.code === "23505") return
+      console.error(
+        `Admin notification "${kind}" not queued (try ${attempt}): ${error.message}`
+      )
+    } catch (error) {
+      console.error(
+        `Admin notification "${kind}" not queued (try ${attempt}):`,
+        error
+      )
     }
-  } catch (error) {
-    console.error(`Admin notification "${kind}" not queued:`, error)
+    if (attempt < ENQUEUE_ATTEMPTS) await wait(200 * attempt)
   }
 }

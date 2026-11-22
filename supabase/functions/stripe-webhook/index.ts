@@ -426,9 +426,7 @@ async function handleMysteryCourierCheckout(session: Stripe.Checkout.Session) {
   if (session.payment_status !== "paid") return
   const userId = session.metadata?.userId
   if (!userId) {
-    throw new Error(
-      `Mystery courier session ${session.id} is missing userId metadata`
-    )
+    throw new Error(`Mystery courier session ${session.id} is missing userId metadata`)
   }
 
   const { error } = await supabase.rpc("record_paid_mystery_courier", {
@@ -463,9 +461,7 @@ async function handleMysteryCourierCheckout(session: Stripe.Checkout.Session) {
     )
   }
   if (typeof session.payment_intent !== "string") {
-    throw new Error(
-      `Mystery courier session ${session.id} has no payment intent`
-    )
+    throw new Error(`Mystery courier session ${session.id} has no payment intent`)
   }
   await stripe.refunds.create(
     { payment_intent: session.payment_intent },
@@ -847,7 +843,11 @@ async function handleSubscriptionCheckout(session: Stripe.Checkout.Session) {
   // Not thrown on failure: the rows above are already written and a Stripe
   // retry would redeem the coupon and gift card a second time.
   const email = session.customer_details?.email ?? session.customer_email
-  if (email && !isOtherLive && isFirstDelivery) {
+
+  // Not behind isFirstDelivery: a subscription event or invoice.paid may have
+  // stored the id first, and the alert must still go out. The subscription-keyed
+  // dedupe_key already makes a repeat delivery a no-op.
+  if (email && !isOtherLive) {
     await enqueueAdminNotification(
       supabase,
       "subscription_started",
@@ -859,6 +859,9 @@ async function handleSubscriptionCheckout(session: Stripe.Checkout.Session) {
       },
       `subscription_started:${subscriptionId ?? session.id}`
     )
+  }
+
+  if (email && !isOtherLive && isFirstDelivery) {
     await sendWelcomeEvent(
       session,
       email,
@@ -1091,29 +1094,6 @@ Deno.serve(async (req) => {
         break
       }
 
-      // Stripe sends this ahead of a renewal (lead time set in Billing
-      // settings); the reminder email itself lives in Omnisend.
-      case "invoice.upcoming": {
-        const invoice = event.data.object as Stripe.Invoice
-        if (!invoice.customer_email || !invoice.subscription) break
-        if ((invoice.amount_due ?? 0) <= 0) break
-        const chargeAtSeconds =
-          invoice.next_payment_attempt ?? invoice.period_end
-        const isSent = await pushOmnisendEvent(
-          "subscription payment upcoming",
-          invoice.customer_email,
-          {
-            amountDue: ((invoice.amount_due ?? 0) / 100).toFixed(2),
-            chargeAt: formatLtDate(new Date(chargeAtSeconds * 1000)),
-            accountUrl: "https://www.bricktime.lt/account",
-          }
-        )
-        if (!isSent) {
-          return json(500, { error: "Omnisend event push failed" })
-        }
-        break
-      }
-
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice
         const customerId =
@@ -1134,46 +1114,33 @@ Deno.serve(async (req) => {
           subscriber &&
           subscriptionId &&
           (await isStoredSubscriptionOtherLive(subscriber.id, subscriptionId))
-        // An invoice can lack customer_email; the alert is useless without who
-        // it concerns, so fall back to the Stripe customer's address.
-        let alertEmail = invoice.customer_email
-        if (!alertEmail && customerId) {
-          try {
-            const customer = await stripe.customers.retrieve(customerId)
-            if (!customer.deleted) alertEmail = customer.email
-          } catch (error) {
-            console.error(`Customer ${customerId} email lookup failed:`, error)
-          }
-        }
-
-        // Queued before the Omnisend push, whose failure returns early for a
-        // Stripe retry; the invoice-keyed dedupe makes the repeat harmless.
-        await enqueueAdminNotification(
-          supabase,
-          "payment_failed",
-          { email: alertEmail, amount: invoice.amount_due / 100 },
-          `payment_failed:${invoice.id}`
-        )
-
         if (subscriber && !isOtherLive) {
           await supabase
             .from("subscribers")
             .update({ status: "paused" })
             .eq("id", subscriber.id)
+        }
 
-          if (invoice.customer_email) {
-            const isSent = await pushOmnisendEvent(
-              "subscription payment failed",
-              invoice.customer_email,
-              {
-                amountDue: ((invoice.amount_due ?? 0) / 100).toFixed(2),
-                accountUrl: "https://www.bricktime.lt/account",
-              }
-            )
-            if (!isSent) {
-              return json(500, { error: "Omnisend event push failed" })
+        // A failed invoice of a subscription the member has since replaced is
+        // not news, same as for the pause above.
+        if (!isOtherLive) {
+          // An invoice can lack customer_email; the alert is useless without
+          // who it concerns, so fall back to the Stripe customer's address.
+          let alertEmail = invoice.customer_email
+          if (!alertEmail && customerId) {
+            try {
+              const customer = await stripe.customers.retrieve(customerId)
+              if (!customer.deleted) alertEmail = customer.email
+            } catch (error) {
+              console.error(`Customer ${customerId} email lookup failed:`, error)
             }
           }
+          await enqueueAdminNotification(
+            supabase,
+            "payment_failed",
+            { email: alertEmail, amount: invoice.amount_due / 100 },
+            `payment_failed:${invoice.id}`
+          )
         }
         break
       }
