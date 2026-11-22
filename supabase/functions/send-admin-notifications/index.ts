@@ -14,6 +14,10 @@ import { isWhatsAppConfigured, sendWhatsAppAlert } from "../_shared/whatsapp.ts"
 // Total sends per alert: the first try plus three retries.
 const MAX_ATTEMPTS = 4
 const BATCH_SIZE = 20
+// Wall-clock budget for one run. Each send has its own timeout, but 20 slow
+// sends in a row would outlast the cron call and overlap the next minute's
+// run; past the budget the rest of the batch stays pending for the next run.
+const DRAIN_BUDGET_MS = 20_000
 // Older than this and the alert is noise, not news.
 const MAX_AGE_MS = 6 * 60 * 60 * 1000
 // Signup alerts fire before email confirmation, so anyone can make them; the
@@ -98,7 +102,11 @@ Deno.serve(async (req) => {
 
   const summary = { sent: 0, skipped: 0, failed: 0, retry: 0 }
 
+  const startedAt = Date.now()
+
   for (const row of rows ?? []) {
+    if (Date.now() - startedAt > DRAIN_BUDGET_MS) break
+
     const isStale = Date.now() - Date.parse(row.created_at) > MAX_AGE_MS
     const isKindOn =
       settings.enabled === true && settings.kinds?.[row.kind] !== false
@@ -115,6 +123,9 @@ Deno.serve(async (req) => {
         .update({ status: "skipped", payload: {} })
         .eq("id", row.id)
         .eq("status", "pending")
+        // Same compare-and-swap as the claim below: a row another run has
+        // already claimed must not have its payload wiped under its send.
+        .eq("attempts", row.attempts)
       summary.skipped++
       continue
     }
