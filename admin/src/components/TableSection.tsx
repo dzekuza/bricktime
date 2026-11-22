@@ -29,7 +29,7 @@ export function TableSection({
     <section aria-labelledby={headingId} className="flex flex-col gap-4">
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h2 id={headingId} className="text-base font-semibold tracking-tight">
+          <h2 id={headingId} className="text-base font-medium">
             {title}
           </h2>
           {description && (
