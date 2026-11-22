@@ -7,8 +7,9 @@
 
 const GRAPH_URL = "https://graph.facebook.com/v21.0"
 
+// `warning` is set when another channel failed but at least one delivered.
 export type SendResult =
-  | { ok: true }
+  | { ok: true; warning?: string }
   | { ok: false; retryable: boolean; error: string }
 
 type Provider = "twilio" | "meta"

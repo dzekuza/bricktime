@@ -102,7 +102,8 @@ export function formatAdminMessage(
     case "product_review":
       return `Naujas atsiliepimas: ${name(payload.name)} · ${label(payload.rating)}/5 · ${label(payload.product)}`
     case "test":
-      return "Bandomasis pranešimas: WhatsApp pranešimai veikia"
+      // Channel-neutral: the same text goes to WhatsApp and to Telegram.
+      return "Bandomasis pranešimas: pranešimai veikia"
     default:
       return null
   }

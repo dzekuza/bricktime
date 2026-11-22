@@ -1,4 +1,6 @@
 // Run with: deno test --allow-env supabase/functions/_shared/whatsapp_test.ts
+// These tests replace the process-wide fetch and env vars, so they must run
+// sequentially (Deno's default); do not pass --parallel.
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts"
 import { sendWhatsAppAlert, type SendResult } from "./whatsapp.ts"
 

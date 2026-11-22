@@ -1,4 +1,5 @@
-// Drains the admin_notifications outbox to WhatsApp (Meta Cloud API or Twilio).
+// Drains the admin_notifications outbox to every configured channel: WhatsApp
+// (Meta Cloud API or Twilio) and/or Telegram.
 //
 // Service-role only: invoked every minute by pg_cron (see the
 // 20261122120000_admin_notifications migration). Alerts that arrive while
@@ -6,12 +7,15 @@
 // pending, so turning them on later does not flush a backlog of stale alerts.
 // The one exception is the admin-only 'test' alert, which is sent even while
 // alerts are off so delivery can be checked first (it is capped at 10 per
-// rolling 24 hours). Rows are left pending only when WhatsApp is not
-// configured yet or a send failed in a way worth retrying.
+// rolling 24 hours). Rows are left pending only when no channel is configured
+// yet or a send failed in a way worth retrying.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { formatAdminMessage } from "../_shared/admin-notifications.ts"
-import { isWhatsAppConfigured, sendWhatsAppAlert } from "../_shared/whatsapp.ts"
+import {
+  isAnyChannelConfigured,
+  sendAdminAlert,
+} from "../_shared/alert-channels.ts"
 
 // Total sends per alert: the first try plus three retries.
 const MAX_ATTEMPTS = 4
@@ -91,7 +95,7 @@ Deno.serve(async (req) => {
     return fail(500, "settings_read_failed", "Could not read the settings")
   }
   const settings = (setting?.value ?? {}) as Settings
-  const configured = isWhatsAppConfigured()
+  const configured = isAnyChannelConfigured()
 
   const { data: sentToday, error: capError } = await supabase
     .from("admin_notifications")
@@ -172,7 +176,7 @@ Deno.serve(async (req) => {
     }
     if (!claimed?.length) continue
 
-    const result = await sendWhatsAppAlert(message)
+    const result = await sendAdminAlert(message)
     if (result.ok) {
       const { error: sentError } = await supabase
         .from("admin_notifications")
@@ -180,6 +184,9 @@ Deno.serve(async (req) => {
           status: "sent",
           sent_at: new Date().toISOString(),
           payload: {},
+          // Set when one channel failed but another delivered; the admin log
+          // shows it next to the "sent" status.
+          last_error: result.warning?.slice(0, 500) ?? null,
         })
         .eq("id", row.id)
       // The message is out, so this is only logged: retrying would resend it.

@@ -18,7 +18,7 @@ type LogRow = {
 
 const STATUS_HINTS: Record<string, string> = {
   pending: "Queued, goes out within a minute.",
-  sent: "Accepted by the WhatsApp provider.",
+  sent: "Accepted by at least one channel (WhatsApp or Telegram); a note shows if another failed.",
   failed: "The provider rejected it; see the error.",
   skipped: "Alerts or this kind are off, the daily cap was reached, or it was too old.",
 }
@@ -72,8 +72,8 @@ export function WhatsAppDeliveryLog() {
         <div className="flex flex-col gap-0.5">
           <p className="text-sm font-medium">Delivery check</p>
           <p className="text-sm text-muted-foreground">
-            Sends a test message to the admin number within about a minute, even
-            while alerts are switched off.
+            Sends a test message to the configured channels within about a
+            minute, even while alerts are switched off.
           </p>
         </div>
         <Button variant="outline" size="sm" disabled={busy} onClick={() => void handleTest()}>

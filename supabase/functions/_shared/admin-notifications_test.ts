@@ -192,7 +192,7 @@ Deno.test("formats order and form alerts", () => {
       { name: "Jonas", product: "Millennium Falcon", rating: 5 },
       "Naujas atsiliepimas: Jonas · 5/5 · Millennium Falcon",
     ],
-    ["test", {}, "Bandomasis pranešimas: WhatsApp pranešimai veikia"],
+    ["test", {}, "Bandomasis pranešimas: pranešimai veikia"],
   ]
   for (const [kind, payload, expected] of cases) {
     assertEquals(formatAdminMessage(kind, payload), expected, kind)
