@@ -287,11 +287,11 @@ export function Achievements() {
   )
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <TrophyIcon className="size-5" />
-          <h1 className="text-xl font-semibold">Rewards</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Rewards</h1>
         </div>
         <Button onClick={openCreate}>
           <PlusIcon className="size-4" />

@@ -162,10 +162,10 @@ export function Points() {
   )
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center gap-2">
         <AwardIcon className="size-5" />
-        <h1 className="text-xl font-semibold">Points</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Points</h1>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
