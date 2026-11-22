@@ -5,6 +5,14 @@ export type AdminNotificationKind =
   | "subscription_started"
   | "payment_failed"
   | "subscription_cancelled"
+  | "merch_order"
+  | "rental_order"
+  | "mystery_request"
+  | "return_requested"
+  | "missing_part_request"
+  | "gift_card_bought"
+  | "product_review"
+  | "test"
 
 type Payload = Record<string, unknown>
 
@@ -44,6 +52,18 @@ const email = (value: unknown) => {
     : fallback
 }
 
+// Product titles, set and part codes: letters and digits are needed here, but
+// the same rule applies, no dot, colon or slash survives.
+const label = (value: unknown) => {
+  if (typeof value !== "string" && typeof value !== "number") return fallback
+  const cleaned = String(value)
+    .normalize("NFKC")
+    .replace(/\s+/g, " ")
+    .replace(/[^\p{L}\p{M}\p{N} '’ʼ-]/gu, "")
+    .replace(/\s+/g, " ")
+  return clip(cleaned, MAX_FIELD_LENGTH) || fallback
+}
+
 const planKey = (value: unknown) =>
   typeof value === "string"
     ? clip(value.replace(/[^\w-]/g, ""), MAX_FIELD_LENGTH) || fallback
@@ -67,6 +87,22 @@ export function formatAdminMessage(
       return `Nepavyko apmokėjimas: ${email(payload.email)} · ${euro(payload.amount)}`
     case "subscription_cancelled":
       return `Prenumerata atšaukta: ${email(payload.email)}`
+    case "merch_order":
+      return `Merch užsakymas #${label(payload.order_number)}: ${name(payload.name)} · ${label(payload.item)} · ${euro(payload.amount)}`
+    case "rental_order":
+      return `Nauja nuoma: ${name(payload.name)} · ${label(payload.product)}`
+    case "mystery_request":
+      return `Mystery Box užklausa: ${name(payload.name)}`
+    case "return_requested":
+      return `Grąžinimo užklausa: ${name(payload.name)} · ${label(payload.product)}`
+    case "missing_part_request":
+      return `Trūkstama detalė: ${name(payload.name)} · rinkinys ${label(payload.set)} · detalė ${label(payload.part)} x${label(payload.quantity)}`
+    case "gift_card_bought":
+      return `Nupirkta dovanų kortelė: ${euro(payload.amount)} · ${email(payload.email)}`
+    case "product_review":
+      return `Naujas atsiliepimas: ${name(payload.name)} · ${label(payload.rating)}/5 · ${label(payload.product)}`
+    case "test":
+      return "Bandomasis pranešimas: WhatsApp pranešimai veikia"
     default:
       return null
   }

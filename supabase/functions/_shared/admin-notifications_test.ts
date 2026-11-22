@@ -159,6 +159,55 @@ Deno.test("replaces an email of 255 characters with a dash", () => {
   )
 })
 
+Deno.test("formats order and form alerts", () => {
+  const cases: Array<[string, Record<string, unknown>, string]> = [
+    [
+      "merch_order",
+      { order_number: 42, name: "Jonas", item: "BRICKTIME kepurė", amount: 19.9 },
+      "Merch užsakymas #42: Jonas · BRICKTIME kepurė · 19,90 €",
+    ],
+    [
+      "rental_order",
+      { name: "Jonas", product: "Millennium Falcon" },
+      "Nauja nuoma: Jonas · Millennium Falcon",
+    ],
+    ["mystery_request", { name: "Jonas" }, "Mystery Box užklausa: Jonas"],
+    [
+      "return_requested",
+      { name: "Jonas", product: "Millennium Falcon" },
+      "Grąžinimo užklausa: Jonas · Millennium Falcon",
+    ],
+    [
+      "missing_part_request",
+      { name: "Jonas", set: "75192", part: "3001", quantity: 2 },
+      "Trūkstama detalė: Jonas · rinkinys 75192 · detalė 3001 x2",
+    ],
+    [
+      "gift_card_bought",
+      { amount: 50, email: "a@b.lt" },
+      "Nupirkta dovanų kortelė: 50,00 € · a@b[.]lt",
+    ],
+    [
+      "product_review",
+      { name: "Jonas", product: "Millennium Falcon", rating: 5 },
+      "Naujas atsiliepimas: Jonas · 5/5 · Millennium Falcon",
+    ],
+    ["test", {}, "Bandomasis pranešimas: WhatsApp pranešimai veikia"],
+  ]
+  for (const [kind, payload, expected] of cases) {
+    assertEquals(formatAdminMessage(kind, payload), expected, kind)
+  }
+})
+
+Deno.test("product titles and codes keep no link-shaped characters", () => {
+  const message = formatAdminMessage("rental_order", {
+    name: "Jonas",
+    product: "evil.com/pay https://x.example",
+  })
+  // Asserted exactly, so a formatter that drops the product cannot pass.
+  assertEquals(message, "Nauja nuoma: Jonas · evilcompay httpsxexample")
+})
+
 Deno.test("enqueue stops at once on a duplicate key", async () => {
   const { client, state } = stubClient([{ error: { code: "23505" } }])
   await enqueue(client)

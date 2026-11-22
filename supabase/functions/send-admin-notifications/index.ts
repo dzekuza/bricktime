@@ -4,8 +4,10 @@
 // 20261122120000_admin_notifications migration). Alerts that arrive while
 // alerts, or their kind, are switched off are marked 'skipped' rather than left
 // pending, so turning them on later does not flush a backlog of stale alerts.
-// Rows are left pending only when WhatsApp is not configured yet or a send
-// failed in a way worth retrying.
+// The one exception is the admin-only 'test' alert, which is sent even while
+// alerts are off so delivery can be checked first (it is capped at 10 per
+// rolling 24 hours). Rows are left pending only when WhatsApp is not
+// configured yet or a send failed in a way worth retrying.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { formatAdminMessage } from "../_shared/admin-notifications.ts"
@@ -20,9 +22,26 @@ const BATCH_SIZE = 20
 const DRAIN_BUDGET_MS = 20_000
 // Older than this and the alert is noise, not news.
 const MAX_AGE_MS = 6 * 60 * 60 * 1000
-// Signup alerts fire before email confirmation, so anyone can make them; the
-// cap bounds what a flood of fake signups can cost in WhatsApp messages.
-const MAX_NEW_SUBSCRIBER_ALERTS_PER_DAY = 20
+// Alerts that anyone with an account can trigger without paying per event
+// (signups fire before email confirmation, forms and reviews are member input,
+// and a member can rent and return in a loop). The cap, counted over a rolling
+// 24 hours, bounds what a flood of fake activity can cost in WhatsApp
+// messages. Runs do not overlap (cron every minute, 20 s budget), so the
+// in-memory count is enough; a manual parallel invocation could overshoot by
+// at most one batch. The kinds here must match the partial index in migration
+// 20261122130100. Paid events
+// (subscriptions, merch, gift cards) are not capped: money backs them. Rentals
+// get a higher cap because they are real business; past it, check the admin
+// Orders page instead of the alerts.
+const DAILY_CAPS: Record<string, number> = {
+  new_subscriber: 20,
+  rental_order: 100,
+  mystery_request: 30,
+  return_requested: 30,
+  missing_part_request: 30,
+  product_review: 30,
+  test: 10,
+}
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -74,19 +93,21 @@ Deno.serve(async (req) => {
   const settings = (setting?.value ?? {}) as Settings
   const configured = isWhatsAppConfigured()
 
-  const { count: sentSignupAlerts, error: capError } = await supabase
+  const { data: sentToday, error: capError } = await supabase
     .from("admin_notifications")
-    .select("id", { count: "exact", head: true })
-    .eq("kind", "new_subscriber")
+    .select("kind")
+    .in("kind", Object.keys(DAILY_CAPS))
     .eq("status", "sent")
     .gte("sent_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
   if (capError) {
-    console.error("Signup alert count failed:", capError.message)
+    console.error("Capped alert count failed:", capError.message)
     return fail(500, "outbox_read_failed", "Could not read the outbox")
   }
-  let signupAlertsLeft = Math.max(
-    0,
-    MAX_NEW_SUBSCRIBER_ALERTS_PER_DAY - (sentSignupAlerts ?? 0)
+  const alertsLeft = new Map(
+    Object.entries(DAILY_CAPS).map(([kind, cap]) => [
+      kind,
+      cap - (sentToday ?? []).filter((row) => row.kind === kind).length,
+    ])
   )
 
   const { data: rows, error } = await supabase
@@ -108,10 +129,13 @@ Deno.serve(async (req) => {
     if (Date.now() - startedAt > DRAIN_BUDGET_MS) break
 
     const isStale = Date.now() - Date.parse(row.created_at) > MAX_AGE_MS
+    // A test alert checks delivery, so it goes out even while alerts are off:
+    // an admin tests before switching them on. It is admin-only and capped.
     const isKindOn =
-      settings.enabled === true && settings.kinds?.[row.kind] !== false
+      row.kind === "test" ||
+      (settings.enabled === true && settings.kinds?.[row.kind] !== false)
     const message = formatAdminMessage(row.kind, row.payload ?? {})
-    const isCapped = row.kind === "new_subscriber" && signupAlertsLeft <= 0
+    const isCapped = alertsLeft.has(row.kind) && alertsLeft.get(row.kind)! <= 0
 
     // Once an alert is handled (sent, skipped or failed for good) its payload,
     // a member's name and email, is wiped: the outbox must not keep personal
@@ -164,7 +188,9 @@ Deno.serve(async (req) => {
         console.error(`Marking ${row.id} sent failed: ${sentError.message}`)
       }
       summary.sent++
-      if (row.kind === "new_subscriber") signupAlertsLeft--
+      if (alertsLeft.has(row.kind)) {
+        alertsLeft.set(row.kind, alertsLeft.get(row.kind)! - 1)
+      }
       continue
     }
 

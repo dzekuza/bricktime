@@ -10,28 +10,11 @@ import {
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
+import { WhatsAppDeliveryLog } from "@/components/WhatsAppDeliveryLog"
 import { supabase } from "@/lib/supabase"
+import { WHATSAPP_ALERT_KINDS } from "@/lib/whatsapp-alert-kinds"
 
 const SETTING_KEY = "admin_whatsapp"
-
-const KINDS = [
-  { id: "new_subscriber", label: "New member", description: "Someone signs up." },
-  {
-    id: "subscription_started",
-    label: "New subscription",
-    description: "A member pays for a plan.",
-  },
-  {
-    id: "payment_failed",
-    label: "Payment failed",
-    description: "A renewal payment is declined.",
-  },
-  {
-    id: "subscription_cancelled",
-    label: "Subscription cancelled",
-    description: "A subscription ends.",
-  },
-] as const
 
 type Settings = { enabled: boolean; kinds: Record<string, boolean> }
 
@@ -129,7 +112,7 @@ export function WhatsAppAlertsCard() {
           </div>
         </div>
         <Separator />
-        {KINDS.map((kind) => (
+        {WHATSAPP_ALERT_KINDS.map((kind) => (
           <div key={kind.id} className="flex items-center justify-between gap-4">
             <div className="flex flex-col gap-0.5">
               <Label htmlFor={`whatsapp-${kind.id}`}>{kind.label}</Label>
@@ -149,6 +132,8 @@ export function WhatsAppAlertsCard() {
           </div>
         ))}
         {error && <p className="text-sm text-destructive">{error}</p>}
+        <Separator />
+        <WhatsAppDeliveryLog />
       </CardContent>
     </Card>
   )
