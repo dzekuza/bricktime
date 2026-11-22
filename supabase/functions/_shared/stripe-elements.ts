@@ -30,3 +30,33 @@ const ALLOWED_ORIGINS = (
   .split(",")
   .map((o) => o.trim())
   .filter(Boolean)
+
+const IDEMPOTENCY_BUCKET_SECONDS = 10
+
+/**
+ * Key and expiry for a wallet Checkout Session. Both come from the same
+ * 10-second bucket plus a hash of the whole order, so a retry of the same
+ * order sends identical parameters (Stripe returns the same session), while a
+ * changed order gets a new key instead of an idempotency conflict.
+ */
+export async function walletSessionIdempotency(
+  scope: string,
+  intent: unknown,
+  ttlMinutes: number
+): Promise<{ idempotencyKey: string; expiresAt: number }> {
+  const bucket = Math.floor(Date.now() / 1000 / IDEMPOTENCY_BUCKET_SECONDS)
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(JSON.stringify(intent))
+  )
+  const hash = [...new Uint8Array(digest)]
+    .slice(0, 12)
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("")
+  return {
+    idempotencyKey: `${scope}-${hash}-${bucket}`,
+    // The end of the bucket plus the lifetime: always at least `ttlMinutes`
+    // from now, as Stripe requires, and identical for every call in the bucket.
+    expiresAt: (bucket + 1) * IDEMPOTENCY_BUCKET_SECONDS + ttlMinutes * 60,
+  }
+}

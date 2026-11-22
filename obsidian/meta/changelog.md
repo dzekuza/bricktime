@@ -7,6 +7,10 @@ updated: 2026-11-22
 
 Chronological log of notable changes to the project. Newest first.
 
+## 2026-11-23 — Apple Pay / Google Pay button (PR #177)
+
+- **Added:** `@stripe/stripe-js` and `@stripe/react-stripe-js`; `WalletCheckout` on the merch cart and the new-subscription panel; `uiMode: "elements"` in `create-merch-checkout` and `create-checkout` (Stripe API `2026-11-18.endive` for those sessions); Apple domain file under `public/.well-known/`.
+
 ## 2026-11-22 — architecture docs sync to `872d51b`
 
 - **Changed:** admin `defaultParcelSize` (plan-based parcel size preselect) added to the LP Express module row. Chats skipped by request.

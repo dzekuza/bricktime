@@ -49,6 +49,7 @@ export default function MerchCart() {
   } | null>(null)
   const [buying, setBuying] = useState(false)
   const [buyError, setBuyError] = useState<string | null>(null)
+  const [isWalletPending, setIsWalletPending] = useState(false)
 
   // Prices, status and stock come from the database, not from what the
   // browser stored when the line was added.
@@ -167,7 +168,7 @@ export default function MerchCart() {
   }
 
   async function handleCheckout() {
-    if (!canCheckout) return
+    if (!canCheckout || isWalletPending) return
     setBuying(true)
     setBuyError(null)
     const { data, error } = await supabase.functions.invoke(
@@ -265,12 +266,13 @@ export default function MerchCart() {
                     orderKey={walletOrderKey}
                     createSession={createWalletSession}
                     onError={setBuyError}
+                    onPendingChange={setIsWalletPending}
                   />
                 )}
 
                 <Button
                   size="lg"
-                  disabled={!canCheckout}
+                  disabled={!canCheckout || isWalletPending}
                   onClick={handleCheckout}
                   className="mt-5 w-full justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)] disabled:opacity-40"
                 >

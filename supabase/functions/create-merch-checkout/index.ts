@@ -8,6 +8,7 @@ import { getVatTaxRateId } from "../_shared/vat.ts"
 import {
   isAllowedReturnUrl,
   stripeElements,
+  walletSessionIdempotency,
 } from "../_shared/stripe-elements.ts"
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
@@ -233,11 +234,33 @@ Deno.serve(async (req) => {
       } satisfies Stripe.Checkout.SessionCreateParams
 
       if (isElements) {
-        const session = await stripeElements.checkout.sessions.create({
-          ...sessionParams,
-          ui_mode: "elements",
-          return_url: returnUrl,
-        } as Parameters<typeof stripeElements.checkout.sessions.create>[0])
+        // Only a verified account can share a retry key. A guest request has
+        // nothing in it that is unique to the shopper, so two guests with the
+        // same cart in the same moment would be handed one session (and one
+        // client secret) and could overwrite each other's delivery details.
+        const retryGuard = userId
+          ? await walletSessionIdempotency(
+              "merch-elements",
+              {
+                userId,
+                cart: lines,
+                deliveryMethod,
+                terminalId,
+                code: code ?? null,
+                returnUrl,
+              },
+              SESSION_TTL_MINUTES
+            )
+          : null
+        const session = await stripeElements.checkout.sessions.create(
+          {
+            ...sessionParams,
+            ...(retryGuard && { expires_at: retryGuard.expiresAt }),
+            ui_mode: "elements",
+            return_url: returnUrl,
+          } as Parameters<typeof stripeElements.checkout.sessions.create>[0],
+          retryGuard ? { idempotencyKey: retryGuard.idempotencyKey } : undefined
+        )
         return new Response(
           JSON.stringify({ clientSecret: session.client_secret }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }

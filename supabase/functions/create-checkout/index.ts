@@ -10,6 +10,7 @@ import { getVatTaxRateId } from "../_shared/vat.ts"
 import {
   isAllowedReturnUrl,
   stripeElements,
+  walletSessionIdempotency,
 } from "../_shared/stripe-elements.ts"
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
@@ -339,19 +340,29 @@ Deno.serve(async (req) => {
       } satisfies Stripe.Checkout.SessionCreateParams
 
       // Two checkouts racing past the duplicate check above (a double
-      // click) share this key, so Stripe opens one session, not two. The
-      // wallet flow gets its own key: the same key with different parameters
-      // (hosted vs elements) would be rejected as an idempotency conflict.
-      const idempotencyKey = `checkout-${userId}-${planKey}-${billing ?? "monthly"}${isElements ? "-elements" : ""}-${Math.floor(Date.now() / 10_000)}`
+      // click) share this key, so Stripe opens one session, not two.
+      const idempotencyKey = `checkout-${userId}-${planKey}-${billing ?? "monthly"}-${Math.floor(Date.now() / 10_000)}`
 
       if (isElements) {
+        const { idempotencyKey: walletKey, expiresAt } =
+          await walletSessionIdempotency(
+            `checkout-${userId}-${planKey}-${billing ?? "monthly"}-elements`,
+            {
+              homeDelivery: !!homeDelivery,
+              returnUrl,
+              giftCardCode: giftCardCode ?? null,
+              couponCode: couponCode ?? null,
+            },
+            SESSION_TTL_MINUTES
+          )
         const session = await stripeElements.checkout.sessions.create(
           {
             ...sessionParams,
+            expires_at: expiresAt,
             ui_mode: "elements",
             return_url: returnUrl,
           } as Parameters<typeof stripeElements.checkout.sessions.create>[0],
-          { idempotencyKey }
+          { idempotencyKey: walletKey }
         )
         return new Response(
           JSON.stringify({ clientSecret: session.client_secret }),
