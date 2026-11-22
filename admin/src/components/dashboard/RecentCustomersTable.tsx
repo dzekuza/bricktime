@@ -2,7 +2,7 @@ import { useMemo } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { DataTable } from "@/components/DataTable"
-import { DashboardTableCard } from "@/components/dashboard/DashboardTableCard"
+import { DashboardTableSection } from "@/components/dashboard/DashboardTableSection"
 import { Badge } from "@/components/ui/badge"
 import {
   planColors,
@@ -13,15 +13,15 @@ import type { RecentCustomer } from "@/hooks/use-dashboard-tables"
 import { formatShortDate } from "@/lib/format-date"
 import { cn } from "@/lib/utils"
 
-interface RecentCustomersCardProps {
+interface RecentCustomersTableProps {
   customers: RecentCustomer[]
   loading: boolean
 }
 
-export function RecentCustomersCard({
+export function RecentCustomersTable({
   customers,
   loading,
-}: RecentCustomersCardProps) {
+}: RecentCustomersTableProps) {
   const columns = useMemo<ColumnDef<RecentCustomer, unknown>[]>(
     () => [
       {
@@ -66,7 +66,7 @@ export function RecentCustomersCard({
   )
 
   return (
-    <DashboardTableCard
+    <DashboardTableSection
       title="New customers"
       description="Most recent sign-ups"
       href="/subscribers"
@@ -74,6 +74,6 @@ export function RecentCustomersCard({
       loading={loading}
     >
       <DataTable caption="New customers" columns={columns} data={customers} />
-    </DashboardTableCard>
+    </DashboardTableSection>
   )
 }

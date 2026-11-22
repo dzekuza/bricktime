@@ -1,17 +1,11 @@
+import { useId } from "react"
 import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
-interface DashboardTableCardProps {
+interface DashboardTableSectionProps {
   title: string
   description: string
   /** Route of the full list, e.g. "/orders". */
@@ -21,30 +15,32 @@ interface DashboardTableCardProps {
   children: ReactNode
 }
 
-export function DashboardTableCard({
+export function DashboardTableSection({
   title,
   description,
   href,
   linkLabel,
   loading,
   children,
-}: DashboardTableCardProps) {
+}: DashboardTableSectionProps) {
+  const headingId = useId()
+
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-start justify-between gap-4">
+    <section aria-labelledby={headingId} className="flex flex-col gap-4">
+      <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <CardTitle>{title}</CardTitle>
-          <CardDescription>{description}</CardDescription>
+          <h2 id={headingId} className="text-base font-medium">
+            {title}
+          </h2>
+          <p className="text-sm text-muted-foreground">{description}</p>
         </div>
         {href && (
           <Button asChild variant="outline" size="sm">
             <Link to={href}>{linkLabel ?? "View all"}</Link>
           </Button>
         )}
-      </CardHeader>
-      <CardContent>
-        {loading ? <Skeleton className="h-40 w-full" /> : children}
-      </CardContent>
-    </Card>
+      </div>
+      {loading ? <Skeleton className="h-40 w-full" /> : children}
+    </section>
   )
 }

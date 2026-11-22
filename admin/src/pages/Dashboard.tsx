@@ -4,9 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { supabase } from '@/lib/supabase'
 import { fetchPlanPrices } from '@/lib/plan-prices'
-import { PlanBreakdownCard } from '@/components/dashboard/PlanBreakdownCard'
-import { RecentCustomersCard } from '@/components/dashboard/RecentCustomersCard'
-import { RecentOrdersCard } from '@/components/dashboard/RecentOrdersCard'
+import { PlanBreakdownTable } from '@/components/dashboard/PlanBreakdownTable'
+import { RecentCustomersTable } from '@/components/dashboard/RecentCustomersTable'
+import { RecentOrdersTable } from '@/components/dashboard/RecentOrdersTable'
 import { useDashboardTables } from '@/hooks/use-dashboard-tables'
 
 interface Stat {
@@ -88,11 +88,11 @@ export function Dashboard() {
         ))}
       </div>
 
-      <RecentOrdersCard orders={tables.orders} loading={tables.loading} />
+      <RecentOrdersTable orders={tables.orders} loading={tables.loading} />
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <RecentCustomersCard customers={tables.customers} loading={tables.loading} />
-        <PlanBreakdownCard plans={tables.plans} loading={tables.loading} />
+        <RecentCustomersTable customers={tables.customers} loading={tables.loading} />
+        <PlanBreakdownTable plans={tables.plans} loading={tables.loading} />
       </div>
 
       <Card>

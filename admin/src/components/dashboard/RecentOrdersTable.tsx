@@ -2,19 +2,19 @@ import { useMemo } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { DataTable } from "@/components/DataTable"
-import { DashboardTableCard } from "@/components/dashboard/DashboardTableCard"
+import { DashboardTableSection } from "@/components/dashboard/DashboardTableSection"
 import { Badge } from "@/components/ui/badge"
 import { orderStatusColors } from "@/data/orders"
 import type { RecentOrder } from "@/hooks/use-dashboard-tables"
 import { formatShortDate } from "@/lib/format-date"
 import { cn } from "@/lib/utils"
 
-interface RecentOrdersCardProps {
+interface RecentOrdersTableProps {
   orders: RecentOrder[]
   loading: boolean
 }
 
-export function RecentOrdersCard({ orders, loading }: RecentOrdersCardProps) {
+export function RecentOrdersTable({ orders, loading }: RecentOrdersTableProps) {
   const columns = useMemo<ColumnDef<RecentOrder, unknown>[]>(
     () => [
       { accessorKey: "customer", header: "Customer" },
@@ -40,7 +40,7 @@ export function RecentOrdersCard({ orders, loading }: RecentOrdersCardProps) {
   )
 
   return (
-    <DashboardTableCard
+    <DashboardTableSection
       title="Recent orders"
       description="Latest rentals and their status"
       href="/orders"
@@ -52,6 +52,6 @@ export function RecentOrdersCard({ orders, loading }: RecentOrdersCardProps) {
         columns={columns}
         data={orders}
       />
-    </DashboardTableCard>
+    </DashboardTableSection>
   )
 }

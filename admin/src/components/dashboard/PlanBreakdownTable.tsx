@@ -2,18 +2,18 @@ import { useMemo } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { DataTable } from "@/components/DataTable"
-import { DashboardTableCard } from "@/components/dashboard/DashboardTableCard"
+import { DashboardTableSection } from "@/components/dashboard/DashboardTableSection"
 import { Badge } from "@/components/ui/badge"
 import { planColors, planLabels } from "@/data/subscribers"
 import type { PlanBreakdownRow } from "@/hooks/use-dashboard-tables"
 import { cn } from "@/lib/utils"
 
-interface PlanBreakdownCardProps {
+interface PlanBreakdownTableProps {
   plans: PlanBreakdownRow[]
   loading: boolean
 }
 
-export function PlanBreakdownCard({ plans, loading }: PlanBreakdownCardProps) {
+export function PlanBreakdownTable({ plans, loading }: PlanBreakdownTableProps) {
   const columns = useMemo<ColumnDef<PlanBreakdownRow, unknown>[]>(
     () => [
       {
@@ -37,7 +37,7 @@ export function PlanBreakdownCard({ plans, loading }: PlanBreakdownCardProps) {
   )
 
   return (
-    <DashboardTableCard
+    <DashboardTableSection
       title="Subscriptions by plan"
       description="Active and paused members per plan"
       href="/plans"
@@ -45,6 +45,6 @@ export function PlanBreakdownCard({ plans, loading }: PlanBreakdownCardProps) {
       loading={loading}
     >
       <DataTable caption="Subscriptions by plan" columns={columns} data={plans} />
-    </DashboardTableCard>
+    </DashboardTableSection>
   )
 }
