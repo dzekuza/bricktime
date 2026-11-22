@@ -1,3 +1,15 @@
+## 2026-11-22 — WhatsApp admin notifications (Meta Cloud API), Phase 1
+
+- **Changed:** branch `feat/whatsapp-admin-notifications`, uncommitted. Migration `20261122120000_admin_notifications` (outbox table, `subscribers` insert trigger, `admin_whatsapp` setting off by default, per-minute cron), `_shared/whatsapp.ts`, `_shared/admin-notifications.ts` (+ test), edge function `send-admin-notifications`, and `stripe-webhook` enqueues subscription started, payment failed and cancelled.
+- **Status:** `deno check` and 4 Deno tests pass. Migration not applied, function not deployed, nothing sent. Admin Settings UI not built (`admin/` is a separate app).
+- **Next:** Meta app + `admin_alert` template, set `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `ADMIN_WHATSAPP_TO`; deploy; flip `admin_whatsapp.enabled`.
+
+## 2026-11-22 — architecture docs sync to `3d5f1be`
+
+- **Changed:** codebase-map `synced_commit` -> `3d5f1be`. Only code change since `f3554ce` is the admin favicon/title (`1d25dae`); no module interface changed. Chats and CRM skipped.
+- **Status:** checked with `git diff`.
+- **Next:** none pending.
+
 ## 2026-11-20 — architecture docs sync to `f3554ce`
 
 - **Changed:** codebase-map `synced_commit` -> `f3554ce`. The one commit since `ccd3b5d` (`fix: darker tracking labels for contrast`) is colour classes only. Chats and CRM skipped.

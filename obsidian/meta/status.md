@@ -9,6 +9,8 @@
 
 ## Current focus
 
+**WhatsApp admin notifications (2026-11-22, uncommitted on `feat/whatsapp-admin-notifications`):** Phase 1 code written (outbox migration, Meta sender, drain function, webhook hooks); not applied or deployed. Blocked on the Meta app, an approved `admin_alert` template ("BRICKTIME: {{1}}") and three secrets. Phase 2 kinds (merch, mystery box, courier, penalty, gift card) and the admin Settings toggle are still to do.
+
 **Return parcel size (2026-11-20, uncommitted on `main`):** products have `shipping_size`, set in admin; `create-return-label` uses it (`lpexpress` v14 deployed, migration live). Needs real sizes set per set and a first real return label check.
 
 **Carts (2026-11-19, PR #124, branch `feat/merch-cart`):** merch cart (`/merch/krepselis`), set cart (`/rinkiniai/krepselis`, Briksiai progress bar, catalogue add-to-cart button) and a paid courier fee (€3 per cart) are built. Migrations `merch_cart_orders`, `claim_rentals` and `paid_courier_rental_cart` are applied live; `create-merch-checkout` v18, `stripe-webhook` v27 and `create-rental-courier-checkout` v6 are deployed. Review-fix migrations `cart_review_fixes` (input check + lock order in the rental RPCs, one-hour visibility for merch order lines) and `merch_order_items_order_id_index` are applied live too. No Stripe test-mode payment or real `claim_rentals` run yet. See [[session-log]].
@@ -17,7 +19,7 @@
 
 Branch `fix/subscription-flow` (3 commits, not pushed): account profile refresh after purchase, plan-picker button, and admin Cancel reaching Stripe (`admin-cancel-subscription` v1 live). Still waiting on a real end-to-end test purchase. Uncommitted: "su PVM" note on price surfaces; the 5 leftover active test subs now carry the 21% VAT rate. See [[session-log]].
 
-**Uncommitted TASKS.md pass (2026-11-18):** cancel-confirm dialog, courier price/delivery row + proration breakdown (needs `change-subscription` deploy), admin order address rows + LP error text, rental `returned_at`, `get-analytics` hardening (needs deploy; check GOOGLE_* secrets), unused PlanChangeSummary/DiscountCodeField removed. Open: mystery_s credits=0 OK, returned-set budget rule question, LP_* secrets, Stripe dashboard, e2e purchase.
+**Uncommitted TASKS.md pass (2026-11-18):** cancel-confirm dialog, courier price/delivery row + proration breakdown (needs `change-subscription` deploy), admin order address rows + LP error text, rental `returned_at`, `get-analytics` hardening (needs deploy; check GOOGLE*\* secrets), unused PlanChangeSummary/DiscountCodeField removed. Open: mystery_s credits=0 OK, returned-set budget rule question, LP*\* secrets, Stripe dashboard, e2e purchase.
 
 ## Done recently
 
@@ -53,4 +55,4 @@ Branch `fix/subscription-flow` (3 commits, not pushed): account profile refresh 
 - **Deploy:** Vercel (storefront + admin); edge functions + migrations on Supabase project `yzqaiqgzvlmxnehtqazq`; production https://www.bricktime.lt
 - **Known issues:** see [[known-issues]] if present
 
-**Update 2026-11-18 (late):** applied live via MCP: migration `returned_sets_free_budget_immediately` (returned sets stop counting at once; file `20261118120000_…`), `plans.credits` of `mystery_s` set to 0 (SQL, not in a migration), deployed `change-subscription` v21 and `get-analytics` v9 (CLI deploy still 403, used MCP). Still open: LP_* secrets, GOOGLE_* secrets, Stripe dashboard, welcome email, e2e purchase.
+**Update 2026-11-18 (late):** applied live via MCP: migration `returned_sets_free_budget_immediately` (returned sets stop counting at once; file `20261118120000_…`), `plans.credits` of `mystery_s` set to 0 (SQL, not in a migration), deployed `change-subscription` v21 and `get-analytics` v9 (CLI deploy still 403, used MCP). Still open: LP*\* secrets, GOOGLE*\* secrets, Stripe dashboard, welcome email, e2e purchase.

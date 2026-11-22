@@ -1,7 +1,7 @@
 ---
 tags: [architecture, codebase-map]
-updated: 2026-11-20
-synced_commit: f3554ce
+updated: 2026-11-22
+synced_commit: 3d5f1be
 ---
 
 # Codebase map
