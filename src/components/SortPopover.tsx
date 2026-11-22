@@ -42,10 +42,17 @@ export function SortPopover<T extends string>({
               onChange(opt.value)
               setOpen(false)
             }}
-            className="flex w-full items-center justify-between rounded-xl px-3 py-2 hover:bg-ink/5"
+            className={[
+              "flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition-colors",
+              value === opt.value
+                ? "bg-ink text-paper"
+                : "text-ink hover:bg-ink/5",
+            ].join(" ")}
           >
-            <span className="label-mono whitespace-nowrap">{opt.label}</span>
-            {value === opt.value && <CheckIcon className="size-3 text-ink" />}
+            <span className="label-mono font-semibold whitespace-nowrap">
+              {opt.label}
+            </span>
+            {value === opt.value && <CheckIcon className="size-3" />}
           </button>
         ))}
       </PopoverContent>
