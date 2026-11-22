@@ -917,7 +917,26 @@ async function sendWelcomeEvent(
     }
   }
 
+  // Omnisend automations cannot attach files, so the template links the same
+  // invoice the account's orders page offers. Blank when Stripe has no invoice
+  // yet (e.g. a fully credit-covered first month) rather than blocking the email.
+  let invoicePdfUrl = ""
+  let invoiceUrl = ""
+  const invoiceId =
+    typeof session.invoice === "string" ? session.invoice : session.invoice?.id
+  if (invoiceId) {
+    try {
+      const invoice = await stripe.invoices.retrieve(invoiceId)
+      invoicePdfUrl = invoice.invoice_pdf ?? ""
+      invoiceUrl = invoice.hosted_invoice_url ?? ""
+    } catch (e) {
+      console.error(`Welcome email: invoice ${invoiceId} not loaded`, e)
+    }
+  }
+
   await pushOmnisendEvent("subscription started", email, {
+    invoicePdfUrl,
+    invoiceUrl,
     planKey: planKey ?? "",
     planName,
     status: "Aktyvi",
