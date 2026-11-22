@@ -8,8 +8,22 @@ export type AdminNotificationKind =
 
 type Payload = Record<string, unknown>
 
-const text = (value: unknown, fallback = "—") =>
-  typeof value === "string" && value.trim() ? value.trim() : fallback
+const MAX_FIELD_LENGTH = 40
+
+// Names and emails come from signup forms, so they are untrusted. Stripping
+// links, control characters and everything past a short cap keeps a hostile
+// signup from turning the admin alert into a phishing message.
+const text = (value: unknown, fallback = "—") => {
+  if (typeof value !== "string") return fallback
+  const cleaned = value
+    .replace(/[\p{Cc}\p{Cf}]/gu, " ")
+    .replace(/(?:https?:\/\/|www\.)\S*/gi, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, MAX_FIELD_LENGTH)
+    .trim()
+  return cleaned || fallback
+}
 
 const euro = (value: unknown) =>
   typeof value === "number" ? `${value.toFixed(2).replace(".", ",")} €` : "—"
