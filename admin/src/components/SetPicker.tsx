@@ -17,6 +17,7 @@ interface SetOption {
   title: string
   category: string
   year: number
+  imageUrl: string | null
   allowedTiers: string[]
 }
 
@@ -50,12 +51,13 @@ export function SetPicker({
   const [category, setCategory] = useState(ALL)
   const [year, setYear] = useState(ALL)
   const [planAllowsOnly, setPlanAllowsOnly] = useState(false)
-  const [hideReceived, setHideReceived] = useState(true)
+  // Off by default: received sets stay in the list, marked red, so the admin sees the history.
+  const [hideReceived, setHideReceived] = useState(false)
 
   useEffect(() => {
     void supabase
       .from("products")
-      .select("id, title, category, year, allowed_tiers")
+      .select("id, title, category, year, image_url, allowed_tiers")
       .neq("status", "sold_out")
       .order("title")
       .then(({ data }) => {
@@ -65,6 +67,7 @@ export function SetPicker({
             title: p.title,
             category: p.category,
             year: p.year,
+            imageUrl: p.image_url,
             allowedTiers: p.allowed_tiers ?? [],
           }))
         )
@@ -210,24 +213,39 @@ export function SetPicker({
                 onClick={() => onChange(s.id)}
                 aria-pressed={s.id === value}
                 className={cn(
-                  "flex w-full min-w-0 flex-col gap-0.5 px-3 py-2 text-left text-sm transition-colors outline-none hover:bg-accent focus-visible:bg-accent",
+                  "flex w-full min-w-0 items-center gap-3 px-3 py-2 text-left text-sm transition-colors outline-none hover:bg-accent focus-visible:bg-accent",
                   s.id === value && "bg-accent",
-                  receivedOn && "border-l-2 border-destructive bg-destructive/5"
+                  receivedOn && "border-l-2 border-destructive bg-destructive/10"
                 )}
               >
-                <span
-                  className={cn("truncate", receivedOn && "text-destructive")}
-                >
-                  {s.title}
-                </span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {[s.year, s.category].join(" · ")}
-                  {receivedOn && (
-                    <span className="text-destructive">
-                      {" "}
-                      · Already received {formatDate(receivedOn)}
-                    </span>
-                  )}
+                {s.imageUrl ? (
+                  <img
+                    src={s.imageUrl}
+                    alt=""
+                    loading="lazy"
+                    className={cn(
+                      "size-10 shrink-0 rounded object-cover",
+                      receivedOn && "opacity-60"
+                    )}
+                  />
+                ) : (
+                  <span className="size-10 shrink-0 rounded bg-muted" aria-hidden="true" />
+                )}
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span
+                    className={cn("truncate", receivedOn && "text-destructive")}
+                  >
+                    {s.title}
+                  </span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {[s.year, s.category].join(" · ")}
+                    {receivedOn && (
+                      <span className="text-destructive">
+                        {" "}
+                        · Already received {formatDate(receivedOn)}
+                      </span>
+                    )}
+                  </span>
                 </span>
               </button>
             </li>
