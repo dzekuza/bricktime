@@ -6,6 +6,7 @@
 --           drop trigger subscribers_notify_admin on public.subscribers;
 --           drop function public.notify_admin_new_subscriber();
 --           drop table public.admin_notifications;
+--           delete from public.site_settings where key = 'admin_whatsapp';
 
 create table public.admin_notifications (
   id uuid primary key default gen_random_uuid(),
@@ -55,7 +56,9 @@ begin
   on conflict (dedupe_key) do nothing;
   return new;
 exception when others then
-  -- A notification problem must never block signup.
+  -- A notification problem must never block signup, but it must leave a trace
+  -- in the database logs so a lost alert can be found and repaired.
+  raise warning 'notify_admin_new_subscriber failed for %: %', new.id, sqlerrm;
   return new;
 end;
 $$;

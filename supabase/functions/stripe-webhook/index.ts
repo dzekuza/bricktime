@@ -1046,9 +1046,28 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Replacing subscription A with B deletes A while B owns the row; that
+        // is not a member leaving, so it must not raise a cancellation alert.
+        let isReplaced = false
+        if (event.type === "customer.subscription.deleted") {
+          const owner = await findSubscriber({
+            userId: subscription.metadata?.userId,
+            email: fallbackEmail,
+            customerId:
+              typeof subscription.customer === "string"
+                ? subscription.customer
+                : subscription.customer?.id,
+            subscriptionId: subscription.id,
+          })
+          isReplaced = Boolean(
+            owner &&
+              (await isStoredSubscriptionOtherLive(owner.id, subscription.id))
+          )
+        }
+
         await updateSubscriberByStripeIds(subscription, fallbackEmail)
 
-        if (event.type === "customer.subscription.deleted") {
+        if (event.type === "customer.subscription.deleted" && !isReplaced) {
           await enqueueAdminNotification(
             supabase,
             "subscription_cancelled",
@@ -1115,12 +1134,24 @@ Deno.serve(async (req) => {
           subscriber &&
           subscriptionId &&
           (await isStoredSubscriptionOtherLive(subscriber.id, subscriptionId))
+        // An invoice can lack customer_email; the alert is useless without who
+        // it concerns, so fall back to the Stripe customer's address.
+        let alertEmail = invoice.customer_email
+        if (!alertEmail && customerId) {
+          try {
+            const customer = await stripe.customers.retrieve(customerId)
+            if (!customer.deleted) alertEmail = customer.email
+          } catch (error) {
+            console.error(`Customer ${customerId} email lookup failed:`, error)
+          }
+        }
+
         // Queued before the Omnisend push, whose failure returns early for a
         // Stripe retry; the invoice-keyed dedupe makes the repeat harmless.
         await enqueueAdminNotification(
           supabase,
           "payment_failed",
-          { email: invoice.customer_email, amount: invoice.amount_due / 100 },
+          { email: alertEmail, amount: invoice.amount_due / 100 },
           `payment_failed:${invoice.id}`
         )
 

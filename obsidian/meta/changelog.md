@@ -1,11 +1,16 @@
 ---
 tags: [meta, changelog]
-updated: 2026-11-20
+updated: 2026-11-22
 ---
 
 # Changelog
 
 Chronological log of notable changes to the project. Newest first.
+
+## 2026-11-22 — WhatsApp admin alerts (PR #150)
+
+- **Added:** outbox table `admin_notifications` (migration `20261122120000`), `subscribers` insert trigger, per-minute cron `send-admin-notifications`, edge function of the same name, `_shared/whatsapp.ts` (Meta Cloud API or Twilio), `_shared/admin-notifications.ts`, and `stripe-webhook` enqueues for subscription started, payment failed and cancelled. Admin Settings > Notifications card writes the `admin_whatsapp` site setting (off by default).
+- **Secrets:** `ADMIN_WHATSAPP_TO` plus either `WHATSAPP_TOKEN`/`WHATSAPP_PHONE_NUMBER_ID` (Meta) or `TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN`/`TWILIO_WHATSAPP_FROM` (Twilio). Not merged or deployed yet.
 
 ## 2026-11-22 — architecture docs synced to `3d5f1be`
 

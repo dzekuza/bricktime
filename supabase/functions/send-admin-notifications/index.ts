@@ -9,7 +9,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { formatAdminMessage } from "../_shared/admin-notifications.ts"
 import { isWhatsAppConfigured, sendWhatsAppAlert } from "../_shared/whatsapp.ts"
 
-const MAX_ATTEMPTS = 3
+// Total sends per alert: the first try plus three retries.
+const MAX_ATTEMPTS = 4
 const BATCH_SIZE = 20
 // Older than this and the alert is noise, not news.
 const MAX_AGE_MS = 6 * 60 * 60 * 1000
@@ -50,11 +51,17 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   )
 
-  const { data: setting } = await supabase
+  // A failed read must not look like "disabled": that would mark the whole
+  // batch skipped for good. Leave the rows pending and try again next minute.
+  const { data: setting, error: settingError } = await supabase
     .from("site_settings")
     .select("value")
     .eq("key", "admin_whatsapp")
     .maybeSingle()
+  if (settingError) {
+    console.error("Settings read failed:", settingError.message)
+    return fail(500, "settings_read_failed", "Could not read the settings")
+  }
   const settings = (setting?.value ?? {}) as Settings
   const configured = isWhatsAppConfigured()
 
@@ -84,32 +91,56 @@ Deno.serve(async (req) => {
         .from("admin_notifications")
         .update({ status: "skipped" })
         .eq("id", row.id)
+        .eq("status", "pending")
       summary.skipped++
       continue
     }
     if (!configured) continue
 
+    // Claim the row before sending: a compare-and-swap on `attempts` lets only
+    // one of two overlapping drains win, so the loser skips instead of sending
+    // the same alert twice.
+    const attempts = row.attempts + 1
+    const { data: claimed, error: claimError } = await supabase
+      .from("admin_notifications")
+      .update({ attempts })
+      .eq("id", row.id)
+      .eq("status", "pending")
+      .eq("attempts", row.attempts)
+      .select("id")
+    if (claimError) {
+      console.error(`Claiming ${row.id} failed: ${claimError.message}`)
+      continue
+    }
+    if (!claimed?.length) continue
+
     const result = await sendWhatsAppAlert(message)
     if (result.ok) {
-      await supabase
+      const { error: sentError } = await supabase
         .from("admin_notifications")
         .update({ status: "sent", sent_at: new Date().toISOString() })
         .eq("id", row.id)
+      // The message is out, so this is only logged: retrying would resend it.
+      // The claim already counted an attempt, which bounds any repeat.
+      if (sentError) {
+        console.error(`Marking ${row.id} sent failed: ${sentError.message}`)
+      }
       summary.sent++
       continue
     }
 
-    const attempts = row.attempts + 1
     const isFinal = !result.retryable || attempts >= MAX_ATTEMPTS
     console.error(`Admin notification ${row.id} (${row.kind}): ${result.error}`)
-    await supabase
+    const { error: retryError } = await supabase
       .from("admin_notifications")
       .update({
-        attempts,
         last_error: result.error.slice(0, 500),
         status: isFinal ? "failed" : "pending",
       })
       .eq("id", row.id)
+    if (retryError) {
+      console.error(`Recording failure of ${row.id} failed: ${retryError.message}`)
+    }
     isFinal ? summary.failed++ : summary.retry++
   }
 

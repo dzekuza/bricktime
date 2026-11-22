@@ -19,7 +19,7 @@
 
 Branch `fix/subscription-flow` (3 commits, not pushed): account profile refresh after purchase, plan-picker button, and admin Cancel reaching Stripe (`admin-cancel-subscription` v1 live). Still waiting on a real end-to-end test purchase. Uncommitted: "su PVM" note on price surfaces; the 5 leftover active test subs now carry the 21% VAT rate. See [[session-log]].
 
-**Uncommitted TASKS.md pass (2026-11-18):** cancel-confirm dialog, courier price/delivery row + proration breakdown (needs `change-subscription` deploy), admin order address rows + LP error text, rental `returned_at`, `get-analytics` hardening (needs deploy; check GOOGLE*\* secrets), unused PlanChangeSummary/DiscountCodeField removed. Open: mystery_s credits=0 OK, returned-set budget rule question, LP*\* secrets, Stripe dashboard, e2e purchase.
+**Uncommitted TASKS.md pass (2026-11-18):** cancel-confirm dialog, courier price/delivery row + proration breakdown (needs `change-subscription` deploy), admin order address rows + LP error text, rental `returned_at`, `get-analytics` hardening (needs deploy; check `GOOGLE_*` secrets), unused PlanChangeSummary/DiscountCodeField removed. Open: mystery*s credits=0 OK, returned-set budget rule question, `LP*\*` secrets, Stripe dashboard, e2e purchase.
 
 ## Done recently
 
