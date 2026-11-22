@@ -20,6 +20,7 @@ import {
   StarIcon,
 } from "lucide-react"
 import brickLogo from "@/assets/brick-logo.svg"
+import { NotificationsBell } from "@/components/notifications/NotificationsBell"
 import { useAuth } from "@/context/AuthContext"
 import {
   Sidebar,
@@ -111,6 +112,7 @@ export function AppSidebar() {
               </NavLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          <NotificationsBell />
         </SidebarMenu>
       </SidebarHeader>
 
