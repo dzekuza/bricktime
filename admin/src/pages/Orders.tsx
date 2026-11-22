@@ -116,6 +116,12 @@ export function Orders() {
         trackingState: o.lp_tracking_state,
         returnBarcode: o.lp_return_barcode,
         returnTrackingState: o.lp_return_tracking_state,
+        createdAt: o.created_at,
+        labelCreatedAt: o.lp_label_created_at,
+        returnRequestedAt: o.return_requested_at,
+        returnLabelCreatedAt: o.lp_return_label_created_at,
+        returnedAt: o.returned_at,
+        isMystery: o.is_mystery,
       })))
     }
     setLoading(false)
