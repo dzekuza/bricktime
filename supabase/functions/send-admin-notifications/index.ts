@@ -16,16 +16,21 @@ const MAX_ATTEMPTS = 4
 const BATCH_SIZE = 20
 // Older than this and the alert is noise, not news.
 const MAX_AGE_MS = 6 * 60 * 60 * 1000
-// Alerts that anyone with an account can trigger (signups fire before email
-// confirmation, forms and reviews are member input). The per-day cap bounds
-// what a flood of fake activity can cost in WhatsApp messages. Paid events
-// (subscriptions, merch, gift cards) are not capped: money backs them.
+// Alerts that anyone with an account can trigger without paying per event
+// (signups fire before email confirmation, forms and reviews are member input,
+// and a member can rent and return in a loop). The per-day cap bounds what a
+// flood of fake activity can cost in WhatsApp messages. Paid events
+// (subscriptions, merch, gift cards) are not capped: money backs them. Rentals
+// get a higher cap because they are real business; past it, check the admin
+// Orders page instead of the alerts.
 const DAILY_CAPS: Record<string, number> = {
   new_subscriber: 20,
+  rental_order: 100,
   mystery_request: 30,
   return_requested: 30,
   missing_part_request: 30,
   product_review: 30,
+  test: 10,
 }
 
 const json = (body: unknown, status = 200) =>

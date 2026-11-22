@@ -251,8 +251,11 @@ revoke all on function
   from public, anon, authenticated;
 
 -- The admin card inserts a 'test' row to check delivery end to end. Admins
--- may insert only that kind; everything else is written by the system.
-grant insert on public.admin_notifications to authenticated;
+-- may insert only that kind, and only the two columns they need: status,
+-- attempts, sent_at and payload keep their defaults, so a row cannot be
+-- created already "sent" or with a crafted payload. Everything else is
+-- written by the system.
+grant insert (kind, dedupe_key) on public.admin_notifications to authenticated;
 
 create policy admin_notifications_admin_test_insert on public.admin_notifications
   for insert to authenticated
