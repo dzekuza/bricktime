@@ -1,11 +1,19 @@
 import { useEffect, useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
-import { ArrowRightIcon } from "lucide-react"
+import { ArrowRightIcon, SearchIcon } from "lucide-react"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
 import { faqs as defaultFaqs } from "@/data/faq"
 import { supabase } from "@/lib/supabase"
 import { Seo } from "@/components/Seo"
+import { Input } from "@/components/ui/input"
+
+// Lowercase and drop diacritics so "ziurek" finds "žiūrėk".
+const normalizeSearch = (text: string) =>
+  text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
 
 type HelpPageProps = {
   jsonLd?: Record<string, unknown>
@@ -19,6 +27,7 @@ type HelpPageProps = {
   sections: { title: string; body: string }[]
   checklist: string[]
   helpNote?: { title: string; body: ReactNode }
+  isSearchable?: boolean
 }
 
 function HelpPage({
@@ -31,7 +40,18 @@ function HelpPage({
   checklist,
   helpNote,
   jsonLd,
+  isSearchable,
 }: HelpPageProps) {
+  const [query, setQuery] = useState("")
+  const terms = normalizeSearch(query).split(/\s+/).filter(Boolean)
+  // Numbers stay those of the full list so a result keeps its place.
+  const visibleSections = sections
+    .map((section, index) => ({ section, index }))
+    .filter(({ section }) => {
+      const haystack = normalizeSearch(`${section.title} ${section.body}`)
+      return terms.every((term) => haystack.includes(term))
+    })
+
   return (
     <>
       <Seo title={title} description={intro} path={path} jsonLd={jsonLd} />
@@ -88,7 +108,25 @@ function HelpPage({
         <section className="py-10 md:py-20">
           <div className="mx-auto grid max-w-[1320px] gap-6 px-4 md:px-7 lg:grid-cols-[1.2fr_.8fr]">
             <div className="grid gap-4">
-              {sections.map((section, index) => (
+              {isSearchable && (
+                <div className="relative">
+                  <SearchIcon className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink/40" />
+                  <Input
+                    type="search"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Ieškoti pagal raktažodį…"
+                    aria-label="Ieškoti D.U.K."
+                    className="brick-card h-14 bg-paper pr-4 pl-12 text-[16px] text-ink md:text-[16px]"
+                  />
+                </div>
+              )}
+              {isSearchable && visibleSections.length === 0 && (
+                <p className="brick-card bg-paper p-6 text-[15px] text-ink/65 md:p-8">
+                  Pagal „{query.trim()}“ nieko nerasta. Pabandyk kitą raktažodį.
+                </p>
+              )}
+              {visibleSections.map(({ section, index }) => (
                 <article
                   key={section.title}
                   className="brick-card bg-paper p-6 md:p-8"
@@ -160,6 +198,7 @@ export function FAQPage() {
   return (
     <HelpPage
       eyebrow="Pagalba / D.U.K."
+      isSearchable
       title="D.U.K."
       path="/duk"
       jsonLd={{
