@@ -26,8 +26,8 @@ export function TableSection({
   const headingId = useId()
 
   return (
-    <section aria-labelledby={headingId} className="flex flex-col gap-4">
-      <div className="flex items-start justify-between gap-4">
+    <section aria-labelledby={headingId} className="flex min-w-0 flex-col gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="flex flex-col gap-1">
           <h2 id={headingId} className="text-base font-medium">
             {title}

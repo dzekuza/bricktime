@@ -200,7 +200,7 @@ export function LegalPagesTab() {
           <div className="flex flex-col gap-1.5">
             <Label>Page</Label>
             <Select value={slug} onValueChange={(v) => setSlug(v as Slug)}>
-              <SelectTrigger>
+              <SelectTrigger aria-label="Page">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

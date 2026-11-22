@@ -184,14 +184,14 @@ export function Plans() {
                     }}
                   >
                     <div className="flex flex-col gap-1">
-                      <span className="font-mono text-xs tracking-[.18em] uppercase opacity-70">
+                      <span className="font-mono text-xs tracking-[.18em] uppercase">
                         {plan.id}
                       </span>
                       <span className="text-2xl leading-none font-bold">
                         {plan.name ?? plan.id}
                       </span>
                       {plan.tagline && (
-                        <span className="mt-1 text-sm opacity-80">
+                        <span className="mt-1 text-sm">
                           {plan.tagline}
                         </span>
                       )}
@@ -265,8 +265,8 @@ export function Plans() {
                           className={[
                             "font-mono text-[11px] tracking-[.06em] uppercase transition-colors",
                             plan.active
-                              ? "text-green-600 hover:text-red-500"
-                              : "text-red-400 hover:text-green-600",
+                              ? "text-green-700 hover:text-red-700"
+                              : "text-red-700 hover:text-green-700",
                           ].join(" ")}
                         >
                           {plan.active ? "Active" : "Inactive"}

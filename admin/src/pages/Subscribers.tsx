@@ -430,7 +430,7 @@ export function Subscribers() {
           />
         </div>
         <Select value={planFilter} onValueChange={setPlanFilter}>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger aria-label="Filter by plan" className="w-[140px]">
             <SelectValue placeholder="Plan" />
           </SelectTrigger>
           <SelectContent>
@@ -443,7 +443,7 @@ export function Subscribers() {
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger aria-label="Filter by status" className="w-[140px]">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>

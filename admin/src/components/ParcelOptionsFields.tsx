@@ -64,7 +64,7 @@ export function ParcelOptionsFields({
           value={size}
           onValueChange={(v) => onSizeChange(v as ParcelSize)}
         >
-          <SelectTrigger className="h-9 w-full">
+          <SelectTrigger aria-label="Parcel size" className="h-9 w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

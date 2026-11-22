@@ -145,7 +145,7 @@ export function SetPicker({
       />
       <div className="grid grid-cols-2 gap-2">
         <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger className={FILTER_TRIGGER_CLASS}>
+          <SelectTrigger aria-label="Filter by series" className={FILTER_TRIGGER_CLASS}>
             <SelectValue placeholder="Series" />
           </SelectTrigger>
           <SelectContent>
@@ -158,7 +158,7 @@ export function SetPicker({
           </SelectContent>
         </Select>
         <Select value={year} onValueChange={setYear}>
-          <SelectTrigger className={FILTER_TRIGGER_CLASS}>
+          <SelectTrigger aria-label="Filter by year" className={FILTER_TRIGGER_CLASS}>
             <SelectValue placeholder="Year" />
           </SelectTrigger>
           <SelectContent>

@@ -27,14 +27,17 @@ export function selectionColumn<TData>(
   return {
     id: 'select',
     header: ({ table }) => (
-      <Checkbox
+      <>
+        <span className="sr-only">Select</span>
+        <Checkbox
         checked={
           table.getIsAllPageRowsSelected() ||
           (table.getIsSomePageRowsSelected() ? 'indeterminate' : false)
         }
         onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
         aria-label="Select all rows on this page"
-      />
+        />
+      </>
     ),
     cell: ({ row }) => (
       <Checkbox
@@ -48,6 +51,25 @@ export function selectionColumn<TData>(
     enableHiding: false,
     size: 40,
   }
+}
+
+/** Column ids whose header would render no text (icon-only, actions, images). */
+function getUnlabelledColumnIds<TData>(columns: ColumnDef<TData, unknown>[]) {
+  const ids = new Set<string>()
+  for (const col of columns) {
+    const accessorKey = 'accessorKey' in col ? String(col.accessorKey) : undefined
+    const hasText = col.header !== undefined && col.header !== ''
+    if (hasText) continue
+    if (accessorKey && col.header === undefined) continue
+    const id = col.id ?? accessorKey
+    if (id) ids.add(id)
+  }
+  return ids
+}
+
+function getSrHeaderLabel(id: string) {
+  const text = id.replace(/[_-]/g, ' ')
+  return text.charAt(0).toUpperCase() + text.slice(1)
 }
 
 function getAriaSort<TData>(column: Column<TData, unknown>) {
@@ -79,6 +101,7 @@ export function DataTable<TData>({
   renderBulkActions,
   className,
 }: DataTableProps<TData>) {
+  const unlabelledIds = React.useMemo(() => getUnlabelledColumnIds(columns), [columns])
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [rowSelection, setRowSelection] = React.useState({})
 
@@ -120,7 +143,7 @@ export function DataTable<TData>({
 
       {/* Table */}
       <div className={cn('overflow-hidden border', hasSelection && renderBulkActions ? 'rounded-b-lg' : 'rounded-lg')}>
-        <Table>
+        <Table scrollLabel={`${caption} table`}>
           <caption className="sr-only">{caption}</caption>
           <TableHeader>
             {table.getHeaderGroups().map((hg) => (
@@ -131,9 +154,11 @@ export function DataTable<TData>({
                     aria-sort={getAriaSort(header.column)}
                     style={{ width: header.column.getSize() !== 150 ? header.column.getSize() : undefined }}
                   >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
+                    {header.isPlaceholder ? null : unlabelledIds.has(header.column.id) ? (
+                      <span className="sr-only">{getSrHeaderLabel(header.column.id)}</span>
+                    ) : (
+                      flexRender(header.column.columnDef.header, header.getContext())
+                    )}
                   </TableHead>
                 ))}
               </TableRow>

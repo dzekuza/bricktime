@@ -180,7 +180,7 @@ export function CreateOrderDialog({
               onChange={(e) => setCustomerSearch(e.target.value)}
             />
             <Select value={customerId} onValueChange={setCustomerId}>
-              <SelectTrigger className={TRIGGER_CLASS}>
+              <SelectTrigger aria-label="Customer" className={TRIGGER_CLASS}>
                 <SelectValue placeholder="Select customer" />
               </SelectTrigger>
               <SelectContent>

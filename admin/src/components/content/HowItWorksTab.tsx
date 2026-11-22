@@ -212,7 +212,7 @@ export function HowItWorksTab({
                       value={step.brick_key}
                       onValueChange={(v) => setStep(step.id, { brick_key: v })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger aria-label="Step icon">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
