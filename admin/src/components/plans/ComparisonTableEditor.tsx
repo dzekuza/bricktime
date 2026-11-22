@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { PlusIcon, Trash2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { IconButton } from "@/components/ui/icon-button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -191,14 +192,13 @@ export function ComparisonTableEditor({
                     </td>
                   ))}
                   <td className="p-2 align-top">
-                    <Button
-                      variant="ghost"
-                      size="icon"
+                    <IconButton
+                      label="Remove comparison row"
                       className="text-muted-foreground hover:text-destructive"
                       onClick={() => removeRow(row.key)}
                     >
                       <Trash2Icon className="size-4" />
-                    </Button>
+                    </IconButton>
                   </td>
                 </tr>
               ))}

@@ -13,6 +13,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { supabase } from "@/lib/supabase"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { SearchInput } from "@/components/ui/search-input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -428,9 +429,9 @@ export function Merch() {
 
       <div className="relative max-w-sm">
         <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
+        <SearchInput
           className="pl-9"
-          placeholder="Search merch…"
+          label="Search merch" placeholder="Search merch…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />

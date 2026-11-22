@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react"
 import { AwardIcon, SearchIcon } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
-import { Input } from "@/components/ui/input"
+import { SearchInput } from "@/components/ui/search-input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -202,8 +202,8 @@ export function Points() {
 
       <div className="relative max-w-sm">
         <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search members…"
+        <SearchInput
+          label="Search members" placeholder="Search members…"
           className="pl-9"
           value={search}
           onChange={(e) => setSearch(e.target.value)}

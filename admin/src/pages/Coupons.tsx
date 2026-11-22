@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { PlusIcon, PencilIcon, Trash2Icon, TicketIcon } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
+import { IconButton } from "@/components/ui/icon-button"
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
@@ -211,17 +212,16 @@ export function Coupons() {
       id: 'actions',
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" onClick={() => openEdit(row.original)}>
+          <IconButton onClick={() => openEdit(row.original)} label={`Edit coupon ${row.original.code}`}>
             <PencilIcon className="size-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
+          </IconButton>
+          <IconButton
+            label={`Delete coupon ${row.original.code}`}
             className="text-destructive hover:text-destructive"
             onClick={() => setDeleteTarget(row.original)}
           >
             <Trash2Icon className="size-4" />
-          </Button>
+          </IconButton>
         </div>
       ),
     },

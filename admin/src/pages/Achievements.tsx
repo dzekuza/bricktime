@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react"
 import { PlusIcon, PencilIcon, Trash2Icon, TrophyIcon } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
+import { IconButton } from "@/components/ui/icon-button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -258,21 +259,19 @@ export function Achievements() {
         id: "actions",
         cell: ({ row }) => (
           <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
+            <IconButton
+              label={`Edit reward ${row.original.label}`}
               onClick={() => openEdit(row.original)}
             >
               <PencilIcon className="size-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
+            </IconButton>
+            <IconButton
+              label={`Delete reward ${row.original.label}`}
               className="text-destructive hover:text-destructive"
               onClick={() => setDeleteTarget(row.original)}
             >
               <Trash2Icon className="size-4" />
-            </Button>
+            </IconButton>
           </div>
         ),
       },

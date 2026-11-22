@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { IconButton } from "@/components/ui/icon-button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -174,23 +175,21 @@ export function CategoriesTab() {
                 {!item.active && <Badge variant="outline">Hidden</Badge>}
               </div>
               <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
+                <IconButton
+                  label={`Edit category ${item.name}`}
                   onClick={() => {
                     setEditTarget(item)
                     setEditOpen(true)
                   }}
                 >
                   <PencilIcon className="size-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
+                </IconButton>
+                <IconButton
+                  label={`Delete category ${item.name}`}
                   onClick={() => setDeleteTarget(item)}
                 >
                   <Trash2Icon className="size-4" />
-                </Button>
+                </IconButton>
               </div>
             </div>
           ))

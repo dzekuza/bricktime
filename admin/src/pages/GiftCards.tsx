@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react"
 import { SearchIcon, GiftIcon, CalendarClockIcon } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
-import { Input } from "@/components/ui/input"
+import { SearchInput } from "@/components/ui/search-input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -281,9 +281,9 @@ export function GiftCards() {
 
       <div className="relative max-w-sm">
         <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
+        <SearchInput
           className="pl-9"
-          placeholder="Ieškoti pagal kodą, el. paštą..."
+          label="Ieškoti pagal kodą, el. paštą" placeholder="Ieškoti pagal kodą, el. paštą..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />

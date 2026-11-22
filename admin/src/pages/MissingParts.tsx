@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { SearchIcon, CheckIcon } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { SearchInput } from "@/components/ui/search-input"
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
@@ -206,9 +206,9 @@ export function MissingParts() {
 
       <div className="relative max-w-sm">
         <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
+        <SearchInput
           className="pl-9"
-          placeholder="Search by subscriber, product, set or part code…"
+          label="Search by subscriber, product, set or part code" placeholder="Search by subscriber, product, set or part code…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />

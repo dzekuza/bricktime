@@ -112,13 +112,42 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent>
-        {navGroups.map((group) => (
-          <SidebarGroup key={group.label}>
-            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+      <nav aria-label="Main" className="flex min-h-0 flex-1 flex-col">
+        <SidebarContent>
+          {navGroups.map((group) => (
+            <SidebarGroup
+              key={group.label}
+              role="group"
+              aria-labelledby={`nav-group-${group.label}`}
+            >
+              <SidebarGroupLabel id={`nav-group-${group.label}`}>
+                {group.label}
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {group.items.map((item) => (
+                    <SidebarMenuItem key={item.to}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive(item.to)}
+                        tooltip={item.label}
+                      >
+                        <NavLink to={item.to}>
+                          <item.icon />
+                          <span>{item.label}</span>
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          ))}
+
+          <SidebarGroup className="mt-auto">
             <SidebarGroupContent>
               <SidebarMenu>
-                {group.items.map((item) => (
+                {navSecondary.map((item) => (
                   <SidebarMenuItem key={item.to}>
                     <SidebarMenuButton
                       asChild
@@ -135,44 +164,25 @@ export function AppSidebar() {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-        ))}
-
-        <SidebarGroup className="mt-auto">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navSecondary.map((item) => (
-                <SidebarMenuItem key={item.to}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.to)}
-                    tooltip={item.label}
-                  >
-                    <NavLink to={item.to}>
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+        </SidebarContent>
+      </nav>
 
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" className="cursor-default">
-              <Avatar className="size-8 rounded-lg">
-                <AvatarFallback className="rounded-lg">
-                  {session?.user.email?.[0].toUpperCase() ?? "A"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex min-w-0 flex-col gap-0.5 leading-none">
-                <span className="truncate text-sm font-semibold">
-                  {session?.user.email ?? ""}
-                </span>
-                <span className="text-xs text-muted-foreground">Admin</span>
+            <SidebarMenuButton size="lg" asChild className="cursor-default">
+              <div>
+                <Avatar aria-hidden="true" className="size-8 rounded-lg">
+                  <AvatarFallback className="rounded-lg">
+                    {session?.user.email?.[0].toUpperCase() ?? "A"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex min-w-0 flex-col gap-0.5 leading-none">
+                  <span className="truncate text-sm font-semibold">
+                    {session?.user.email ?? ""}
+                  </span>
+                  <span className="text-xs text-muted-foreground">Admin</span>
+                </div>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>

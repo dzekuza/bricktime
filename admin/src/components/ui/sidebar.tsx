@@ -253,14 +253,15 @@ function SidebarTrigger({
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar, open, openMobile, isMobile } = useSidebar()
 
   return (
     <Button
       data-sidebar="trigger"
       data-slot="sidebar-trigger"
       variant="ghost"
-      size="icon-sm"
+      size="icon-lg"
+      aria-expanded={isMobile ? openMobile : open}
       className={cn(className)}
       onClick={(event) => {
         onClick?.(event)
@@ -269,7 +270,7 @@ function SidebarTrigger({
       {...props}
     >
       <PanelLeftIcon />
-      <span className="sr-only">Toggle Sidebar</span>
+      <span className="sr-only">Show or hide navigation</span>
     </Button>
   )
 }
@@ -281,7 +282,7 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
     <button
       data-sidebar="rail"
       data-slot="sidebar-rail"
-      aria-label="Toggle Sidebar"
+      aria-hidden="true"
       tabIndex={-1}
       onClick={toggleSidebar}
       title="Toggle Sidebar"

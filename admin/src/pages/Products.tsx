@@ -7,7 +7,8 @@ import {
 } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { IconButton } from "@/components/ui/icon-button"
+import { SearchInput } from "@/components/ui/search-input"
 import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
@@ -325,15 +326,13 @@ export function Products() {
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
+                <IconButton
+                  label={`Actions for ${product.title}`}
                   className="size-8"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <MoreHorizontalIcon className="size-4" />
-                  <span className="sr-only">Open menu</span>
-                </Button>
+                </IconButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuGroup>
@@ -405,8 +404,8 @@ export function Products() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative max-w-sm min-w-[200px] flex-1">
           <SearchIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search products…"
+          <SearchInput
+            label="Search products" placeholder="Search products…"
             className="pl-9"
             value={search}
             onChange={(e) => setSearch(e.target.value)}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
+import { SearchInput } from "@/components/ui/search-input"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -135,8 +135,8 @@ export function SetPicker({
 
   return (
     <div className="flex min-w-0 flex-col gap-2">
-      <Input
-        placeholder="Search sets…"
+      <SearchInput
+        label="Search sets" placeholder="Search sets…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />

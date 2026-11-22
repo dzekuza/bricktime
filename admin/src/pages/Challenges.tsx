@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
+import { IconButton } from "@/components/ui/icon-button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -430,29 +431,26 @@ export function Challenges() {
         id: "actions",
         cell: ({ row }) => (
           <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
+            <IconButton
+              label={`Participants of ${row.original.title}`}
               title="Participants & progress"
               onClick={() => openParticipants(row.original)}
             >
               <UsersIcon className="size-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
+            </IconButton>
+            <IconButton
+              label={`Edit challenge ${row.original.title}`}
               onClick={() => openEdit(row.original)}
             >
               <PencilIcon className="size-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
+            </IconButton>
+            <IconButton
+              label={`Delete challenge ${row.original.title}`}
               className="text-destructive hover:text-destructive"
               onClick={() => setDeleteTarget(row.original)}
             >
               <Trash2Icon className="size-4" />
-            </Button>
+            </IconButton>
           </div>
         ),
       },

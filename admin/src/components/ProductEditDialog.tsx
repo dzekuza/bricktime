@@ -3,6 +3,7 @@ import { ImagePlusIcon, XIcon, UploadIcon, Loader2Icon } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { uploadToStorage } from "@/lib/upload-to-storage"
 import { Button } from "@/components/ui/button"
+import { IconButton } from "@/components/ui/icon-button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -876,14 +877,13 @@ export function ProductEditDialog({
                         </p>
                       )}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
+                    <IconButton
+                      label={`Remove bag ${bag.label}`}
                       className="flex-none"
                       onClick={() => removeBag(i)}
                     >
                       <XIcon className="size-3.5" />
-                    </Button>
+                    </IconButton>
                   </div>
                 ))}
                 <div className="grid grid-cols-2 gap-2">
@@ -967,14 +967,13 @@ export function ProductEditDialog({
                       onChange={(e) => setStoryBody(i, e.target.value)}
                     />
                     {(form.story?.body?.length ?? 1) > 1 && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
+                      <IconButton
+                        label={`Remove paragraph ${i + 1}`}
                         className="mt-1 flex-none"
                         onClick={() => removeStoryParagraph(i)}
                       >
                         <XIcon className="size-3.5" />
-                      </Button>
+                      </IconButton>
                     )}
                   </div>
                 ))}
@@ -1080,14 +1079,13 @@ export function ProductEditDialog({
                         </p>
                       )}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
+                    <IconButton
+                      label={`Remove item ${item.title}`}
                       className="flex-none"
                       onClick={() => removeKitItem(i)}
                     >
                       <XIcon className="size-3.5" />
-                    </Button>
+                    </IconButton>
                   </div>
                 ))}
                 <div className="flex flex-col gap-2">
@@ -1147,14 +1145,13 @@ export function ProductEditDialog({
                         </p>
                       )}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
+                    <IconButton
+                      label={`Remove compatible set ${c.title}`}
                       className="flex-none"
                       onClick={() => removeCompat(i)}
                     >
                       <XIcon className="size-3.5" />
-                    </Button>
+                    </IconButton>
                   </div>
                 ))}
                 <div className="grid grid-cols-2 gap-2">

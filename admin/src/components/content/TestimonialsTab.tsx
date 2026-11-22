@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { IconButton } from "@/components/ui/icon-button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -205,17 +206,16 @@ export function TestimonialsTab({
                 </div>
               </div>
               <div className="flex shrink-0 gap-1">
-                <Button variant="ghost" size="icon" onClick={() => openEdit(t)}>
+                <IconButton onClick={() => openEdit(t)} label={`Edit testimonial by ${t.name}`}>
                   <PencilIcon className="size-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
+                </IconButton>
+                <IconButton
+                  label={`Delete testimonial by ${t.name}`}
                   className="text-muted-foreground hover:text-destructive"
                   onClick={() => setDeleteTarget(t)}
                 >
                   <Trash2Icon className="size-4" />
-                </Button>
+                </IconButton>
               </div>
             </div>
           ))}
