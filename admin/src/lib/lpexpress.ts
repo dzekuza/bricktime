@@ -37,6 +37,17 @@ export function toWeightGrams(weightKg: string): number | undefined {
   return Math.round(kg * 1000)
 }
 
+// Locker slot each plan's sets normally need: Mėgėjas and Kūrėjas (nano, mini) fit M, Meistras (standard) needs L.
+const PLAN_PARCEL_SIZES: Partial<Record<string, ParcelSize>> = { nano: 'M', mini: 'M', standard: 'L' }
+
+/** Size to preselect for a new label: the customer's plan first, then the set's own size. */
+export function defaultParcelSize(
+  order: { planName?: string; productShippingSize?: ParcelSize },
+  fallback: ParcelSize = 'M',
+): ParcelSize {
+  return (order.planName && PLAN_PARCEL_SIZES[order.planName]) || order.productShippingSize || fallback
+}
+
 export interface CourierAddress {
   street: string
   building: string
