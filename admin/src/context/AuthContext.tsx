@@ -1,14 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
-
-/** Only this account may access the dashboard. Override per-env with VITE_ADMIN_EMAIL. */
-export const ADMIN_EMAIL = (
-  (import.meta.env.VITE_ADMIN_EMAIL as string | undefined) || 'admin@admin.com'
-).toLowerCase()
-
-export const isAdminSession = (session: Session | null): boolean =>
-  session?.user.email?.toLowerCase() === ADMIN_EMAIL
+import { isAdminUser } from '@/lib/admin-access'
 
 interface AuthContextValue {
   session: Session | null
@@ -46,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ session, loading, isAdmin: isAdminSession(session), signOut }}>
+    <AuthContext.Provider value={{ session, loading, isAdmin: isAdminUser(session?.user), signOut }}>
       {children}
     </AuthContext.Provider>
   )
