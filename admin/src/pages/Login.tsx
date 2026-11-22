@@ -46,6 +46,8 @@ export function Login() {
             <Input
               id="email"
               type="email"
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? 'login-error' : undefined}
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -57,6 +59,8 @@ export function Login() {
             <Input
               id="password"
               type="password"
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? 'login-error' : undefined}
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -65,7 +69,9 @@ export function Login() {
           </div>
 
           {error && (
-            <p className="text-sm text-destructive">{error}</p>
+            <p id="login-error" role="alert" className="text-sm text-destructive">
+              {error}
+            </p>
           )}
 
           <Button type="submit" className="w-full" disabled={loading}>

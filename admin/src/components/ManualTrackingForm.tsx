@@ -43,6 +43,8 @@ export function ManualTrackingForm({
       <div className="flex gap-2">
         <Input
           aria-label="Shipping code"
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? "tracking-error" : undefined}
           placeholder="Shipping code"
           value={barcode}
           onChange={(e) => setBarcode(e.target.value)}
@@ -57,7 +59,11 @@ export function ManualTrackingForm({
           {busy ? "Saving…" : "Save code"}
         </Button>
       </div>
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && (
+        <p id="tracking-error" role="alert" className="text-xs text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   )
 }
