@@ -9,21 +9,41 @@ export type AdminNotificationKind =
 type Payload = Record<string, unknown>
 
 const MAX_FIELD_LENGTH = 40
+const MAX_EMAIL_LENGTH = 60
 
-// Names and emails come from signup forms, so they are untrusted. Stripping
-// links, control characters and everything past a short cap keeps a hostile
-// signup from turning the admin alert into a phishing message.
-const text = (value: unknown, fallback = "—") => {
+// Names and emails come from signup forms, so they are untrusted and WhatsApp
+// turns anything link-shaped into a tappable link. An allowlist (rather than a
+// link blocklist, which misses bare domains like "evil.com/pay") keeps a hostile
+// signup from turning the admin alert into a phishing message: names keep only
+// letters, spaces, apostrophes and hyphens, so no dot, colon or slash survives.
+const fallback = "—"
+
+const clip = (value: string, max: number) => value.slice(0, max).trim()
+
+const name = (value: unknown) => {
   if (typeof value !== "string") return fallback
   const cleaned = value
-    .replace(/[\p{Cc}\p{Cf}]/gu, " ")
-    .replace(/(?:https?:\/\/|www\.)\S*/gi, "")
+    .normalize("NFKC")
     .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, MAX_FIELD_LENGTH)
-    .trim()
-  return cleaned || fallback
+    .replace(/[^\p{L}\p{M} '-]/gu, "")
+    .replace(/\s+/g, " ")
+  return clip(cleaned, MAX_FIELD_LENGTH) || fallback
 }
+
+const EMAIL_RE = /^[\w.+-]+@[\w-]+(?:\.[\w-]+)+$/
+
+const email = (value: unknown) => {
+  if (typeof value !== "string") return fallback
+  const trimmed = value.normalize("NFKC").trim()
+  return trimmed.length <= MAX_EMAIL_LENGTH && EMAIL_RE.test(trimmed)
+    ? trimmed
+    : fallback
+}
+
+const planKey = (value: unknown) =>
+  typeof value === "string"
+    ? clip(value.replace(/[^\w-]/g, ""), MAX_FIELD_LENGTH) || fallback
+    : fallback
 
 const euro = (value: unknown) =>
   typeof value === "number" ? `${value.toFixed(2).replace(".", ",")} €` : "—"
@@ -36,13 +56,13 @@ export function formatAdminMessage(
 ): string | null {
   switch (kind) {
     case "new_subscriber":
-      return `Naujas narys: ${text(payload.name)} · ${text(payload.email)}`
+      return `Naujas narys: ${name(payload.name)} · ${email(payload.email)}`
     case "subscription_started":
-      return `Nauja prenumerata: ${text(payload.email)} · ${text(payload.plan)} · ${euro(payload.amount)}`
+      return `Nauja prenumerata: ${email(payload.email)} · ${planKey(payload.plan)} · ${euro(payload.amount)}`
     case "payment_failed":
-      return `Nepavyko apmokėjimas: ${text(payload.email)} · ${euro(payload.amount)}`
+      return `Nepavyko apmokėjimas: ${email(payload.email)} · ${euro(payload.amount)}`
     case "subscription_cancelled":
-      return `Prenumerata atšaukta: ${text(payload.email)}`
+      return `Prenumerata atšaukta: ${email(payload.email)}`
     default:
       return null
   }

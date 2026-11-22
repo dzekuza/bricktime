@@ -26,14 +26,39 @@ Deno.test("falls back to a dash for missing values", () => {
   )
 })
 
-Deno.test("strips links and control characters from user-supplied names", () => {
+Deno.test("names keep no link-shaped characters, bare domains included", () => {
+  for (const hostile of [
+    "evil.com/pay now",
+    "Admin\nPatvirtink https://evil.example/x",
+    "ｅｖｉｌ．ｃｏｍ／pay",
+    "evil[.]com",
+  ]) {
+    const message = formatAdminMessage("new_subscriber", {
+      name: hostile,
+      email: "j@x.lt",
+    })
+    const namePart = message!.slice("Naujas narys: ".length).split(" · ")[0]
+    assertEquals(/[.:/\\[\]@\n]/.test(namePart), false, `${hostile} -> ${namePart}`)
+  }
+})
+
+Deno.test("keeps Lithuanian letters, apostrophes and hyphens in names", () => {
   assertEquals(
     formatAdminMessage("new_subscriber", {
-      name: "Admin\nPatvirtink https://evil.example/x www.evil.example",
+      name: "Žygimantas O'Brien-Šalčius",
       email: "j@x.lt",
     }),
-    "Naujas narys: Admin Patvirtink · j@x.lt"
+    "Naujas narys: Žygimantas O'Brien-Šalčius · j@x.lt"
   )
+})
+
+Deno.test("rejects emails that are not plain addresses", () => {
+  for (const hostile of ["see evil.com/pay@x.lt", "a@b.lt visit evil.com", "x"]) {
+    assertEquals(
+      formatAdminMessage("subscription_cancelled", { email: hostile }),
+      "Prenumerata atšaukta: —"
+    )
+  }
 })
 
 Deno.test("caps long names", () => {
