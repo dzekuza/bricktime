@@ -4,6 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { supabase } from '@/lib/supabase'
 import { fetchPlanPrices } from '@/lib/plan-prices'
+import { PlanBreakdownCard } from '@/components/dashboard/PlanBreakdownCard'
+import { RecentCustomersCard } from '@/components/dashboard/RecentCustomersCard'
+import { RecentOrdersCard } from '@/components/dashboard/RecentOrdersCard'
+import { useDashboardTables } from '@/hooks/use-dashboard-tables'
 
 interface Stat {
   label: string
@@ -27,6 +31,8 @@ export function Dashboard() {
     { label: 'Monthly Revenue', value: '—', change: '', icon: CreditCardIcon },
     { label: 'Avg. Rating', value: '—', change: 'Across all sets', icon: TrendingUpIcon },
   ])
+
+  const tables = useDashboardTables()
 
   useEffect(() => {
     async function load() {
@@ -80,6 +86,13 @@ export function Dashboard() {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      <RecentOrdersCard orders={tables.orders} loading={tables.loading} />
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <RecentCustomersCard customers={tables.customers} loading={tables.loading} />
+        <PlanBreakdownCard plans={tables.plans} loading={tables.loading} />
       </div>
 
       <Card>
