@@ -7,6 +7,10 @@ updated: 2026-11-20
 
 Chronological log of notable changes to the project. Newest first.
 
+## 2026-11-22 — architecture docs synced to `3d5f1be`
+
+- **Updated:** `architecture/codebase-map.md` (`synced_commit` 3d5f1be). Only code change since `f3554ce`: admin favicon/title (`admin/index.html`, `admin/public/vite.svg`); no map facts changed. Chats skipped.
+
 ## 2026-11-20 — architecture docs synced to `f3554ce`
 
 - **Updated:** `architecture/codebase-map.md` (`synced_commit` f3554ce). Only change since `ccd3b5d` was `OrderTracking.tsx` and `RentedOrderCard.tsx` label contrast (`text-ink/50` to `/60`); no map facts changed. Chats skipped.
