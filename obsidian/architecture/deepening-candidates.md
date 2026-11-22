@@ -1,6 +1,6 @@
 ---
 tags: [architecture, deepening]
-updated: 2026-11-19
+updated: 2026-11-22
 ---
 
 # Deepening candidates
@@ -70,3 +70,18 @@ Friction only, no solutions. Method: improve-codebase-architecture (module, inte
 - **Deletion test:** deleting `claim_rentals` would move the all-or-nothing loop into the page (moves complexity, so it earns its keep); the client-side pre-checks in `RentalCart.tsx` duplicate the guard.
 - **Evidence:** commit `36ec075`, `ba70986`; commits `5dbc994` (courier fee for carts), `a82d3e4`; migration `20261119180000_cart_review_fixes.sql` redefines both RPCs the day they were added (applied live per status, 2026-11-19, unverified). Both are very recent, so churn is not yet measured.
 - **Strength:** Speculative
+
+## 8. Admin alert kinds are declared in four places, and webhook branches carry two side effects each
+- **Files:** `supabase/functions/_shared/admin-notifications.ts` (kind union + `formatAdminMessage`), `supabase/functions/stripe-webhook/index.ts` (`enqueueAdminNotification` calls at `:851`, `:1074`, `:1156`; 1196 lines), `supabase/migrations/20261122120000_admin_notifications.sql` (the `new_subscriber` producer is a trigger), `supabase/functions/send-admin-notifications/index.ts`.
+- **Problem:** The outbox has one narrow interface for producers, but a new kind needs a union member, a `case` in the formatter and a producer in either the webhook or SQL; the drain treats an unknown kind as `skipped`, so a missing formatter case fails quietly. Two producer shapes (TS call, DB trigger) feed the same table. In the webhook, `invoice.payment_failed` now queues an alert, pauses the subscriber and pushes an Omnisend event in one branch, and the order matters (alert first, so an Omnisend failure that returns 500 and triggers a Stripe retry does not lose it). Phase 2 kinds (merch, mystery box, courier, penalty, gift card) will add more call sites to the same file.
+- **Deletion test:** deleting `enqueueAdminNotification` would push the swallow-errors and `23505` handling into every webhook call site (moves complexity, so it earns its keep). `sendWhatsAppAlert` is one adapter at the provider seam, so that seam is hypothetical until a second provider exists.
+- **Evidence:** commits `ede8729`, `8c79cf6`; status 2026-11-22 (Phase 2 pending); `admin-notifications_test.ts` covers the formatter only. Commits `ef70708`, `2ee7b47` (sanitising untrusted fields inside the formatter) exist only on branch `feat/whatsapp-admin-notifications`, not at `3f5a813`; where they land, input hygiene sits in the same module as message wording.
+- **Strength:** Worth exploring
+- **Update 2026-11-22 (HEAD `47444f1`):** the outbox now has 12 kinds. Six come from DB triggers in `20261122130000_admin_notification_events.sql`, three from the webhook, so one kind list is spread over the TS union, `formatAdminMessage`, SQL trigger functions, `DAILY_CAPS` in the drain, `WHATSAPP_ALERT_KINDS` in admin, and the partial index `admin_notifications_sent_kind_idx` (its migration says the kind list must match `DAILY_CAPS` by hand). The channel seam now has two adapters for real (`whatsapp.ts` with Meta and Twilio inside, and `telegram.ts`, joined in `alert-channels.ts`), so that seam is real. Evidence: commits `82710da`, `9da9768`, `9046a9b`. Strength raised to `Worth exploring`.
+
+## 9. Two migrations share timestamp `20261122130000`
+- **Files:** `supabase/migrations/20261122130000_admin_notification_events.sql`, `supabase/migrations/20261122130000_subscriber_country.sql`.
+- **Problem:** both files start with the same version; `CLAUDE.md` warns that a timestamp collision fails `db push` with a `schema_migrations` primary-key violation. Locality of schema ordering depends on a manual `ls` check by whoever names the file.
+- **Deletion test:** not applicable (a naming collision, not a module).
+- **Evidence:** both are at HEAD `47444f1` (`git ls-tree`); the two came from separate branches (`feat/telegram-admin-alerts`, `feat/address-autocomplete`). Whether either is applied live is unknown.
+- **Strength:** Worth exploring

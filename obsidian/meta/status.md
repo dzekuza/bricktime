@@ -9,6 +9,10 @@
 
 ## Current focus
 
+**SEO (2026-11-22, uncommitted on `feat/address-autocomplete`):** build now prerenders meta + fallback text per route (`scripts/postbuild-seo.mjs`), generates the sitemap and a real 404, adds `llms.txt`, Product/FAQPage schema. Not deployed. The `coming_soon_gate` flag is ON for fresh visitors and overrides canonical/title with the gate page on every URL; turn it off at launch.
+
+**Docs note (2026-11-22):** HEAD has two migrations named `20261122130000_*` (`admin_notification_events`, `subscriber_country`); rename one before `db push`.
+
 **WhatsApp admin notifications (2026-11-22, uncommitted on `feat/whatsapp-admin-notifications`):** Phase 1 code written (outbox migration, Meta sender, drain function, webhook hooks); not applied or deployed. Blocked on the Meta app, an approved `admin_alert` template ("BRICKTIME: {{1}}") and three secrets. Phase 2 kinds (merch, mystery box, courier, penalty, gift card) and the admin Settings toggle are still to do.
 
 **Return parcel size (2026-11-20, uncommitted on `main`):** products have `shipping_size`, set in admin; `create-return-label` uses it (`lpexpress` v14 deployed, migration live). Needs real sizes set per set and a first real return label check.
