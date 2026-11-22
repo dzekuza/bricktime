@@ -16,6 +16,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { AppSidebar } from "@/components/AppSidebar"
+import { GlobalSearch } from "@/components/GlobalSearch"
 import { Toaster } from "@/components/ui/toaster"
 import { AssistantPanel } from "@/components/assistant/AssistantPanel"
 import { IconButton } from "@/components/ui/icon-button"
@@ -29,7 +30,6 @@ function AssistantToggle() {
   const { isOpen, togglePanel } = useAssistantPanel()
   return (
     <IconButton
-      className="ml-auto"
       variant={isOpen ? "secondary" : "ghost"}
       label={isOpen ? "Close assistant" : "Open assistant"}
       aria-pressed={isOpen}
@@ -92,6 +92,7 @@ export function AppLayout() {
                 )}
               </BreadcrumbList>
             </Breadcrumb>
+            <GlobalSearch />
             <AssistantToggle />
           </header>
           <div

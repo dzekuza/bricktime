@@ -19,6 +19,16 @@ const ORDER_STATUSES = [
 ] as const
 type OrderStatus = (typeof ORDER_STATUSES)[number]
 
+// Only statuses the Orders page itself sets. "requested" belongs to the Mystery
+// Box queue and "return_requested" needs its timestamp, so neither is a target.
+const WRITABLE_ORDER_STATUSES = [
+  "processing",
+  "active",
+  "overdue",
+  "returned",
+  "return_declined",
+] as const satisfies readonly OrderStatus[]
+
 const SUBSCRIBER_STATUSES = ["active", "paused", "cancelled"] as const
 
 // Contact fields only; plan, billing and Stripe columns are never editable here.
@@ -37,7 +47,7 @@ const REQUIRED_SUBSCRIBER_FIELDS: readonly EditableSubscriberField[] = ["name"]
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-const BARCODE_PATTERN = /^[A-Za-z0-9]{6,40}$/
+const BARCODE_PATTERN = /^[A-Za-z0-9]{8,30}$/
 const MAX_ROWS = 25
 const DEFAULT_ROWS = 10
 
@@ -126,7 +136,7 @@ export const TOOL_DECLARATIONS: FunctionDeclaration[] = [
       type: Type.OBJECT,
       properties: {
         order_id: idParam("Order id"),
-        status: { type: Type.STRING, enum: [...ORDER_STATUSES] },
+        status: { type: Type.STRING, enum: [...WRITABLE_ORDER_STATUSES] },
         note: { type: Type.STRING, description: "Optional return note" },
       },
       required: ["order_id", "status"],
@@ -260,7 +270,7 @@ async function searchOrders(args: Args) {
       .from("subscribers")
       .select("id")
       .or(`name.ilike.%${customer}%,email.ilike.%${customer}%`)
-      .limit(50)
+      .limit(500)
     if (error) throw new Error(error.message)
     subscriberIds = (data ?? []).map((row) => row.id)
     if (subscriberIds.length === 0) return { orders: [] }
@@ -285,7 +295,7 @@ async function getOrder(orderId: string) {
   const { data, error } = await supabase
     .from("orders")
     .select(
-      "id, subscriber_id, product_id, status, start_date, due_date, amount, home_delivery, lp_terminal_name, delivery_city, lp_barcode, lp_tracking_state, lp_return_barcode, lp_return_tracking_state, return_note, return_requested_at, returned_at, is_mystery, created_at"
+      "id, subscriber_id, product_id, status, start_date, due_date, amount, home_delivery, lp_terminal_name, delivery_name, delivery_phone, delivery_street, delivery_house_no, delivery_flat, delivery_postal_code, delivery_city, lp_barcode, lp_tracking_state, lp_return_barcode, lp_return_tracking_state, return_note, return_requested_at, returned_at, is_mystery, created_at"
     )
     .eq("id", orderId)
     .maybeSingle()
@@ -409,6 +419,8 @@ type ExecutablePlan =
       kind: "order_status"
       orderId: string
       status: OrderStatus
+      // What the admin saw on the card; the write is refused if the row moved on.
+      expectedStatus: OrderStatus
       note?: string
     }
   | { kind: "tracking"; orderId: string; barcode: string }
@@ -417,8 +429,12 @@ type ExecutablePlan =
       subscriberId: string
       field: EditableSubscriberField
       value: string | null
+      expected: string | null
     }
   | { kind: "cancel"; subscriberId: string }
+
+const STALE_MESSAGE =
+  "The record changed or is no longer available since the request was made. Nothing was changed; ask again."
 
 // The plan stays out of the card's props so a render can't alter what runs.
 const plans = new Map<string, ExecutablePlan>()
@@ -460,7 +476,7 @@ async function prepareOrderStatus(
   args: Args
 ): Promise<PendingAction> {
   const orderId = requireId(args, "order_id")
-  const status = requireOneOf(args, "status", ORDER_STATUSES)
+  const status = requireOneOf(args, "status", WRITABLE_ORDER_STATUSES)
   const note =
     typeof args.note === "string" && args.note.trim()
       ? args.note.trim().slice(0, 500)
@@ -487,7 +503,7 @@ async function prepareOrderStatus(
   return register(
     tool,
     args,
-    { kind: "order_status", orderId, status, note },
+    { kind: "order_status", orderId, status, expectedStatus: order.status, note },
     {
       title: "Change order status",
       target,
@@ -503,11 +519,15 @@ async function prepareTracking(
   args: Args
 ): Promise<PendingAction> {
   const orderId = requireId(args, "order_id")
-  const barcode = requireString(args, "barcode", 40)
+  const barcode = requireString(args, "barcode", 30)
   if (!BARCODE_PATTERN.test(barcode)) {
-    throw new Error("The shipping code must be 6–40 letters or digits")
+    throw new Error("The shipping code must be 8–30 letters or digits")
   }
   const { order, named } = await loadOrder(orderId)
+  // set-tracking refuses an order that already has a code, so don't offer it.
+  if (order.lp_barcode) {
+    throw new Error(`This order already has a shipping code (${order.lp_barcode})`)
+  }
   const target = describeOrder(named)
   return register(
     tool,
@@ -554,7 +574,13 @@ async function prepareSubscriberField(
   return register(
     tool,
     args,
-    { kind: "subscriber_field", subscriberId, field, value: value || null },
+    {
+      kind: "subscriber_field",
+      subscriberId,
+      field,
+      value: value || null,
+      expected: data[field] ?? null,
+    },
     {
       title: "Edit client",
       target,
@@ -631,7 +657,8 @@ export async function executeWriteTool(
 
   switch (plan.kind) {
     case "order_status": {
-      const { error } = await supabase
+      // The card can sit open for a while; only write if the row is still as shown.
+      const { data, error } = await supabase
         .from("orders")
         .update({
           status: plan.status,
@@ -639,10 +666,21 @@ export async function executeWriteTool(
           ...(plan.note !== undefined ? { return_note: plan.note } : {}),
         })
         .eq("id", plan.orderId)
+        .eq("status", plan.expectedStatus)
+        .select("id")
       if (error) throw new Error(error.message)
+      if (!data?.length) throw new Error(STALE_MESSAGE)
       return { executed: true, order_id: plan.orderId, status: plan.status }
     }
     case "tracking": {
+      const { data: current, error: readError } = await supabase
+        .from("orders")
+        .select("lp_barcode")
+        .eq("id", plan.orderId)
+        .maybeSingle()
+      if (readError) throw new Error(readError.message)
+      if (!current) throw new Error(STALE_MESSAGE)
+      if (current.lp_barcode) throw new Error(STALE_MESSAGE)
       const barcode = await setTrackingCode([plan.orderId], plan.barcode)
       return { executed: true, order_id: plan.orderId, barcode }
     }
@@ -653,11 +691,16 @@ export async function executeWriteTool(
         TablesUpdate<"subscribers">,
         EditableSubscriberField
       >
-      const { error } = await supabase
+      const base = supabase
         .from("subscribers")
         .update({ ...patch, updated_at: new Date().toISOString() })
         .eq("id", plan.subscriberId)
+      const { data, error } = await (plan.expected === null
+        ? base.is(plan.field, null)
+        : base.eq(plan.field, plan.expected)
+      ).select("id")
       if (error) throw new Error(error.message)
+      if (!data?.length) throw new Error(STALE_MESSAGE)
       return {
         executed: true,
         subscriber_id: plan.subscriberId,
@@ -696,7 +739,7 @@ export async function logAction(
   action: PendingAction,
   adminEmail: string | undefined,
   outcome: { status: "executed" } | { status: "failed"; error: string }
-) {
+): Promise<string | null> {
   const { error } = await supabase.from("admin_assistant_actions").insert({
     admin_email: adminEmail ?? null,
     tool: action.tool,
@@ -705,6 +748,9 @@ export async function logAction(
     status: outcome.status,
     error: outcome.status === "failed" ? outcome.error : null,
   })
-  if (error)
+  if (error) {
     console.error("Could not write the assistant audit log:", error.message)
+    return error.message
+  }
+  return null
 }

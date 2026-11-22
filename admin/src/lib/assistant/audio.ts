@@ -67,7 +67,13 @@ export async function startMicCapture(
     new Blob([CAPTURE_WORKLET], { type: "application/javascript" })
   )
   try {
+    // Created after an await, so the browser may have left it suspended.
+    await context.resume()
     await context.audioWorklet.addModule(workletUrl)
+  } catch (err) {
+    stream.getTracks().forEach((track) => track.stop())
+    void context.close()
+    throw err
   } finally {
     URL.revokeObjectURL(workletUrl)
   }
@@ -99,6 +105,7 @@ export interface AudioPlayer {
 
 export function createAudioPlayer(): AudioPlayer {
   const context = new AudioContext({ sampleRate: OUTPUT_RATE })
+  void context.resume()
   const gain = context.createGain()
   gain.connect(context.destination)
   const playing = new Set<AudioBufferSourceNode>()

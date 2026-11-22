@@ -53,6 +53,42 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_assistant_actions: {
+        Row: {
+          admin_email: string | null
+          admin_id: string
+          args: Json
+          created_at: string
+          error: string | null
+          id: string
+          status: string
+          summary: string
+          tool: string
+        }
+        Insert: {
+          admin_email?: string | null
+          admin_id?: string
+          args?: Json
+          created_at?: string
+          error?: string | null
+          id?: string
+          status: string
+          summary: string
+          tool: string
+        }
+        Update: {
+          admin_email?: string | null
+          admin_id?: string
+          args?: Json
+          created_at?: string
+          error?: string | null
+          id?: string
+          status?: string
+          summary?: string
+          tool?: string
+        }
+        Relationships: []
+      }
       challenge_completions: {
         Row: {
           challenge_id: string

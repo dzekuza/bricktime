@@ -10,6 +10,7 @@ import {
 import type { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import { IconButton } from "@/components/ui/icon-button"
+import { useQuerySearch } from "@/hooks/use-query-search"
 import { SearchInput } from "@/components/ui/search-input"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -62,7 +63,7 @@ export function Subscribers() {
   const { openWith: openAssistant } = useAssistantPanel()
   const [items, setItems] = useState<Subscriber[]>([])
   const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState("")
+  const [search, setSearch] = useQuerySearch()
   const [planFilter, setPlanFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
   const [deleteTarget, setDeleteTarget] = useState<Subscriber | null>(null)

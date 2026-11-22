@@ -38,7 +38,7 @@ export function ActionConfirmCard({
   const isAwaiting = outcome === "awaiting"
 
   return (
-    <Card role="group" aria-label={`Confirm: ${action.title}`}>
+    <Card role="group" aria-label={action.title}>
       <CardHeader>
         <CardTitle className="flex flex-wrap items-center gap-2">
           {action.title}
@@ -46,7 +46,10 @@ export function ActionConfirmCard({
             <Badge variant="destructive">Irreversible</Badge>
           )}
           {!isAwaiting && (
-            <Badge variant={outcome === "failed" ? "destructive" : "secondary"}>
+            <Badge
+              role="status"
+              variant={outcome === "failed" ? "destructive" : "secondary"}
+            >
               {OUTCOME_LABELS[outcome]}
             </Badge>
           )}
@@ -64,6 +67,7 @@ export function ActionConfirmCard({
             </span>
             {detail.before !== undefined && (
               <>
+                <span className="sr-only">Before:</span>
                 <span className="line-through">{detail.before}</span>
                 <ArrowRightIcon
                   className="size-3.5 text-muted-foreground"
@@ -71,6 +75,7 @@ export function ActionConfirmCard({
                 />
               </>
             )}
+            <span className="sr-only">After:</span>
             <span className="font-medium">{detail.after}</span>
           </div>
         ))}

@@ -82,6 +82,9 @@ export function useAssistant() {
   const micRef = useRef<MicCapture | null>(null)
   const playerRef = useRef<AudioPlayer | null>(null)
   const nextId = useRef(1)
+  const isConnecting = useRef(false)
+  const connectGeneration = useRef(0)
+  const isStartingMic = useRef(false)
   // Which side the transcript currently being streamed belongs to.
   const openTurn = useRef<"user" | "assistant" | null>(null)
   const decisions = useRef(new Map<string, (isApproved: boolean) => void>())
@@ -147,8 +150,15 @@ export function useAssistant() {
       patchAction(action.id, { outcome: "running" })
       try {
         const result = await executeWriteTool(action)
-        await logAction(action, adminEmailRef.current, { status: "executed" })
-        patchAction(action.id, { outcome: "executed" })
+        const logError = await logAction(action, adminEmailRef.current, {
+          status: "executed",
+        })
+        patchAction(action.id, {
+          outcome: "executed",
+          error: logError
+            ? "The change was applied, but the audit log entry could not be saved."
+            : undefined,
+        })
         return result
       } catch (err) {
         const message = (err as Error).message
@@ -221,6 +231,9 @@ export function useAssistant() {
   }, [])
 
   const disconnect = useCallback(() => {
+    // Makes a connect that is still in flight close itself when it resolves.
+    connectGeneration.current += 1
+    isConnecting.current = false
     micRef.current?.stop()
     micRef.current = null
     setIsMicOn(false)
@@ -234,17 +247,20 @@ export function useAssistant() {
   }, [])
 
   const connect = useCallback(async () => {
-    if (sessionRef.current) return
+    if (sessionRef.current || isConnecting.current) return
+    isConnecting.current = true
+    const generation = connectGeneration.current
     setStatus("connecting")
     setErrorMessage(null)
     try {
+      // Created inside the click so the browser lets it play.
+      playerRef.current = createAudioPlayer()
+      playerRef.current.setMuted(isMuted)
       const { token, model } = await fetchToken()
       const ai = new GoogleGenAI({
         apiKey: token,
         httpOptions: { apiVersion: "v1alpha" },
       })
-      playerRef.current = createAudioPlayer()
-      playerRef.current.setMuted(isMuted)
       // The session isn't assigned until connect resolves, so callbacks that
       // fire earlier look it up lazily.
       const live: { current: Session | null } = { current: null }
@@ -279,13 +295,20 @@ export function useAssistant() {
           },
         },
       })
+      if (generation !== connectGeneration.current) {
+        live.current.close()
+        return
+      }
       sessionRef.current = live.current
       setStatus("ready")
     } catch (err) {
+      if (generation !== connectGeneration.current) return
       playerRef.current?.close()
       playerRef.current = null
       setErrorMessage((err as Error).message)
       setStatus("error")
+    } finally {
+      if (generation === connectGeneration.current) isConnecting.current = false
     }
   }, [handleMessage, isMuted])
 
@@ -309,11 +332,18 @@ export function useAssistant() {
       return
     }
     const session = sessionRef.current
-    if (!session) return
+    if (!session || isStartingMic.current) return
+    isStartingMic.current = true
     try {
-      micRef.current = await startMicCapture((data) =>
+      const capture = await startMicCapture((data) =>
         session.sendRealtimeInput({ audio: { data, mimeType: AUDIO_MIME } })
       )
+      // The session may have ended while the browser asked for permission.
+      if (sessionRef.current !== session) {
+        capture.stop()
+        return
+      }
+      micRef.current = capture
       setIsMicOn(true)
     } catch (err) {
       setErrorMessage(
@@ -321,6 +351,8 @@ export function useAssistant() {
           ? "Microphone access was denied"
           : "Could not open the microphone"
       )
+    } finally {
+      isStartingMic.current = false
     }
   }, [stopMic])
 
