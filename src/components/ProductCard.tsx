@@ -171,10 +171,12 @@ function MockModel({
 
 function StudBg({
   image,
+  alt = "",
   children,
   className = "",
 }: {
   image?: string
+  alt?: string
   children: React.ReactNode
   className?: string
 }) {
@@ -183,7 +185,7 @@ function StudBg({
       {image ? (
         <img
           src={image}
-          alt=""
+          alt={alt}
           loading="lazy"
           decoding="async"
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -232,6 +234,7 @@ export function ProductCard({
       />
       <StudBg
         image={product.image}
+        alt={product.title}
         className="relative h-[280px] border-b-2 border-ink"
       >
         <img

@@ -3,8 +3,49 @@
   "buildCommand": "pnpm build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/admin", "destination": "/admin/index.html" },
-    { "source": "/admin/(.*)", "destination": "/admin/index.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/admin",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/admin/(.*)",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/drop/:id",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/merch/:slug",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/profile/:userId",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/account",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/checkout",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/nustatyti-slaptazodi",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/merch/krepselis",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/rinkiniai/krepselis",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/merch/aciu",
+      "destination": "/index.html"
+    }
   ]
 }

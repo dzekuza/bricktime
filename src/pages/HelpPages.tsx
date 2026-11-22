@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase"
 import { Seo } from "@/components/Seo"
 
 type HelpPageProps = {
+  jsonLd?: Record<string, unknown>
   eyebrow: string
   title: string
   intro: string
@@ -29,10 +30,11 @@ function HelpPage({
   sections,
   checklist,
   helpNote,
+  jsonLd,
 }: HelpPageProps) {
   return (
     <>
-      <Seo title={title} description={intro} path={path} />
+      <Seo title={title} description={intro} path={path} jsonLd={jsonLd} />
       <Nav />
       <main className="bg-paper text-ink">
         <section className="bg-paper">
@@ -160,6 +162,15 @@ export function FAQPage() {
       eyebrow="Pagalba / D.U.K."
       title="D.U.K."
       path="/duk"
+      jsonLd={{
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.q,
+          acceptedAnswer: { "@type": "Answer", text: faq.a },
+        })),
+      }}
       intro="Čia rasi atsakymus į dažniausiai užduodamus klausimus apie Brick Time – nuo prenumeratų ir LEGO® rinkinių iki pristatymo, grąžinimo bei paslaugos veikimo."
       heroMascot="/duk-mascot.png"
       summary={[

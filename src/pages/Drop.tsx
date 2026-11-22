@@ -290,6 +290,23 @@ export default function Drop() {
           "LEGO® rinkinys iš Brick Time katalogo – prieinamas su prenumerata."
         }
         path={`/drop/${id}`}
+        image={product?.image_url ?? undefined}
+        jsonLd={
+          product
+            ? {
+                "@context": "https://schema.org",
+                "@type": "Product",
+                name: product.title,
+                description: product.subtitle || product.description || undefined,
+                image: galleryImages.length > 0 ? galleryImages : undefined,
+                category: product.category,
+                brand: { "@type": "Brand", name: "LEGO" },
+                audience: product.min_age
+                  ? { "@type": "PeopleAudience", suggestedMinAge: product.min_age }
+                  : undefined,
+              }
+            : undefined
+        }
       />
       <Nav />
 
