@@ -201,7 +201,7 @@ export function Products() {
                 className="size-9 shrink-0 rounded object-cover"
               />
             )}
-            <div className="flex flex-col gap-0.5">
+            <div className="flex w-64 flex-col gap-0.5 whitespace-normal">
               <span className="font-medium">{row.original.title}</span>
               <span className="text-xs text-muted-foreground">
                 {row.original.subtitle}
