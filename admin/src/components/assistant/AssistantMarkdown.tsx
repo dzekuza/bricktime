@@ -3,7 +3,8 @@ import remarkGfm from "remark-gfm"
 
 import { cn } from "@/lib/utils"
 
-// react-markdown drops raw HTML by default, so model output can't inject markup.
+// react-markdown drops raw HTML by default, so model output can't inject markup;
+// images are switched off below.
 const COMPONENTS: Components = {
   p: ({ children }) => <p className="leading-relaxed">{children}</p>,
   strong: ({ children }) => (
@@ -66,7 +67,14 @@ export function AssistantMarkdown({
 }) {
   return (
     <div className={cn("flex flex-col gap-2", className)}>
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={COMPONENTS}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={COMPONENTS}
+        // An auto-loaded image URL could carry admin data to another host, e.g.
+        // via text planted in a customer field that the model repeats.
+        disallowedElements={["img"]}
+        unwrapDisallowed
+      >
         {children}
       </ReactMarkdown>
     </div>
