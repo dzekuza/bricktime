@@ -1,11 +1,83 @@
 ---
 tags: [meta, changelog]
-updated: 2026-11-19
+updated: 2026-11-20
 ---
 
 # Changelog
 
 Chronological log of notable changes to the project. Newest first.
+
+## 2026-11-20 — architecture docs synced to `f3554ce`
+
+- **Updated:** `architecture/codebase-map.md` (`synced_commit` f3554ce). Only change since `ccd3b5d` was `OrderTracking.tsx` and `RentedOrderCard.tsx` label contrast (`text-ink/50` to `/60`); no map facts changed. Chats skipped.
+
+## 2026-11-20 — architecture docs synced to `ccd3b5d`
+
+- **Updated:** `architecture/codebase-map.md` (`synced_commit` ccd3b5d): `lpexpress-sync` now reads `eventDate` then `date` (#145 merged), so browser and edge function agree; countdown format `Nd Nh Nmin`. Other changes were styling only. Chats skipped.
+
+## 2026-11-20 — architecture docs synced to `9b75241`
+
+- **Updated:** `codebase-map.md` (`synced_commit` 9b75241): `OrderTracking` now reads `eventDate ?? date` and uses brand badge styles; `lpexpress-sync` still reads `date` only. Chats skipped.
+
+## 2026-11-20 — architecture docs synced to `bbaacca`
+
+- **Updated:** `codebase-map.md` (`synced_commit` bbaacca): `MerchCard` keeps 4:3 without an image; skeleton matches (`Merch.tsx:98,170`). Only code change since 68c7931. Chats skipped.
+
+## 2026-11-20 — architecture docs synced to `68c7931`
+
+- **Updated:** `architecture/codebase-map.md` (`synced_commit` 68c7931). Correction: `d3eaefa` (lpexpress-sync `eventDate`) lives on `fix/lp-sync-event-date`, not in this HEAD; the `lpexpress-sync` row now describes HEAD (`eventDate()` reads `date`, `:46`; `Deno.serve` `:57`). `MerchCard` image frame `aspect-[4/5]` / `md:aspect-[4/3]`. Chats skipped.
+
+## 2026-11-20 — architecture docs synced to `d3eaefa`
+
+- **Updated:** `architecture/codebase-map.md` (`synced_commit` d3eaefa; `lpexpress-sync` line ref and `eventDate` timestamp note; `LpTrackingEvent.eventDate` added in `_shared/lpexpress.ts`). Chats skipped.
+
+## 2026-11-20 — architecture docs synced to `6ad2d2b`
+
+- **Updated:** `architecture/codebase-map.md` (`synced_commit` 6ad2d2b; credits-reset rows no longer branch-only after PR #143 merge; `6ad2d2b` changed only merch card image ratio in `src/pages/Merch.tsx`). Chats skipped.
+
+## 2026-11-20 — architecture docs synced to `357879a`
+
+- **Updated:** `architecture/codebase-map.md` (`synced_commit` 357879a; credits-reset rows flagged branch-only; `357879a` only removed the merch card description in `src/pages/Merch.tsx`). Chats skipped.
+
+## 2026-11-20 — architecture docs synced to `179d56d`
+
+- **Updated:** `architecture/codebase-map.md` (credits reset at next charge: `useCreditsReset`, `CreditsResetNotice`, migration `20261121100000`). Chats skipped.
+
+## 2026-11-20 — architecture docs synced to `b388322`
+
+- **Updated:** `architecture/codebase-map.md` (`b388322` landed: rejected-session record, admin plan label, aria-pressed; stripe-webhook line refs refreshed). Chats skipped.
+
+## 2026-11-20 — architecture docs synced to `f6d2c81`
+
+- **Updated:** `architecture/codebase-map.md` (Mystery Box review fixes, `rejected_checkout_sessions`), `architecture/integrations.md`. Chats skipped.
+
+## 2026-11-20 — architecture docs synced to `d985cd2`
+
+- **Updated:** `architecture/codebase-map.md` (Mystery Box request flow), `architecture/integrations.md`. Chats skipped.
+
+## 2026-11-20 — architecture docs synced to `7a7362c`
+
+- **Updated:** `architecture/codebase-map.md`: `lpexpress-sync` unfamiliar-state logging, cron 60 s timeout, admin `SetPicker`. Chats skipped.
+
+## 2026-11-20 — architecture docs synced to `03e2ea6`
+
+- **Updated:** `architecture/codebase-map.md`: gate hook 5 s timeout, `site_settings` admin policies split per command. Chats skipped.
+
+## 2026-11-20 — architecture docs synced to `de535e2`
+
+- **Updated:** `architecture/codebase-map.md`: `site_settings` table and RLS, `useSiteGateEnabled`, admin `ComingSoonGateCard`. Chats and CRM skipped (automated run).
+
+## 2026-11-20 — architecture docs synced to `e75e3cf`
+
+- **Updated:** `architecture/codebase-map.md`: admin `CreateOrderDialog`, storefront Mystery Box blur (`MysteryLock`, `isMysteryHidden`), column `orders.is_mystery`. Chats and CRM skipped (automated run).
+
+## 2026-11-20 — architecture docs synced to `10f692e`
+
+- **Updated:** `architecture/codebase-map.md` lpexpress module (return size reuses outbound `orders.lp_parcel_size`; line numbers; admin prefill).
+
+## 2026-11-20 — architecture docs synced to `6fe244d`
+
+- **Updated:** `architecture/codebase-map.md` (lpexpress return sizing, `useProductRatings`/`RatingBadge`), `deepening-candidates.md` #6 note.
 
 ## 2026-11-20 — product shipping size
 

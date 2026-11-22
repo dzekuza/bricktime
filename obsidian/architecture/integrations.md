@@ -1,6 +1,6 @@
 ---
 tags: [architecture, integrations]
-updated: 2026-11-18
+updated: 2026-11-20
 ---
 
 # Integrations
@@ -10,7 +10,7 @@ External services, the module that talks to each, env var names and webhooks. Mo
 | Service | Used for | Module | Env var names |
 |---|---|---|---|
 | Supabase | Auth, Postgres, RLS, edge functions, pg_cron + vault, auth email templates | whole app; client `src/lib/supabase.ts` | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` |
-| Stripe | subscriptions, one-off Checkout (merch, gift cards, penalties, courier fee), invoices, portal, schedules, 21% inclusive VAT, `locale: "lt"` | Billing functions, One-off checkouts, Stripe webhook, `_shared/` | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` |
+| Stripe | subscriptions, one-off Checkout (merch, gift cards, penalties, courier fee incl. Mystery Box requests via `create-mystery-courier-checkout`, metadata `type: mystery_courier`; checkout is idempotent per user and 10-minute bucket, return URLs are allow-listed, refused payments are refunded and recorded in `rejected_checkout_sessions`), invoices, portal, schedules, 21% inclusive VAT, `locale: "lt"` | Billing functions, One-off checkouts, Stripe webhook, `_shared/` | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` |
 | LP Express (Unisend) | parcel lockers, shipping and return labels, tracking, cancel | LP Express module | `LP_API_BASE`, `LP_USERNAME`, `LP_PASSWORD`, `LP_SENDER_*` |
 | Omnisend | waitlist contacts, `subscription started` event that triggers the welcome email ([[welcome-email]]) | `omnisend-subscribe`, `stripe-webhook` (`pushOmnisendEvent`) | `OMNISEND_API_KEY` |
 | Google Analytics 4 and Search Console | admin analytics (server read through a service account) | `get-analytics` | `GA4_PROPERTY_ID`, `GSC_SITE_URL`, `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` |
