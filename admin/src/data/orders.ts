@@ -12,6 +12,8 @@ export interface Order {
   productTitle: string
   // Null for a Mystery Box request that has no set yet.
   productId: number | null
+  // LEGO theme (product category); undefined for a Mystery Box with no set yet.
+  productTheme?: string
   // Product's admin-set locker size; prefills the outbound parcel size.
   productShippingSize?: ParcelSize
   // Shared by the rentals created together from one set cart; null for single sets.
