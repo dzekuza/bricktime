@@ -7,6 +7,26 @@ updated: 2026-11-22
 
 Chronological log of notable changes to the project. Newest first.
 
+## 2026-11-22 — architecture docs sync to `872d51b`
+
+- **Changed:** admin `defaultParcelSize` (plan-based parcel size preselect) added to the LP Express module row. Chats skipped by request.
+
+## 2026-11-22 — architecture docs sync to `71d7f92`
+
+- **Changed:** `lpexpress` `reset-label` action + admin `resetLabel`; `ProductCard` hover gallery; `cn()` knows `text-d-*`; Community leaderboard layout. Chats skipped by request.
+
+## 2026-11-22 — architecture docs sync to `d7c8f36`
+
+- **Changed:** map adds `/duk` FAQ search (`HelpPage` `isSearchable`), the Account help link, and the admin notifications bell (`f7ef331`). `Account.tsx` line refs re-checked (they had drifted by 24-52 lines). Chats skipped by request.
+
+## 2026-11-22 — architecture docs sync to `db347f2`
+
+- **Changed:** map covers the Mystery Box order bar, intro dialog, `usePendingMysteryOrder` and `src/lib/mystery-box.ts`. Route and Nav/Account line numbers re-checked against code (the route table was off by 3).
+
+## 2026-11-22 — architecture docs sync to `3e89105`
+
+- **Changed:** map updated for review fixes in `postbuild-seo.mjs` (FAQPage/Product JSON-LD, released-only products, merch images); `llms.txt` now says Briksiai.
+
 ## 2026-11-22 — SEO and AI-search readiness
 
 - **Added:** `scripts/postbuild-seo.mjs` (per-route prerendered meta and fallback text, generated `sitemap.xml`, real `404.html`, Product and FAQPage JSON-LD in the static HTML), `public/llms.txt`, `lang="lt"`; `vercel.json` now lists app routes explicitly instead of a catch-all. Unreleased products are left out of the sitemap.
