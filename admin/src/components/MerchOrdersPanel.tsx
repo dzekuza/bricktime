@@ -4,6 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useQuerySearch } from "@/hooks/use-query-search"
 import { SearchInput } from "@/components/ui/search-input"
 import {
   Select,
@@ -45,7 +46,7 @@ export function MerchOrdersPanel() {
   )
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [search, setSearch] = useState("")
+  const [search, setSearch] = useQuerySearch("mq")
   const [statusFilter, setStatusFilter] = useState("all")
   const [detailTarget, setDetailTarget] = useState<MerchOrder | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
