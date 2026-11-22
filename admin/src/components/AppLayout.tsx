@@ -15,6 +15,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { AppSidebar } from "@/components/AppSidebar"
+import { GlobalSearch } from "@/components/GlobalSearch"
 import { Toaster } from "@/components/ui/toaster"
 import { getDocumentTitle, getRouteTitle } from "@/lib/routes"
 
@@ -69,6 +70,7 @@ export function AppLayout() {
               )}
             </BreadcrumbList>
           </Breadcrumb>
+          <GlobalSearch />
         </header>
         <div
           id="main-content"

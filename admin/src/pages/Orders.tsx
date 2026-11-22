@@ -3,6 +3,7 @@ import { MoreHorizontalIcon, PlusIcon, RefreshCwIcon, SearchIcon } from 'lucide-
 import type { ColumnDef } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
 import { IconButton } from "@/components/ui/icon-button"
+import { useQuerySearch } from "@/hooks/use-query-search"
 import { SearchInput } from "@/components/ui/search-input"
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -44,7 +45,7 @@ function getCartKey(order: Order): string | null {
 export function Orders() {
   const [items, setItems] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useQuerySearch()
   const [statusFilter, setStatusFilter] = useState('all')
   const [themeFilter, setThemeFilter] = useState('all')
   const [planFilter, setPlanFilter] = useState('all')
