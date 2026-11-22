@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { toast } from "@/lib/toast"
+import { inviteAdmin } from '@/lib/admin-invite'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -18,6 +19,22 @@ export function Settings() {
   const [overdueAlert, setOverdueAlert] = useState(true)
   const [savedGeneral, setSavedGeneral] = useState(false)
   const [savedNotifications, setSavedNotifications] = useState(false)
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [isInviting, setIsInviting] = useState(false)
+
+  async function handleInvite() {
+    setIsInviting(true)
+    try {
+      const email = inviteEmail.trim()
+      const status = await inviteAdmin(email)
+      toast.success(status === 'invited' ? `Invite sent to ${email}` : `${email} is now an admin`)
+      setInviteEmail('')
+    } catch (e) {
+      toast.error((e as Error).message)
+    } finally {
+      setIsInviting(false)
+    }
+  }
 
   function handleSaveGeneral() {
     setSavedGeneral(true)
@@ -170,8 +187,17 @@ export function Settings() {
               <div className="flex flex-col gap-3">
                 <p className="text-sm font-medium">Invite a team member</p>
                 <div className="flex gap-2">
-                  <Input placeholder="colleague@example.com" className="flex-1" />
-                  <Button variant="outline">Invite</Button>
+                  <Input
+                    type="email"
+                    placeholder="colleague@example.com"
+                    className="flex-1"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') void handleInvite() }}
+                  />
+                  <Button variant="outline" onClick={handleInvite} disabled={isInviting || !inviteEmail.trim()}>
+                    {isInviting ? 'Inviting…' : 'Invite'}
+                  </Button>
                 </div>
               </div>
             </CardContent>
