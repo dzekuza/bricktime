@@ -29,6 +29,7 @@ import NotFound from "@/pages/NotFound"
 import LoadingScreen from "@/components/LoadingScreen"
 import CookieConsentBanner from "@/components/CookieConsentBanner"
 import ComingSoonGate from "@/components/ComingSoonGate"
+import { MysteryBoxIntroDialog } from "@/components/account/MysteryBoxIntroDialog"
 import { useConsentContext } from "@/contexts/ConsentContext"
 import { trackPageview } from "@/lib/analytics"
 import { useDailyCheckin } from "@/hooks/useDailyCheckin"
@@ -84,6 +85,7 @@ export default function App() {
         <Route path="/parduotuves-taisykles" element={<StoreRules />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <MysteryBoxIntroDialog />
       <CookieConsentBanner />
     </ComingSoonGate>
   )
