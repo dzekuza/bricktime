@@ -415,7 +415,7 @@ export function Products() {
           />
         </div>
         <Select value={tierFilter} onValueChange={setTierFilter}>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger aria-label="Filter by tier" className="w-[140px]">
             <SelectValue placeholder="Tier" />
           </SelectTrigger>
           <SelectContent>
@@ -428,7 +428,7 @@ export function Products() {
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger aria-label="Filter by status" className="w-[140px]">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>

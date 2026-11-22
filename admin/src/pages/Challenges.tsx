@@ -519,7 +519,7 @@ export function Challenges() {
                     setForm((f) => ({ ...f, metric: v as ChallengeMetric }))
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger aria-label="Metric">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

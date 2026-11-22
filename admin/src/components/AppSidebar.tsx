@@ -93,7 +93,7 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" role="complementary" aria-label="Sidebar">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>

@@ -276,7 +276,7 @@ export function Coupons() {
                   value={form.discount_type}
                   onValueChange={v => setForm(f => ({ ...f, discount_type: v as 'percentage' | 'fixed' }))}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger aria-label="Discount type">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

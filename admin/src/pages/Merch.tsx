@@ -14,6 +14,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { supabase } from "@/lib/supabase"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { IconButton } from "@/components/ui/icon-button"
 import { SearchInput } from "@/components/ui/search-input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
@@ -351,21 +352,19 @@ export function Merch() {
       id: "actions",
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
-          <Button
-            size="sm"
-            variant="ghost"
+          <IconButton
+            label={`Edit ${row.original.name}`}
             onClick={() => openEdit(row.original)}
           >
             <PencilIcon className="size-3.5" />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
+          </IconButton>
+          <IconButton
+            label={`Delete ${row.original.name}`}
             className="text-destructive hover:text-destructive"
             onClick={() => setDeleteTarget(row.original)}
           >
             <Trash2Icon className="size-3.5" />
-          </Button>
+          </IconButton>
         </div>
       ),
     },
@@ -600,7 +599,7 @@ export function Merch() {
                     setForm((p) => ({ ...p, type: v as MerchType }))
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger aria-label="Type">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -617,7 +616,7 @@ export function Merch() {
                     setForm((p) => ({ ...p, status: v as MerchStatus }))
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger aria-label="Status">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

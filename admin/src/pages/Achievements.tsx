@@ -363,7 +363,7 @@ export function Achievements() {
                     }))
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger aria-label="Category">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -402,7 +402,7 @@ export function Achievements() {
                     setForm((f) => ({ ...f, metric: v as AchievementMetric }))
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger aria-label="Metric">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

@@ -86,7 +86,7 @@ export function Content() {
           </p>
         </div>
         <Select value={scope} onValueChange={(v) => setScope(v as Scope)}>
-          <SelectTrigger className="w-[260px]">
+          <SelectTrigger aria-label="Content section" className="w-[260px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -107,7 +107,7 @@ export function Content() {
         </div>
       ) : scope === "home" ? (
         <Tabs defaultValue="hero" className="flex flex-col gap-4">
-          <TabsList className="w-fit">
+          <TabsList className="h-auto max-w-full flex-wrap justify-start">
             <TabsTrigger value="hero">Hero</TabsTrigger>
             <TabsTrigger value="marquee">Marquee</TabsTrigger>
             <TabsTrigger value="how-it-works">How It Works</TabsTrigger>
@@ -152,7 +152,7 @@ export function Content() {
         </Tabs>
       ) : (
         <Tabs defaultValue="faq-questions" className="flex flex-col gap-4">
-          <TabsList className="w-fit">
+          <TabsList className="h-auto max-w-full flex-wrap justify-start">
             <TabsTrigger value="faq-questions">FAQ Questions</TabsTrigger>
             <TabsTrigger value="page-headers">Page Headers</TabsTrigger>
           </TabsList>

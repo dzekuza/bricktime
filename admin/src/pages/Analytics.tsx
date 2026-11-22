@@ -167,7 +167,7 @@ export function Analytics() {
           </p>
         </div>
         <Select value={days} onValueChange={setDays}>
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger aria-label="Date range" className="w-[160px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -253,7 +253,7 @@ export function Analytics() {
                   config={gaChartConfig}
                   className="h-[250px] w-full"
                 >
-                  <LineChart data={data.ga.series}>
+                  <LineChart accessibilityLayer={false} data={data.ga.series}>
                     <CartesianGrid vertical={false} />
                     <XAxis
                       dataKey="date"
@@ -316,7 +316,7 @@ export function Analytics() {
                   config={gscChartConfig}
                   className="h-[250px] w-full"
                 >
-                  <LineChart data={data.gsc.series}>
+                  <LineChart accessibilityLayer={false} data={data.gsc.series}>
                     <CartesianGrid vertical={false} />
                     <XAxis
                       dataKey="date"

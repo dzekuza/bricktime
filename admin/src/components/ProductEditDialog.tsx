@@ -424,7 +424,7 @@ export function ProductEditDialog({
                     value={form.category}
                     onValueChange={(v) => set("category", v)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger aria-label="Category">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -1313,7 +1313,7 @@ export function ProductEditDialog({
                     value={form.status}
                     onValueChange={(v) => set("status", v as ProductStatus)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger aria-label="Status">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -1352,7 +1352,7 @@ export function ProductEditDialog({
                   value={form.shipping_size ?? "S"}
                   onValueChange={(v) => set("shipping_size", v as ParcelSize)}
                 >
-                  <SelectTrigger className="w-40">
+                  <SelectTrigger aria-label="Parcel size" className="w-40">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

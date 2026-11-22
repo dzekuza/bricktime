@@ -62,6 +62,7 @@ export function HeadingEditor({
       </div>
       <Textarea
         ref={textareaRef}
+        aria-label={label}
         rows={rows}
         value={value}
         onChange={(e) => onChange(e.target.value)}

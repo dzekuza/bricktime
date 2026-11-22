@@ -92,7 +92,7 @@ export function Settings() {
                   {savedGeneral ? 'Saved!' : 'Save changes'}
                 </Button>
                 {savedGeneral && (
-                  <Badge variant="outline" className="text-green-600 border-green-200">Changes saved</Badge>
+                  <Badge variant="outline" className="text-green-700 border-green-200">Changes saved</Badge>
                 )}
               </div>
             </CardContent>
@@ -131,7 +131,7 @@ export function Settings() {
                   {savedNotifications ? 'Saved!' : 'Save changes'}
                 </Button>
                 {savedNotifications && (
-                  <Badge variant="outline" className="text-green-600 border-green-200">Changes saved</Badge>
+                  <Badge variant="outline" className="text-green-700 border-green-200">Changes saved</Badge>
                 )}
               </div>
             </CardContent>
@@ -191,7 +191,7 @@ export function Settings() {
                   <p className="font-medium text-sm">BRICKTIME Admin — Pro</p>
                   <p className="text-xs text-muted-foreground">Renews June 1, 2026 · €49/mo</p>
                 </div>
-                <Badge variant="outline" className="text-green-600 border-green-200">Active</Badge>
+                <Badge variant="outline" className="text-green-700 border-green-200">Active</Badge>
               </div>
 
               <div className="rounded-lg border p-4 flex items-center justify-between gap-4">
