@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { ComingSoonGateCard } from '@/components/ComingSoonGateCard'
+import { WhatsAppAlertsCard } from '@/components/WhatsAppAlertsCard'
 
 export function Settings() {
   const [emailNotifications, setEmailNotifications] = useState(true)
@@ -96,7 +97,8 @@ export function Settings() {
         </TabsContent>
 
         {/* Notifications */}
-        <TabsContent value="notifications">
+        <TabsContent value="notifications" className="flex flex-col gap-4">
+          <WhatsAppAlertsCard />
           <Card>
             <CardHeader>
               <CardTitle>Notifications</CardTitle>
