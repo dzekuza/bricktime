@@ -7,6 +7,11 @@ updated: 2026-11-22
 
 Chronological log of notable changes to the project. Newest first.
 
+## 2026-11-22 — WhatsApp admin alerts: orders, forms, delivery check (stacked on PR #150)
+
+- **Added:** DB triggers (migration `20261122130000`) queue alerts for merch orders, set rentals (one per cart), Mystery Box requests, return requests, the missing-part form, bought gift cards and product reviews; orders created by an admin do not alert. Per-day caps on member-triggered kinds, extra index migration `20261122130100`. Admin card lists every kind and has a "Send test alert" button plus the latest alerts with status. Verified on a scratch Postgres: apply, behaviour, rollback, reapply.
+- **Not covered:** penalties paid, waitlist signups, community posts, and true delivery receipts (status `sent` means the provider accepted it).
+
 ## 2026-11-22 — WhatsApp admin alerts (PR #150)
 
 - **Added:** outbox table `admin_notifications` (migration `20261122120000`), `subscribers` insert trigger, per-minute cron `send-admin-notifications`, edge function of the same name, `_shared/whatsapp.ts` (Meta Cloud API or Twilio), `_shared/admin-notifications.ts`, and `stripe-webhook` enqueues for subscription started, payment failed and cancelled. Admin Settings > Notifications card writes the `admin_whatsapp` site setting (off by default).

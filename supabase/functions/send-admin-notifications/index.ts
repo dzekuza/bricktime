@@ -16,9 +16,17 @@ const MAX_ATTEMPTS = 4
 const BATCH_SIZE = 20
 // Older than this and the alert is noise, not news.
 const MAX_AGE_MS = 6 * 60 * 60 * 1000
-// Signup alerts fire before email confirmation, so anyone can make them; the
-// cap bounds what a flood of fake signups can cost in WhatsApp messages.
-const MAX_NEW_SUBSCRIBER_ALERTS_PER_DAY = 20
+// Alerts that anyone with an account can trigger (signups fire before email
+// confirmation, forms and reviews are member input). The per-day cap bounds
+// what a flood of fake activity can cost in WhatsApp messages. Paid events
+// (subscriptions, merch, gift cards) are not capped: money backs them.
+const DAILY_CAPS: Record<string, number> = {
+  new_subscriber: 20,
+  mystery_request: 30,
+  return_requested: 30,
+  missing_part_request: 30,
+  product_review: 30,
+}
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -70,19 +78,21 @@ Deno.serve(async (req) => {
   const settings = (setting?.value ?? {}) as Settings
   const configured = isWhatsAppConfigured()
 
-  const { count: sentSignupAlerts, error: capError } = await supabase
+  const { data: sentToday, error: capError } = await supabase
     .from("admin_notifications")
-    .select("id", { count: "exact", head: true })
-    .eq("kind", "new_subscriber")
+    .select("kind")
+    .in("kind", Object.keys(DAILY_CAPS))
     .eq("status", "sent")
     .gte("sent_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
   if (capError) {
-    console.error("Signup alert count failed:", capError.message)
+    console.error("Capped alert count failed:", capError.message)
     return fail(500, "outbox_read_failed", "Could not read the outbox")
   }
-  let signupAlertsLeft = Math.max(
-    0,
-    MAX_NEW_SUBSCRIBER_ALERTS_PER_DAY - (sentSignupAlerts ?? 0)
+  const alertsLeft = new Map(
+    Object.entries(DAILY_CAPS).map(([kind, cap]) => [
+      kind,
+      cap - (sentToday ?? []).filter((row) => row.kind === kind).length,
+    ])
   )
 
   const { data: rows, error } = await supabase
@@ -103,7 +113,7 @@ Deno.serve(async (req) => {
     const isKindOn =
       settings.enabled === true && settings.kinds?.[row.kind] !== false
     const message = formatAdminMessage(row.kind, row.payload ?? {})
-    const isCapped = row.kind === "new_subscriber" && signupAlertsLeft <= 0
+    const isCapped = alertsLeft.has(row.kind) && alertsLeft.get(row.kind)! <= 0
 
     // Once an alert is handled (sent, skipped or failed for good) its payload,
     // a member's name and email, is wiped: the outbox must not keep personal
@@ -153,7 +163,9 @@ Deno.serve(async (req) => {
         console.error(`Marking ${row.id} sent failed: ${sentError.message}`)
       }
       summary.sent++
-      if (row.kind === "new_subscriber") signupAlertsLeft--
+      if (alertsLeft.has(row.kind)) {
+        alertsLeft.set(row.kind, alertsLeft.get(row.kind)! - 1)
+      }
       continue
     }
 
