@@ -26,7 +26,7 @@ and AI agents (Claude Code, Cursor).
 - [[data-flow]] — how state and data move through the app
 - [[environment-variables]] — config & secrets handling
 - [[codebase-map]] — modules, functions, routes, edge functions, RPCs
-- [[integrations]] — Stripe, LP Express, Omnisend, Supabase, GA4, webhooks
+- [[integrations]] — Stripe, LP Express, Omnisend, Meta WhatsApp, Supabase, GA4, webhooks
 - [[deepening-candidates]] — architectural friction (no solutions)
 - [[decisions-from-chat]] — dated decisions from chats and tasks
 

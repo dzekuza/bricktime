@@ -1,0 +1,25 @@
+# Brick Time
+
+> Brick Time (bricktime.lt) is a LEGO® set rental subscription in Lithuania. Subscribers pick a plan (Nano to Mega) that gives a monthly Briksiai (points) budget, claim sets from the catalogue whose Briksiai value fits that budget, keep them as long as the subscription is active, and return them to swap for new ones. Site copy is in Lithuanian.
+
+## How it works
+- Choose a subscription tier; each tier gives a monthly budget of Briksiai (Brick Time points).
+- Claim several catalogue sets at once as long as their total Briksiai value stays within the budget.
+- Return a set to free up budget and pick another. No fixed return deadline while the subscription is active.
+- Delivery across Lithuania (parcel terminals and courier).
+
+## Key pages
+- [Katalogas / Catalogue](https://www.bricktime.lt/archive): all rentable LEGO® sets, filterable by plan and age.
+- [Prenumeratos planai / Plans](https://www.bricktime.lt/subscribe): tiers and monthly budgets.
+- [D.U.K. / FAQ](https://www.bricktime.lt/duk): answers on billing, sets, returns and pausing.
+- [Pristatymas / Shipping](https://www.bricktime.lt/pristatymas)
+- [Grąžinimai / Returns](https://www.bricktime.lt/grazinimai)
+- [Praleisti / pristabdyti / Skip or pause](https://www.bricktime.lt/praleisti-pristabdyti)
+- [Dovanų kortelės / Gift cards](https://www.bricktime.lt/gift-cards)
+- [Apie mus / About](https://www.bricktime.lt/apie)
+- [Kontaktai / Contact](https://www.bricktime.lt/kontaktai)
+
+## Optional
+- [Sitemap](https://www.bricktime.lt/sitemap.xml)
+- [Parduotuvės taisyklės / Store rules](https://www.bricktime.lt/parduotuves-taisykles)
+- [Privatumo politika / Privacy policy](https://www.bricktime.lt/privatumo-politika)

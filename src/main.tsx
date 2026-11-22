@@ -25,6 +25,10 @@ import { ConsentProvider } from "@/contexts/ConsentContext"
 import { MerchCartProvider } from "@/contexts/MerchCartContext"
 import { RentalCartProvider } from "@/contexts/RentalCartContext"
 
+// Drop the build-time meta tags (scripts/postbuild-seo.mjs) so <Seo> is the only source
+// once the app mounts, instead of leaving duplicate canonical/OG tags behind.
+document.querySelectorAll("[data-prerender]").forEach((el) => el.remove())
+
 // Prevent browser from restoring scroll position on reload so hero animation always plays
 if ("scrollRestoration" in history) {
   history.scrollRestoration = "manual"

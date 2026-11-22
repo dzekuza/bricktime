@@ -7,6 +7,74 @@ updated: 2026-11-22
 
 Chronological log of notable changes to the project. Newest first.
 
+## 2026-11-22 — SEO and AI-search readiness
+
+- **Added:** `scripts/postbuild-seo.mjs` (per-route prerendered meta and fallback text, generated `sitemap.xml`, real `404.html`, Product and FAQPage JSON-LD in the static HTML), `public/llms.txt`, `lang="lt"`; `vercel.json` now lists app routes explicitly instead of a catch-all. Unreleased products are left out of the sitemap.
+
+## 2026-11-22 — architecture docs incremental sync to `701c773`
+
+- **Updated:** `codebase-map` (`synced_commit`; new section for the post-build SEO step, `<Seo>`, address search, `subscribers.country`). Chats and CRM skipped by request.
+
+## 2026-11-22 — architecture docs incremental sync to `5c7c699`
+
+- **Updated:** `codebase-map` (`synced_commit`, `SetPicker` row, Orders filters note). 24 files, all in `admin/`; no storefront or edge function change.
+
+## 2026-11-22 — architecture docs incremental sync to `e9a06d2`
+
+- **Updated:** `codebase-map` `synced_commit` only (1 style commit, `TableSection` heading weight; no interface change). Chats skipped.
+
+## 2026-11-22 — architecture docs incremental sync to `c288866`
+
+- **Updated:** `codebase-map` (admin heading/padding styling only; `synced_commit`). Chats skipped.
+
+## 2026-11-22 — architecture docs incremental sync to `ecbc7a4`
+
+- **Updated:** `codebase-map` (`DashboardTableSection` → shared `TableSection`, used by 5 admin pages; `synced_commit`). Chats skipped.
+
+## 2026-11-22 — architecture docs incremental sync to `ee4769a`
+
+- **Updated:** `codebase-map` (admin dashboard `*Card` components renamed to `*Table`/`DashboardTableSection`; `synced_commit`). Chats skipped.
+
+## 2026-11-22 — architecture docs incremental sync to `3f8a7be`
+
+- **Updated:** `codebase-map` (admin dashboard tables note; `synced_commit`). Chats skipped.
+
+## 2026-11-22 — architecture docs incremental sync to `cde9034`
+
+- **Updated:** `codebase-map` (admin sidebar logo asset note; `synced_commit`). Chats skipped.
+
+## 2026-11-22 — architecture docs incremental sync to `0d690b7`
+
+- **Updated:** `codebase-map` (admin `ChartDataTable`, `CardTitle` h2 note; `synced_commit`). Chats skipped.
+
+## 2026-11-22 — architecture docs incremental sync to `7102182`
+
+- **Updated:** `codebase-map` (admin form-error linking note; `synced_commit`). Chats skipped.
+
+## 2026-11-22 — architecture docs incremental sync to `88a28bd`
+
+- **Updated:** `codebase-map` (admin a11y primitives note; `synced_commit`). Chats skipped.
+
+## 2026-11-22 — architecture docs incremental sync to `47444f1`
+
+- **Updated:** `codebase-map` (admin notifications: 12 kinds, Telegram + Twilio channels, DB triggers, admin card and log; webhook line numbers), `integrations` (Twilio, Telegram), `environment-variables`, `deepening-candidates` (#8 raised, #9 duplicate migration timestamp). Chats skipped.
+
+## 2026-11-22 — architecture docs incremental sync to `e96f83c`
+
+- **Updated:** `codebase-map` (lib: geoapify, countries; ProfileEditDialog, AddressAutocomplete; db: `subscribers.country`), `integrations` (Geoapify), `environment-variables` (`VITE_GEOAPIFY_KEY`). Chats skipped.
+
+## 2026-11-22 — architecture docs re-synced to `3f5a813` (branch check)
+
+- **Updated:** `codebase-map` warning and synced_commit, `deepening-candidates` #8 evidence: sanitising commits are on `feat/whatsapp-admin-notifications`, not an ancestor of the checked-out HEAD. Chats skipped.
+
+## 2026-11-22 — architecture docs synced to `2ee7b47`
+
+- **Updated:** `codebase-map` (admin-notifications: HEAD vs working-tree sanitising divergence, synced_commit), `deepening-candidates` #8 evidence. Chats skipped (automated run).
+
+## 2026-11-22 — architecture docs synced to `3f5a813`
+
+- **Updated:** `codebase-map` (new Admin notifications module, webhook rows and line numbers, `invoice.upcoming`), `integrations`, `environment-variables` (WhatsApp names), `deepening-candidates` (#8). Chats skipped (automated run).
+
 ## 2026-11-22 — Telegram channel for admin alerts (stacked on the phase 2 PR)
 
 - **Added:** `_shared/telegram.ts` (Bot API, plain text, no phone number or template) and `_shared/alert-channels.ts`, which sends each alert to every configured channel (WhatsApp and/or Telegram); an alert counts as sent when one channel accepted it (no delivery receipt is checked), and a failed second channel is shown as a note in the admin log. The bot token is redacted from every error. Admin card wording now says "Admin alerts".

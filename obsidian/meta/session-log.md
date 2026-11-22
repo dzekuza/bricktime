@@ -1,3 +1,105 @@
+## 2026-11-22 — architecture docs sync to `701c773`
+
+- **Changed:** map now covers `scripts/postbuild-seo.mjs`, `Seo`, `AddressAutocomplete`, `geoapify`, `countries`, `subscribers.country`. Admin-notification code was already documented. Chats skipped by request.
+- **Status:** docs follow HEAD.
+- **Next:** rename one of the two `20261122130000` migrations before `db push`.
+
+## 2026-11-22 — architecture docs sync to `5c7c699`
+
+- **Changed:** admin-only commits (orders theme/subscription filters, set picker thumbnails, axe fixes). Map updated; chats skipped by request.
+- **Status:** working tree is dirty and differs from HEAD in `Orders.tsx`, `SetPicker.tsx`; docs follow HEAD.
+- **Next:** rename one of the two `20261122130000` migrations before `db push`.
+
+## 2026-11-22 — SEO / AI-SEO fixes (uncommitted on `feat/address-autocomplete`)
+
+- **Changed:** `scripts/postbuild-seo.mjs` (per-route HTML with title/meta/canonical/OG + noscript text, product and merch pages from Supabase, generated `sitemap.xml`, `404.html`); `vercel.json` explicit rewrites instead of the catch-all (unknown URLs now 404); `public/llms.txt`; `lang="lt"`; Product JSON-LD on `/drop/:id`, FAQPage on `/duk`; `Seo` takes `jsonLd`; product card image alt; Organization logo.
+- **Status:** typecheck and `vite build` + postbuild verified locally; not deployed. `pnpm lint` has unrelated errors in `supabase/functions`.
+- **Next:** decide when to turn off the `coming_soon_gate` flag (while on, JS-rendering crawlers get the gate page and canonical `/` on every URL); check the deploy has `VITE_SUPABASE_*` set so product pages are generated; submit the new sitemap in Search Console.
+
+## 2026-11-22 — architecture docs sync to `e9a06d2`
+
+- **Changed:** 1 style commit (`TableSection` heading weight). No interface change; `synced_commit` bumped.
+- **Status:** chats skipped by request.
+- **Next:** rename one of the two `20261122130000` migrations before `db push`.
+
+## 2026-11-22 — architecture docs sync to `c288866`
+
+- **Changed:** 2 style commits (admin page padding and heading sizes, `TableSection` h2). No interface changes; `codebase-map` note and `synced_commit` updated.
+- **Status:** chats skipped by request.
+- **Next:** rename one of the two `20261122130000` migrations before `db push`.
+
+## 2026-11-22 — architecture docs sync to `ecbc7a4`
+
+- **Changed:** 1 refactor commit (card-wrapped tables unwrapped into shared `admin/src/components/TableSection.tsx`, 9 files). `codebase-map` updated.
+- **Status:** chats skipped by request. Working tree on this branch differs from HEAD (file absent on disk), so facts are taken from the committed HEAD.
+- **Next:** rename one of the two `20261122130000` migrations before `db push`.
+
+## 2026-11-22 — architecture docs sync to `ee4769a`
+
+- **Changed:** 1 refactor commit (admin dashboard card wrappers removed, 5 files). Component names updated in `codebase-map`.
+- **Status:** chats skipped by request.
+- **Next:** rename one of the two `20261122130000` migrations before `db push`.
+
+## 2026-11-22 — architecture docs sync to `3f8a7be`
+
+- **Changed:** 1 commit (admin dashboard tables, 7 files). One note added to `codebase-map`; no other notes needed changes.
+- **Status:** admin read from HEAD; chats skipped by request.
+- **Next:** rename one of the two `20261122130000` migrations before `db push`.
+
+## 2026-11-22 — architecture docs sync to `cde9034`
+
+- **Changed:** 1 commit (admin sidebar brand logo, 2 files). One line added to `codebase-map`; no other notes needed changes.
+- **Status:** admin read from HEAD (working tree dirty); chats skipped by request.
+- **Next:** rename one of the two `20261122130000` migrations before `db push`.
+
+## 2026-11-22 — architecture docs sync to `0d690b7`
+
+- **Changed:** 2 commits (admin chart text alternatives, `CardTitle` heading, switch names, wrapped product titles; 13 admin files). One note added to `codebase-map`; no other notes needed changes.
+- **Status:** admin files read from HEAD (working tree dirty); chats skipped by request.
+- **Next:** rename one of the two `20261122130000` migrations before `db push`.
+
+## 2026-11-22 — architecture docs sync to `7102182`
+
+- **Changed:** 1 commit (admin contrast tokens, reduced motion, linked form errors; 3 admin files). One note line added to `codebase-map`; no other notes needed changes.
+- **Status:** admin files read from HEAD diff; chats skipped by request.
+- **Next:** rename one of the two `20261122130000` migrations before `db push`.
+
+## 2026-11-22 — architecture docs sync to `88a28bd`
+
+- **Changed:** 2 commits (admin a11y primitives, `Checkout.tsx` layout class). Added a note to `codebase-map`; no other notes needed changes.
+- **Status:** admin files read from HEAD (working tree dirty).
+- **Next:** rename one of the two `20261122130000` migrations before `db push`.
+
+## 2026-11-22 — architecture docs incremental sync to `47444f1`
+
+- **Changed:** 36 commits since `e96f83c` (WhatsApp admin alerts phases 1-2, Telegram channel, Twilio provider, payment reminder emails, contact row alignment). Read from `git show HEAD:`; the working tree on `fix/checkout-contact-align` is dirty and lacks several of these files, so it was not used as a source.
+- **Status:** facts from HEAD code; live deployment state unknown. Found two migrations with timestamp `20261122130000`.
+- **Next:** rename one of the colliding migrations before `db push`.
+
+## 2026-11-22 — architecture docs incremental sync to `e96f83c`
+
+- **Changed:** one commit since `3f5a813` (country select + Geoapify address suggestions, migration `20261122130000_subscriber_country.sql`). Map, integrations, env notes updated. Chats skipped.
+- **Status:** facts from code; whether the migration is applied live is unknown.
+- **Next:** none for docs.
+
+## 2026-11-22 — architecture docs incremental sync to `3f5a813` (branch check)
+
+- **Changed:** `codebase-map` and candidate #8 only. The checked-out HEAD is `feat/payment-reminder-emails` and does not contain `2ee7b47`; the sanitising lives on `feat/whatsapp-admin-notifications`. Note: shell had stale `GIT_DIR` env, unset for git calls. Chats skipped.
+- **Status:** facts from code; intended formatter version still unknown.
+- **Next:** decide on the sanitising when the branches merge, then re-sync.
+
+## 2026-11-22 — architecture docs incremental sync to `2ee7b47`
+
+- **Changed:** only `_shared/admin-notifications.ts` (+test) differed since `3f5a813`. Noted that HEAD sanitises untrusted alert fields but the uncommitted tree reverts it; flagged in `codebase-map` and candidate #8. Chats not read.
+- **Status:** facts from code; which version is intended is unknown.
+- **Next:** decide on the sanitising, then re-sync.
+
+## 2026-11-22 — architecture docs incremental sync to `3f5a813`
+
+- **Changed:** architecture notes only (`codebase-map`, `integrations`, `environment-variables`, `deepening-candidates`). Documented the WhatsApp admin-notification outbox and the new `invoice.upcoming` / `payment_failed` webhook branches; refreshed `stripe-webhook` line numbers. Chats not read.
+- **Status:** facts from code at HEAD; migration/deploy state taken from status, unverified.
+- **Next:** confirm `.env.example` lists the WHATSAPP_* names; document Phase 2 kinds when committed.
+
 ## 2026-11-22 — WhatsApp: Twilio provider and admin settings card
 
 - **Changed:** `_shared/whatsapp.ts` now supports Twilio (sandbox free-form text, or `TWILIO_CONTENT_SID` template) next to Meta; new `admin/src/components/WhatsAppAlertsCard.tsx` on Settings > Notifications writes the `admin_whatsapp` site setting. Earlier: sanitizer moved to an allowlist for names and emails.

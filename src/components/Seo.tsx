@@ -13,7 +13,7 @@ const ORGANIZATION_SCHEMA = {
   "@type": "Organization",
   name: SITE_NAME,
   url: SITE_URL,
-  logo: `${SITE_URL}${DEFAULT_IMAGE}`,
+  logo: `${SITE_URL}/favicon.png`,
   sameAs: socials.map((s) => s.href),
 }
 
@@ -23,6 +23,7 @@ type SeoProps = {
   path?: string
   noindex?: boolean
   image?: string
+  jsonLd?: Record<string, unknown>
 }
 
 export function Seo({
@@ -31,6 +32,7 @@ export function Seo({
   path = "/",
   noindex = false,
   image = DEFAULT_IMAGE,
+  jsonLd,
 }: SeoProps) {
   const url = `${SITE_URL}${path}`
   const fullTitle = title === SITE_NAME ? title : `${title} | ${SITE_NAME}`
@@ -56,6 +58,9 @@ export function Seo({
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={imageUrl} />
+      {jsonLd && (
+        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+      )}
       {path === "/" && (
         <script type="application/ld+json">
           {JSON.stringify(ORGANIZATION_SCHEMA)}

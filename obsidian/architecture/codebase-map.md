@@ -1,7 +1,7 @@
 ---
 tags: [architecture, codebase-map]
 updated: 2026-11-22
-synced_commit: 3d5f1be
+synced_commit: 701c773
 ---
 
 # Codebase map
@@ -293,6 +293,30 @@ Depends on: external: LP Express. Used by: TerminalPicker, OrderTracking, Return
 
 <!-- auto:end -->
 
+### Build-time SEO and address search — `scripts/`, `src/components/Seo.tsx`, `src/lib/geoapify.ts`
+
+Purpose: (1) after `vite build`, write one prerendered HTML file per route with meta tags and fallback text, plus `sitemap.xml` and a real `404.html`; (2) at runtime, `<Seo>` owns head tags and address search suggests streets in the profile dialog. Domain terms: prerender, `data-prerender` tags, coming-soon gate.
+Interface: `postbuild-seo.mjs` runs inside `pnpm build` (`package.json` `build` script), reads `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` from the build env and fetches `products` and `merch_items` over REST; a failed fetch only skips those pages (warns, does not fail the deploy). `main.tsx` removes `[data-prerender]` elements on mount so `<Seo>` is the only head source. `vercel.json` rewrites app-only routes (`/drop/:id`, `/merch/:slug`, `/account`, `/checkout`, cart pages, admin) to `/index.html`; other paths fall through to the prerendered files or `404.html`.
+Depends on: external: Supabase REST (build), Geoapify (browser).
+Used by: every page (`<Seo>`), `ProfileEditDialog`.
+Note (from [[status]], 2026-11-22): the `coming_soon_gate` flag overrides canonical and title on every URL until it is turned off.
+
+<!-- auto:start module=seo -->
+
+| Function / export | File:line | Signature (one line) | Does | Called from |
+| --- | --- | --- | --- | --- |
+| `main` | scripts/postbuild-seo.mjs:207 | `async () => void` | writes static, product and merch pages, `sitemap.xml`, `404.html` into `dist/` | `pnpm build` |
+| `fetchRows` | scripts/postbuild-seo.mjs:187 | `(table, query) => Promise<rows>` | anon REST read; returns `[]` on error | `main` |
+| `renderPage` / `buildHead` | scripts/postbuild-seo.mjs:167 / :137 | `(template, page) => string` | injects title, canonical, OG, noindex and fallback text into the built `index.html` | `main`, `writePage` |
+| `Seo` | src/components/Seo.tsx:29 | `({title, description, path, jsonLd, noindex}) => JSX` | sets head tags and JSON-LD per page | 25 pages (`rg "<Seo"`) |
+| `AddressAutocomplete` | src/components/AddressAutocomplete.tsx:23 | `(props) => JSX` | debounced (300 ms, min 3 chars) street suggestions | `ProfileEditDialog.tsx:16` |
+| `searchAddresses` | src/lib/geoapify.ts:26 | `(text, country, signal) => Promise<AddressSuggestion[]>` | Geoapify autocomplete limited to one country; `[]` when key unset | `AddressAutocomplete` |
+| `isAddressSearchEnabled` | src/lib/geoapify.ts:23 | `boolean` | true when `VITE_GEOAPIFY_KEY` is set | `AddressAutocomplete` |
+| `COUNTRIES`, `toCountryCode`, `DEFAULT_COUNTRY` | src/lib/countries.ts:1 / :11 / :9 | LT, LV, EE; default `LT` | delivery country list for the profile address | profile dialog |
+| static `public/llms.txt`, `public/sitemap.xml` | public/ | files | AI-crawler summary; sitemap is overwritten by the post-build step | served as is |
+
+<!-- auto:end -->
+
 ### Database — `supabase/migrations/`
 
 Purpose: schema, RLS, RPCs, triggers, cron. 60+ migration files from `20260430000001_initial_schema.sql`; live state also changed through MCP and the SQL editor (see [[status]]).
@@ -332,3 +356,5 @@ Interface: tables read by the app are listed under Pages. RLS is on every table 
 Line numbers for SQL functions are the first match per name found by `rg`; later migrations redefine some of them (`used_credits`, `record_paid_courier_rental`).
 
 `b388322`: admin `Orders` (subscriber cell, `admin/src/pages/Orders.tsx:209`) and `OrderDetailSheet` (Subscriber block, `admin/src/components/OrderDetailSheet.tsx:286`) now show the plan name via `tierLabels` from `admin/src/data/products`.
+
+`701c773`: migration `supabase/migrations/20261122130000_subscriber_country.sql` adds `subscribers.country` (text, default `LT`, check `LT`/`LV`/`EE`). It shares its timestamp with `20261122130000_admin_notification_events.sql`; rename one before `db push`.
