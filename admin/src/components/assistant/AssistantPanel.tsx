@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react"
 import { SendIcon, SparklesIcon, XIcon } from "lucide-react"
 
+import { AssistantMarkdown } from "@/components/assistant/AssistantMarkdown"
 import { ActionConfirmCard } from "@/components/assistant/ActionConfirmCard"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -91,13 +92,17 @@ export function AssistantPanel() {
             <div
               key={message.id}
               className={cn(
-                "max-w-[90%] rounded-lg px-3 py-2 text-sm whitespace-pre-wrap",
+                "max-w-[90%] rounded-lg px-3 py-2 text-sm break-words",
                 message.role === "user"
-                  ? "self-end bg-primary text-primary-foreground"
+                  ? "self-end bg-primary whitespace-pre-wrap text-primary-foreground"
                   : "self-start bg-muted"
               )}
             >
-              {message.text}
+              {message.role === "user" ? (
+                message.text
+              ) : (
+                <AssistantMarkdown>{message.text}</AssistantMarkdown>
+              )}
             </div>
           ) : (
             <ActionConfirmCard
