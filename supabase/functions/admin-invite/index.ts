@@ -58,6 +58,21 @@ Deno.serve(async (req) => {
     // Existing account (e.g. a member): grant the role, keep the rest of its metadata.
     const existing = await findUserByEmail(email)
     if (existing) {
+      // Anyone can sign up with an address they don't own. Promoting an account
+      // whose email was never confirmed would hand the role to that stranger.
+      if (!existing.email_confirmed_at) {
+        // An invitee who hasn't opened the email yet already carries the role
+        // from the invite, so say that instead of calling it a failure.
+        const isPendingInvite = !!existing.invited_at
+        return json(
+          {
+            error: isPendingInvite
+              ? "This person was already invited. They need to open the invite email first"
+              : "This email has an account that was never verified, so it can't be made an admin",
+          },
+          409
+        )
+      }
       const { error } = await service.auth.admin.updateUserById(existing.id, {
         app_metadata: { ...existing.app_metadata, role: "admin" },
       })
