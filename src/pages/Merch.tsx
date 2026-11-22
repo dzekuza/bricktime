@@ -95,7 +95,7 @@ function MerchCard({ item }: { item: MerchItem }) {
     >
       {/* Visual */}
       <div
-        className={`relative flex items-center justify-center md:aspect-[4/3] ${item.image_url ? "aspect-[4/5]" : "aspect-[4/3]"}`}
+        className="relative flex aspect-square items-center justify-center overflow-hidden"
         style={{ background: item.bg }}
       >
         <span className="label-mono absolute top-4 left-4 rounded-full border-2 border-ink bg-paper px-3 py-1 text-ink">
@@ -108,7 +108,7 @@ function MerchCard({ item }: { item: MerchItem }) {
             alt={item.name}
             loading="lazy"
             decoding="async"
-            className="h-full w-full object-contain"
+            className="h-full w-full object-cover"
           />
         ) : (
           <div
@@ -167,7 +167,7 @@ function MerchCard({ item }: { item: MerchItem }) {
 function MerchCardSkeleton() {
   return (
     <div className="brick-card animate-pulse overflow-hidden">
-      <div className="aspect-[4/5] bg-ink/10 md:aspect-[4/3]" />
+      <div className="aspect-square bg-ink/10" />
       <div className="flex flex-col gap-3 p-5">
         <div className="h-5 w-2/3 rounded bg-ink/10" />
         <div className="h-3 w-full rounded bg-ink/10" />

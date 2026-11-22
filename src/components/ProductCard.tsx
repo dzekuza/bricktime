@@ -1,3 +1,4 @@
+import { useRef, useState, type MouseEvent } from "react"
 import { Link } from "react-router-dom"
 import { ArrowRightIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -22,6 +23,8 @@ export type Tier =
   | "mystery_s"
   | "mystery_m"
 
+const MAX_HOVER_IMAGES = 6
+
 export interface Product {
   id: number
   title: string
@@ -45,6 +48,7 @@ export interface Product {
   price?: number | null
   value?: number | null
   image?: string
+  gallery: string[]
   status: "available" | "limited" | "sold_out"
 }
 
@@ -135,6 +139,7 @@ export function dbToProduct(
     price: row.price as number | null | undefined,
     value: row.value as number | null | undefined,
     image: row.image_url as string | undefined,
+    gallery: (row.gallery as string[] | null) ?? [],
     status: (status as Product["status"]) ?? "available",
   }
 }
@@ -173,13 +178,18 @@ function StudBg({
   image,
   children,
   className = "",
+  containerRef,
 }: {
   image?: string
   children: React.ReactNode
   className?: string
+  containerRef?: React.Ref<HTMLDivElement>
 }) {
   return (
-    <div className={`relative overflow-hidden bg-white ${className}`}>
+    <div
+      ref={containerRef}
+      className={`relative overflow-hidden bg-white ${className}`}
+    >
       {image ? (
         <img
           src={image}
@@ -220,8 +230,40 @@ export function ProductCard({
   ) as Tier
   const tier = tierConfig[displayTier]
 
+  const images = [
+    ...new Set([product.image, ...product.gallery].filter(Boolean)),
+  ].slice(0, MAX_HOVER_IMAGES) as string[]
+  const imageRef = useRef<HTMLDivElement>(null)
+  const [activeIndex, setActiveIndex] = useState(0)
+
+  // Moving across the photo scrubs through the gallery; the rest load on first hover.
+  function handleMouseEnter() {
+    images.slice(1).forEach((src) => {
+      new Image().src = src
+    })
+  }
+  function handleMouseMove(e: MouseEvent<HTMLDivElement>) {
+    const rect = imageRef.current?.getBoundingClientRect()
+    if (!rect || images.length < 2) return
+    const isOverImage =
+      e.clientY >= rect.top &&
+      e.clientY <= rect.bottom &&
+      e.clientX >= rect.left &&
+      e.clientX <= rect.right
+    if (!isOverImage) return
+    const fraction = (e.clientX - rect.left) / rect.width
+    setActiveIndex(
+      Math.min(images.length - 1, Math.floor(fraction * images.length))
+    )
+  }
+
   return (
-    <div className="group brick-card brick-card-hover relative flex flex-col overflow-hidden bg-paper text-ink">
+    <div
+      className="group brick-card brick-card-hover relative flex flex-col overflow-hidden bg-paper text-ink"
+      onMouseEnter={handleMouseEnter}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => setActiveIndex(0)}
+    >
       {/* Covers the card (above its z-10 badges) so all of it opens the set;
           the cart button comes later in the DOM at the same z-20, so it paints
           above this link as a separate control rather than inside it. */}
@@ -231,8 +273,9 @@ export function ProductCard({
         className="absolute inset-0 z-20"
       />
       <StudBg
-        image={product.image}
-        className="relative h-[280px] border-b-2 border-ink"
+        containerRef={imageRef}
+        image={images[activeIndex] ?? product.image}
+        className="relative aspect-square border-b-2 border-ink"
       >
         <img
           src={getSubscriptionBrickSvg(displayTier)}
@@ -265,6 +308,16 @@ export function ProductCard({
           allowedTiers={product.allowedTiers}
           isRentedOut={product.status === "sold_out"}
         />
+        {images.length > 1 && (
+          <div className="pointer-events-none absolute bottom-[14px] left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
+            {images.map((src, i) => (
+              <span
+                key={src}
+                className={`size-2 rounded-full border border-ink ${i === activeIndex ? "bg-ink" : "bg-paper"}`}
+              />
+            ))}
+          </div>
+        )}
         {!product.image && (
           <div className="absolute right-0 bottom-0 left-0 flex items-end justify-center">
             <MockModel

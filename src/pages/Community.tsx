@@ -1199,13 +1199,13 @@ function LeaderboardPanel({
           </div>
           <Link
             to="/account"
-            className="mt-3 block text-center font-mono text-[10px] tracking-widest text-paper/40 uppercase transition-colors hover:text-paper/70"
+            className="mt-4 flex items-center justify-center rounded-full border-2 border-paper bg-brand-yellow px-4 py-2.5 text-[13px] font-bold text-ink transition-colors hover:bg-paper"
           >
             Kaip gauti taškų? →
           </Link>
           <Link
             to={`/profile/${user.id}`}
-            className="mt-2 block text-center font-mono text-[10px] tracking-widest text-paper/40 uppercase transition-colors hover:text-paper/70"
+            className="mt-2 flex items-center justify-center rounded-full border-2 border-paper/30 px-4 py-2.5 text-[13px] font-bold text-paper transition-colors hover:border-paper hover:bg-paper hover:text-ink"
           >
             Peržiūrėti savo profilį →
           </Link>
@@ -1213,7 +1213,7 @@ function LeaderboardPanel({
       )}
 
       <div className="brick-card overflow-hidden">
-        <div className="grid grid-cols-[28px_1fr_60px_44px] gap-3 bg-ink px-4 py-2.5">
+        <div className="grid grid-cols-[28px_1fr_128px_44px] gap-3 bg-ink px-4 py-2.5">
           {["#", "Narys", "Prenumerata", "pts"].map((col) => (
             <p
               key={col}
@@ -1230,7 +1230,7 @@ function LeaderboardPanel({
           return (
             <div
               key={entry.subscriber_id}
-              className={`grid grid-cols-[28px_1fr_60px_44px] items-center gap-3 border-b border-dashed border-ink/10 px-4 py-3 transition-colors last:border-b-0 hover:bg-ink/[.03] ${isMe ? "bg-brand-yellow/12" : ""}`}
+              className={`grid grid-cols-[28px_1fr_128px_44px] items-center gap-3 border-b border-dashed border-ink/10 px-4 py-3 transition-colors last:border-b-0 hover:bg-ink/[.03] ${isMe ? "bg-brand-yellow/12" : ""}`}
             >
               <p className="font-display text-[16px] leading-none text-ink/40">
                 {entry.rank}
@@ -1260,7 +1260,7 @@ function LeaderboardPanel({
               </Link>
               <div>
                 <span
-                  className="rounded-full border border-ink/15 px-1.5 py-px text-[9px] font-bold"
+                  className="inline-block rounded-full border border-ink/15 px-1.5 py-px text-[9px] font-bold whitespace-nowrap"
                   style={{
                     background: tierTheme?.bg ?? "#F5F1EB",
                     color: tierTheme?.textColor ?? "#001B21",
@@ -1325,7 +1325,7 @@ function LeaderboardPodium({
                 {entry.name}
               </p>
               <div
-                className="mt-1 rounded-full border border-paper/20 px-1.5 py-px text-[9px] font-bold"
+                className="mt-1.5 max-w-full rounded-full border-2 border-ink px-2 py-0.5 text-[10px] leading-none font-bold whitespace-nowrap"
                 style={{
                   background: tierTheme?.bg ?? "#FFD731",
                   color: tierTheme?.textColor ?? "#001B21",
@@ -1336,7 +1336,7 @@ function LeaderboardPodium({
               <p className="mt-2 font-display text-[16px] leading-none text-paper">
                 {entry.total_points}
               </p>
-              <p className="font-mono text-[9px] tracking-widest text-paper/50 uppercase">
+              <p className="mt-0.5 font-mono text-[10px] font-semibold tracking-widest text-paper uppercase">
                 taškai
               </p>
             </Link>
