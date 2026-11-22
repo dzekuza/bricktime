@@ -232,7 +232,7 @@ export default function Archive() {
                       key={i}
                       className="brick-card animate-pulse overflow-hidden"
                     >
-                      <div className="h-[280px] bg-ink/10" />
+                      <div className="aspect-square bg-ink/10" />
                       <div className="flex flex-col gap-3 p-4 md:p-5">
                         <div className="h-5 w-2/3 rounded bg-ink/10" />
                         <div className="h-3 w-1/2 rounded bg-ink/10" />
