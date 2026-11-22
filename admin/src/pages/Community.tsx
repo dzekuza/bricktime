@@ -464,7 +464,7 @@ export function Community() {
           </TabsContent>
 
           <TabsContent value="feed">
-            <DataTable columns={feedColumns} data={feedItems} />
+            <DataTable caption="Community feed posts" columns={feedColumns} data={feedItems} />
           </TabsContent>
         </Tabs>
       )}

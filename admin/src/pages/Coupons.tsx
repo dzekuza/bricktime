@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { toast } from "@/lib/toast"
 import { PlusIcon, PencilIcon, Trash2Icon, TicketIcon } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
@@ -115,15 +116,16 @@ export function Coupons() {
         expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
         active: form.active,
       }
-      if (editTarget) {
-        await supabase.from('coupons').update(payload).eq('id', editTarget.id)
-      } else {
-        await supabase.from('coupons').insert(payload)
-      }
+      const { error } = editTarget
+        ? await supabase.from('coupons').update(payload).eq('id', editTarget.id)
+        : await supabase.from('coupons').insert(payload)
+      if (error) throw error
       setDialogOpen(false)
+      toast.success(editTarget ? 'Coupon updated' : 'Coupon created')
       load()
     } catch (err) {
       console.error('Failed to save coupon:', err)
+      toast.error('Could not save the coupon. Try again.')
     } finally {
       setSaving(false)
     }
@@ -131,21 +133,27 @@ export function Coupons() {
 
   async function handleToggleActive(coupon: Coupon) {
     try {
-      await supabase.from('coupons').update({ active: !coupon.active }).eq('id', coupon.id)
+      const { error } = await supabase.from('coupons').update({ active: !coupon.active }).eq('id', coupon.id)
+      if (error) throw error
+      toast.success(`Coupon ${coupon.code} ${coupon.active ? 'deactivated' : 'activated'}`)
       load()
     } catch (err) {
       console.error('Failed to toggle coupon:', err)
+      toast.error('Could not update the coupon. Try again.')
     }
   }
 
   async function handleDelete() {
     if (!deleteTarget) return
     try {
-      await supabase.from('coupons').delete().eq('id', deleteTarget.id)
+      const { error } = await supabase.from('coupons').delete().eq('id', deleteTarget.id)
+      if (error) throw error
       setDeleteTarget(null)
+      toast.success(`Coupon ${deleteTarget.code} deleted`)
       load()
     } catch (err) {
       console.error('Failed to delete coupon:', err)
+      toast.error('Could not delete the coupon. Try again.')
     }
   }
 
@@ -249,7 +257,7 @@ export function Coupons() {
           {loading ? (
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : (
-            <DataTable columns={columns} data={items} />
+            <DataTable caption="Coupons" columns={columns} data={items} />
           )}
         </CardContent>
       </Card>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { toast } from "@/lib/toast"
 import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { IconButton } from "@/components/ui/icon-button"
@@ -123,9 +124,11 @@ export function CategoriesTab() {
           : `Could not delete: ${err.message}`
       )
       setDeleteTarget(null)
+      toast.error(`Could not delete category ${item.name}`)
       return
     }
     setDeleteTarget(null)
+    toast.success(`Category ${item.name} deleted`)
     await load()
   }
 

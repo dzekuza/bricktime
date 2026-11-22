@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react"
+import { toast } from "@/lib/toast"
 import { MoreHorizontalIcon, SearchIcon, Trash2Icon } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
@@ -195,9 +196,11 @@ export function Subscribers() {
           data?.error ??
           data?.errors?.map((e) => e.message).join(", ")
       )
+      toast.error("Could not delete the customer. Try again.")
       return
     }
     setItems((prev) => prev.filter((s) => !ids.includes(s.id)))
+    toast.success(ids.length === 1 ? "Customer deleted" : `${ids.length} customers deleted`)
   }
 
   function openDelete(sub: Subscriber) {
@@ -207,7 +210,7 @@ export function Subscribers() {
 
   const columns = useMemo<ColumnDef<Subscriber, unknown>[]>(
     () => [
-      selectionColumn<Subscriber>(),
+      selectionColumn<Subscriber>((s) => s.name),
       {
         id: "subscriber",
         accessorKey: "name",
@@ -453,6 +456,7 @@ export function Subscribers() {
       </div>
 
       <DataTable
+        caption="Customers and subscribers"
         data={filtered}
         columns={columns}
         onRowClick={openProfile}
@@ -521,6 +525,7 @@ export function Subscribers() {
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         itemName={deleteTarget?.name ?? ""}
+        description="The customer account and its data will be permanently removed."
         onConfirm={() => {
           if (deleteTarget) {
             handleDelete([deleteTarget.id])

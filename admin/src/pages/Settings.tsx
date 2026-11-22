@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { toast } from "@/lib/toast"
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,11 +21,13 @@ export function Settings() {
 
   function handleSaveGeneral() {
     setSavedGeneral(true)
+    toast.success('General settings saved')
     setTimeout(() => setSavedGeneral(false), 2000)
   }
 
   function handleSaveNotifications() {
     setSavedNotifications(true)
+    toast.success('Notification settings saved')
     setTimeout(() => setSavedNotifications(false), 2000)
   }
 

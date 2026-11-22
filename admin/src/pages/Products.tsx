@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react"
+import { toast } from "@/lib/toast"
 import {
   MoreHorizontalIcon,
   PlusIcon,
@@ -155,9 +156,11 @@ export function Products() {
     const { error } = await supabase.from("products").delete().in("id", ids)
     if (error) {
       console.error("Delete failed:", error.message)
+      toast.error("Could not delete the product. Try again.")
       return
     }
     setItems((prev) => prev.filter((p) => !ids.includes(p.id)))
+    toast.success(ids.length === 1 ? "Product deleted" : `${ids.length} products deleted`)
   }
 
   function openEdit(product: Product) {
@@ -172,7 +175,7 @@ export function Products() {
 
   const columns = useMemo<ColumnDef<Product, unknown>[]>(
     () => [
-      selectionColumn<Product>(),
+      selectionColumn<Product>((p) => p.title),
       {
         accessorKey: "id",
         header: "ID",
@@ -443,6 +446,7 @@ export function Products() {
         </div>
       ) : (
         <DataTable
+          caption="Products"
           data={filtered}
           columns={columns}
           onRowClick={openEdit}
@@ -525,6 +529,7 @@ export function Products() {
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         itemName={deleteTarget?.title ?? ""}
+        description="The product will be permanently removed from the catalogue."
         onConfirm={() => {
           if (deleteTarget) {
             handleDelete([deleteTarget.id])

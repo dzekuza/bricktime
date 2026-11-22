@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react"
+import { toast } from "@/lib/toast"
 import {
   PlusIcon,
   PencilIcon,
@@ -210,11 +211,17 @@ export function Challenges() {
   async function handleDelete() {
     if (!deleteTarget) return
     try {
-      await supabase.from("challenges").delete().eq("id", deleteTarget.id)
+      const { error } = await supabase
+        .from("challenges")
+        .delete()
+        .eq("id", deleteTarget.id)
+      if (error) throw error
       setDeleteTarget(null)
+      toast.success(`Challenge ${deleteTarget.title} deleted`)
       load()
     } catch (err) {
       console.error("Failed to delete challenge:", err)
+      toast.error("Could not delete the challenge. Try again.")
     }
   }
 
@@ -479,7 +486,7 @@ export function Challenges() {
           {loading ? (
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : (
-            <DataTable columns={columns} data={items} />
+            <DataTable caption="Challenges" columns={columns} data={items} />
           )}
         </CardContent>
       </Card>

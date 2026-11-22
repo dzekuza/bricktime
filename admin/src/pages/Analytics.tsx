@@ -341,6 +341,7 @@ export function Analytics() {
               <Skeleton className="h-[300px] w-full" />
             ) : (
               <DataTable
+                caption="Populiariausios paieškos užklausos"
                 columns={queryColumns}
                 data={data?.gsc?.topQueries ?? []}
               />
@@ -358,6 +359,7 @@ export function Analytics() {
               <Skeleton className="h-[300px] w-full" />
             ) : (
               <DataTable
+                caption="Populiariausi puslapiai"
                 columns={pageColumns}
                 data={data?.gsc?.topPages ?? []}
               />

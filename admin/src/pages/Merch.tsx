@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react"
+import { toast } from "@/lib/toast"
 import {
   PlusIcon,
   SearchIcon,
@@ -233,9 +234,11 @@ export function Merch() {
     setSaving(false)
     if (saveError) {
       setError(saveError.message)
+      toast.error("Could not save the merch item. Try again.")
       return
     }
     setError(null)
+    toast.success(editingId ? "Merch item updated" : "Merch item created")
     setDialogOpen(false)
     load()
   }
@@ -249,8 +252,10 @@ export function Merch() {
     setDeleteTarget(null)
     if (deleteError) {
       setError(deleteError.message)
+      toast.error("Could not delete the merch item. Try again.")
       return
     }
+    toast.success("Merch item deleted")
     load()
   }
 
@@ -440,7 +445,7 @@ export function Merch() {
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
       ) : (
-        <DataTable columns={columns} data={filtered} />
+        <DataTable caption="Merch items" columns={columns} data={filtered} />
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -700,6 +705,7 @@ export function Merch() {
         open={deleteTarget !== null}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         itemName={deleteTarget?.name ?? ""}
+        description="The merch item will be permanently removed."
         onConfirm={confirmDelete}
       />
     </div>

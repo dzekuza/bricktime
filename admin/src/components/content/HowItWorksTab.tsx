@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { toast } from "@/lib/toast"
 import { PlusIcon, Trash2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { IconButton } from "@/components/ui/icon-button"
@@ -116,9 +117,11 @@ export function HowItWorksTab({
     setSavingSteps(false)
     if (error) {
       console.error("Failed to save steps:", error.message)
+      toast.error("Could not save the steps. Try again.")
       return
     }
     onChangeSteps(rows)
+    toast.success("Steps saved")
     setSavedSteps(true)
     setTimeout(() => setSavedSteps(false), 2000)
   }

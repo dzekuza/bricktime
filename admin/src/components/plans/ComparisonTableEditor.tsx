@@ -154,20 +154,24 @@ export function ComparisonTableEditor({
       <CardContent className="flex flex-col gap-4">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] border-collapse text-sm">
+            <caption className="sr-only">Plan feature comparison</caption>
             <thead>
               <tr>
-                <th className="w-56 border-b p-2 text-left font-medium text-muted-foreground">
+                <th scope="col" className="w-56 border-b p-2 text-left font-medium text-muted-foreground">
                   Feature
                 </th>
                 {plans.map((p) => (
                   <th
+                    scope="col"
                     key={p.id}
                     className="min-w-36 border-b p-2 text-left font-medium text-muted-foreground"
                   >
                     {p.name ?? p.id}
                   </th>
                 ))}
-                <th className="w-10 border-b p-2" />
+                <th scope="col" className="w-10 border-b p-2">
+                  <span className="sr-only">Actions</span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -176,6 +180,7 @@ export function ComparisonTableEditor({
                   <td className="p-2 align-top">
                     <Input
                       value={row.label}
+                      aria-label="Feature name"
                       placeholder="Feature name"
                       onChange={(e) => setLabel(row.key, e.target.value)}
                     />
@@ -184,6 +189,7 @@ export function ComparisonTableEditor({
                     <td key={p.id} className="p-2 align-top">
                       <Input
                         value={row.values[p.id] ?? ""}
+                        aria-label={`${row.label || "Feature"}, ${p.name ?? p.id}`}
                         placeholder="—"
                         onChange={(e) =>
                           setValue(row.key, p.id, e.target.value)

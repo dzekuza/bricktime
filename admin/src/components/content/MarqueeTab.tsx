@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { toast } from "@/lib/toast"
 import { PencilIcon, PlusIcon, Trash2Icon, UploadIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { IconButton } from "@/components/ui/icon-button"
@@ -100,8 +101,10 @@ export function MarqueeTab({ items, onChange }: MarqueeTabProps) {
       .eq("id", item.id)
     if (error) {
       console.error("Failed to delete marquee item:", error.message)
+      toast.error("Could not delete the marquee item. Try again.")
       return
     }
+    toast.success("Marquee item deleted")
     onChange(items.filter((i) => i.id !== item.id))
     setDeleteTarget(null)
   }

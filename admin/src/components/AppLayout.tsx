@@ -15,6 +15,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { AppSidebar } from "@/components/AppSidebar"
+import { Toaster } from "@/components/ui/toaster"
 import { getDocumentTitle, getRouteTitle } from "@/lib/routes"
 
 export function AppLayout() {
@@ -76,6 +77,7 @@ export function AppLayout() {
           <Outlet />
         </div>
       </SidebarInset>
+      <Toaster />
     </SidebarProvider>
   )
 }

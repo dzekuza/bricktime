@@ -273,6 +273,7 @@ export function MerchOrdersPanel() {
       )}
 
       <DataTable
+        caption="Merch orders"
         data={filtered}
         columns={columns}
         onRowClick={(order) => {

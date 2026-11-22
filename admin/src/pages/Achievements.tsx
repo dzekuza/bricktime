@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
+import { toast } from "@/lib/toast"
 import { PlusIcon, PencilIcon, Trash2Icon, TrophyIcon } from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
@@ -185,11 +186,17 @@ export function Achievements() {
   async function handleDelete() {
     if (!deleteTarget) return
     try {
-      await supabase.from("achievements").delete().eq("id", deleteTarget.id)
+      const { error } = await supabase
+        .from("achievements")
+        .delete()
+        .eq("id", deleteTarget.id)
+      if (error) throw error
       setDeleteTarget(null)
+      toast.success(`Reward ${deleteTarget.label} deleted`)
       load()
     } catch (err) {
       console.error("Failed to delete achievement:", err)
+      toast.error("Could not delete the reward. Try again.")
     }
   }
 
@@ -300,7 +307,7 @@ export function Achievements() {
           {loading ? (
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : (
-            <DataTable columns={columns} data={items} />
+            <DataTable caption="Rewards" columns={columns} data={items} />
           )}
         </CardContent>
       </Card>

@@ -422,6 +422,7 @@ export function Orders() {
       </div>
 
       <DataTable
+        caption="Orders"
         data={filtered}
         columns={columns}
         onRowClick={openDetail}

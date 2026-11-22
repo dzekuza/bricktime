@@ -218,7 +218,7 @@ export function MissingParts() {
         <p className="text-sm text-muted-foreground">Loading…</p>
       ) : (
         <>
-          <DataTable columns={columns} data={filtered} />
+          <DataTable caption="Missing parts reports" columns={columns} data={filtered} />
           <p className="text-xs text-muted-foreground">
             Showing {filtered.length} of {items.length} requests
           </p>

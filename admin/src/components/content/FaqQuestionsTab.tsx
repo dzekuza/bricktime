@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { toast } from "@/lib/toast"
 import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { IconButton } from "@/components/ui/icon-button"
@@ -90,8 +91,10 @@ export function FaqQuestionsTab({ items, onChange }: FaqQuestionsTabProps) {
       .eq("id", item.id)
     if (error) {
       console.error("Failed to delete FAQ item:", error.message)
+      toast.error("Could not delete the question. Try again.")
       return
     }
+    toast.success("Question deleted")
     onChange(items.filter((i) => i.id !== item.id))
     setDeleteTarget(null)
   }

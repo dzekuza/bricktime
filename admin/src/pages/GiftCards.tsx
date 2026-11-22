@@ -293,7 +293,7 @@ export function GiftCards() {
         <p className="text-sm text-muted-foreground">Kraunama…</p>
       ) : (
         <>
-          <DataTable columns={columns} data={filtered} />
+          <DataTable caption="Dovanų kortelės" columns={columns} data={filtered} />
           <p className="text-xs text-muted-foreground">
             {filtered.length} įrašų
           </p>

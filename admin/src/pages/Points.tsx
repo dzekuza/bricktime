@@ -219,6 +219,7 @@ export function Points() {
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : (
             <DataTable
+              caption="Points by member"
               columns={columns}
               data={filtered}
               onRowClick={openDetail}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { toast } from "@/lib/toast"
 import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { IconButton } from "@/components/ui/icon-button"
@@ -130,8 +131,10 @@ export function TestimonialsTab({
       .eq("id", t.id)
     if (error) {
       console.error("Failed to delete testimonial:", error.message)
+      toast.error("Could not delete the testimonial. Try again.")
       return
     }
+    toast.success("Testimonial deleted")
     onChange(items.filter((i) => i.id !== t.id))
     setDeleteTarget(null)
   }
