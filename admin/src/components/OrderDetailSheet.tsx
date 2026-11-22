@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { OrderActivityLog } from '@/components/OrderActivityLog'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
@@ -572,11 +573,17 @@ export function OrderDetailSheet({ order, open, onOpenChange, onStatusChange, on
             value={adminNote}
             onChange={(e) => { setAdminNote(e.target.value); setNoteSaved(false) }}
           />
-          <div className="mt-2 flex items-center justify-end gap-2 pb-6">
+          <div className="mt-2 mb-5 flex items-center justify-end gap-2">
             {noteSaved && <span className="text-xs text-green-600">Saved</span>}
             <Button size="sm" variant="outline" onClick={saveNote} disabled={noteSaved}>
               Save note
             </Button>
+          </div>
+
+          <Separator className="mb-5" />
+
+          <div className="pb-6">
+            <OrderActivityLog order={order} />
           </div>
         </div>
       </SheetContent>

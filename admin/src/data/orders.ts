@@ -41,6 +41,13 @@ export interface Order {
   trackingState?: string | null
   returnBarcode?: string | null
   returnTrackingState?: string | null
+  // Lifecycle timestamps (ISO) behind the activity log; null when that step hasn't happened.
+  createdAt?: string
+  labelCreatedAt?: string | null
+  returnRequestedAt?: string | null
+  returnLabelCreatedAt?: string | null
+  returnedAt?: string | null
+  isMystery?: boolean
 }
 
 export const orders: Order[] = [
