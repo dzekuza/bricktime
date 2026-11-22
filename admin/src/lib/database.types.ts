@@ -1644,6 +1644,7 @@ export type Database = {
           cancel_at: string | null
           cancel_requested: boolean
           city: string | null
+          country: string
           current_period_end: string | null
           current_period_start: string | null
           credits_reset_at: string | null
@@ -1679,6 +1680,7 @@ export type Database = {
           cancel_at?: string | null
           cancel_requested?: boolean
           city?: string | null
+          country?: string
           current_period_end?: string | null
           current_period_start?: string | null
           credits_reset_at?: string | null
@@ -1714,6 +1716,7 @@ export type Database = {
           cancel_at?: string | null
           cancel_requested?: boolean
           city?: string | null
+          country?: string
           current_period_end?: string | null
           current_period_start?: string | null
           credits_reset_at?: string | null
