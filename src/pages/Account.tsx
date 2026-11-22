@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react"
-import { useLocation, useNavigate } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
+import { CircleHelpIcon } from "lucide-react"
 import { calculatePoints, type AchievementDef } from "@/data/community"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
@@ -993,7 +994,7 @@ export default function Account() {
                     Keisti
                   </button>
                 </div>
-                <div className="mt-auto hidden flex-col gap-2.5 md:flex">
+                <div className="mt-auto hidden flex-col gap-2.5 pt-6 md:flex">
                   <button
                     className="rounded-full border-2 border-ink bg-ink px-3 py-2 text-[14px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
                     onClick={goToPlanCheckout}
@@ -1300,6 +1301,14 @@ export default function Account() {
       )}
 
       <Footer />
+
+      <Link
+        to="/duk"
+        aria-label="Dažniausiai užduodami klausimai"
+        className="brick-card brick-hover-sm fixed right-4 bottom-4 z-40 flex size-12 items-center justify-center rounded-full bg-brand-yellow text-ink md:right-6 md:bottom-6"
+      >
+        <CircleHelpIcon className="size-6" strokeWidth={2.5} />
+      </Link>
 
       {missingPartOrder && missingPartOrder.productId !== null && user && (
         <MissingPartDialog
