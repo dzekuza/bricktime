@@ -23,6 +23,7 @@ import { useCredits } from "@/hooks/useCredits"
 import { useMerchCart } from "@/hooks/useMerchCart"
 import { useRentalCart } from "@/hooks/useRentalCart"
 import BrandLogoVideo from "@/components/BrandLogoVideo"
+import { MysteryBoxOrderBar } from "@/components/MysteryBoxOrderBar"
 
 const PLAN_COLORS: Record<string, { bg: string; text: string }> = {
   nano: { bg: "#F5F1EB", text: "#001B21" },
@@ -212,6 +213,7 @@ export default function Nav() {
 
   return (
     <>
+      <MysteryBoxOrderBar />
       <nav
         ref={navRef}
         className="sticky top-0 z-50 bg-transparent py-4 md:py-6"

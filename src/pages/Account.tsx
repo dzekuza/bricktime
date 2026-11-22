@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { calculatePoints, type AchievementDef } from "@/data/community"
 import Nav from "@/components/Nav"
 import Footer from "@/components/Footer"
@@ -26,6 +26,7 @@ import {
   type RentedOrder,
 } from "@/components/account/RentedOrderCard"
 import { MysteryBoxRequest } from "@/components/account/MysteryBoxRequest"
+import { MYSTERY_ORDERS_ANCHOR, notifyOrdersChanged } from "@/lib/mystery-box"
 import { RentalHistory } from "@/components/account/RentalHistory"
 import { PauseSubscription } from "@/components/account/PauseSubscription"
 import { readFunctionError } from "@/lib/function-error"
@@ -241,6 +242,7 @@ function AchievementsSection({
 // ── page ───────────────────────────────────────────────────────────────────
 export default function Account() {
   const navigate = useNavigate()
+  const { hash } = useLocation()
   const {
     user,
     profile,
@@ -279,10 +281,17 @@ export default function Account() {
   const [rentalHistory, setRentalHistory] = useState<RentedOrder[]>([])
   const [ordersLoading, setOrdersLoading] = useState(true)
   const [ordersVersion, setOrdersVersion] = useState(0)
-  const handleMysteryRequested = useCallback(
-    () => setOrdersVersion((v) => v + 1),
-    []
-  )
+  // The section mounts after the orders load, so a plain #hash can't find it earlier.
+  useEffect(() => {
+    if (hash !== `#${MYSTERY_ORDERS_ANCHOR}` || ordersLoading) return
+    document
+      .getElementById(MYSTERY_ORDERS_ANCHOR)
+      ?.scrollIntoView({ behavior: "smooth" })
+  }, [hash, ordersLoading])
+  const handleMysteryRequested = useCallback(() => {
+    setOrdersVersion((v) => v + 1)
+    notifyOrdersChanged()
+  }, [])
   const [returnDialogOrder, setReturnDialogOrder] =
     useState<RentedOrder | null>(null)
   const [profileOpen, setProfileOpen] = useState(false)
@@ -907,7 +916,10 @@ export default function Account() {
                   {overBudgetCredits} briksių.
                 </p>
               )}
-              <CreditsResetNotice usedCredits={usedCredits} className="mt-4 text-[13px] font-bold text-ink/70" />
+              <CreditsResetNotice
+                usedCredits={usedCredits}
+                className="mt-4 text-[13px] font-bold text-ink/70"
+              />
 
               <div className="mt-auto flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t-2 border-ink/10 pt-5">
                 <button
@@ -1062,7 +1074,10 @@ export default function Account() {
       )}
 
       {/* ── Mano produktai ───────────────────────────────────────────── */}
-      <section className="bg-paper pt-4 pb-12 md:pb-16">
+      <section
+        id={MYSTERY_ORDERS_ANCHOR}
+        className="scroll-mt-28 bg-paper pt-4 pb-12 md:pb-16"
+      >
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           <h2 className="heading-display text-d-lg leading-[.9] tracking-[-0.02em] text-ink">
             Užsakymų
