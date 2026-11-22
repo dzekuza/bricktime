@@ -33,15 +33,28 @@ export function isWhatsAppConfigured(): boolean {
   )
 }
 
-export function sendWhatsAppAlert(message: string): Promise<SendResult> {
+// A stalled connection must not hold a drain run open past the next cron tick.
+const REQUEST_TIMEOUT_MS = 10_000
+
+export async function sendWhatsAppAlert(message: string): Promise<SendResult> {
   if (!isWhatsAppConfigured()) {
-    return Promise.resolve({
-      ok: false,
-      retryable: false,
-      error: "WhatsApp is not configured",
-    })
+    return { ok: false, retryable: false, error: "WhatsApp is not configured" }
   }
-  return getProvider() === "twilio" ? sendViaTwilio(message) : sendViaMeta(message)
+  try {
+    return getProvider() === "twilio"
+      ? await sendViaTwilio(message)
+      : await sendViaMeta(message)
+  } catch (error) {
+    // fetch rejects on a network failure or the timeout, before any response
+    // exists; report it as retryable so the outbox records the attempt. A
+    // timed-out request may still have been accepted, so a retry can rarely
+    // repeat an alert.
+    return {
+      ok: false,
+      retryable: true,
+      error: `Request failed: ${error instanceof Error ? error.message : String(error)}`,
+    }
+  }
 }
 
 // Meta reports several throttling errors as HTTP 400, identified only by the
@@ -81,6 +94,7 @@ function sendViaMeta(message: string): Promise<SendResult> {
     `${GRAPH_URL}/${Deno.env.get("WHATSAPP_PHONE_NUMBER_ID")}/messages`,
     {
       method: "POST",
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       headers: {
         Authorization: `Bearer ${Deno.env.get("WHATSAPP_TOKEN")}`,
         "Content-Type": "application/json",
@@ -124,6 +138,7 @@ function sendViaTwilio(message: string): Promise<SendResult> {
     `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`,
     {
       method: "POST",
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       headers: {
         Authorization: `Basic ${btoa(`${sid}:${token}`)}`,
         "Content-Type": "application/x-www-form-urlencoded",

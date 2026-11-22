@@ -17,6 +17,8 @@ const MAX_EMAIL_LENGTH = 254
 // link blocklist, which misses bare domains like "evil.com/pay") keeps a hostile
 // signup from turning the admin alert into a phishing message: names keep only
 // letters, spaces, apostrophes and hyphens, so no dot, colon or slash survives.
+// Emails must look like an address, and every dot is defanged to "[.]" because
+// the domain is attacker-chosen and would otherwise be a tappable link.
 const fallback = "—"
 
 const clip = (value: string, max: number) => value.slice(0, max).trim()
@@ -26,7 +28,8 @@ const name = (value: unknown) => {
   const cleaned = value
     .normalize("NFKC")
     .replace(/\s+/g, " ")
-    .replace(/[^\p{L}\p{M} '-]/gu, "")
+    // ’ and ʼ are the typographic apostrophes keyboards produce in names.
+    .replace(/[^\p{L}\p{M} '’ʼ-]/gu, "")
     .replace(/\s+/g, " ")
   return clip(cleaned, MAX_FIELD_LENGTH) || fallback
 }
@@ -37,7 +40,7 @@ const email = (value: unknown) => {
   if (typeof value !== "string") return fallback
   const trimmed = value.normalize("NFKC").trim()
   return trimmed.length <= MAX_EMAIL_LENGTH && EMAIL_RE.test(trimmed)
-    ? trimmed
+    ? trimmed.replaceAll(".", "[.]")
     : fallback
 }
 

@@ -105,10 +105,14 @@ Deno.serve(async (req) => {
     const message = formatAdminMessage(row.kind, row.payload ?? {})
     const isCapped = row.kind === "new_subscriber" && signupAlertsLeft <= 0
 
+    // Once an alert is handled (sent, skipped or failed for good) its payload,
+    // a member's name and email, is wiped: the outbox must not keep personal
+    // data of accounts that may later be deleted. Pending rows keep it only
+    // until they are handled or go stale.
     if (isStale || !isKindOn || !message || isCapped) {
       await supabase
         .from("admin_notifications")
-        .update({ status: "skipped" })
+        .update({ status: "skipped", payload: {} })
         .eq("id", row.id)
         .eq("status", "pending")
       summary.skipped++
@@ -137,7 +141,11 @@ Deno.serve(async (req) => {
     if (result.ok) {
       const { error: sentError } = await supabase
         .from("admin_notifications")
-        .update({ status: "sent", sent_at: new Date().toISOString() })
+        .update({
+          status: "sent",
+          sent_at: new Date().toISOString(),
+          payload: {},
+        })
         .eq("id", row.id)
       // The message is out, so this is only logged: retrying would resend it.
       // The claim already counted an attempt, which bounds any repeat.
@@ -156,6 +164,7 @@ Deno.serve(async (req) => {
       .update({
         last_error: result.error.slice(0, 500),
         status: isFinal ? "failed" : "pending",
+        ...(isFinal ? { payload: {} } : {}),
       })
       .eq("id", row.id)
     if (retryError) {

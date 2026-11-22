@@ -5,7 +5,7 @@
 > it (don't append) whenever the state changes. History belongs in [[session-log]]
 > and [[changelog]], not here.
 
-**Last updated:** 2026-11-20
+**Last updated:** 2026-11-22
 
 ## Current focus
 

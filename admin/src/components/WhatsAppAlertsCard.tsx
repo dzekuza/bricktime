@@ -70,9 +70,22 @@ export function WhatsAppAlertsCard() {
       })
   }, [])
 
-  async function save(next: Settings) {
+  // Re-reads the stored value right before writing, so a toggle made in
+  // another admin session is merged into the change instead of overwritten.
+  async function save(change: (latest: Settings) => Settings) {
     setBusy(true)
     setError(null)
+    const { data, error: loadError } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", SETTING_KEY)
+      .maybeSingle()
+    if (loadError) {
+      setBusy(false)
+      setError(loadError.message)
+      return
+    }
+    const next = change(parseSettings(data?.value))
     const { error: saveError } = await supabase.from("site_settings").upsert({
       key: SETTING_KEY,
       value: next,
@@ -109,7 +122,9 @@ export function WhatsAppAlertsCard() {
               id="whatsapp-enabled"
               checked={current.enabled}
               disabled={isDisabled}
-              onCheckedChange={(enabled) => void save({ ...current, enabled })}
+              onCheckedChange={(enabled) =>
+                void save((latest) => ({ ...latest, enabled }))
+              }
             />
           </div>
         </div>
@@ -125,10 +140,10 @@ export function WhatsAppAlertsCard() {
               checked={current.kinds[kind.id] !== false}
               disabled={isDisabled || !current.enabled}
               onCheckedChange={(on) =>
-                void save({
-                  ...current,
-                  kinds: { ...current.kinds, [kind.id]: on },
-                })
+                void save((latest) => ({
+                  ...latest,
+                  kinds: { ...latest.kinds, [kind.id]: on },
+                }))
               }
             />
           </div>

@@ -4,7 +4,7 @@ import { formatAdminMessage } from "./admin-notifications.ts"
 Deno.test("formats a new subscriber on one line", () => {
   assertEquals(
     formatAdminMessage("new_subscriber", { name: "Jonas", email: "j@x.lt" }),
-    "Naujas narys: Jonas · j@x.lt"
+    "Naujas narys: Jonas · j@x[.]lt"
   )
 })
 
@@ -15,7 +15,7 @@ Deno.test("formats a started subscription with a euro amount", () => {
       plan: "mega",
       amount: 49,
     }),
-    "Nauja prenumerata: j@x.lt · mega · 49,00 €"
+    "Nauja prenumerata: j@x[.]lt · mega · 49,00 €"
   )
 })
 
@@ -48,7 +48,26 @@ Deno.test("keeps Lithuanian letters, apostrophes and hyphens in names", () => {
       name: "Žygimantas O'Brien-Šalčius",
       email: "j@x.lt",
     }),
-    "Naujas narys: Žygimantas O'Brien-Šalčius · j@x.lt"
+    "Naujas narys: Žygimantas O'Brien-Šalčius · j@x[.]lt"
+  )
+})
+
+Deno.test("keeps typographic apostrophes in names", () => {
+  assertEquals(
+    formatAdminMessage("new_subscriber", {
+      name: "O’Brien ʼAli",
+      email: "j@x.lt",
+    }),
+    "Naujas narys: O’Brien ʼAli · j@x[.]lt"
+  )
+})
+
+Deno.test("defangs every dot of an attacker-chosen email domain", () => {
+  assertEquals(
+    formatAdminMessage("subscription_cancelled", {
+      email: "x@login.paypal-verify.example",
+    }),
+    "Prenumerata atšaukta: x@login[.]paypal-verify[.]example"
   )
 })
 
@@ -66,14 +85,16 @@ Deno.test("caps long names", () => {
     name: "a".repeat(200),
     email: "j@x.lt",
   })
-  assertEquals(message, `Naujas narys: ${"a".repeat(40)} · j@x.lt`)
+  assertEquals(message, `Naujas narys: ${"a".repeat(40)} · j@x[.]lt`)
 })
 
 Deno.test("keeps a long but valid email address", () => {
-  const long = `${"a".repeat(80)}@example.lt`
+  const local = "a".repeat(80)
   assertEquals(
-    formatAdminMessage("subscription_cancelled", { email: long }),
-    `Prenumerata atšaukta: ${long}`
+    formatAdminMessage("subscription_cancelled", {
+      email: `${local}@example.lt`,
+    }),
+    `Prenumerata atšaukta: ${local}@example[.]lt`
   )
 })
 
