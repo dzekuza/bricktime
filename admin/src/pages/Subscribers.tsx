@@ -1,6 +1,12 @@
 import { useState, useMemo, useEffect, useRef } from "react"
 import { toast } from "@/lib/toast"
-import { MoreHorizontalIcon, SearchIcon, Trash2Icon } from "lucide-react"
+import { useAssistantPanel } from "@/context/AssistantContext"
+import {
+  MoreHorizontalIcon,
+  SearchIcon,
+  SparklesIcon,
+  Trash2Icon,
+} from "lucide-react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import { IconButton } from "@/components/ui/icon-button"
@@ -54,6 +60,7 @@ function initials(name: string) {
 }
 
 export function Subscribers() {
+  const { openWith: openAssistant } = useAssistantPanel()
   const [items, setItems] = useState<Subscriber[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useQuerySearch()
@@ -376,13 +383,23 @@ export function Subscribers() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Customers &amp; Subscribers
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {loading ? "Loading…" : `${items.length} total members`}
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Customers &amp; Subscribers
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {loading ? "Loading…" : `${items.length} total members`}
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => openAssistant("Find a client named ")}
+        >
+          <SparklesIcon className="size-4" />
+          Ask assistant
+        </Button>
       </div>
 
       {/* Stats */}
