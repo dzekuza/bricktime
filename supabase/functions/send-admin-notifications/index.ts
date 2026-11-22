@@ -22,8 +22,12 @@ const DRAIN_BUDGET_MS = 20_000
 const MAX_AGE_MS = 6 * 60 * 60 * 1000
 // Alerts that anyone with an account can trigger without paying per event
 // (signups fire before email confirmation, forms and reviews are member input,
-// and a member can rent and return in a loop). The per-day cap bounds what a
-// flood of fake activity can cost in WhatsApp messages. Paid events
+// and a member can rent and return in a loop). The cap, counted over a rolling
+// 24 hours, bounds what a flood of fake activity can cost in WhatsApp
+// messages. Runs do not overlap (cron every minute, 20 s budget), so the
+// in-memory count is enough; a manual parallel invocation could overshoot by
+// at most one batch. The kinds here must match the partial index in migration
+// 20261122130100. Paid events
 // (subscriptions, merch, gift cards) are not capped: money backs them. Rentals
 // get a higher cap because they are real business; past it, check the admin
 // Orders page instead of the alerts.
@@ -123,8 +127,11 @@ Deno.serve(async (req) => {
     if (Date.now() - startedAt > DRAIN_BUDGET_MS) break
 
     const isStale = Date.now() - Date.parse(row.created_at) > MAX_AGE_MS
+    // A test alert checks delivery, so it goes out even while alerts are off:
+    // an admin tests before switching them on. It is admin-only and capped.
     const isKindOn =
-      settings.enabled === true && settings.kinds?.[row.kind] !== false
+      row.kind === "test" ||
+      (settings.enabled === true && settings.kinds?.[row.kind] !== false)
     const message = formatAdminMessage(row.kind, row.payload ?? {})
     const isCapped = alertsLeft.has(row.kind) && alertsLeft.get(row.kind)! <= 0
 

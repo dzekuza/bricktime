@@ -138,6 +138,12 @@ declare
   v_name text;
   v_title text;
 begin
+  -- Only a member's own request is news; an admin moving an order to this
+  -- status in the dashboard is not.
+  if public.is_admin_session() then
+    return new;
+  end if;
+
   select name into v_name from public.subscribers where id = new.subscriber_id;
   select title into v_title from public.products where id = new.product_id;
   perform public.enqueue_admin_notification(

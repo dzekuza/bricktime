@@ -42,6 +42,7 @@ export function WhatsAppDeliveryLog() {
       setError(loadError.message)
       return
     }
+    setError(null)
     setRows(data)
   }, [])
 
@@ -71,7 +72,8 @@ export function WhatsAppDeliveryLog() {
         <div className="flex flex-col gap-0.5">
           <p className="text-sm font-medium">Delivery check</p>
           <p className="text-sm text-muted-foreground">
-            Sends a test message to the admin number within about a minute.
+            Sends a test message to the admin number within about a minute, even
+            while alerts are switched off.
           </p>
         </div>
         <Button variant="outline" size="sm" disabled={busy} onClick={() => void handleTest()}>

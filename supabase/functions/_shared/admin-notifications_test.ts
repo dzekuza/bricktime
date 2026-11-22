@@ -204,8 +204,8 @@ Deno.test("product titles and codes keep no link-shaped characters", () => {
     name: "Jonas",
     product: "evil.com/pay https://x.example",
   })
-  const product = message!.split(" · ")[1]
-  assertEquals(/[.:/\\[\]@]/.test(product), false, product)
+  // Asserted exactly, so a formatter that drops the product cannot pass.
+  assertEquals(message, "Nauja nuoma: Jonas · evilcompay httpsxexample")
 })
 
 Deno.test("enqueue stops at once on a duplicate key", async () => {
