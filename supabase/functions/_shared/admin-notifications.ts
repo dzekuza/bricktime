@@ -109,6 +109,198 @@ export function formatAdminMessage(
   }
 }
 
+// --- Telegram: rich HTML message --------------------------------------------
+// Telegram can render bold text, code and links, so its alert carries more
+// than the one-line text above. Every value is still untrusted: text is
+// HTML-escaped, and a link is built only from a fixed base or a validated id,
+// never from a member-supplied URL.
+
+export type TelegramAlert = {
+  html: string
+  buttons: { text: string; url: string }[]
+}
+
+const DEFAULT_ADMIN_URL = "https://www.bricktime.lt/admin/"
+
+const esc = (value: string) =>
+  value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+
+const adminLink = (path: string) => {
+  const base = Deno.env.get("ADMIN_SITE_URL") ?? DEFAULT_ADMIN_URL
+  return `${base.replace(/\/+$/, "")}/${path}`
+}
+
+// Cleaned like the plain alert, but readable: the email stays whole and becomes
+// a mailto link (the address already passed EMAIL_RE, so it holds no quote or
+// angle bracket), which Telegram would otherwise guess at.
+const emailHtml = (value: unknown) => {
+  const plain = email(value)
+  if (plain === fallback) return fallback
+  const real = plain.replaceAll("[.]", ".")
+  return `<a href="mailto:${real}">${esc(real)}</a>`
+}
+
+const STRIPE_CUSTOMER_RE = /^cus_[A-Za-z0-9]+$/
+const STRIPE_INVOICE_URL_RE = /^https:\/\/invoice\.stripe\.com\/[\w\-/.?=&%]+$/
+
+const stripeButtons = (payload: Payload) => {
+  const buttons: TelegramAlert["buttons"] = []
+  const customer = payload.stripe_customer
+  if (typeof customer === "string" && STRIPE_CUSTOMER_RE.test(customer)) {
+    buttons.push({
+      text: "Stripe klientas",
+      url: `https://dashboard.stripe.com/customers/${customer}`,
+    })
+  }
+  const invoice = payload.invoice_url
+  if (typeof invoice === "string" && STRIPE_INVOICE_URL_RE.test(invoice)) {
+    buttons.push({ text: "Sąskaita", url: invoice })
+  }
+  return buttons
+}
+
+const line = (icon: string, title: string, value: string) =>
+  `${icon} ${title}: ${value}`
+
+const stars = (value: unknown) => {
+  const rating = Number(value)
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) return fallback
+  return `${"★".repeat(rating)}${"☆".repeat(5 - rating)} (${rating}/5)`
+}
+
+const card = (
+  icon: string,
+  title: string,
+  rows: string[],
+  buttons: TelegramAlert["buttons"] = []
+): TelegramAlert => ({
+  html: [`${icon} <b>${esc(title)}</b>`, ...rows].join("\n"),
+  buttons,
+})
+
+export function formatTelegramMessage(
+  kind: string,
+  payload: Payload
+): TelegramAlert | null {
+  const open = (text: string, path: string) => [
+    { text, url: adminLink(path) },
+  ]
+  switch (kind) {
+    case "new_subscriber":
+      return card(
+        "🆕",
+        "Naujas narys",
+        [
+          line("👤", "Vardas", `<b>${esc(name(payload.name))}</b>`),
+          line("✉️", "El. paštas", emailHtml(payload.email)),
+        ],
+        open("Nariai", "subscribers")
+      )
+    case "subscription_started":
+      return card(
+        "🎉",
+        "Nauja prenumerata",
+        [
+          line("✉️", "El. paštas", emailHtml(payload.email)),
+          line("📦", "Planas", `<code>${esc(planKey(payload.plan))}</code>`),
+          line("💶", "Suma", `<b>${esc(euro(payload.amount))}</b>`),
+        ],
+        [...open("Nariai", "subscribers"), ...stripeButtons(payload)]
+      )
+    case "payment_failed":
+      return card(
+        "⚠️",
+        "Nepavyko apmokėjimas",
+        [
+          line("✉️", "El. paštas", emailHtml(payload.email)),
+          line("💶", "Suma", `<b>${esc(euro(payload.amount))}</b>`),
+        ],
+        [...open("Nariai", "subscribers"), ...stripeButtons(payload)]
+      )
+    case "subscription_cancelled":
+      return card(
+        "👋",
+        "Prenumerata atšaukta",
+        [line("✉️", "El. paštas", emailHtml(payload.email))],
+        [...open("Nariai", "subscribers"), ...stripeButtons(payload)]
+      )
+    case "merch_order":
+      return card(
+        "🛍",
+        `Merch užsakymas #${label(payload.order_number)}`,
+        [
+          line("👤", "Pirkėjas", `<b>${esc(name(payload.name))}</b>`),
+          line("🧱", "Prekė", esc(label(payload.item))),
+          line("💶", "Suma", `<b>${esc(euro(payload.amount))}</b>`),
+        ],
+        open("Merch užsakymai", "merch")
+      )
+    case "rental_order":
+      return card(
+        "📦",
+        "Nauja nuoma",
+        [
+          line("👤", "Narys", `<b>${esc(name(payload.name))}</b>`),
+          line("🧱", "Rinkinys", esc(label(payload.product))),
+        ],
+        open("Užsakymai", "orders")
+      )
+    case "mystery_request":
+      return card(
+        "🎁",
+        "Mystery Box užklausa",
+        [line("👤", "Narys", `<b>${esc(name(payload.name))}</b>`)],
+        open("Užsakymai", "orders")
+      )
+    case "return_requested":
+      return card(
+        "↩️",
+        "Grąžinimo užklausa",
+        [
+          line("👤", "Narys", `<b>${esc(name(payload.name))}</b>`),
+          line("🧱", "Rinkinys", esc(label(payload.product))),
+        ],
+        open("Užsakymai", "orders")
+      )
+    case "missing_part_request":
+      return card(
+        "🔧",
+        "Trūkstama detalė",
+        [
+          line("👤", "Narys", `<b>${esc(name(payload.name))}</b>`),
+          line("🧱", "Rinkinys", `<code>${esc(label(payload.set))}</code>`),
+          line("🔩", "Detalė", `<code>${esc(label(payload.part))}</code> × ${esc(label(payload.quantity))}`),
+        ],
+        open("Trūkstamos detalės", "missing-parts")
+      )
+    case "gift_card_bought":
+      return card(
+        "💝",
+        "Nupirkta dovanų kortelė",
+        [
+          line("💶", "Suma", `<b>${esc(euro(payload.amount))}</b>`),
+          line("✉️", "Pirkėjas", emailHtml(payload.email)),
+        ],
+        open("Dovanų kortelės", "gift-cards")
+      )
+    case "product_review":
+      return card(
+        "⭐",
+        "Naujas atsiliepimas",
+        [
+          line("👤", "Narys", `<b>${esc(name(payload.name))}</b>`),
+          line("🧱", "Rinkinys", esc(label(payload.product))),
+          line("⭐", "Įvertinimas", stars(payload.rating)),
+        ],
+        open("Atsiliepimai", "reviews")
+      )
+    case "test":
+      return card("✅", "Bandomasis pranešimas", ["Pranešimai veikia."])
+    default:
+      return null
+  }
+}
+
 const ENQUEUE_ATTEMPTS = 3
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))

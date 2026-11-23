@@ -3,6 +3,7 @@
 // sequentially (Deno's default); do not pass --parallel.
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts"
 import { sendTelegramAlert } from "./telegram.ts"
+import { formatTelegramMessage } from "./admin-notifications.ts"
 import type { SendResult } from "./whatsapp.ts"
 
 const ENV_KEYS = ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"]
@@ -113,4 +114,61 @@ Deno.test("an error body that echoes the bot key is redacted", async () => {
       assertEquals(!result.ok && result.error.includes(FAKE_BOT_KEY), false)
     }
   )
+})
+
+Deno.test("rich alerts go out as HTML with link buttons", async () => {
+  let body: Record<string, unknown> = {}
+  await withTelegram(
+    CONFIGURED,
+    (_input, init) => {
+      body = JSON.parse(String(init?.body))
+      return reply(200, { ok: true })
+    },
+    async () => {
+      const rich = { html: "<b>Hi</b>", buttons: [{ text: "Go", url: "https://x.lt/a" }] }
+      assertEquals(await sendTelegramAlert("hi", rich), { ok: true })
+    }
+  )
+  assertEquals(body.parse_mode, "HTML")
+  assertEquals(body.text, "<b>Hi</b>")
+  assertEquals(body.reply_markup, {
+    inline_keyboard: [[{ text: "Go", url: "https://x.lt/a" }]],
+  })
+})
+
+Deno.test("a rejected rich alert is resent as plain text", async () => {
+  const bodies: Record<string, unknown>[] = []
+  await withTelegram(
+    CONFIGURED,
+    (_input, init) => {
+      bodies.push(JSON.parse(String(init?.body)))
+      return reply(bodies.length === 1 ? 400 : 200, {})
+    },
+    async () => {
+      assertEquals(await sendTelegramAlert("hi", { html: "<b>Hi" }), { ok: true })
+    }
+  )
+  assertEquals(bodies.length, 2)
+  assertEquals(bodies[1].text, "BRICKTIME: hi")
+  assertEquals("parse_mode" in bodies[1], false)
+})
+
+Deno.test("telegram formatter escapes markup and only links known targets", () => {
+  const alert = formatTelegramMessage("payment_failed", {
+    email: "a.b@example.com",
+    amount: 34.99,
+    stripe_customer: "cus_ABC123",
+    invoice_url: "javascript:alert(1)",
+  })
+  assertEquals(alert?.html.includes('<a href="mailto:a.b@example.com">'), true)
+  assertEquals(alert?.html.includes("34,99 €"), true)
+  assertEquals(alert?.buttons.map((b) => b.text), ["Nariai", "Stripe klientas"])
+
+  const hostile = formatTelegramMessage("new_subscriber", {
+    name: "<b>x</b> evil.com",
+    email: "<script>@x.com",
+  })
+  assertEquals(hostile?.html.includes("<script>"), false)
+  assertEquals(hostile?.html.includes("evil.com"), false)
+  assertEquals(formatTelegramMessage("nope", {}), null)
 })

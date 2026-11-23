@@ -11,7 +11,10 @@
 // yet or a send failed in a way worth retrying.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
-import { formatAdminMessage } from "../_shared/admin-notifications.ts"
+import {
+  formatAdminMessage,
+  formatTelegramMessage,
+} from "../_shared/admin-notifications.ts"
 import {
   isAnyChannelConfigured,
   sendAdminAlert,
@@ -176,7 +179,10 @@ Deno.serve(async (req) => {
     }
     if (!claimed?.length) continue
 
-    const result = await sendAdminAlert(message)
+    const result = await sendAdminAlert(
+      message,
+      formatTelegramMessage(row.kind, row.payload ?? {}) ?? undefined
+    )
     if (result.ok) {
       const { error: sentError } = await supabase
         .from("admin_notifications")
