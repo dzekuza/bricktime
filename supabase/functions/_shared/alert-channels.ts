@@ -3,7 +3,11 @@
 // is down never causes the other one to repeat the message; the failure is
 // returned as a warning for the outbox log instead.
 
-import { sendTelegramAlert, isTelegramConfigured } from "./telegram.ts"
+import {
+  sendTelegramAlert,
+  isTelegramConfigured,
+  type TelegramRich,
+} from "./telegram.ts"
 import {
   isWhatsAppConfigured,
   sendWhatsAppAlert,
@@ -13,7 +17,7 @@ import {
 type Channel = {
   name: string
   isConfigured: () => boolean
-  send: (message: string) => Promise<SendResult>
+  send: (message: string, rich?: TelegramRich) => Promise<SendResult>
 }
 
 const CHANNELS: Channel[] = [
@@ -25,7 +29,10 @@ export function isAnyChannelConfigured(): boolean {
   return CHANNELS.some((channel) => channel.isConfigured())
 }
 
-export async function sendAdminAlert(message: string): Promise<SendResult> {
+export async function sendAdminAlert(
+  message: string,
+  telegram?: TelegramRich
+): Promise<SendResult> {
   const active = CHANNELS.filter((channel) => channel.isConfigured())
   if (active.length === 0) {
     return { ok: false, retryable: false, error: "No alert channel is configured" }
@@ -34,7 +41,7 @@ export async function sendAdminAlert(message: string): Promise<SendResult> {
   const outcomes = await Promise.all(
     active.map(async (channel) => ({
       name: channel.name,
-      result: await channel.send(message),
+      result: await channel.send(message, telegram),
     }))
   )
   const failures = outcomes.flatMap(({ name, result }) =>

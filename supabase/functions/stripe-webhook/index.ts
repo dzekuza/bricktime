@@ -856,6 +856,7 @@ async function handleSubscriptionCheckout(session: Stripe.Checkout.Session) {
         plan: planKey,
         amount:
           session.amount_total == null ? undefined : session.amount_total / 100,
+        stripe_customer: customerId,
       },
       `subscription_started:${subscriptionId ?? session.id}`
     )
@@ -1074,7 +1075,13 @@ Deno.serve(async (req) => {
           await enqueueAdminNotification(
             supabase,
             "subscription_cancelled",
-            { email: fallbackEmail },
+            {
+              email: fallbackEmail,
+              stripe_customer:
+                typeof subscription.customer === "string"
+                  ? subscription.customer
+                  : subscription.customer?.id,
+            },
             `subscription_cancelled:${subscription.id}`
           )
         }
@@ -1156,7 +1163,12 @@ Deno.serve(async (req) => {
           await enqueueAdminNotification(
             supabase,
             "payment_failed",
-            { email: alertEmail, amount: invoice.amount_due / 100 },
+            {
+              email: alertEmail,
+              amount: invoice.amount_due / 100,
+              stripe_customer: customerId,
+              invoice_url: invoice.hosted_invoice_url ?? undefined,
+            },
             `payment_failed:${invoice.id}`
           )
         }

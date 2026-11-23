@@ -19,7 +19,30 @@ export function isTelegramConfigured(): boolean {
 const redact = (text: string, token: string) =>
   text.split(token).join("[token]")
 
-export async function sendTelegramAlert(message: string): Promise<SendResult> {
+export type TelegramRich = {
+  html: string
+  buttons?: { text: string; url: string }[]
+}
+
+async function post(
+  token: string,
+  body: Record<string, unknown>
+): Promise<Response> {
+  return await fetch(`${API_URL}/bot${token}/sendMessage`, {
+    method: "POST",
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  })
+}
+
+// With `rich`, the alert goes out as HTML (bold, links, link buttons); the
+// plain message is the fallback if Telegram rejects the markup, so an alert is
+// never lost to a formatting problem.
+export async function sendTelegramAlert(
+  message: string,
+  rich?: TelegramRich
+): Promise<SendResult> {
   const token = Deno.env.get("TELEGRAM_BOT_TOKEN")
   const chatId = Deno.env.get("TELEGRAM_CHAT_ID")
   if (!token || !chatId) {
@@ -27,18 +50,31 @@ export async function sendTelegramAlert(message: string): Promise<SendResult> {
   }
 
   try {
-    const res = await fetch(`${API_URL}/bot${token}/sendMessage`, {
-      method: "POST",
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-      headers: { "Content-Type": "application/json" },
-      // No parse_mode: the text is plain, so nothing in it can be read as
-      // markup, and link previews are off.
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: `BRICKTIME: ${message}`,
-        disable_web_page_preview: true,
-      }),
-    })
+    const plain = {
+      chat_id: chatId,
+      text: `BRICKTIME: ${message}`,
+      disable_web_page_preview: true,
+    }
+    let res = rich
+      ? await post(token, {
+          chat_id: chatId,
+          text: rich.html,
+          parse_mode: "HTML",
+          disable_web_page_preview: true,
+          ...(rich.buttons?.length
+            ? {
+                reply_markup: {
+                  inline_keyboard: [
+                    rich.buttons.map(({ text, url }) => ({ text, url })),
+                  ],
+                },
+              }
+            : {}),
+        })
+      : await post(token, plain)
+    // 400 is a markup or button problem here (the chat id is valid, or the
+    // plain send below would fail too): resend as plain text.
+    if (rich && res.status === 400) res = await post(token, plain)
     if (res.ok) return { ok: true }
     // Rate limits and server errors are worth another try; a bad token or
     // chat id (401, 403, 400) would fail the same way forever.
