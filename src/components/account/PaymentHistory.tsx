@@ -110,7 +110,7 @@ export function PaymentHistory({
 
   if (rows.length === 0) {
     return (
-      <div className="mt-6 flex flex-col items-start gap-2 py-6">
+      <div className="mt-6 flex flex-col items-start gap-2">
         <p className="font-display text-[32px] leading-none text-ink/15 uppercase">
           Tuščia
         </p>
@@ -126,7 +126,7 @@ export function PaymentHistory({
       {rows.map((row) => (
         <li
           key={row.id}
-          className="flex flex-col gap-3 border-t-2 border-ink/10 py-4 first:border-t-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6"
+          className="flex flex-col gap-3 border-t-2 border-ink/10 py-4 first:border-t-0 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-6"
         >
           <div className="min-w-0">
             <p className="text-[15px] leading-snug font-bold text-ink">

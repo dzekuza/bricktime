@@ -34,7 +34,7 @@ function HistoryRow({ order }: { order: RentedOrder }) {
   const badge = STATUS_BADGES[order.status]
   const hidden = isMysteryHidden(order)
   return (
-    <li className="flex flex-col gap-3 border-b-2 border-ink/10 py-4 last:border-b-0 sm:flex-row sm:items-center sm:gap-5">
+    <li className="flex flex-col gap-3 border-b-2 border-ink/10 py-4 first:pt-0 last:border-b-0 last:pb-0 sm:flex-row sm:items-center sm:gap-5">
       <div className="flex min-w-0 flex-1 items-center gap-4">
         <div className="relative size-14 shrink-0 overflow-hidden rounded-xl border-2 border-ink/10 bg-cream">
           {order.productImage ? (
