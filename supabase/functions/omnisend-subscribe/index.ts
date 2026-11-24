@@ -1,3 +1,5 @@
+import { omnisendFetch } from "../_shared/omnisend.ts"
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -33,25 +35,22 @@ Deno.serve(async (req) => {
       throw new Error("OMNISEND_API_KEY is not configured")
     }
 
-    const res = await fetch("https://api.omnisend.com/v5/contacts", {
+    const normalizedEmail = email.trim().toLowerCase()
+    const res = await omnisendFetch(apiKey, "/contacts", {
       method: "POST",
-      headers: {
-        "X-API-KEY": apiKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+      body: {
         identifiers: [
           {
             type: "email",
-            id: email.trim().toLowerCase(),
+            id: normalizedEmail,
             channels: { email: { status: "subscribed" } },
           },
         ],
-        tags: ["coming-soon"],
-      }),
+      },
     })
 
-    if (!res.ok) {
+    // 409: the address is already a contact, which is fine for a waitlist signup.
+    if (!res.ok && res.status !== 409) {
       const detail = await res.text()
       console.error(`Omnisend contact upsert failed: ${res.status} ${detail}`)
       return new Response(
@@ -65,18 +64,26 @@ Deno.serve(async (req) => {
       )
     }
 
-    const eventRes = await fetch("https://api.omnisend.com/v5/events", {
+    // A separate call: `tags` on the contact itself now replaces the whole list
+    // (v5 appended), which would wipe the tags of an existing customer.
+    const tagRes = await omnisendFetch(apiKey, "/contacts/tags", {
       method: "POST",
-      headers: {
-        "X-API-KEY": apiKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+      body: { emails: [normalizedEmail], tags: ["coming-soon"] },
+    })
+    if (!tagRes.ok) {
+      console.error(
+        `Omnisend tagging failed: ${tagRes.status} ${await tagRes.text()}`
+      )
+    }
+
+    const eventRes = await omnisendFetch(apiKey, "/events", {
+      method: "POST",
+      body: {
         eventName: "coming soon subscribed",
         origin: "api",
-        contact: { email: email.trim().toLowerCase() },
+        contact: { email: normalizedEmail },
         properties: {},
-      }),
+      },
     })
 
     if (!eventRes.ok) {
