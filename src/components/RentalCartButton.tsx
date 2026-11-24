@@ -73,7 +73,7 @@ export function RentalCartButton({
       {(isInCart || note) && (
         <p className="basis-full font-mono text-[12px] text-ink/70">
           {note ?? "Pridėta."}{" "}
-          <Link to="/rinkiniai/krepselis" className="font-bold underline">
+          <Link to="/krepselis" className="font-bold underline">
             Peržiūrėti krepšelį →
           </Link>
         </p>

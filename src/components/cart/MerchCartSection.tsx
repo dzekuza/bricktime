@@ -2,9 +2,6 @@ import { useEffect, useMemo, useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { MinusIcon, PlusIcon, Trash2Icon } from "lucide-react"
 
-import Nav from "@/components/Nav"
-import Footer from "@/components/Footer"
-import { Seo } from "@/components/Seo"
 import { Button } from "@/components/ui/button"
 import { ImagePlaceholder } from "@/components/ImagePlaceholder"
 import { VatNote } from "@/components/VatNote"
@@ -24,7 +21,7 @@ import { useMerchCart } from "@/hooks/useMerchCart"
 import { useSavedTerminal } from "@/hooks/useSavedTerminal"
 import { readFunctionError } from "@/lib/function-error"
 import { supabase } from "@/lib/supabase"
-import type { MerchItem } from "./Merch"
+import type { MerchItem } from "@/pages/Merch"
 
 type CartRow = {
   itemId: string
@@ -34,7 +31,8 @@ type CartRow = {
   maxQuantity: number
 }
 
-export default function MerchCart() {
+/** The merch half of the cart page: paid for through Stripe. */
+export function MerchCartSection() {
   const { user } = useAuth()
   const { lines, setQuantity, removeLine } = useMerchCart()
   const [items, setItems] = useState<Record<string, MerchItem> | null>(null)
@@ -110,14 +108,9 @@ export default function MerchCart() {
 
   if (items === null) {
     return (
-      <>
-        <Seo title="Krepšelis" path="/merch/krepselis" noindex />
-        <Nav />
-        <div className="mx-auto max-w-[1320px] px-4 py-10 md:px-7">
-          <div className="brick-card h-64 animate-pulse bg-ink/10" />
-        </div>
-        <Footer />
-      </>
+      <Shell>
+        <div className="brick-card h-64 animate-pulse bg-ink/10" />
+      </Shell>
     )
   }
 
@@ -177,7 +170,7 @@ export default function MerchCart() {
         body: {
           ...checkoutBody,
           successUrl: returnUrl,
-          cancelUrl: `${origin}/merch/krepselis`,
+          cancelUrl: `${origin}/krepselis`,
         },
       }
     )
@@ -195,115 +188,115 @@ export default function MerchCart() {
   }
 
   return (
-    <>
-      <Seo title="Krepšelis" path="/merch/krepselis" noindex />
-      <Nav />
-
-      <section className="bg-paper py-4 md:py-8">
-        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <h1 className="heading-display text-d-lg mb-6 text-ink md:mb-8">
-            Krepšelis
-          </h1>
-
-          {rows.length === 0 ? (
-            <div className="brick-card flex flex-col items-start gap-4 p-6 md:p-8">
-              <p className="text-[16px] text-ink/75">Krepšelis tuščias.</p>
-              <Button asChild size="lg">
-                <Link to="/merch">Į merch parduotuvę</Link>
-              </Button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1.4fr_1fr]">
-              <ul className="flex flex-col gap-4">
-                {rows.map((row) => (
-                  <CartLine
-                    key={`${row.itemId}|${row.size}`}
-                    row={row}
-                    onQuantity={(q) => setQuantity(row.itemId, row.size, q)}
-                    onRemove={() => removeLine(row.itemId, row.size)}
-                  />
-                ))}
-              </ul>
-
-              <div className="brick-card bg-paper p-6 md:p-8">
-                <h2 className="heading-display text-d-sm text-ink">
-                  Užsakymo suvestinė
-                </h2>
-
-                <MerchDelivery
-                  method={deliveryMethod}
-                  onMethodChange={setDeliveryMethod}
-                  terminal={terminal}
-                  onTerminalChange={setTerminal}
-                />
-                <MerchDiscountCode
-                  priceCents={subtotalCents}
-                  applied={activeCode}
-                  onApply={(code) => {
-                    setApplied({ code, subtotalCents })
-                    setBuyError(null)
-                  }}
-                  onClear={() => setApplied(null)}
-                />
-
-                <dl className="mt-6 flex flex-col gap-2 border-t-2 border-ink/10 pt-5 font-mono text-[13px] text-ink">
-                  <Total label="Prekės" cents={subtotalCents} />
-                  {discountCents > 0 && (
-                    <Total label="Nuolaida" cents={-discountCents} />
-                  )}
-                  {shippingCents > 0 && (
-                    <Total label="Pristatymas" cents={shippingCents} />
-                  )}
-                  <div className="flex items-center justify-between border-t-2 border-ink/10 pt-3 text-[16px] font-bold">
-                    <dt>Iš viso</dt>
-                    <dd>€{(totalCents / 100).toFixed(2)}</dd>
-                  </div>
-                </dl>
-                <VatNote className="mt-2" />
-
-                {canUseWallet && (
-                  <WalletCheckout
-                    orderKey={walletOrderKey}
-                    createSession={createWalletSession}
-                    onError={setBuyError}
-                    onPendingChange={setIsWalletPending}
-                  />
-                )}
-
-                <Button
-                  size="lg"
-                  disabled={!canCheckout || isWalletPending}
-                  onClick={handleCheckout}
-                  className="mt-5 w-full justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)] disabled:opacity-40"
-                >
-                  {buying
-                    ? "Kraunama…"
-                    : hasUnavailable
-                      ? "Pašalink neprieinamas prekes"
-                      : !isDeliveryReady
-                        ? "Pasirink paštomatą"
-                        : `Apmokėti — €${(totalCents / 100).toFixed(2)} →`}
-                </Button>
-                {buyError && (
-                  <p className="mt-2 font-mono text-[12px] text-red-500">
-                    {buyError}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          <Link
-            to="/merch"
-            className="label-mono mt-6 inline-flex items-center gap-1.5 text-ink/40 transition-colors hover:text-ink"
-          >
-            ← Tęsti apsipirkimą
-          </Link>
+    <Shell>
+      {rows.length === 0 ? (
+        <div className="brick-card flex flex-col items-start gap-4 p-6 md:p-8">
+          <p className="text-[16px] text-ink/75">Merch krepšelis tuščias.</p>
+          <Button asChild size="lg">
+            <Link to="/merch">Į merch parduotuvę</Link>
+          </Button>
         </div>
-      </section>
+      ) : (
+        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1.4fr_1fr]">
+          <ul className="flex flex-col gap-4">
+            {rows.map((row) => (
+              <CartLine
+                key={`${row.itemId}|${row.size}`}
+                row={row}
+                onQuantity={(q) => setQuantity(row.itemId, row.size, q)}
+                onRemove={() => removeLine(row.itemId, row.size)}
+              />
+            ))}
+          </ul>
 
-      <Footer />
-    </>
+          <div className="brick-card bg-paper p-6 md:p-8">
+            <h2 className="heading-display text-d-sm text-ink">
+              Užsakymo suvestinė
+            </h2>
+
+            <MerchDelivery
+              method={deliveryMethod}
+              onMethodChange={setDeliveryMethod}
+              terminal={terminal}
+              onTerminalChange={setTerminal}
+            />
+            <MerchDiscountCode
+              priceCents={subtotalCents}
+              applied={activeCode}
+              onApply={(code) => {
+                setApplied({ code, subtotalCents })
+                setBuyError(null)
+              }}
+              onClear={() => setApplied(null)}
+            />
+
+            <dl className="mt-6 flex flex-col gap-2 border-t-2 border-ink/10 pt-5 font-mono text-[13px] text-ink">
+              <Total label="Prekės" cents={subtotalCents} />
+              {discountCents > 0 && (
+                <Total label="Nuolaida" cents={-discountCents} />
+              )}
+              {shippingCents > 0 && (
+                <Total label="Pristatymas" cents={shippingCents} />
+              )}
+              <div className="flex items-center justify-between border-t-2 border-ink/10 pt-3 text-[16px] font-bold">
+                <dt>Iš viso</dt>
+                <dd>€{(totalCents / 100).toFixed(2)}</dd>
+              </div>
+            </dl>
+            <VatNote className="mt-2" />
+
+            {canUseWallet && (
+              <WalletCheckout
+                orderKey={walletOrderKey}
+                createSession={createWalletSession}
+                onError={setBuyError}
+                onPendingChange={setIsWalletPending}
+              />
+            )}
+
+            <Button
+              size="lg"
+              disabled={!canCheckout || isWalletPending}
+              onClick={handleCheckout}
+              className="mt-5 w-full justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)] disabled:opacity-40"
+            >
+              {buying
+                ? "Kraunama…"
+                : hasUnavailable
+                  ? "Pašalink neprieinamas prekes"
+                  : !isDeliveryReady
+                    ? "Pasirink paštomatą"
+                    : `Apmokėti — €${(totalCents / 100).toFixed(2)} →`}
+            </Button>
+            {buyError && (
+              <p className="mt-2 font-mono text-[12px] text-red-500">
+                {buyError}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+    </Shell>
+  )
+}
+
+function Shell({ children }: { children: ReactNode }) {
+  return (
+    <section aria-labelledby="cart-merch-heading">
+      <h2
+        id="cart-merch-heading"
+        className="heading-display text-d-md mb-4 text-ink md:mb-6"
+      >
+        Merch
+      </h2>
+      {children}
+      <Link
+        to="/merch"
+        className="label-mono mt-6 inline-flex items-center gap-1.5 text-ink/40 transition-colors hover:text-ink"
+      >
+        ← Tęsti apsipirkimą
+      </Link>
+    </section>
   )
 }
 

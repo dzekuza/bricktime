@@ -8,7 +8,6 @@ import {
   UserIcon,
   InfoIcon,
   ShoppingBagIcon,
-  BlocksIcon,
 } from "lucide-react"
 import {
   Dialog,
@@ -136,14 +135,16 @@ function CreditsPill() {
   )
 }
 
-// ── Cart link (merch) ────────────────────────────────────────────────────────
+// ── Cart link (sets and merch share one cart page) ───────────────────────────
 
 function CartLink() {
-  const { count } = useMerchCart()
+  const { count: merchCount } = useMerchCart()
+  const { count: setCount } = useRentalCart()
+  const count = merchCount + setCount
 
   return (
     <Link
-      to="/merch/krepselis"
+      to="/krepselis"
       className="brick-hover-sm relative flex size-9 items-center justify-center rounded-full border-2 border-ink bg-paper"
       aria-label={count > 0 ? `Krepšelis (${count})` : "Krepšelis"}
     >
@@ -153,26 +154,6 @@ function CartLink() {
           {count}
         </span>
       )}
-    </Link>
-  )
-}
-
-// ── Set cart link (shown only once a set has been added) ─────────────────────
-
-function RentalCartLink() {
-  const { count } = useRentalCart()
-  if (count === 0) return null
-
-  return (
-    <Link
-      to="/rinkiniai/krepselis"
-      className="brick-hover-sm relative flex size-9 items-center justify-center rounded-full border-2 border-ink bg-paper"
-      aria-label={`Rinkinių krepšelis (${count})`}
-    >
-      <BlocksIcon className="size-4 text-ink" />
-      <span className="absolute -top-2 -right-2 grid min-w-5 place-items-center rounded-full border-2 border-ink bg-brand-orange px-1 font-mono text-[10px] leading-4 font-bold text-paper">
-        {count}
-      </span>
     </Link>
   )
 }
@@ -267,7 +248,6 @@ export default function Nav() {
               </div>
 
               <div className="flex items-center gap-2">
-                <RentalCartLink />
                 <CartLink />
                 <AvatarLink />
                 <button

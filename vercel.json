@@ -20,14 +20,6 @@
       "destination": "/index.html"
     },
     {
-      "source": "/merch/krepselis",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/rinkiniai/krepselis",
-      "destination": "/index.html"
-    },
-    {
       "source": "/merch/aciu",
       "destination": "/index.html"
     },
@@ -45,6 +37,10 @@
     },
     {
       "source": "/apmokejimas",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/krepselis",
       "destination": "/index.html"
     }
   ],
@@ -87,6 +83,16 @@
     {
       "source": "/profile/:userId",
       "destination": "/profilis/:userId",
+      "statusCode": 301
+    },
+    {
+      "source": "/merch/krepselis",
+      "destination": "/krepselis",
+      "statusCode": 301
+    },
+    {
+      "source": "/rinkiniai/krepselis",
+      "destination": "/krepselis",
       "statusCode": 301
     }
   ]
