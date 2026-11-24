@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { ComingSoonGateCard } from '@/components/ComingSoonGateCard'
+import { StoreOpenTimeCard } from '@/components/StoreOpenTimeCard'
 import { WhatsAppAlertsCard } from '@/components/WhatsAppAlertsCard'
 
 export function Settings() {
@@ -66,6 +67,7 @@ export function Settings() {
         {/* General */}
         <TabsContent value="general" className="flex flex-col gap-4">
           <ComingSoonGateCard />
+          <StoreOpenTimeCard />
           <Card>
             <CardHeader>
               <CardTitle>General</CardTitle>

@@ -8,6 +8,8 @@ export interface LpTrackingEvent {
   publicEventType?: string
   publicStateType?: string
   publicStateText?: string
+  // LP sends the event time as `eventDate`; `date` is kept for older payloads.
+  eventDate?: string
   date?: string
   location?: string
 }
