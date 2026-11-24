@@ -89,6 +89,7 @@ const NEW_BADGE_DAYS = 7
 
 // A set counts as new for a week after it drops, so a scheduled coming-soon
 // product flips to the "Nauja" badge on its own when the release date passes.
+// Sets added without a release date count from the day they were added.
 function isRecentlyReleased(iso: string | null, now: number): boolean {
   if (!iso) return false
   const releaseAt = new Date(iso).getTime()
@@ -107,7 +108,11 @@ export function dbToProduct(
   const releaseDate = row.release_date as string | null
   const isNew =
     !isRentedOut &&
-    (Boolean(row.is_new) || isRecentlyReleased(releaseDate, Date.now()))
+    (Boolean(row.is_new) ||
+      isRecentlyReleased(
+        releaseDate ?? (row.created_at as string | null | undefined) ?? null,
+        Date.now()
+      ))
   let badge: Product["badge"]
   let badgeLabel: string | undefined
   if (status === "sold_out") {
