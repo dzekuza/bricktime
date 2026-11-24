@@ -46,13 +46,21 @@ Deno.test("an in-stock set maps to a product with one variant", () => {
   assertEquals(product.categoryIDs, ["technic"])
   assertEquals(product.images, ["https://example.com/b.webp"])
   assertEquals(product.variants, [
-    { id: "111", title: product.title, price: 470, status: "inStock", url: product.url },
+    {
+      id: "111",
+      title: "LEGO® Technic™ McLaren P1™ 42172",
+      price: 470,
+      status: "inStock",
+      url: "https://www.bricktime.lt/drop/111",
+    },
   ])
 })
 
 Deno.test("no stock or sold_out means outOfStock", () => {
   assertEquals(toOmnisendProduct(row({ stock: 0, available: 0 })).status, "outOfStock")
-  assertEquals(toOmnisendProduct(row({ status: "sold_out" })).variants[0].status, "outOfStock")
+  const soldOut = toOmnisendProduct(row({ status: "sold_out" }))
+  assertEquals(soldOut.status, "outOfStock")
+  assertEquals(soldOut.variants[0].status, "outOfStock")
 })
 
 Deno.test("optional fields are left out when empty", () => {
@@ -82,4 +90,11 @@ Deno.test("timestamps leave as UTC", () => {
   )
   assertEquals(product.createdAt, "2026-09-04T19:35:57.000Z")
   assertEquals("updatedAt" in product, false)
+})
+
+Deno.test("a blank description falls back to the subtitle", () => {
+  assertEquals(
+    toOmnisendProduct(row({ description: "   ", subtitle: "Greitas" })).description,
+    "Greitas"
+  )
 })

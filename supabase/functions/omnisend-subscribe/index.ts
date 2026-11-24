@@ -49,8 +49,8 @@ Deno.serve(async (req) => {
       },
     })
 
-    // 409: the address is already a contact, which is fine for a waitlist signup.
-    if (!res.ok && res.status !== 409) {
+    // An existing contact answers 200 and a new one 201, so any other status is a failure.
+    if (!res.ok) {
       const detail = await res.text()
       console.error(`Omnisend contact upsert failed: ${res.status} ${detail}`)
       return new Response(

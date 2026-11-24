@@ -1,6 +1,8 @@
 export const SITE_URL = "https://www.bricktime.lt"
 
 const MAX_DESCRIPTION = 1000
+// Keeps a request well under the API size limits; no set has more than one
+// gallery image today.
 const MAX_IMAGES = 10
 
 export interface CatalogProductRow {
@@ -75,7 +77,7 @@ export function toOmnisendProduct(row: CatalogProductRow) {
   const url = `${SITE_URL}/drop/${id}`
   const status = toStatus(row)
   const categoryId = row.category ? toCategoryId(row.category) : ""
-  const description = (row.description ?? row.subtitle ?? "").trim()
+  const description = row.description?.trim() || row.subtitle?.trim() || ""
   const images = Array.isArray(row.gallery)
     ? row.gallery
         .filter((g): g is string => typeof g === "string" && g.length > 0)

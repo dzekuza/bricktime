@@ -98,6 +98,7 @@ async function syncCategories(apiKey: string, rows: CatalogProductRow[]) {
 
   const summary = { created: 0, updated: 0, failed: 0 }
   const failedIds = new Set<string>()
+  const errors: string[] = []
   await runInBatches(toCategories(rows), async ({ categoryID, title }) => {
     const known = existingById.get(categoryID)
     if (known === title) return
@@ -115,12 +116,14 @@ async function syncCategories(apiKey: string, rows: CatalogProductRow[]) {
     if (!result.ok) {
       summary.failed++
       failedIds.add(categoryID)
-      console.error(`Category ${categoryID} failed: ${result.status} ${await result.text()}`)
+      const detail = await result.text()
+      console.error(`Category ${categoryID} failed: ${result.status} ${detail}`)
+      errors.push(`category ${categoryID}: ${result.status} ${detail}`)
       return
     }
     summary[isNew ? "created" : "updated"]++
   })
-  return { summary, failedIds }
+  return { summary, failedIds, errors }
 }
 
 // Knowing which products Omnisend already has avoids sending a PUT that is
@@ -175,13 +178,17 @@ Deno.serve(async (req) => {
 
     const rows = await loadProducts()
 
-    const { summary: categories, failedIds } = await syncCategories(apiKey, rows)
+    const {
+      summary: categories,
+      failedIds,
+      errors: categoryErrors,
+    } = await syncCategories(apiKey, rows)
     const existingIds = new Set(
       (await listAll<{ id: string }>(apiKey, "/products", "products")).map((p) => p.id)
     )
 
     const products = { created: 0, updated: 0, failed: 0 }
-    const errors: string[] = []
+    const errors: string[] = categoryErrors.slice(0, MAX_ERRORS_REPORTED)
     const fail = (row: CatalogProductRow, message: string) => {
       products.failed++
       if (errors.length < MAX_ERRORS_REPORTED) errors.push(`#${row.id}: ${message}`)
