@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react"
+import { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { CircleHelpIcon } from "lucide-react"
 import { calculatePoints, type AchievementDef } from "@/data/community"
@@ -15,6 +15,8 @@ import { CreditsResetNotice } from "@/components/CreditsResetNotice"
 import { useCredits } from "@/hooks/useCredits"
 import { MissingPartDialog } from "@/components/MissingPartDialog"
 import { ReturnDialog } from "@/components/ReturnDialog"
+import { ReviewPromptDialog } from "@/components/reviews/ReviewPromptDialog"
+import { isMysteryHidden } from "@/components/account/mystery"
 import { ProfileEditDialog } from "@/components/ProfileEditDialog"
 import { DeleteAccountDialog } from "@/components/DeleteAccountDialog"
 import { fetchLabelPdf, downloadPdf } from "@/lib/lpexpress"
@@ -84,6 +86,11 @@ const avatarOptions = [
 
 const SUBSCRIBER_COLUMNS =
   "plan, status, email, joined_at, penalty_amount, penalty_reason, name, last_name, phone, street, house_no, flat, city, postal_code, country, home_delivery, pending_plan, pending_schedule_id, cancel_requested, cancel_at, paused_until, current_period_start, current_period_end"
+
+interface ReviewCandidate {
+  productId: number
+  title: string
+}
 
 interface SubscriberData {
   plan: string
@@ -295,6 +302,9 @@ export default function Account() {
   }, [])
   const [returnDialogOrder, setReturnDialogOrder] =
     useState<RentedOrder | null>(null)
+  // Sets covered by a just-made return, offered for a review once its dialog closes.
+  const pendingReviewsRef = useRef<ReviewCandidate[]>([])
+  const [reviewQueue, setReviewQueue] = useState<ReviewCandidate[]>([])
   const [profileOpen, setProfileOpen] = useState(false)
   const [penaltyHistory, setPenaltyHistory] = useState<
     Array<{
@@ -751,6 +761,12 @@ export default function Account() {
   // The return label + status change is handled server-side by the lpexpress
   // `create-return-label` action (via ReturnDialog). This just syncs local state.
   function onReturnComplete(orderIds: string[], barcode: string | null) {
+    pendingReviewsRef.current = [...rentedOrders, ...rentalHistory]
+      .filter(
+        (o): o is RentedOrder & { productId: number } =>
+          orderIds.includes(o.id) && o.productId !== null && !isMysteryHidden(o)
+      )
+      .map((o) => ({ productId: o.productId, title: o.productTitle }))
     const markRequested = (o: RentedOrder) =>
       orderIds.includes(o.id)
         ? {
@@ -762,6 +778,23 @@ export default function Account() {
         : o
     setRentedOrders((prev) => prev.map(markRequested))
     setRentalHistory((prev) => prev.map(markRequested))
+  }
+
+  // Runs once the return dialog is closed, so the review prompt never stacks on it.
+  async function queueReviewPrompts() {
+    const candidates = pendingReviewsRef.current
+    pendingReviewsRef.current = []
+    if (!user || candidates.length === 0) return
+    const { data } = await supabase
+      .from("product_reviews")
+      .select("product_id")
+      .eq("subscriber_id", user.id)
+      .in(
+        "product_id",
+        candidates.map((c) => c.productId)
+      )
+    const reviewed = new Set((data ?? []).map((r) => r.product_id))
+    setReviewQueue(candidates.filter((c) => !reviewed.has(c.productId)))
   }
 
   const [downloadingLabel, setDownloadingLabel] = useState<string | null>(null)
@@ -1340,10 +1373,22 @@ export default function Account() {
         defaultPhone={subscriber?.phone ?? ""}
         open={returnDialogOrder !== null}
         onOpenChange={(open) => {
-          if (!open) setReturnDialogOrder(null)
+          if (!open) {
+            setReturnDialogOrder(null)
+            void queueReviewPrompts()
+          }
         }}
         onComplete={onReturnComplete}
       />
+
+      {user && (
+        <ReviewPromptDialog
+          productId={reviewQueue[0]?.productId ?? null}
+          productTitle={reviewQueue[0]?.title}
+          subscriberId={user.id}
+          onClose={() => setReviewQueue((prev) => prev.slice(1))}
+        />
+      )}
 
       {user && (
         <ProfileEditDialog
