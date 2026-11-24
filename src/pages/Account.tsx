@@ -785,7 +785,7 @@ export default function Account() {
     const candidates = pendingReviewsRef.current
     pendingReviewsRef.current = []
     if (!user || candidates.length === 0) return
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("product_reviews")
       .select("product_id")
       .eq("subscriber_id", user.id)
@@ -793,6 +793,11 @@ export default function Account() {
         "product_id",
         candidates.map((c) => c.productId)
       )
+    // Without the answer, asking could prompt for a set that is already reviewed.
+    if (error) {
+      console.error("Review check failed:", error.message)
+      return
+    }
     const reviewed = new Set((data ?? []).map((r) => r.product_id))
     setReviewQueue(candidates.filter((c) => !reviewed.has(c.productId)))
   }
