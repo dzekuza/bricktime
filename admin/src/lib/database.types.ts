@@ -816,6 +816,7 @@ export type Database = {
           id: string
           image_url: string | null
           image_urls: string[]
+          legacy_slugs: string[]
           name: string
           price: number
           sizes: string[]
@@ -833,6 +834,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           image_urls?: string[]
+          legacy_slugs?: string[]
           name: string
           price: number
           sizes?: string[]
@@ -850,6 +852,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           image_urls?: string[]
+          legacy_slugs?: string[]
           name?: string
           price?: number
           sizes?: string[]
