@@ -34,6 +34,8 @@ export function ReviewPromptDialog({
         <div className="mt-5">
           {productId !== null && (
             <ReviewForm
+              // Remounts per set, so the next queued prompt starts empty.
+              key={productId}
               productId={productId}
               subscriberId={subscriberId}
               onSubmitted={onClose}

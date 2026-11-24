@@ -785,20 +785,27 @@ export default function Account() {
     const candidates = pendingReviewsRef.current
     pendingReviewsRef.current = []
     if (!user || candidates.length === 0) return
-    const { data, error } = await supabase
-      .from("product_reviews")
-      .select("product_id")
-      .eq("subscriber_id", user.id)
-      .in(
-        "product_id",
-        candidates.map((c) => c.productId)
-      )
-    // Without the answer, asking could prompt for a set that is already reviewed.
-    if (error) {
-      console.error("Review check failed:", error.message)
+    // Tried twice: a failed lookup must not drop the prompt for a good return,
+    // and without an answer asking could prompt for a set already reviewed.
+    let data: { product_id: number }[] | null = null
+    for (let attempt = 1; attempt <= 2 && data === null; attempt++) {
+      const result = await supabase
+        .from("product_reviews")
+        .select("product_id")
+        .eq("subscriber_id", user.id)
+        .in(
+          "product_id",
+          candidates.map((c) => c.productId)
+        )
+      if (!result.error) data = result.data
+      else console.error("Review check failed:", result.error.message)
+    }
+    // Still no answer: keep them for the next time the return dialog closes.
+    if (data === null) {
+      pendingReviewsRef.current = [...candidates, ...pendingReviewsRef.current]
       return
     }
-    const reviewed = new Set((data ?? []).map((r) => r.product_id))
+    const reviewed = new Set(data.map((r) => r.product_id))
     setReviewQueue(candidates.filter((c) => !reviewed.has(c.productId)))
   }
 
