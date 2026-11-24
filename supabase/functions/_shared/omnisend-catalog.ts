@@ -12,8 +12,9 @@ export interface CatalogProductRow {
   image_url: string | null
   gallery: unknown
   price: number | string | null
-  value: number | string | null
   stock: number | null
+  // Copies not currently rented out (product_availability); null when unknown.
+  available: number | null
   status: string
   created_at: string | null
   updated_at: string | null
@@ -50,12 +51,26 @@ export function toCategories(rows: CatalogProductRow[]): OmnisendCategory[] {
   return [...byId.values()]
 }
 
+// `stock` is the total copy count, so a set that is fully rented out still has
+// stock; what a member can actually claim is `available`.
 const toStatus = (row: CatalogProductRow) =>
-  row.status === "sold_out" || (row.stock ?? 0) <= 0
+  row.status === "sold_out" || (row.available ?? row.stock ?? 0) <= 0
     ? "outOfStock"
     : "inStock"
 
+// Omnisend wants UTC timestamps in the "...Z" form; the database returns offsets.
+function toUtc(value: string | null): string | null {
+  if (!value) return null
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? null : date.toISOString()
+}
+
+// Throws for a set without a retail price: the Briksiai `value` is a budget
+// cost, not a price, so it must never stand in for one.
 export function toOmnisendProduct(row: CatalogProductRow) {
+  if (row.price === null || row.price === undefined) {
+    throw new Error("no retail price set")
+  }
   const id = String(row.id)
   const url = `${SITE_URL}/drop/${id}`
   const status = toStatus(row)
@@ -78,13 +93,13 @@ export function toOmnisendProduct(row: CatalogProductRow) {
     ...(categoryId && { categoryIDs: [categoryId] }),
     ...(row.image_url && { defaultImageUrl: row.image_url }),
     ...(images.length > 0 && { images }),
-    ...(row.created_at && { createdAt: row.created_at }),
-    ...(row.updated_at && { updatedAt: row.updated_at }),
+    ...(toUtc(row.created_at) && { createdAt: toUtc(row.created_at) }),
+    ...(toUtc(row.updated_at) && { updatedAt: toUtc(row.updated_at) }),
     variants: [
       {
         id,
         title: row.title.slice(0, 255),
-        price: Number(row.price ?? row.value ?? 0),
+        price: Number(row.price),
         status,
         url,
       },

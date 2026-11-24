@@ -1,4 +1,4 @@
-import { assertEquals } from "jsr:@std/assert@1"
+import { assertEquals, assertThrows } from "jsr:@std/assert@1"
 import {
   toCategories,
   toCategoryId,
@@ -15,8 +15,8 @@ const row = (overrides: Partial<CatalogProductRow> = {}): CatalogProductRow => (
   image_url: "https://example.com/a.webp",
   gallery: ["https://example.com/b.webp", 5, ""],
   price: "470.00",
-  value: "400.00",
   stock: 1,
+  available: 1,
   status: "available",
   created_at: "2026-01-01T00:00:00Z",
   updated_at: "2026-02-01T00:00:00Z",
@@ -51,7 +51,7 @@ Deno.test("an in-stock set maps to a product with one variant", () => {
 })
 
 Deno.test("no stock or sold_out means outOfStock", () => {
-  assertEquals(toOmnisendProduct(row({ stock: 0 })).status, "outOfStock")
+  assertEquals(toOmnisendProduct(row({ stock: 0, available: 0 })).status, "outOfStock")
   assertEquals(toOmnisendProduct(row({ status: "sold_out" })).variants[0].status, "outOfStock")
 })
 
@@ -63,4 +63,23 @@ Deno.test("optional fields are left out when empty", () => {
   assertEquals("categoryIDs" in product, false)
   assertEquals("defaultImageUrl" in product, false)
   assertEquals("images" in product, false)
+})
+
+
+Deno.test("a fully rented set is out of stock even though it has copies", () => {
+  assertEquals(toOmnisendProduct(row({ stock: 2, available: 0 })).status, "outOfStock")
+  assertEquals(toOmnisendProduct(row({ stock: 2, available: 1 })).status, "inStock")
+  assertEquals(toOmnisendProduct(row({ stock: 2, available: null })).status, "inStock")
+})
+
+Deno.test("a set without a retail price is refused, not priced by its budget cost", () => {
+  assertThrows(() => toOmnisendProduct(row({ price: null })), Error, "no retail price")
+})
+
+Deno.test("timestamps leave as UTC", () => {
+  const product = toOmnisendProduct(
+    row({ created_at: "2026-09-04 22:35:57+03", updated_at: "garbage" })
+  )
+  assertEquals(product.createdAt, "2026-09-04T19:35:57.000Z")
+  assertEquals("updatedAt" in product, false)
 })

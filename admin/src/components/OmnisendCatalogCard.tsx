@@ -24,6 +24,15 @@ interface SyncResult {
 const describe = ({ created, updated, failed }: Counts) =>
   `${created} new, ${updated} updated${failed ? `, ${failed} failed` : ""}`
 
+// The generic "non-2xx" message hides the function's own JSON error body.
+async function readInvokeError(error: Error): Promise<string> {
+  const res = (error as { context?: Response }).context
+  const detail: unknown = await res?.json?.().catch(() => null)
+  return detail && typeof detail === "object" && "error" in detail
+    ? String(detail.error)
+    : error.message
+}
+
 /** Pushes the product catalogue and its categories to Omnisend for email content. */
 export function OmnisendCatalogCard() {
   const [busy, setBusy] = useState(false)
@@ -39,7 +48,7 @@ export function OmnisendCatalogCard() {
     )
     setBusy(false)
     if (invokeError || !data) {
-      setError(invokeError?.message ?? "Sync returned nothing")
+      setError(invokeError ? await readInvokeError(invokeError) : "Sync returned nothing")
       return
     }
     setResult(data)

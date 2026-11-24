@@ -65,15 +65,20 @@ Deno.serve(async (req) => {
     }
 
     // A separate call: `tags` on the contact itself now replaces the whole list
-    // (v5 appended), which would wipe the tags of an existing customer.
-    const tagRes = await omnisendFetch(apiKey, "/contacts/tags", {
-      method: "POST",
-      body: { emails: [normalizedEmail], tags: ["coming-soon"] },
-    })
-    if (!tagRes.ok) {
-      console.error(
-        `Omnisend tagging failed: ${tagRes.status} ${await tagRes.text()}`
-      )
+    // (v5 appended), which would wipe the tags of an existing customer. Tried
+    // twice; the confirmation email below must go out either way.
+    let isTagged = false
+    for (let attempt = 1; attempt <= 2 && !isTagged; attempt++) {
+      const tagRes = await omnisendFetch(apiKey, "/contacts/tags", {
+        method: "POST",
+        body: { emails: [normalizedEmail], tags: ["coming-soon"] },
+      })
+      isTagged = tagRes.ok
+      if (!isTagged) {
+        console.error(
+          `Omnisend tagging failed (try ${attempt}): ${tagRes.status} ${await tagRes.text()}`
+        )
+      }
     }
 
     const eventRes = await omnisendFetch(apiKey, "/events", {
@@ -89,6 +94,18 @@ Deno.serve(async (req) => {
     if (!eventRes.ok) {
       console.error(
         `Omnisend event push failed: ${eventRes.status} ${await eventRes.text()}`
+      )
+    }
+
+    if (!isTagged) {
+      return new Response(
+        JSON.stringify({
+          error: { code: "omnisend_tag_error", message: "Subscribed, but not tagged" },
+        }),
+        {
+          status: 502,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
       )
     }
 
