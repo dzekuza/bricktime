@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react"
-import { Link, useParams } from "react-router-dom"
+import { Link, useNavigate, useParams } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import { formatReleaseMonthFirst } from "@/lib/vilnius-time"
 import Nav from "@/components/Nav"
@@ -52,6 +52,7 @@ type MinifigSection = {
 
 type DbProduct = {
   id: number
+  slug: string
   title: string
   subtitle: string
   description: string | null
@@ -156,7 +157,8 @@ function RelatedCarousel({ products }: { products: Product[] }) {
 }
 
 export default function Drop() {
-  const { id } = useParams<{ id: string }>()
+  const { slug } = useParams<{ slug: string }>()
+  const navigate = useNavigate()
   const { setLabel } = useBreadcrumbLabel()
   const [product, setProduct] = useState<DbProduct | null>(null)
   const [activeThumb, setActiveThumb] = useState(0)
@@ -167,36 +169,44 @@ export default function Drop() {
   const ratings = useProductRatings()
   const isRentedOut = product != null && available.get(product.id) === 0
 
+  // The URL carries the slug; an old numeric link (/rinkinys/153) is looked up
+  // by id and then swapped for the slug URL.
   useEffect(() => {
-    if (!id) return
-    supabase
+    if (!slug) return
+    const isNumeric = /^\d+$/.test(slug)
+    const base = supabase
       .from("products")
       .select(
-        "id, title, subtitle, description, category, bricks, minifigs, build_time, image_url, gallery, tier, allowed_tiers, year, value, price, min_age, rating, faq, bags, story, minifig, compatibility, release_date, isDangerous"
+        "id, slug, title, subtitle, description, category, bricks, minifigs, build_time, image_url, gallery, tier, allowed_tiers, year, value, price, min_age, rating, faq, bags, story, minifig, compatibility, release_date, isDangerous"
       )
-      .eq("id", Number(id))
-      .single()
-      .then(({ data }) => {
-        if (data) {
-          const p = data as unknown as DbProduct
-          setProduct(p)
-          setLabel(p.title)
-        }
-      })
+    const request = isNumeric
+      ? base.eq("id", Number(slug))
+      : base.eq("slug", slug)
+    request.single().then(({ data }) => {
+      if (!data) return
+      const p = data as unknown as DbProduct
+      if (isNumeric) {
+        navigate(`/rinkinys/${p.slug}`, { replace: true })
+        return
+      }
+      setProduct(p)
+      setLabel(p.title)
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
+  }, [slug])
 
+  const productId = product?.id
   useEffect(() => {
-    if (!id) return
+    if (productId === undefined) return
     supabase
       .from("products")
       .select("*")
-      .neq("id", Number(id))
+      .neq("id", productId)
       .limit(8)
       .then(({ data }) => {
         if (data) setRelatedRows(data)
       })
-  }, [id])
+  }, [productId])
 
   const related = useMemo(
     () =>
@@ -289,7 +299,7 @@ export default function Drop() {
           product?.description ||
           "LEGO® rinkinys iš Brick Time katalogo – prieinamas su prenumerata."
         }
-        path={`/rinkinys/${id}`}
+        path={`/rinkinys/${product?.slug ?? slug}`}
         image={product?.image_url ?? undefined}
         jsonLd={
           product
@@ -297,12 +307,16 @@ export default function Drop() {
                 "@context": "https://schema.org",
                 "@type": "Product",
                 name: product.title,
-                description: product.subtitle || product.description || undefined,
+                description:
+                  product.subtitle || product.description || undefined,
                 image: galleryImages.length > 0 ? galleryImages : undefined,
                 category: product.category,
                 brand: { "@type": "Brand", name: "LEGO" },
                 audience: product.min_age
-                  ? { "@type": "PeopleAudience", suggestedMinAge: product.min_age }
+                  ? {
+                      "@type": "PeopleAudience",
+                      suggestedMinAge: product.min_age,
+                    }
                   : undefined,
               }
             : undefined

@@ -241,7 +241,7 @@ async function main() {
   const now = Date.now()
   const allProducts = await fetchRows(
     "products",
-    "select=id,title,subtitle,description,category,min_age,image_url,gallery,release_date&order=id.desc"
+    "select=id,slug,title,subtitle,description,category,min_age,image_url,gallery,release_date&order=id.desc"
   )
   // The archive hides drops whose release_date is still in the future; do the same here
   // so the sitemap and prerendered pages never advertise an unreleased set.
@@ -262,7 +262,7 @@ async function main() {
       heading: product.title,
       title: product.title,
       description,
-      urlPath: `/rinkinys/${product.id}`,
+      urlPath: `/rinkinys/${product.slug}`,
       image: images[0] ?? DEFAULT_IMAGE,
       // Mirrors the Product schema <Drop> renders client-side.
       jsonLd: {
@@ -296,7 +296,7 @@ async function main() {
 
   const urls = [
     ...STATIC_ROUTES.map((r) => ({ loc: r.path === "/" ? "/" : r.path, priority: r.priority })),
-    ...products.map((p) => ({ loc: `/rinkinys/${p.id}`, priority: "0.7" })),
+    ...products.map((p) => ({ loc: `/rinkinys/${p.slug}`, priority: "0.7" })),
     ...merch.map((m) => ({ loc: `/merch/${m.slug}`, priority: "0.4" })),
   ]
   const sitemap = [

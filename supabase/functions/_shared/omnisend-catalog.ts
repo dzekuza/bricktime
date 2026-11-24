@@ -7,6 +7,7 @@ const MAX_IMAGES = 10
 
 export interface CatalogProductRow {
   id: number
+  slug: string
   title: string
   subtitle: string | null
   description: string | null
@@ -74,7 +75,7 @@ export function toOmnisendProduct(row: CatalogProductRow) {
     throw new Error("no retail price set")
   }
   const id = String(row.id)
-  const url = `${SITE_URL}/rinkinys/${id}`
+  const url = `${SITE_URL}/rinkinys/${row.slug}`
   const status = toStatus(row)
   const categoryId = row.category ? toCategoryId(row.category) : ""
   const description = row.description?.trim() || row.subtitle?.trim() || ""

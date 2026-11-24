@@ -29,7 +29,7 @@ const CONCURRENCY = 5
 const MAX_ERRORS_REPORTED = 10
 
 const PRODUCT_COLUMNS =
-  "id, title, subtitle, description, category, image_url, gallery, price, stock, status, created_at, updated_at"
+  "id, slug, title, subtitle, description, category, image_url, gallery, price, stock, status, created_at, updated_at"
 
 // Supabase caps a response (1000 rows by default), Omnisend lists in pages.
 const DB_PAGE_SIZE = 1000
