@@ -330,7 +330,7 @@ function CartLine({ row, onQuantity, onRemove }: CartLineProps) {
           <img
             src={item.image_url}
             alt={item.name}
-            className="absolute inset-0 h-full w-full object-contain p-2"
+            className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (
           <ImagePlaceholder />
