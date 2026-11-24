@@ -5,13 +5,13 @@ import { BreadcrumbContext } from "@/contexts/BreadcrumbContext"
 type Crumb = { label: string; to?: string }
 
 const EXACT: Record<string, Crumb[]> = {
-  "/archive": [{ label: "Rinkiniai" }],
-  "/account": [{ label: "Paskyra" }],
-  "/community": [{ label: "Bendruomenė" }],
-  "/subscribe": [{ label: "Prenumeratos" }],
-  "/checkout": [{ label: "Apmokėjimas" }],
+  "/rinkiniai": [{ label: "Rinkiniai" }],
+  "/paskyra": [{ label: "Paskyra" }],
+  "/bendruomene": [{ label: "Bendruomenė" }],
+  "/prenumerata": [{ label: "Prenumeratos" }],
+  "/apmokejimas": [{ label: "Apmokėjimas" }],
   "/merch": [{ label: "Merch" }],
-  "/gift-cards": [{ label: "Dovanų kuponai" }],
+  "/dovanu-kuponas": [{ label: "Dovanų kuponai" }],
   "/duk": [{ label: "D.U.K." }],
   "/praleisti-pristabdyti": [{ label: "Pristabdyti" }],
   "/pristatymas": [{ label: "Pristatymas" }],
@@ -24,8 +24,8 @@ const EXACT: Record<string, Crumb[]> = {
 
 const PREFIX: Array<{ match: string; parent: Crumb; fallback: string }> = [
   {
-    match: "/drop/",
-    parent: { label: "Rinkiniai", to: "/archive" },
+    match: "/rinkinys/",
+    parent: { label: "Rinkiniai", to: "/rinkiniai" },
     fallback: "Rinkinio detalės",
   },
   {
@@ -34,8 +34,8 @@ const PREFIX: Array<{ match: string; parent: Crumb; fallback: string }> = [
     fallback: "Produktas",
   },
   {
-    match: "/profile/",
-    parent: { label: "Bendruomenė", to: "/community" },
+    match: "/profilis/",
+    parent: { label: "Bendruomenė", to: "/bendruomene" },
     fallback: "Profilis",
   },
 ]

@@ -314,7 +314,7 @@ export default function Subscriptions({
                             color: plan.cta_text,
                           }}
                         >
-                          <a href="/subscribe">{plan.cta_label ?? "Pradėti"}</a>
+                          <a href="/prenumerata">{plan.cta_label ?? "Pradėti"}</a>
                         </Button>
                       )}
                     </div>

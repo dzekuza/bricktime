@@ -5,10 +5,10 @@ import { socials } from "@/data/socials"
 
 const footerLinks = {
   Atrask: [
-    { label: "Prenumeratos", href: "/subscribe" },
-    { label: "Rinkiniai", href: "/archive" },
-    { label: "Bendruomenė", href: "/community" },
-    { label: "Dovanų kuponas", href: "/gift-cards" },
+    { label: "Prenumeratos", href: "/prenumerata" },
+    { label: "Rinkiniai", href: "/rinkiniai" },
+    { label: "Bendruomenė", href: "/bendruomene" },
+    { label: "Dovanų kuponas", href: "/dovanu-kuponas" },
   ],
   Pagalba: [
     { label: "D.U.K.", href: "/duk" },

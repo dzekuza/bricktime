@@ -427,8 +427,8 @@ export default function Checkout() {
           recipientEmail: gcRecipient,
           buyerEmail: gcBuyer,
           message: gcMessage || null,
-          successUrl: `${origin}/gift-cards?payment=success&code={CODE}&session={SESSION_ID}&recipient=${encodeURIComponent(gcRecipient)}&buyer=${encodeURIComponent(gcBuyer)}&amount=${gcAmount}${gcMessage ? `&message=${encodeURIComponent(gcMessage)}` : ""}`,
-          cancelUrl: `${origin}/gift-cards`,
+          successUrl: `${origin}/dovanu-kuponas?payment=success&code={CODE}&session={SESSION_ID}&recipient=${encodeURIComponent(gcRecipient)}&buyer=${encodeURIComponent(gcBuyer)}&amount=${gcAmount}${gcMessage ? `&message=${encodeURIComponent(gcMessage)}` : ""}`,
+          cancelUrl: `${origin}/dovanu-kuponas`,
         },
       }
     )
@@ -565,8 +565,8 @@ export default function Checkout() {
   async function createWalletSession(): Promise<string> {
     const origin = window.location.origin
     const returnUrl = productId
-      ? `${origin}/checkout?product=${productId}&success=true&plan=${requiredTier.key}`
-      : `${origin}/account?plan_changed=true&plan=${requiredTier.key}`
+      ? `${origin}/apmokejimas?product=${productId}&success=true&plan=${requiredTier.key}`
+      : `${origin}/paskyra?plan_changed=true&plan=${requiredTier.key}`
     const { data, error } = await supabase.functions.invoke("create-checkout", {
       body: {
         planKey: requiredTier.key,
@@ -624,8 +624,8 @@ export default function Checkout() {
     // A plan-only checkout has no product to continue with, so it ends on the
     // account page, which waits for the webhook before showing the new plan.
     const successUrl = productId
-      ? `${origin}/checkout?product=${productId}&success=true&plan=${requiredTier.key}`
-      : `${origin}/account?plan_changed=true&plan=${requiredTier.key}`
+      ? `${origin}/apmokejimas?product=${productId}&success=true&plan=${requiredTier.key}`
+      : `${origin}/paskyra?plan_changed=true&plan=${requiredTier.key}`
 
     // A member's existing subscription is swapped in place. A new Checkout
     // Session would start a second subscription and bill both.
@@ -696,7 +696,7 @@ export default function Checkout() {
       )
       // A cheaper plan waits for the next renewal; the account page shows it.
       if (!swapError && swap?.scheduled) {
-        window.location.assign(`${origin}/account`)
+        window.location.assign(`${origin}/paskyra`)
         return
       }
       // No subscription to swap after all (a stale row): a fresh checkout is
@@ -731,8 +731,8 @@ export default function Checkout() {
         userEmail: user.email ?? "",
         successUrl,
         cancelUrl: productId
-          ? `${origin}/checkout?product=${productId}`
-          : `${origin}/subscribe`,
+          ? `${origin}/apmokejimas?product=${productId}`
+          : `${origin}/prenumerata`,
         ...(appliedCoupon && { couponCode: appliedCoupon.code }),
         ...(appliedGiftCard && { giftCardCode: appliedGiftCard.code }),
       },
@@ -796,8 +796,8 @@ export default function Checkout() {
         {
           body: {
             productId: product.id,
-            successUrl: `${origin}/checkout?product=${product.id}&courier_paid=true&session_id={CHECKOUT_SESSION_ID}`,
-            cancelUrl: `${origin}/checkout?product=${product.id}`,
+            successUrl: `${origin}/apmokejimas?product=${product.id}&courier_paid=true&session_id={CHECKOUT_SESSION_ID}`,
+            cancelUrl: `${origin}/apmokejimas?product=${product.id}`,
           },
         }
       )
@@ -959,7 +959,7 @@ export default function Checkout() {
           <h1 className="heading-display text-d-sm text-ink">
             Produktas nerastas
           </h1>
-          <Link to="/archive" className="mt-6 inline-block text-ink underline">
+          <Link to="/rinkiniai" className="mt-6 inline-block text-ink underline">
             ← Grįžti į produktus
           </Link>
         </div>
@@ -1094,7 +1094,7 @@ export default function Checkout() {
                     size="lg"
                     className="brick-hover-sm h-12 w-full rounded-full border-2 border-ink bg-ink text-[15px] font-bold text-paper"
                   >
-                    <Link to="/account">Žiūrėti mano produktus →</Link>
+                    <Link to="/paskyra">Žiūrėti mano produktus →</Link>
                   </Button>
                   <Button
                     asChild
@@ -1102,7 +1102,7 @@ export default function Checkout() {
                     size="lg"
                     className="h-12 w-full rounded-full border-2 border-ink bg-transparent text-[15px] font-bold text-ink transition-all hover:bg-ink/5"
                   >
-                    <Link to="/archive">Naršyti daugiau produktų</Link>
+                    <Link to="/rinkiniai">Naršyti daugiau produktų</Link>
                   </Button>
                 </div>
               </div>
@@ -1118,7 +1118,7 @@ export default function Checkout() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <Seo title="Užsakymas" path="/checkout" noindex />
+      <Seo title="Užsakymas" path="/apmokejimas" noindex />
       <Nav />
 
       <section className="pt-6 pb-4">
@@ -1543,7 +1543,7 @@ export default function Checkout() {
                       size="lg"
                       className="brick-hover-sm h-12 w-full rounded-full border-2 border-ink bg-ink text-[15px] font-bold text-paper"
                     >
-                      <Link to="/account">Valdyti prenumeratą →</Link>
+                      <Link to="/paskyra">Valdyti prenumeratą →</Link>
                     </Button>
                   </div>
                 </>
@@ -1566,7 +1566,7 @@ export default function Checkout() {
                       size="lg"
                       className="brick-hover-sm h-12 w-full rounded-full border-2 border-ink bg-ink text-[15px] font-bold text-paper"
                     >
-                      <Link to="/archive">Naršyti rinkinius →</Link>
+                      <Link to="/rinkiniai">Naršyti rinkinius →</Link>
                     </Button>
                   </div>
                 </>
@@ -1605,7 +1605,7 @@ export default function Checkout() {
                       variant="outline"
                       className="brick-hover-sm h-12 w-full rounded-full border-2 border-ink text-[15px] font-bold text-ink"
                     >
-                      <Link to="/subscribe">Paaukštinti planą →</Link>
+                      <Link to="/prenumerata">Paaukštinti planą →</Link>
                     </Button>
                   </div>
                 </>
@@ -1632,7 +1632,7 @@ export default function Checkout() {
                       size="lg"
                       className="brick-hover-sm h-12 w-full rounded-full border-2 border-ink bg-ink text-[15px] font-bold text-paper"
                     >
-                      <Link to="/account">Žiūrėti mano produktus →</Link>
+                      <Link to="/paskyra">Žiūrėti mano produktus →</Link>
                     </Button>
                   </div>
                 </>
@@ -2051,7 +2051,7 @@ export default function Checkout() {
               </button>
             ) : hasTier && isPaused ? (
               <Link
-                to="/account"
+                to="/paskyra"
                 className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-ink px-5 py-3.5 text-paper"
               >
                 <span className="font-display text-[18px] leading-none">
@@ -2061,7 +2061,7 @@ export default function Checkout() {
               </Link>
             ) : hasTier && isRentedOut ? (
               <Link
-                to="/archive"
+                to="/rinkiniai"
                 className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-ink px-5 py-3.5 text-paper"
               >
                 <span className="font-display text-[18px] leading-none">
@@ -2082,7 +2082,7 @@ export default function Checkout() {
               </button>
             ) : hasTier ? (
               <Link
-                to="/account"
+                to="/paskyra"
                 className="flex w-full items-center justify-between rounded-[22px] border-2 border-ink bg-ink px-5 py-3.5 text-paper"
               >
                 <span className="font-display text-[18px] leading-none">

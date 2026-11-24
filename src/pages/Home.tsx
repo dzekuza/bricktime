@@ -34,7 +34,7 @@ export default function Home() {
           <HowItWorks />
           <Subscriptions
             onSubscribe={(plan, billing) =>
-              navigate(`/checkout?plan=${plan.id}&billing=${billing}`)
+              navigate(`/apmokejimas?plan=${plan.id}&billing=${billing}`)
             }
           />
           <FAQ />

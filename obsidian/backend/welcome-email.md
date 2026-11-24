@@ -29,7 +29,7 @@ get an email; it needs a new purchase to verify.
 | Aktyvavimo data | `activatedAt` | 2026-11-10 |
 | Kitas mokėjimas | `nextPaymentAt` | 2026-12-10 |
 | Prenumeratos kaina (€/mėn.) | `monthlyPrice` | 24.99 (recurring list price per month, incl. delivery, before one-off discounts) |
-| Button "Rinktis LEGO® rinkinį" | `catalogUrl` | https://www.bricktime.lt/archive |
+| Button "Rinktis LEGO® rinkinį" | `catalogUrl` | https://www.bricktime.lt/rinkiniai |
 
 Also sent: `planKey`, `billing` (`monthly`/`annual`), `homeDelivery`, `amountPaid`
 (first invoice after discounts). Lookups that fail leave `planName`,

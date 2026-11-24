@@ -69,14 +69,14 @@ function HelpPage({
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Link
-                    to="/subscribe"
+                    to="/prenumerata"
                     className="brick-hover-sm inline-flex items-center gap-2 rounded-full border-2 border-ink bg-ink px-5 py-3 text-[14px] font-bold text-paper"
                   >
                     Pasirinkti prenumeratą
                     <ArrowRightIcon className="size-4" />
                   </Link>
                   <Link
-                    to="/archive"
+                    to="/rinkiniai"
                     className="brick-hover-sm inline-flex items-center rounded-full border-2 border-ink/20 px-5 py-3 text-[14px] font-bold text-ink/70 transition-colors hover:border-ink hover:text-ink"
                   >
                     Peržiūrėti katalogą

@@ -64,14 +64,14 @@ export default function About() {
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Link
-                    to="/subscribe"
+                    to="/prenumerata"
                     className="brick-hover-sm inline-flex items-center gap-2 rounded-full border-2 border-ink bg-ink px-5 py-3 text-[14px] font-bold text-paper"
                   >
                     Pradėti prenumeratą
                     <ArrowRight className="size-4" />
                   </Link>
                   <Link
-                    to="/community"
+                    to="/bendruomene"
                     className="brick-hover-sm inline-flex items-center rounded-full border-2 border-ink/20 px-5 py-3 text-[14px] font-bold text-ink/70 transition-colors hover:border-ink hover:text-ink"
                   >
                     Bendruomenė
@@ -199,14 +199,14 @@ export default function About() {
               </p>
               <div className="flex flex-wrap justify-center gap-3">
                 <Link
-                  to="/subscribe"
+                  to="/prenumerata"
                   className="brick-hover-sm inline-flex items-center gap-2 rounded-full border-2 border-paper bg-paper px-6 py-3 text-[15px] font-bold text-ink"
                 >
                   Peržiūrėti prenumeratas
                   <ArrowRight className="size-4" />
                 </Link>
                 <Link
-                  to="/archive"
+                  to="/rinkiniai"
                   className="brick-hover-sm inline-flex items-center rounded-full border-2 border-white/30 px-6 py-3 text-[15px] font-bold text-paper/80 transition-colors hover:border-paper hover:text-paper"
                 >
                   Naršyti katalogą

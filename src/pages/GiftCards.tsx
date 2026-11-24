@@ -128,7 +128,7 @@ export default function GiftCards() {
       buyer: buyerEmail,
       ...(message.trim() ? { message: message.trim() } : {}),
     })
-    navigate(`/checkout?${params.toString()}`)
+    navigate(`/apmokejimas?${params.toString()}`)
   }
 
   const selectedDenom = DENOMINATIONS.find((d) => d.cents === selected)
@@ -138,7 +138,7 @@ export default function GiftCards() {
       <Seo
         title="Dovanų kortelės"
         description="Padovanok Brick Time LEGO® rinkinių prenumeratą – pasirink dovanų kortelės sumą ir nustebink artimą žmogų."
-        path="/gift-cards"
+        path="/dovanu-kuponas"
       />
       <Nav />
 

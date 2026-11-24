@@ -268,7 +268,7 @@ export function ProductCard({
           the cart button comes later in the DOM at the same z-20, so it paints
           above this link as a separate control rather than inside it. */}
       <Link
-        to={`/drop/${product.id}`}
+        to={`/rinkinys/${product.id}`}
         aria-label={product.title}
         className="absolute inset-0 z-20"
       />

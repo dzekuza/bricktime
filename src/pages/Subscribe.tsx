@@ -146,7 +146,7 @@ export default function Subscribe() {
     selectedP: DbSubscription,
     planBilling: "monthly" | "yearly"
   ) {
-    navigate(`/checkout?plan=${selectedP.id}&billing=${planBilling}`)
+    navigate(`/apmokejimas?plan=${selectedP.id}&billing=${planBilling}`)
   }
 
   async function handlePurchase() {
@@ -165,8 +165,8 @@ export default function Subscribe() {
         billing,
         userId: user.id,
         userEmail: user.email ?? form.email,
-        successUrl: `${origin}/subscribe?success=true&plan=${planKey}${homeDelivery ? "&home_delivery=1" : ""}`,
-        cancelUrl: `${origin}/subscribe?plan=${planKey}`,
+        successUrl: `${origin}/prenumerata?success=true&plan=${planKey}${homeDelivery ? "&home_delivery=1" : ""}`,
+        cancelUrl: `${origin}/prenumerata?plan=${planKey}`,
         ...(appliedCoupon &&
           !appliedCoupon.giftCardCode && { couponCode: appliedCoupon.code }),
         ...(appliedCoupon?.giftCardCode && {
@@ -289,7 +289,7 @@ export default function Subscribe() {
   if (submitted && plan) {
     return (
       <div className="min-h-screen bg-paper">
-        <Seo title="Prenumeratos planai" path="/subscribe" noindex />
+        <Seo title="Prenumeratos planai" path="/prenumerata" noindex />
         <Nav />
         <main>
           <section className="py-20">
@@ -319,7 +319,7 @@ export default function Subscribe() {
                       asChild
                       className="brick-hover-sm rounded-full border-2 border-ink bg-ink text-[15px] font-bold text-paper"
                     >
-                      <Link to="/account">
+                      <Link to="/paskyra">
                         Eiti į paskyrą <ArrowRightIcon data-icon="inline-end" />
                       </Link>
                     </Button>
@@ -328,7 +328,7 @@ export default function Subscribe() {
                       variant="outline"
                       className="rounded-full border-2 border-ink bg-transparent text-[15px] font-bold text-ink transition-colors hover:bg-ink/5"
                     >
-                      <Link to="/drop/26">Peržiūrėti produktą № 26</Link>
+                      <Link to="/rinkinys/26">Peržiūrėti produktą № 26</Link>
                     </Button>
                   </div>
                 </div>
@@ -346,7 +346,7 @@ export default function Subscribe() {
       <Seo
         title="Prenumeratos planai"
         description="Pasirink Brick Time prenumeratos planą pagal savo biudžetą – nuo Nano iki Mega – ir pradėk rinktis LEGO® rinkinius."
-        path="/subscribe"
+        path="/prenumerata"
       />
       <Nav />
 
@@ -801,7 +801,7 @@ export default function Subscribe() {
           ctaHeading={"Atrask savo\n==LEGO® rinkinius.=="}
           ctaBody="Peržiūrėk visus mūsų turimus LEGO® rinkinius ir išsirink, kurį konstruosi pirmiausia."
           ctaLabel="Peržiūrėti rinkinius"
-          ctaHref="/archive"
+          ctaHref="/rinkiniai"
         />
       </main>
 

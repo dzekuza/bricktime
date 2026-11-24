@@ -64,8 +64,8 @@ export function MysteryBoxRequestDialog({
         "create-mystery-courier-checkout",
         {
           body: {
-            successUrl: `${origin}/account?mystery_paid=true&session_id={CHECKOUT_SESSION_ID}`,
-            cancelUrl: `${origin}/account`,
+            successUrl: `${origin}/paskyra?mystery_paid=true&session_id={CHECKOUT_SESSION_ID}`,
+            cancelUrl: `${origin}/paskyra`,
           },
         }
       )

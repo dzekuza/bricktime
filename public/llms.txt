@@ -9,13 +9,13 @@
 - Delivery across Lithuania (parcel terminals and courier).
 
 ## Key pages
-- [Katalogas / Catalogue](https://www.bricktime.lt/archive): all rentable LEGO® sets, filterable by plan and age.
-- [Prenumeratos planai / Plans](https://www.bricktime.lt/subscribe): tiers and monthly budgets.
+- [Katalogas / Catalogue](https://www.bricktime.lt/rinkiniai): all rentable LEGO® sets, filterable by plan and age.
+- [Prenumeratos planai / Plans](https://www.bricktime.lt/prenumerata): tiers and their monthly Briksiai (points) budgets.
 - [D.U.K. / FAQ](https://www.bricktime.lt/duk): answers on billing, sets, returns and pausing.
 - [Pristatymas / Shipping](https://www.bricktime.lt/pristatymas)
 - [Grąžinimai / Returns](https://www.bricktime.lt/grazinimai)
 - [Praleisti / pristabdyti / Skip or pause](https://www.bricktime.lt/praleisti-pristabdyti)
-- [Dovanų kortelės / Gift cards](https://www.bricktime.lt/gift-cards)
+- [Dovanų kortelės / Gift cards](https://www.bricktime.lt/dovanu-kuponas)
 - [Apie mus / About](https://www.bricktime.lt/apie)
 - [Kontaktai / Contact](https://www.bricktime.lt/kontaktai)
 

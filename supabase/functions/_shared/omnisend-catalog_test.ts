@@ -42,7 +42,7 @@ Deno.test("an in-stock set maps to a product with one variant", () => {
   const product = toOmnisendProduct(row())
   assertEquals(product.id, "111")
   assertEquals(product.status, "inStock")
-  assertEquals(product.url, "https://www.bricktime.lt/drop/111")
+  assertEquals(product.url, "https://www.bricktime.lt/rinkinys/111")
   assertEquals(product.categoryIDs, ["technic"])
   assertEquals(product.images, ["https://example.com/b.webp"])
   assertEquals(product.variants, [
@@ -51,7 +51,7 @@ Deno.test("an in-stock set maps to a product with one variant", () => {
       title: "LEGO® Technic™ McLaren P1™ 42172",
       price: 470,
       status: "inStock",
-      url: "https://www.bricktime.lt/drop/111",
+      url: "https://www.bricktime.lt/rinkinys/111",
     },
   ])
 })

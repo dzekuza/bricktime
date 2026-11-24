@@ -145,7 +145,7 @@ async function handleGiftCardCheckout(session: Stripe.Checkout.Session) {
       message: giftCard.message?.trim() || DEFAULT_GIFT_CARD_MESSAGE,
       expiresAt: String(giftCard.expires_at).slice(0, 10),
       purchasedAt: giftCard.created_at,
-      redeemUrl: `https://www.bricktime.lt/gift-cards?code=${encodeURIComponent(giftCard.code)}`,
+      redeemUrl: `https://www.bricktime.lt/dovanu-kuponas?code=${encodeURIComponent(giftCard.code)}`,
     }
   )
   if (!isSent) {
@@ -946,7 +946,7 @@ async function sendWelcomeEvent(
     monthlyPrice,
     activatedAt: formatLtDate(new Date()),
     nextPaymentAt,
-    catalogUrl: "https://www.bricktime.lt/archive",
+    catalogUrl: "https://www.bricktime.lt/rinkiniai",
   })
 }
 
@@ -1131,7 +1131,7 @@ Deno.serve(async (req) => {
           {
             amountDue: ((invoice.amount_due ?? 0) / 100).toFixed(2),
             chargeAt: formatLtDate(new Date(chargeAtSeconds * 1000)),
-            accountUrl: "https://www.bricktime.lt/account",
+            accountUrl: "https://www.bricktime.lt/paskyra",
           }
         )
         if (!isSent) {
@@ -1201,7 +1201,7 @@ Deno.serve(async (req) => {
               invoice.customer_email,
               {
                 amountDue: ((invoice.amount_due ?? 0) / 100).toFixed(2),
-                accountUrl: "https://www.bricktime.lt/account",
+                accountUrl: "https://www.bricktime.lt/paskyra",
               }
             )
             if (!isSent) {

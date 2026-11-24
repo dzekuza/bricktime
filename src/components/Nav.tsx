@@ -36,10 +36,10 @@ const PLAN_COLORS: Record<string, { bg: string; text: string }> = {
 }
 
 const links = [
-  { label: "Rinkiniai", to: "/archive" },
+  { label: "Rinkiniai", to: "/rinkiniai" },
   { label: "Merch", to: "/merch" },
-  { label: "Dovanų kuponas", to: "/gift-cards" },
-  { label: "Bendruomenė", to: "/community" },
+  { label: "Dovanų kuponas", to: "/dovanu-kuponas" },
+  { label: "Bendruomenė", to: "/bendruomene" },
 ]
 
 // ── Avatar button ─────────────────────────────────────────────────────────────
@@ -52,7 +52,7 @@ function AvatarLink() {
 
   return (
     <Link
-      to="/account"
+      to="/paskyra"
       className="brick-hover-sm relative z-10 flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-ink"
       style={{ background: avatarBg }}
       aria-label={user ? "Paskyra" : "Prisijungti"}
@@ -81,7 +81,7 @@ function PlanChip({ plan }: { plan: string }) {
 
   return (
     <Link
-      to="/account"
+      to="/paskyra"
       className="-mr-4 hidden items-center rounded-full border-2 border-ink px-3.5 py-[7px] whitespace-nowrap md:flex"
       style={{ background: bg }}
     >
@@ -258,7 +258,7 @@ export default function Nav() {
                   </>
                 ) : (
                   <Link
-                    to="/subscribe"
+                    to="/prenumerata"
                     className="brick-hover-sm -mr-3 hidden items-center gap-2 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[15px] font-bold text-paper lg:inline-flex"
                   >
                     Pradėk konstruoti <ArrowRightIcon className="size-4" />
@@ -337,7 +337,7 @@ export default function Nav() {
           {/* CTA */}
           {!(user && profile?.plan && profile.status === "active") && (
             <Link
-              to="/subscribe"
+              to="/prenumerata"
               onClick={() => setOpen(false)}
               className="brick-hover-sm flex w-full items-center justify-center rounded-full border-2 border-ink bg-ink py-3.5 text-center text-[15px] font-bold text-paper"
               style={{

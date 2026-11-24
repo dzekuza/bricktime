@@ -150,7 +150,7 @@ export function NextDrop() {
                 jau prieinamas!
               </h2>
               <a
-                href="/archive"
+                href="/rinkiniai"
                 className="label-mono text-brand-yellow underline underline-offset-4"
               >
                 Peržiūrėti katalogą →
