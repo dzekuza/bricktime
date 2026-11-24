@@ -387,7 +387,7 @@ export function ReturnsPage() {
             </Link>{" "}
             arba{" "}
             <a
-              href="mailto:hello@bricktime.lt"
+              href="mailto:info@bricktime.lt"
               className="font-bold text-ink underline underline-offset-2"
             >
               susisiek su mūsų komanda
