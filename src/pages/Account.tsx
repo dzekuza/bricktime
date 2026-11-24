@@ -162,13 +162,13 @@ function AchievementsSection({
                 </p>
               </div>
               <a
-                href="/community"
+                href="/bendruomene"
                 className="mt-4 block rounded-full border-2 border-paper bg-paper px-3 py-2 text-center text-[14px] font-bold text-ink transition-colors hover:bg-transparent hover:text-paper"
               >
                 Lyderių lentelė →
               </a>
               <a
-                href={`/profile/${userId}`}
+                href={`/profilis/${userId}`}
                 className="mt-2 block rounded-full border-2 border-paper/40 px-3 py-2 text-center text-[14px] font-bold text-paper transition-colors hover:border-paper hover:bg-paper hover:text-ink"
               >
                 Mano profilis →
@@ -367,8 +367,8 @@ export default function Account() {
           userEmail: user.email,
           amount: subscriber.penalty_amount,
           reason: subscriber.penalty_reason ?? undefined,
-          successUrl: `${origin}/account?penalty_paid=true`,
-          cancelUrl: `${origin}/account`,
+          successUrl: `${origin}/paskyra?penalty_paid=true`,
+          cancelUrl: `${origin}/paskyra`,
         },
       }
     )
@@ -383,7 +383,7 @@ export default function Account() {
   useEffect(() => {
     const q = new URLSearchParams(window.location.search)
     if (q.get("penalty_paid") !== "true" || !userId) return
-    window.history.replaceState({}, "", "/account")
+    window.history.replaceState({}, "", "/paskyra")
     // Hides the pay button until the webhook clears the penalty, so a slow
     // webhook can't lead to a second payment.
     setPenaltyConfirming(true)
@@ -412,7 +412,7 @@ export default function Account() {
     if (q.get("plan_changed") !== "true" || !userId) return
     const planKey = q.get("plan") as PlanTier | null
     if (!planKey) return
-    window.history.replaceState({}, "", "/account")
+    window.history.replaceState({}, "", "/paskyra")
     const controller = new AbortController()
     waitForSubscriberBilling(
       userId,
@@ -731,7 +731,7 @@ export default function Account() {
       .filter((t) => t.price > activeTier.price)
       .sort((a, b) => a.price - b.price)[0]
     const planKey = nextUp?.key ?? activeTier.key
-    navigate(`/checkout?plan=${planKey}&billing=monthly`)
+    navigate(`/apmokejimas?plan=${planKey}&billing=monthly`)
   }
 
   async function openBillingPortal() {
@@ -813,7 +813,7 @@ export default function Account() {
   if (!user) {
     return (
       <div className="min-h-screen bg-paper">
-        <Seo title="Prisijungti" path="/account" noindex />
+        <Seo title="Prisijungti" path="/paskyra" noindex />
         <Nav />
         <div className="mx-auto flex max-w-[420px] flex-col gap-4 px-4 py-16 md:py-24">
           {!authLoading && (
@@ -834,7 +834,7 @@ export default function Account() {
 
   return (
     <div className="min-h-screen bg-paper">
-      <Seo title="Paskyra" path="/account" noindex />
+      <Seo title="Paskyra" path="/paskyra" noindex />
       <Nav />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
@@ -1055,7 +1055,7 @@ export default function Account() {
                 </div>
                 <button
                   className="w-full rounded-full border-2 border-ink bg-ink px-3 py-3 text-[14px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
-                  onClick={() => navigate("/subscribe")}
+                  onClick={() => navigate("/prenumerata")}
                 >
                   Pasirinkti planą
                 </button>
@@ -1153,7 +1153,7 @@ export default function Account() {
                 Pasirink LEGO® rinkinį iš katalogo ir pradėk konstruoti.
               </p>
               <a
-                href="/archive"
+                href="/rinkiniai"
                 className="mt-2 rounded-full border-2 border-ink bg-ink px-5 py-2.5 text-[13px] font-bold text-paper transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[5px_5px_0_#001B21]"
               >
                 Naršyti rinkinius →
@@ -1273,7 +1273,7 @@ export default function Account() {
                   </>
                 ) : (
                   <button
-                    onClick={() => navigate("/subscribe")}
+                    onClick={() => navigate("/prenumerata")}
                     className="brick-hover-sm w-full rounded-full border-2 border-ink bg-ink px-4 py-2.5 text-[14px] font-bold text-paper transition-all"
                   >
                     Pasirinkti planą →

@@ -289,7 +289,7 @@ export default function Drop() {
           product?.description ||
           "LEGO® rinkinys iš Brick Time katalogo – prieinamas su prenumerata."
         }
-        path={`/drop/${id}`}
+        path={`/rinkinys/${id}`}
         image={product?.image_url ?? undefined}
         jsonLd={
           product
@@ -547,7 +547,7 @@ export default function Drop() {
                         size="lg"
                         className="min-w-[200px] flex-1 justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)]"
                       >
-                        <Link to={`/checkout?product=${product?.id}`}>
+                        <Link to={`/apmokejimas?product=${product?.id}`}>
                           Rinkis šį rinkinį →
                         </Link>
                       </Button>
@@ -945,7 +945,7 @@ export default function Drop() {
               size="lg"
               className="flex-1 justify-center rounded-full border-2 border-ink bg-ink text-[15px] font-bold text-paper"
             >
-              <Link to={`/checkout?product=${product?.id}`}>
+              <Link to={`/apmokejimas?product=${product?.id}`}>
                 Rinkis šį rinkinį →
               </Link>
             </Button>

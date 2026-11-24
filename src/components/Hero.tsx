@@ -255,7 +255,7 @@ export default function Hero() {
               size="lg"
               className="brick-hover-sm flex-1 rounded-full border-2 border-ink bg-paper text-[16px] font-bold text-ink hover:bg-paper hover:text-ink md:flex-none"
             >
-              <a href="/archive">{copy.ctaSecondaryLabel}</a>
+              <a href="/rinkiniai">{copy.ctaSecondaryLabel}</a>
             </Button>
           </div>
         </div>

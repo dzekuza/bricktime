@@ -219,7 +219,7 @@ function FeedCard({
 
       <div className="p-3 md:p-5">
         <div className="flex items-center gap-3">
-          <Link to={`/profile/${item.subscriber_id}`} className="shrink-0">
+          <Link to={`/profilis/${item.subscriber_id}`} className="shrink-0">
             <div
               className="size-9 overflow-hidden rounded-full border-2 border-ink transition-opacity hover:opacity-80"
               style={{ background: item.avatar_bg }}
@@ -235,7 +235,7 @@ function FeedCard({
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-[14px] leading-tight font-bold text-ink">
                 <Link
-                  to={`/profile/${item.subscriber_id}`}
+                  to={`/profilis/${item.subscriber_id}`}
                   className="underline-offset-2 hover:underline"
                 >
                   {eventLabel(item.type, item.user_name, null, item.body)}
@@ -1198,13 +1198,13 @@ function LeaderboardPanel({
             </span>
           </div>
           <Link
-            to="/account"
+            to="/paskyra"
             className="mt-4 flex items-center justify-center rounded-full border-2 border-paper bg-brand-yellow px-4 py-2.5 text-[13px] font-bold text-ink transition-colors hover:bg-paper"
           >
             Kaip gauti taškų? →
           </Link>
           <Link
-            to={`/profile/${user.id}`}
+            to={`/profilis/${user.id}`}
             className="mt-2 flex items-center justify-center rounded-full border-2 border-paper/30 px-4 py-2.5 text-[13px] font-bold text-paper transition-colors hover:border-paper hover:bg-paper hover:text-ink"
           >
             Peržiūrėti savo profilį →
@@ -1236,7 +1236,7 @@ function LeaderboardPanel({
                 {entry.rank}
               </p>
               <Link
-                to={`/profile/${entry.subscriber_id}`}
+                to={`/profilis/${entry.subscriber_id}`}
                 className="flex min-w-0 items-center gap-2 hover:underline"
               >
                 <div
@@ -1307,7 +1307,7 @@ function LeaderboardPodium({
           return (
             <Link
               key={entry.subscriber_id}
-              to={`/profile/${entry.subscriber_id}`}
+              to={`/profilis/${entry.subscriber_id}`}
               className={`studs-sm flex flex-col items-center rounded-2xl border-2 border-ink p-3 text-center shadow-[4px_4px_0_#001B21] ${isCenter ? "mt-0" : "mt-5"}`}
               style={{ background: entry.avatar_bg ?? "#001B21" }}
             >
@@ -1395,7 +1395,7 @@ export default function Community() {
       <Seo
         title="Bendruomenė"
         description="Prisijunk prie Brick Time bendruomenės – dalinkis savo LEGO® statiniais, sek naujausius numerius ir rink pasiekimus."
-        path="/community"
+        path="/bendruomene"
       />
       <Nav />
 

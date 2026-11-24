@@ -12,23 +12,7 @@
       "destination": "/admin/index.html"
     },
     {
-      "source": "/drop/:id",
-      "destination": "/index.html"
-    },
-    {
       "source": "/merch/:slug",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/profile/:userId",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/account",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/checkout",
       "destination": "/index.html"
     },
     {
@@ -46,6 +30,64 @@
     {
       "source": "/merch/aciu",
       "destination": "/index.html"
+    },
+    {
+      "source": "/rinkinys/:id",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/profilis/:userId",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/paskyra",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/apmokejimas",
+      "destination": "/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/archive",
+      "destination": "/rinkiniai",
+      "permanent": true
+    },
+    {
+      "source": "/account",
+      "destination": "/paskyra",
+      "permanent": true
+    },
+    {
+      "source": "/community",
+      "destination": "/bendruomene",
+      "permanent": true
+    },
+    {
+      "source": "/gift-cards",
+      "destination": "/dovanu-kuponas",
+      "permanent": true
+    },
+    {
+      "source": "/subscribe",
+      "destination": "/prenumerata",
+      "permanent": true
+    },
+    {
+      "source": "/checkout",
+      "destination": "/apmokejimas",
+      "permanent": true
+    },
+    {
+      "source": "/drop/:id",
+      "destination": "/rinkinys/:id",
+      "permanent": true
+    },
+    {
+      "source": "/profile/:userId",
+      "destination": "/profilis/:userId",
+      "permanent": true
     }
   ]
 }

@@ -125,7 +125,7 @@ export default function UserProfile() {
         <div className="mx-auto max-w-[1320px] px-4 py-20 text-center md:px-7">
           <p className="font-mono text-ink/40">Profilis nerastas.</p>
           <Link
-            to="/community"
+            to="/bendruomene"
             className="mt-4 inline-block font-mono text-[13px] text-ink underline"
           >
             ← Bendruomenė
@@ -146,7 +146,7 @@ export default function UserProfile() {
     <div className="min-h-screen bg-paper">
       <Seo
         title={profile.name || "Profilis"}
-        path={`/profile/${profile.id}`}
+        path={`/profilis/${profile.id}`}
         noindex
       />
       <Nav />
@@ -155,7 +155,7 @@ export default function UserProfile() {
         <div className="mx-auto max-w-[1320px] px-4 md:px-7">
           {/* Back */}
           <Link
-            to="/community"
+            to="/bendruomene"
             className="mb-6 inline-flex items-center gap-1.5 font-mono text-[11px] tracking-widest text-ink/40 uppercase transition-colors hover:text-ink"
           >
             ← Bendruomenė

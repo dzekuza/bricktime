@@ -158,7 +158,7 @@ export default function RentalCart() {
             Kilus klausimų, susisiek su mumis.
           </p>
           <Button asChild size="lg" className="w-fit">
-            <Link to="/account">Į paskyrą</Link>
+            <Link to="/paskyra">Į paskyrą</Link>
           </Button>
         </div>
       </Shell>
@@ -176,7 +176,7 @@ export default function RentalCart() {
             Rinkinius paruošime ir išsiųsime kartu. Užsakymus matysi paskyroje.
           </p>
           <Button asChild size="lg" className="w-fit">
-            <Link to="/account">Į paskyrą</Link>
+            <Link to="/paskyra">Į paskyrą</Link>
           </Button>
         </div>
       </Shell>
@@ -249,7 +249,7 @@ export default function RentalCart() {
         <div className="brick-card flex flex-col items-start gap-4 p-6 md:p-8">
           <p className="text-[16px] text-ink/75">Krepšelis tuščias.</p>
           <Button asChild size="lg">
-            <Link to="/archive">Žiūrėti rinkinius</Link>
+            <Link to="/rinkiniai">Žiūrėti rinkinius</Link>
           </Button>
         </div>
       ) : (
@@ -273,7 +273,7 @@ export default function RentalCart() {
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
                   <Link
-                    to={`/drop/${row.id}`}
+                    to={`/rinkinys/${row.id}`}
                     className="heading-display text-d-xs text-ink hover:underline"
                   >
                     {row.product?.title ?? "Rinkinys nebeprieinamas"}
@@ -305,7 +305,7 @@ export default function RentalCart() {
             {!user || !isActive ? (
               <p className="mt-4 text-[15px] text-ink/75">
                 Norint nuomotis reikia aktyvios prenumeratos.{" "}
-                <Link to="/subscribe" className="font-bold underline">
+                <Link to="/prenumerata" className="font-bold underline">
                   Pasirink planą →
                 </Link>
               </p>
@@ -320,7 +320,7 @@ export default function RentalCart() {
                 )}
                 {isOverBudget && plan !== "mega" && (
                   <Link
-                    to="/subscribe"
+                    to="/prenumerata"
                     className="brick-hover-sm mt-4 flex h-11 w-full items-center justify-center rounded-full border-2 border-ink bg-brand-orange px-4 text-[14px] font-bold text-paper transition-all"
                   >
                     Pasirink didesnį planą →
@@ -402,7 +402,7 @@ function Shell({ children }: { children: ReactNode }) {
           </h1>
           {children}
           <Link
-            to="/archive"
+            to="/rinkiniai"
             className="label-mono mt-6 inline-flex items-center gap-1.5 text-ink/40 transition-colors hover:text-ink"
           >
             ← Visi rinkiniai

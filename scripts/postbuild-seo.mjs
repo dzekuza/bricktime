@@ -22,14 +22,14 @@ const STATIC_ROUTES = [
     priority: "1.0",
   },
   {
-    path: "/archive",
+    path: "/rinkiniai",
     title: "Katalogas",
     description:
       "Naršyk visą Brick Time LEGO® rinkinių katalogą – filtruok pagal prenumeratos planą ir amžiaus grupę, rink rinkinius pagal savo biudžetą.",
     priority: "0.9",
   },
   {
-    path: "/subscribe",
+    path: "/prenumerata",
     title: "Prenumeratos planai",
     description:
       "Pasirink Brick Time prenumeratos planą pagal savo biudžetą – nuo Nano iki Mega – ir pradėk rinktis LEGO® rinkinius.",
@@ -71,7 +71,7 @@ const STATIC_ROUTES = [
     priority: "0.5",
   },
   {
-    path: "/gift-cards",
+    path: "/dovanu-kuponas",
     title: "Dovanų kortelės",
     description:
       "Padovanok Brick Time LEGO® rinkinių prenumeratą – pasirink dovanų kortelės sumą ir nustebink artimą žmogų.",
@@ -84,7 +84,7 @@ const STATIC_ROUTES = [
     priority: "0.5",
   },
   {
-    path: "/community",
+    path: "/bendruomene",
     title: "Bendruomenė",
     description:
       "Prisijunk prie Brick Time bendruomenės – dalinkis savo LEGO® statiniais, sek naujausius numerius ir rink pasiekimus.",
@@ -114,8 +114,8 @@ const STATIC_ROUTES = [
 ]
 
 const NAV_LINKS = [
-  ["/archive", "Katalogas"],
-  ["/subscribe", "Prenumeratos planai"],
+  ["/rinkiniai", "Katalogas"],
+  ["/prenumerata", "Prenumeratos planai"],
   ["/duk", "D.U.K."],
   ["/pristatymas", "Pristatymas"],
   ["/grazinimai", "Grąžinimai"],
@@ -262,7 +262,7 @@ async function main() {
       heading: product.title,
       title: product.title,
       description,
-      urlPath: `/drop/${product.id}`,
+      urlPath: `/rinkinys/${product.id}`,
       image: images[0] ?? DEFAULT_IMAGE,
       // Mirrors the Product schema <Drop> renders client-side.
       jsonLd: {
@@ -296,7 +296,7 @@ async function main() {
 
   const urls = [
     ...STATIC_ROUTES.map((r) => ({ loc: r.path === "/" ? "/" : r.path, priority: r.priority })),
-    ...products.map((p) => ({ loc: `/drop/${p.id}`, priority: "0.7" })),
+    ...products.map((p) => ({ loc: `/rinkinys/${p.id}`, priority: "0.7" })),
     ...merch.map((m) => ({ loc: `/merch/${m.slug}`, priority: "0.4" })),
   ]
   const sitemap = [

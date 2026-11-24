@@ -33,7 +33,7 @@ export default function ResetPassword() {
       setError(translateAuthError(error.message))
     } else {
       setSuccess(true)
-      setTimeout(() => navigate("/account"), 1500)
+      setTimeout(() => navigate("/paskyra"), 1500)
     }
   }
 

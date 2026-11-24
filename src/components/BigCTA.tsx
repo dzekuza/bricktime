@@ -126,7 +126,7 @@ export default function BigCTA() {
                 size="lg"
                 className="w-full rounded-full border-2 border-paper/30 bg-transparent text-[15px] font-semibold text-paper transition-[transform,box-shadow] duration-150 ease-out hover:-translate-x-[3px] hover:-translate-y-[3px] hover:bg-transparent hover:text-paper hover:shadow-[6px_6px_0_rgba(245,241,235,.15)] active:translate-x-0 active:translate-y-0 active:scale-[0.97] active:shadow-none"
               >
-                <a href="/drop">Peržiūrėti produktą № 26</a>
+                <a href="/rinkinys">Peržiūrėti produktą № 26</a>
               </Button>
               <p className="mt-1 text-center font-mono text-[10px] tracking-[.1em] text-paper/35 uppercase">
                 Atšauk bet kada · Nemokamas pristatymas

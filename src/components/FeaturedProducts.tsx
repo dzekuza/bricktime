@@ -237,7 +237,7 @@ export default function FeaturedProducts() {
               </button>
             )}
             <Link
-              to="/archive"
+              to="/rinkiniai"
               className="brick-hover-sm flex h-12 items-center gap-2 rounded-full border-2 border-ink bg-white px-[26px] text-[16px] leading-[26px] font-bold text-ink"
             >
               Peržiūrėti rinkinius

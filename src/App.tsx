@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react"
 import { Routes, Route, useLocation } from "react-router-dom"
 import Home from "@/pages/Home"
+import { LegacyRedirect } from "@/components/LegacyRedirect"
 import Archive from "@/pages/Archive"
 import Account from "@/pages/Account"
 import ResetPassword from "@/pages/ResetPassword"
@@ -61,20 +62,20 @@ export default function App() {
       {!loaded && <LoadingScreen onDone={handleDone} />}
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/archive" element={<Archive />} />
-        <Route path="/account" element={<Account />} />
+        <Route path="/rinkiniai" element={<Archive />} />
+        <Route path="/paskyra" element={<Account />} />
         <Route path="/nustatyti-slaptazodi" element={<ResetPassword />} />
-        <Route path="/community" element={<Community />} />
-        <Route path="/subscribe" element={<Subscribe />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/drop/:id" element={<Drop />} />
-        <Route path="/profile/:userId" element={<UserProfile />} />
+        <Route path="/bendruomene" element={<Community />} />
+        <Route path="/prenumerata" element={<Subscribe />} />
+        <Route path="/apmokejimas" element={<Checkout />} />
+        <Route path="/rinkinys/:id" element={<Drop />} />
+        <Route path="/profilis/:userId" element={<UserProfile />} />
         <Route path="/merch" element={<MerchPage />} />
         <Route path="/merch/krepselis" element={<MerchCart />} />
         <Route path="/rinkiniai/krepselis" element={<RentalCart />} />
         <Route path="/merch/aciu" element={<MerchThankYou />} />
         <Route path="/merch/:slug" element={<MerchDrop />} />
-        <Route path="/gift-cards" element={<GiftCards />} />
+        <Route path="/dovanu-kuponas" element={<GiftCards />} />
         <Route path="/duk" element={<FAQPage />} />
         <Route path="/praleisti-pristabdyti" element={<PausePage />} />
         <Route path="/pristatymas" element={<ShippingPage />} />
@@ -83,6 +84,14 @@ export default function App() {
         <Route path="/kontaktai" element={<Contacts />} />
         <Route path="/privatumo-politika" element={<PrivacyPolicy />} />
         <Route path="/parduotuves-taisykles" element={<StoreRules />} />
+        <Route path="/archive" element={<LegacyRedirect to="/rinkiniai" />} />
+        <Route path="/account" element={<LegacyRedirect to="/paskyra" />} />
+        <Route path="/community" element={<LegacyRedirect to="/bendruomene" />} />
+        <Route path="/gift-cards" element={<LegacyRedirect to="/dovanu-kuponas" />} />
+        <Route path="/subscribe" element={<LegacyRedirect to="/prenumerata" />} />
+        <Route path="/checkout" element={<LegacyRedirect to="/apmokejimas" />} />
+        <Route path="/drop/:id" element={<LegacyRedirect to="/rinkinys/:id" />} />
+        <Route path="/profile/:userId" element={<LegacyRedirect to="/profilis/:userId" />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <MysteryBoxIntroDialog />

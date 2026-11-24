@@ -160,7 +160,7 @@ export default function Archive() {
       <Seo
         title="Katalogas"
         description="Naršyk visą Brick Time LEGO® rinkinių katalogą – filtruok pagal prenumeratos planą ir amžiaus grupę, rink rinkinius pagal savo biudžetą."
-        path="/archive"
+        path="/rinkiniai"
       />
       <Nav />
 
