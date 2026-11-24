@@ -10,7 +10,7 @@
 
 ## Key pages
 - [Katalogas / Catalogue](https://www.bricktime.lt/rinkiniai): all rentable LEGO® sets, filterable by plan and age.
-- [Prenumeratos planai / Plans](https://www.bricktime.lt/prenumerata): tiers and monthly budgets.
+- [Prenumeratos planai / Plans](https://www.bricktime.lt/prenumerata): tiers and their monthly Briksiai (points) budgets.
 - [D.U.K. / FAQ](https://www.bricktime.lt/duk): answers on billing, sets, returns and pausing.
 - [Pristatymas / Shipping](https://www.bricktime.lt/pristatymas)
 - [Grąžinimai / Returns](https://www.bricktime.lt/grazinimai)

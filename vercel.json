@@ -52,42 +52,42 @@
     {
       "source": "/archive",
       "destination": "/rinkiniai",
-      "permanent": true
+      "statusCode": 301
     },
     {
       "source": "/account",
       "destination": "/paskyra",
-      "permanent": true
+      "statusCode": 301
     },
     {
       "source": "/community",
       "destination": "/bendruomene",
-      "permanent": true
+      "statusCode": 301
     },
     {
       "source": "/gift-cards",
       "destination": "/dovanu-kuponas",
-      "permanent": true
+      "statusCode": 301
     },
     {
       "source": "/subscribe",
       "destination": "/prenumerata",
-      "permanent": true
+      "statusCode": 301
     },
     {
       "source": "/checkout",
       "destination": "/apmokejimas",
-      "permanent": true
+      "statusCode": 301
     },
     {
       "source": "/drop/:id",
       "destination": "/rinkinys/:id",
-      "permanent": true
+      "statusCode": 301
     },
     {
       "source": "/profile/:userId",
       "destination": "/profilis/:userId",
-      "permanent": true
+      "statusCode": 301
     }
   ]
 }
