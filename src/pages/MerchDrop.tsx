@@ -72,11 +72,13 @@ export default function MerchDrop() {
         .from("merch_items")
         .select("*")
         .in("status", ["active", "coming-soon"])
+    let cancelled = false
     async function load(wanted: string) {
       const current = await lookup().eq("slug", wanted).maybeSingle()
       const found =
         current.data ??
         (await lookup().contains("legacy_slugs", [wanted]).maybeSingle()).data
+      if (cancelled) return
       if (!found) {
         navigate("/merch", { replace: true })
         return
@@ -92,6 +94,9 @@ export default function MerchDrop() {
       setLoading(false)
     }
     load(slug)
+    return () => {
+      cancelled = true
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, navigate])
 
