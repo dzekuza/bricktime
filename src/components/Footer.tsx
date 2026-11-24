@@ -124,6 +124,15 @@ export default function Footer() {
             className="text-ink/50 transition-colors hover:text-ink"
           >
             P.idea
+          </a>{" "}
+          x{" "}
+          <a
+            href="https://www.gvozdovic.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-ink/50 transition-colors hover:text-ink"
+          >
+            Gvozdovic Studios
           </a>
         </p>
       </div>
