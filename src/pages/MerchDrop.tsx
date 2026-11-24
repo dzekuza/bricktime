@@ -182,8 +182,14 @@ export default function MerchDrop() {
       { body: { ...checkoutBody, uiMode: "elements", returnUrl } }
     )
     if (error || !data?.clientSecret) {
-      throw new Error(await readFunctionError(error, "Wallet checkout failed"))
+      throw new Error(
+        await readFunctionError(
+          error,
+          "Mokėjimo nepavyko pradėti. Bandyk dar kartą."
+        )
+      )
     }
+    setBuyError(null)
     return data.clientSecret
   }
 
