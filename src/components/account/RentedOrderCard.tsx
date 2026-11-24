@@ -66,7 +66,9 @@ export function RentedOrderCard({
   const canReturn = ["active", "overdue", "return_declined"].includes(
     order.status
   )
-  const canReportPart = ["active", "overdue"].includes(order.status)
+  const canReportPart = ["active", "overdue", "return_declined"].includes(
+    order.status
+  )
   const delivery = order.homeDelivery
     ? "Į duris"
     : order.terminalName
