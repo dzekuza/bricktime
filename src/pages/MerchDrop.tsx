@@ -26,6 +26,7 @@ import { useSavedTerminal } from "@/hooks/useSavedTerminal"
 import { MERCH_CART_MAX_QUANTITY } from "@/contexts/MerchCartContext"
 import { QuantityStepper } from "@/components/merch/QuantityStepper"
 import { VatNote } from "@/components/VatNote"
+import { WalletCheckout } from "@/components/WalletCheckout"
 
 const TYPE_LABEL: Record<string, string> = {
   hoodie: "Džemperis",
@@ -42,6 +43,7 @@ export default function MerchDrop() {
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const [buying, setBuying] = useState(false)
   const [buyError, setBuyError] = useState<string | null>(null)
+  const [isWalletPending, setIsWalletPending] = useState(false)
   const [quantity, setQuantity] = useState(1)
   // A code is priced against the subtotal it was checked for, so it only holds
   // while the quantity (and so the subtotal) is unchanged.
@@ -151,25 +153,51 @@ export default function MerchDrop() {
     )
   }
 
+  const origin = window.location.origin
+  const returnUrl = `${origin}/merch/aciu?session_id={CHECKOUT_SESSION_ID}`
+  const cancelUrl = `${origin}/merch/${item.slug}`
+  const checkoutBody = {
+    items: [
+      {
+        itemId: item.id,
+        size: selectedSize ?? "",
+        quantity: selectedQuantity,
+      },
+    ],
+    userEmail: user?.email ?? undefined,
+    deliveryMethod,
+    ...(deliveryMethod === "terminal" &&
+      terminal && { terminal: { id: terminal.id, name: terminal.name } }),
+    ...(activeCode && { code: activeCode.code }),
+  }
+  const canBuy = selectedSize !== null && isDeliveryReady && !buying
+  // A discount code is held while a session is open, so the wallet button is
+  // only offered without one; those orders use the pay button.
+  const canUseWallet = canBuy && !activeCode
+  const walletOrderKey = JSON.stringify(checkoutBody)
+
+  async function createWalletSession(): Promise<string> {
+    const { data, error } = await supabase.functions.invoke(
+      "create-merch-checkout",
+      { body: { ...checkoutBody, uiMode: "elements", returnUrl } }
+    )
+    if (error || !data?.clientSecret) {
+      throw new Error(await readFunctionError(error, "Wallet checkout failed"))
+    }
+    return data.clientSecret
+  }
+
   async function handleBuy() {
-    if (!selectedSize || !item || !isDeliveryReady) return
+    if (!canBuy || isWalletPending) return
     setBuying(true)
     setBuyError(null)
-    const origin = window.location.origin
     const { data, error } = await supabase.functions.invoke(
       "create-merch-checkout",
       {
         body: {
-          items: [
-            { itemId: item.id, size: selectedSize, quantity: selectedQuantity },
-          ],
-          userEmail: user?.email ?? undefined,
-          successUrl: `${origin}/merch/aciu?session_id={CHECKOUT_SESSION_ID}`,
-          cancelUrl: `${origin}/merch/${item.slug}`,
-          deliveryMethod,
-          ...(deliveryMethod === "terminal" &&
-            terminal && { terminal: { id: terminal.id, name: terminal.name } }),
-          ...(activeCode && { code: activeCode.code }),
+          ...checkoutBody,
+          successUrl: returnUrl,
+          cancelUrl,
         },
       }
     )
@@ -345,10 +373,18 @@ export default function MerchDrop() {
                       }}
                       onClear={() => setApplied(null)}
                     />
+                    {canUseWallet && (
+                      <WalletCheckout
+                        orderKey={walletOrderKey}
+                        createSession={createWalletSession}
+                        onError={setBuyError}
+                        onPendingChange={setIsWalletPending}
+                      />
+                    )}
                     <div className="mt-5 flex flex-wrap gap-3">
                       <Button
                         size="lg"
-                        disabled={!selectedSize || !isDeliveryReady || buying}
+                        disabled={!canBuy || isWalletPending}
                         onClick={handleBuy}
                         className="min-w-[200px] flex-1 justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)] disabled:opacity-40"
                       >
@@ -375,10 +411,7 @@ export default function MerchDrop() {
                     {cartNote && (
                       <p className="mt-2 font-mono text-[12px] text-ink/70">
                         {cartNote}{" "}
-                        <Link
-                          to="/krepselis"
-                          className="font-bold underline"
-                        >
+                        <Link to="/krepselis" className="font-bold underline">
                           Peržiūrėti krepšelį →
                         </Link>
                       </p>
