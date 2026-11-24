@@ -27,7 +27,7 @@ type CartProduct = {
   status: string
 }
 
-type RowProblem = "missing" | "tier" | "taken" | null
+type RowProblem = "missing" | "subscribe" | "tier" | "taken" | null
 
 /** The sets half of the cart page: claims sets within the Briksiai budget. */
 export function RentalCartSection() {
@@ -112,8 +112,8 @@ export function RentalCartSection() {
         const product = products?.[id] ?? null
         let problem: RowProblem = null
         if (!product) problem = "missing"
-        else if (!plan || !product.allowed_tiers.includes(plan))
-          problem = "tier"
+        else if (!plan) problem = "subscribe"
+        else if (!product.allowed_tiers.includes(plan)) problem = "tier"
         else if (product.status === "sold_out" || available.get(id) === 0)
           problem = "taken"
         return { id, product, problem }
@@ -302,12 +302,18 @@ export function RentalCartSection() {
             <h2 className="heading-display text-d-sm text-ink">Suvestinė</h2>
 
             {!user || !isActive ? (
-              <p className="mt-4 text-[15px] text-ink/75">
-                Norint nuomotis reikia aktyvios prenumeratos.{" "}
-                <Link to="/prenumerata" className="font-bold underline">
-                  Pasirink planą →
-                </Link>
-              </p>
+              <>
+                <p className="mt-4 text-[15px] text-ink/75">
+                  Norint nuomotis reikia aktyvios prenumeratos.
+                </p>
+                <Button
+                  asChild
+                  size="lg"
+                  className="mt-6 w-full justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)]"
+                >
+                  <Link to="/prenumerata">Pasirink planą →</Link>
+                </Button>
+              </>
             ) : (
               <>
                 <BricksBudgetBar
@@ -388,6 +394,7 @@ export function RentalCartSection() {
 
 const PROBLEM_TEXT: Record<Exclude<RowProblem, null>, string> = {
   missing: "Šio rinkinio nebėra.",
+  subscribe: "Prenumeruok, kad galėtum išsinuomoti šį rinkinį.",
   tier: "Tavo prenumerata neapima šio rinkinio.",
   taken: "Šiuo metu išnuomotas kitam nariui.",
 }
