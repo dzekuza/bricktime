@@ -2,8 +2,9 @@
 -- The slug is stored (not derived from the title on every request) so a link
 -- keeps working when a title is edited later.
 
--- Lithuanian (and common Latin) letters become plain ASCII, the ® and ™ signs
--- are dropped, everything else that is not a letter or digit becomes a dash.
+-- Lithuanian (and common Latin) letters become plain ASCII (ą č ę ė į š ų ū ž
+-- -> a c e e i s u u z), the ® and ™ signs and apostrophes are dropped, and
+-- everything else that is not a letter or digit becomes a dash.
 create or replace function public.slugify(value text)
 returns text
 language sql
@@ -12,7 +13,7 @@ as $$
   select trim(both '-' from left(
     regexp_replace(
       lower(translate(
-        replace(replace(value, '®', ''), '™', ''),
+        replace(replace(replace(replace(value, '®', ''), '™', ''), '’', ''), '''', ''),
         'ąčęėįšųūžĄČĘĖĮŠŲŪŽáàâäéèêëíìîïóòôöúùûüñß',
         'aceeisuuzACEEISUUZaaaaeeeeiiiioooouuuuns'
       )),
