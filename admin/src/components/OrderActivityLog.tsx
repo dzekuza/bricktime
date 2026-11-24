@@ -22,13 +22,15 @@ function formatActivityTime(iso: string): string {
 }
 
 function toTrackingEntries(events: LpTrackingEvent[], prefix: string): ActivityEntry[] {
-  return events
-    .filter((e): e is LpTrackingEvent & { date: string } => !!e.date)
-    .map((e) => ({
-      at: e.date,
-      label: `${prefix}: ${e.publicStateText ?? e.publicStateType ?? 'Update'}`,
+  return events.flatMap((e) => {
+    const at = e.eventDate ?? e.date
+    if (!at) return []
+    return [{
+      at,
+      label: `${prefix}: ${e.publicStateText ?? e.publicStateType ?? e.publicEventType ?? 'Update'}`,
       detail: e.location,
-    }))
+    }]
+  })
 }
 
 /** Timeline of an order: its own lifecycle timestamps plus LP Express tracking events. */

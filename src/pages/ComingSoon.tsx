@@ -2,6 +2,8 @@ import { useState, type FormEvent } from "react"
 import { Seo } from "@/components/Seo"
 import BrandLogoVideo from "@/components/BrandLogoVideo"
 import { WaitlistForm } from "@/components/coming-soon/WaitlistForm"
+import { OpenCountdown } from "@/components/coming-soon/OpenCountdown"
+import { useStoreOpenAt } from "@/hooks/useStoreOpenAt"
 
 const STEPS = [
   "Pasirink prenumeratą",
@@ -64,6 +66,8 @@ export default function ComingSoon({
 }: {
   onUnlock: (code: string) => boolean
 }) {
+  const openAt = useStoreOpenAt()
+
   return (
     <div className="studs-indigo relative min-h-[100dvh] overflow-hidden">
       <Seo
@@ -90,6 +94,7 @@ export default function ComingSoon({
             <p className="mt-6 max-w-[44ch] text-[18px] leading-relaxed text-paper/80">
               Ruošiame pirmąją Lietuvoje LEGO® rinkinių prenumeratą.
             </p>
+            {openAt && <OpenCountdown openAt={openAt} />}
             <ol className="mt-8 max-w-md divide-y-2 divide-paper/20 border-y-2 border-paper/20">
               {STEPS.map((step, i) => (
                 <li key={step} className="flex items-baseline gap-4 py-4">
