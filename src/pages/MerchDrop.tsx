@@ -63,28 +63,35 @@ export default function MerchDrop() {
       )
     : []
 
+  // The current slug first; an old one (kept in legacy_slugs) is looked up
+  // next and swapped for the current address.
   useEffect(() => {
     if (!slug) return
-    supabase
-      .from("merch_items")
-      .select("*")
-      .eq("slug", slug)
-      .in("status", ["active", "coming-soon"])
-      .single()
-      .then(({ data, error }) => {
-        if (error || !data) {
-          navigate("/merch", { replace: true })
-          return
-        }
-        setItem(data as MerchItem)
-        setActiveImage(
-          (data as MerchItem).image_url ??
-            (data as MerchItem).image_urls?.[0] ??
-            null
-        )
-        setLabel((data as MerchItem).name)
-        setLoading(false)
-      })
+    const lookup = () =>
+      supabase
+        .from("merch_items")
+        .select("*")
+        .in("status", ["active", "coming-soon"])
+    async function load(wanted: string) {
+      const current = await lookup().eq("slug", wanted).maybeSingle()
+      const found =
+        current.data ??
+        (await lookup().contains("legacy_slugs", [wanted]).maybeSingle()).data
+      if (!found) {
+        navigate("/merch", { replace: true })
+        return
+      }
+      const data = found as MerchItem
+      if (data.slug !== wanted) {
+        navigate(`/merch/${data.slug}`, { replace: true })
+        return
+      }
+      setItem(data)
+      setActiveImage(data.image_url ?? data.image_urls?.[0] ?? null)
+      setLabel(data.name)
+      setLoading(false)
+    }
+    load(slug)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, navigate])
 
@@ -375,10 +382,7 @@ export default function MerchDrop() {
                     {cartNote && (
                       <p className="mt-2 font-mono text-[12px] text-ink/70">
                         {cartNote}{" "}
-                        <Link
-                          to="/krepselis"
-                          className="font-bold underline"
-                        >
+                        <Link to="/krepselis" className="font-bold underline">
                           Peržiūrėti krepšelį →
                         </Link>
                       </p>
