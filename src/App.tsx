@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react"
 import { Routes, Route, useLocation } from "react-router-dom"
 import Home from "@/pages/Home"
+import Cart from "@/pages/Cart"
 import { LegacyRedirect } from "@/components/LegacyRedirect"
 import Archive from "@/pages/Archive"
 import Account from "@/pages/Account"
@@ -17,8 +18,6 @@ import {
   ShippingPage,
 } from "@/pages/HelpPages"
 import MerchPage from "@/pages/Merch"
-import MerchCart from "@/pages/MerchCart"
-import RentalCart from "@/pages/RentalCart"
 import MerchDrop from "@/pages/MerchDrop"
 import MerchThankYou from "@/pages/MerchThankYou"
 import GiftCards from "@/pages/GiftCards"
@@ -71,8 +70,9 @@ export default function App() {
         <Route path="/rinkinys/:id" element={<Drop />} />
         <Route path="/profilis/:userId" element={<UserProfile />} />
         <Route path="/merch" element={<MerchPage />} />
-        <Route path="/merch/krepselis" element={<MerchCart />} />
-        <Route path="/rinkiniai/krepselis" element={<RentalCart />} />
+        <Route path="/krepselis" element={<Cart />} />
+        <Route path="/merch/krepselis" element={<LegacyRedirect to="/krepselis" />} />
+        <Route path="/rinkiniai/krepselis" element={<LegacyRedirect to="/krepselis" />} />
         <Route path="/merch/aciu" element={<MerchThankYou />} />
         <Route path="/merch/:slug" element={<MerchDrop />} />
         <Route path="/dovanu-kuponas" element={<GiftCards />} />

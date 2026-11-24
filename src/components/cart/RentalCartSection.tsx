@@ -2,9 +2,6 @@ import { useEffect, useMemo, useState, type ReactNode } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import { Trash2Icon } from "lucide-react"
 
-import Nav from "@/components/Nav"
-import Footer from "@/components/Footer"
-import { Seo } from "@/components/Seo"
 import { Button } from "@/components/ui/button"
 import { ImagePlaceholder } from "@/components/ImagePlaceholder"
 import { BricksBudgetBar } from "@/components/rental/BricksBudgetBar"
@@ -31,7 +28,8 @@ type CartProduct = {
 
 type RowProblem = "missing" | "tier" | "taken" | null
 
-export default function RentalCart() {
+/** The sets half of the cart page: claims sets within the Briksiai budget. */
+export function RentalCartSection() {
   const { user, profile } = useAuth()
   const { productIds, remove, clear } = useRentalCart()
   const { remainingCredits, usedCredits } = useCredits()
@@ -210,8 +208,8 @@ export default function RentalCart() {
         {
           body: {
             productIds: rows.map((r) => r.id),
-            successUrl: `${origin}/rinkiniai/krepselis?courier_paid=true&session_id={CHECKOUT_SESSION_ID}&sets=${rows.map((r) => r.id).join(",")}`,
-            cancelUrl: `${origin}/rinkiniai/krepselis`,
+            successUrl: `${origin}/krepselis?courier_paid=true&session_id={CHECKOUT_SESSION_ID}&sets=${rows.map((r) => r.id).join(",")}`,
+            cancelUrl: `${origin}/krepselis`,
           },
         }
       )
@@ -247,7 +245,7 @@ export default function RentalCart() {
     <Shell>
       {rows.length === 0 ? (
         <div className="brick-card flex flex-col items-start gap-4 p-6 md:p-8">
-          <p className="text-[16px] text-ink/75">Krepšelis tuščias.</p>
+          <p className="text-[16px] text-ink/75">Rinkinių krepšelis tuščias.</p>
           <Button asChild size="lg">
             <Link to="/rinkiniai">Žiūrėti rinkinius</Link>
           </Button>
@@ -316,7 +314,10 @@ export default function RentalCart() {
                   remaining={remainingCredits}
                 />
                 {isOverBudget && (
-                  <CreditsResetNotice usedCredits={usedCredits} className="mt-3 text-[13px] font-bold text-ink/70" />
+                  <CreditsResetNotice
+                    usedCredits={usedCredits}
+                    className="mt-3 text-[13px] font-bold text-ink/70"
+                  />
                 )}
                 {isOverBudget && plan !== "mega" && (
                   <Link
@@ -392,25 +393,21 @@ const PROBLEM_TEXT: Record<Exclude<RowProblem, null>, string> = {
 
 function Shell({ children }: { children: ReactNode }) {
   return (
-    <>
-      <Seo title="Rinkinių krepšelis" path="/rinkiniai/krepselis" noindex />
-      <Nav />
-      <section className="bg-paper py-4 md:py-8">
-        <div className="mx-auto max-w-[1320px] px-4 md:px-7">
-          <h1 className="heading-display text-d-lg mb-6 text-ink md:mb-8">
-            Rinkinių krepšelis
-          </h1>
-          {children}
-          <Link
-            to="/rinkiniai"
-            className="label-mono mt-6 inline-flex items-center gap-1.5 text-ink/40 transition-colors hover:text-ink"
-          >
-            ← Visi rinkiniai
-          </Link>
-        </div>
-      </section>
-      <Footer />
-    </>
+    <section aria-labelledby="cart-sets-heading">
+      <h2
+        id="cart-sets-heading"
+        className="heading-display text-d-md mb-4 text-ink md:mb-6"
+      >
+        Rinkiniai
+      </h2>
+      {children}
+      <Link
+        to="/rinkiniai"
+        className="label-mono mt-6 inline-flex items-center gap-1.5 text-ink/40 transition-colors hover:text-ink"
+      >
+        ← Visi rinkiniai
+      </Link>
+    </section>
   )
 }
 

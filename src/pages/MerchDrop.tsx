@@ -376,7 +376,7 @@ export default function MerchDrop() {
                       <p className="mt-2 font-mono text-[12px] text-ink/70">
                         {cartNote}{" "}
                         <Link
-                          to="/merch/krepselis"
+                          to="/krepselis"
                           className="font-bold underline"
                         >
                           Peržiūrėti krepšelį →
