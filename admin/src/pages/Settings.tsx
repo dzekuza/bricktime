@@ -18,7 +18,6 @@ export function Settings() {
   const [emailNotifications, setEmailNotifications] = useState(true)
   const [newSubscriberAlert, setNewSubscriberAlert] = useState(true)
   const [overdueAlert, setOverdueAlert] = useState(true)
-  const [savedGeneral, setSavedGeneral] = useState(false)
   const [savedNotifications, setSavedNotifications] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
   const [isInviting, setIsInviting] = useState(false)
@@ -35,12 +34,6 @@ export function Settings() {
     } finally {
       setIsInviting(false)
     }
-  }
-
-  function handleSaveGeneral() {
-    setSavedGeneral(true)
-    toast.success('General settings saved')
-    setTimeout(() => setSavedGeneral(false), 2000)
   }
 
   function handleSaveNotifications() {
@@ -68,54 +61,6 @@ export function Settings() {
         <TabsContent value="general" className="flex flex-col gap-4">
           <ComingSoonGateCard />
           <StoreOpenTimeCard />
-          <Card>
-            <CardHeader>
-              <CardTitle>General</CardTitle>
-              <CardDescription>Basic store and account information.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-6">
-              <div className="flex items-center gap-4">
-                <Avatar className="size-16">
-                  <AvatarFallback className="text-lg">DZ</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col gap-1">
-                  <p className="font-medium text-sm">dzekuza</p>
-                  <p className="text-xs text-muted-foreground">dzekuza@gmail.com</p>
-                  <Button variant="outline" size="sm" className="mt-1 w-fit">Change avatar</Button>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="storeName">Store name</Label>
-                  <Input id="storeName" defaultValue="BRICKTIME" />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="supportEmail">Support email</Label>
-                  <Input id="supportEmail" type="email" defaultValue="hello@bricktime.co" />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="currency">Currency</Label>
-                  <Input id="currency" defaultValue="EUR (€)" />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="timezone">Timezone</Label>
-                  <Input id="timezone" defaultValue="Europe/Vilnius" />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Button onClick={handleSaveGeneral}>
-                  {savedGeneral ? 'Saved!' : 'Save changes'}
-                </Button>
-                {savedGeneral && (
-                  <Badge variant="outline" className="text-green-700 border-green-200">Changes saved</Badge>
-                )}
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         {/* Notifications */}
