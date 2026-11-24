@@ -35,6 +35,12 @@ export function ReviewForm({
         body: body.trim() || null,
       })
     setSaving(false)
+    // One review per member per set: a duplicate means the member already has
+    // theirs, so the form is done either way.
+    if (insertError?.code === "23505") {
+      onSubmitted()
+      return
+    }
     if (insertError) {
       setError("Nepavyko išsaugoti atsiliepimo. Bandyk dar kartą.")
       return
