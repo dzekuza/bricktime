@@ -302,12 +302,18 @@ export function RentalCartSection() {
             <h2 className="heading-display text-d-sm text-ink">Suvestinė</h2>
 
             {!user || !isActive ? (
-              <p className="mt-4 text-[15px] text-ink/75">
-                Norint nuomotis reikia aktyvios prenumeratos.{" "}
-                <Link to="/prenumerata" className="font-bold underline">
-                  Pasirink planą →
-                </Link>
-              </p>
+              <>
+                <p className="mt-4 text-[15px] text-ink/75">
+                  Norint nuomotis reikia aktyvios prenumeratos.
+                </p>
+                <Button
+                  asChild
+                  size="lg"
+                  className="mt-6 w-full justify-center rounded-full border-2 border-ink bg-ink text-[16px] font-bold text-paper transition-all hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-[6px_6px_0_rgba(0,27,33,.35)]"
+                >
+                  <Link to="/prenumerata">Pasirink planą →</Link>
+                </Button>
+              </>
             ) : (
               <>
                 <BricksBudgetBar
