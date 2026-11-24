@@ -1419,6 +1419,7 @@ export type Database = {
           rating: string | null
           release_date: string | null
           shipping_size: string
+          slug: string
           status: Database["public"]["Enums"]["product_status"]
           stock: number
           story: Json | null
@@ -1457,6 +1458,7 @@ export type Database = {
           rating?: string | null
           release_date?: string | null
           shipping_size?: string
+          slug?: string
           status?: Database["public"]["Enums"]["product_status"]
           stock?: number
           story?: Json | null
@@ -1495,6 +1497,7 @@ export type Database = {
           rating?: string | null
           release_date?: string | null
           shipping_size?: string
+          slug?: string
           status?: Database["public"]["Enums"]["product_status"]
           stock?: number
           story?: Json | null

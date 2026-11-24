@@ -19,6 +19,7 @@ import { supabase } from "@/lib/supabase"
 
 type CartProduct = {
   id: number
+  slug: string
   title: string
   image_url: string | null
   value: number | null
@@ -79,7 +80,7 @@ export function RentalCartSection() {
     let isCancelled = false
     supabase
       .from("products")
-      .select("id, title, image_url, value, allowed_tiers, status")
+      .select("id, slug, title, image_url, value, allowed_tiers, status")
       .in("id", idsKey.split(",").map(Number))
       .then(({ data, error }) => {
         if (isCancelled) return
@@ -271,7 +272,7 @@ export function RentalCartSection() {
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
                   <Link
-                    to={`/rinkinys/${row.id}`}
+                    to={`/rinkinys/${row.product?.slug ?? row.id}`}
                     className="heading-display text-d-xs text-ink hover:underline"
                   >
                     {row.product?.title ?? "Rinkinys nebeprieinamas"}

@@ -67,12 +67,18 @@ export default function App() {
         <Route path="/bendruomene" element={<Community />} />
         <Route path="/prenumerata" element={<Subscribe />} />
         <Route path="/apmokejimas" element={<Checkout />} />
-        <Route path="/rinkinys/:id" element={<Drop />} />
+        <Route path="/rinkinys/:slug" element={<Drop />} />
         <Route path="/profilis/:userId" element={<UserProfile />} />
         <Route path="/merch" element={<MerchPage />} />
         <Route path="/krepselis" element={<Cart />} />
-        <Route path="/merch/krepselis" element={<LegacyRedirect to="/krepselis" />} />
-        <Route path="/rinkiniai/krepselis" element={<LegacyRedirect to="/krepselis" />} />
+        <Route
+          path="/merch/krepselis"
+          element={<LegacyRedirect to="/krepselis" />}
+        />
+        <Route
+          path="/rinkiniai/krepselis"
+          element={<LegacyRedirect to="/krepselis" />}
+        />
         <Route path="/merch/aciu" element={<MerchThankYou />} />
         <Route path="/merch/:slug" element={<MerchDrop />} />
         <Route path="/dovanu-kuponas" element={<GiftCards />} />
@@ -86,12 +92,30 @@ export default function App() {
         <Route path="/parduotuves-taisykles" element={<StoreRules />} />
         <Route path="/archive" element={<LegacyRedirect to="/rinkiniai" />} />
         <Route path="/account" element={<LegacyRedirect to="/paskyra" />} />
-        <Route path="/community" element={<LegacyRedirect to="/bendruomene" />} />
-        <Route path="/gift-cards" element={<LegacyRedirect to="/dovanu-kuponas" />} />
-        <Route path="/subscribe" element={<LegacyRedirect to="/prenumerata" />} />
-        <Route path="/checkout" element={<LegacyRedirect to="/apmokejimas" />} />
-        <Route path="/drop/:id" element={<LegacyRedirect to="/rinkinys/:id" />} />
-        <Route path="/profile/:userId" element={<LegacyRedirect to="/profilis/:userId" />} />
+        <Route
+          path="/community"
+          element={<LegacyRedirect to="/bendruomene" />}
+        />
+        <Route
+          path="/gift-cards"
+          element={<LegacyRedirect to="/dovanu-kuponas" />}
+        />
+        <Route
+          path="/subscribe"
+          element={<LegacyRedirect to="/prenumerata" />}
+        />
+        <Route
+          path="/checkout"
+          element={<LegacyRedirect to="/apmokejimas" />}
+        />
+        <Route
+          path="/drop/:id"
+          element={<LegacyRedirect to="/rinkinys/:id" />}
+        />
+        <Route
+          path="/profile/:userId"
+          element={<LegacyRedirect to="/profilis/:userId" />}
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <MysteryBoxIntroDialog />

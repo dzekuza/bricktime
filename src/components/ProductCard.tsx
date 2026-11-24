@@ -27,6 +27,7 @@ const MAX_HOVER_IMAGES = 6
 
 export interface Product {
   id: number
+  slug: string
   title: string
   subtitle: string
   date: string
@@ -118,6 +119,7 @@ export function dbToProduct(
   }
   return {
     id: row.id as number,
+    slug: row.slug as string,
     title: row.title as string,
     subtitle: row.subtitle as string,
     date: formatReleaseMonth(releaseDate),
@@ -268,7 +270,7 @@ export function ProductCard({
           the cart button comes later in the DOM at the same z-20, so it paints
           above this link as a separate control rather than inside it. */}
       <Link
-        to={`/rinkinys/${product.id}`}
+        to={`/rinkinys/${product.slug}`}
         aria-label={product.title}
         className="absolute inset-0 z-20"
       />
