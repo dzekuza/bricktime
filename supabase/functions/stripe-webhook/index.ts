@@ -1,6 +1,7 @@
 import Stripe from "https://esm.sh/stripe@14.21.0"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { enqueueAdminNotification } from "../_shared/admin-notifications.ts"
+import { omnisendFetch } from "../_shared/omnisend.ts"
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   apiVersion: "2024-06-20",
@@ -74,18 +75,14 @@ async function pushOmnisendEvent(
     return true
   }
 
-  const res = await fetch("https://api.omnisend.com/v5/events", {
+  const res = await omnisendFetch(omnisendApiKey, "/events", {
     method: "POST",
-    headers: {
-      "X-API-KEY": omnisendApiKey,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
+    body: {
       eventName,
       origin: "api",
       contact: { email },
       properties,
-    }),
+    },
   })
 
   if (!res.ok) {
@@ -920,7 +917,26 @@ async function sendWelcomeEvent(
     }
   }
 
+  // Omnisend automations cannot attach files, so the template links the same
+  // invoice the account's orders page offers. Blank when Stripe has no invoice
+  // yet (e.g. a fully credit-covered first month) rather than blocking the email.
+  let invoicePdfUrl = ""
+  let invoiceUrl = ""
+  const invoiceId =
+    typeof session.invoice === "string" ? session.invoice : session.invoice?.id
+  if (invoiceId) {
+    try {
+      const invoice = await stripe.invoices.retrieve(invoiceId)
+      invoicePdfUrl = invoice.invoice_pdf ?? ""
+      invoiceUrl = invoice.hosted_invoice_url ?? ""
+    } catch (e) {
+      console.error(`Welcome email: invoice ${invoiceId} not loaded`, e)
+    }
+  }
+
   await pushOmnisendEvent("subscription started", email, {
+    invoicePdfUrl,
+    invoiceUrl,
     planKey: planKey ?? "",
     planName,
     status: "Aktyvi",

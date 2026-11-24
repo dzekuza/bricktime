@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { ComingSoonGateCard } from '@/components/ComingSoonGateCard'
 import { StoreOpenTimeCard } from '@/components/StoreOpenTimeCard'
+import { OmnisendCatalogCard } from '@/components/OmnisendCatalogCard'
 import { WhatsAppAlertsCard } from '@/components/WhatsAppAlertsCard'
 
 export function Settings() {
@@ -61,6 +62,7 @@ export function Settings() {
         <TabsContent value="general" className="flex flex-col gap-4">
           <ComingSoonGateCard />
           <StoreOpenTimeCard />
+          <OmnisendCatalogCard />
         </TabsContent>
 
         {/* Notifications */}
