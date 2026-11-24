@@ -27,7 +27,7 @@ type CartProduct = {
   status: string
 }
 
-type RowProblem = "missing" | "tier" | "taken" | null
+type RowProblem = "missing" | "subscribe" | "tier" | "taken" | null
 
 /** The sets half of the cart page: claims sets within the Briksiai budget. */
 export function RentalCartSection() {
@@ -112,8 +112,8 @@ export function RentalCartSection() {
         const product = products?.[id] ?? null
         let problem: RowProblem = null
         if (!product) problem = "missing"
-        else if (!plan || !product.allowed_tiers.includes(plan))
-          problem = "tier"
+        else if (!plan) problem = "subscribe"
+        else if (!product.allowed_tiers.includes(plan)) problem = "tier"
         else if (product.status === "sold_out" || available.get(id) === 0)
           problem = "taken"
         return { id, product, problem }
@@ -388,6 +388,7 @@ export function RentalCartSection() {
 
 const PROBLEM_TEXT: Record<Exclude<RowProblem, null>, string> = {
   missing: "Šio rinkinio nebėra.",
+  subscribe: "Prenumeruok, kad galėtum išsinuomoti šį rinkinį.",
   tier: "Tavo prenumerata neapima šio rinkinio.",
   taken: "Šiuo metu išnuomotas kitam nariui.",
 }
