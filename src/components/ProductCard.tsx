@@ -88,7 +88,7 @@ const SUBSCRIBE_WITH_LABEL: Partial<Record<Tier, string>> = {
 const NEW_BADGE_DAYS = 7
 
 // A set counts as new for a week after it drops, so a scheduled coming-soon
-// product flips to the "Nauja" badge on its own when the release date passes.
+// product flips to the "Naujiena" badge on its own when the release date passes.
 // Sets added without a release date count from the day they were added.
 function isRecentlyReleased(iso: string | null, now: number): boolean {
   if (!iso) return false
@@ -216,7 +216,7 @@ function StudBg({
 function NewBadge() {
   return (
     <span className="absolute top-[62px] left-[14px] z-10 -rotate-6 rounded-md border-2 border-ink bg-brand-yellow px-2 py-1 font-display text-[12px] leading-none text-ink uppercase shadow-[3px_3px_0_#001B21]">
-      Nauja
+      Naujiena
     </span>
   )
 }
