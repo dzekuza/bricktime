@@ -1,6 +1,6 @@
 import type Stripe from "https://esm.sh/stripe@14.21.0"
+import { HOME_DELIVERY_FEE_CENTS } from "./courier.ts"
 
-const HOME_DELIVERY_FEE_CENTS = 300
 
 type PhaseItem = { price: string | { id: string }; quantity?: number | null }
 

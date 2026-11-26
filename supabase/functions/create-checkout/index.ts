@@ -7,6 +7,7 @@ import {
 import { applyCoupon } from "../_shared/coupon.ts"
 import { assertNoDowngradeWhileHolding } from "../_shared/downgrade-guard.ts"
 import { getVatTaxRateId } from "../_shared/vat.ts"
+import { HOME_DELIVERY_FEE_CENTS } from "../_shared/courier.ts"
 import {
   isAllowedReturnUrl,
   stripeElements,
@@ -263,7 +264,7 @@ Deno.serve(async (req) => {
 
       // Cap at the first invoice so Stripe never sees an oversized coupon.
       const firstInvoiceCents =
-        unitAmount + (chargeHomeDeliveryFee ? 300 * monthsPerInterval : 0)
+        unitAmount + (chargeHomeDeliveryFee ? HOME_DELIVERY_FEE_CENTS * monthsPerInterval : 0)
       giftCardDiscountCents = Math.min(amountCents, firstInvoiceCents)
     }
 
@@ -305,7 +306,7 @@ Deno.serve(async (req) => {
                   price_data: {
                     currency: "eur",
                     product_data: { name: "Pristatymas į duris" },
-                    unit_amount: 300 * monthsPerInterval,
+                    unit_amount: HOME_DELIVERY_FEE_CENTS * monthsPerInterval,
                     recurring: { interval },
                   },
                   quantity: 1,

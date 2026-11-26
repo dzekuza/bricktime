@@ -5,7 +5,7 @@ import {
 } from "https://esm.sh/@supabase/supabase-js@2"
 
 import { getVatTaxRateId } from "../_shared/vat.ts"
-import { COURIER_FEE_CENTS } from "../_shared/courier.ts"
+import { MERCH_COURIER_FEE_CENTS } from "../_shared/courier.ts"
 import {
   isAllowedReturnUrl,
   stripeElements,
@@ -175,7 +175,7 @@ Deno.serve(async (req) => {
                   price_data: {
                     currency: "eur",
                     product_data: { name: "Pristatymas kurjeriu iki durų" },
-                    unit_amount: COURIER_FEE_CENTS,
+                    unit_amount: MERCH_COURIER_FEE_CENTS,
                   },
                   quantity: 1,
                   tax_rates: [vatTaxRateId],

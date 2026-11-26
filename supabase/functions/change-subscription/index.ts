@@ -4,6 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { applyCoupon } from "../_shared/coupon.ts"
 import { flatUpgradeDiffCents } from "../_shared/plan-change.ts"
 import { getVatTaxRateId } from "../_shared/vat.ts"
+import { HOME_DELIVERY_FEE_CENTS } from "../_shared/courier.ts"
 import {
   fitsWithinCredits,
   getHeldBrickValue,
@@ -22,7 +23,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 }
 
-const HOME_DELIVERY_FEE_CENTS = 300
 const SWAPPABLE_STATUSES = new Set(["active", "trialing"])
 
 const json = (body: unknown, status = 200) =>

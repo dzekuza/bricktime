@@ -18,10 +18,11 @@ import { HERO_VIDEO_URL } from "@/lib/media"
 import { Seo } from "@/components/Seo"
 import { TermsAgreement } from "@/components/TermsAgreement"
 import { VatNote } from "@/components/VatNote"
+import { HOME_DELIVERY_MONTHLY_FEE } from "@/lib/courier"
 
 // ── static data ────────────────────────────────────────────────────────────
 
-const HOME_DELIVERY_FEE = 3
+const HOME_DELIVERY_FEE = HOME_DELIVERY_MONTHLY_FEE
 
 // ── page ───────────────────────────────────────────────────────────────────
 

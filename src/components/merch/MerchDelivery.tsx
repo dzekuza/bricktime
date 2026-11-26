@@ -1,10 +1,10 @@
 import { TerminalPicker } from "@/components/TerminalPicker"
-import { COURIER_FEE } from "@/lib/courier"
+import { MERCH_COURIER_FEE as MERCH_FEE } from "@/lib/courier"
 import type { LpTerminal } from "@/lib/lpexpress"
 
 export type MerchDeliveryMethod = "terminal" | "courier"
 
-export const MERCH_COURIER_FEE = COURIER_FEE
+export const MERCH_COURIER_FEE = MERCH_FEE
 
 const OPTIONS: { value: MerchDeliveryMethod; label: string; note: string }[] = [
   { value: "terminal", label: "Paštomatas", note: "Nemokamas" },
