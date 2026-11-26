@@ -5,6 +5,7 @@ import {
 } from "https://esm.sh/@supabase/supabase-js@2"
 
 import { getVatTaxRateId } from "../_shared/vat.ts"
+import { COURIER_FEE_CENTS } from "../_shared/courier.ts"
 import {
   isAllowedReturnUrl,
   stripeElements,
@@ -20,7 +21,6 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
 // longer so the card can't be freed while the session can still be paid.
 const SESSION_TTL_MINUTES = 30
 const GIFT_CARD_HOLD_MINUTES = 35
-const COURIER_FEE_CENTS = 300
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

@@ -2,6 +2,7 @@ import Stripe from "https://esm.sh/stripe@14.21.0"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 import { getVatTaxRateId } from "../_shared/vat.ts"
+import { COURIER_FEE_CENTS } from "../_shared/courier.ts"
 
 // Opens a Stripe Checkout for the one-off courier fee of a rental. The rental
 // itself is created by stripe-webhook (record_paid_courier_rental) once the
@@ -12,7 +13,6 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
   httpClient: Stripe.createFetchHttpClient(),
 })
 
-const COURIER_FEE_CENTS = 300
 // Mirrors the limit record_paid_courier_rentals enforces.
 const MAX_CART_SETS = 10
 // Stripe's shortest allowed session lifetime: a short window keeps the
