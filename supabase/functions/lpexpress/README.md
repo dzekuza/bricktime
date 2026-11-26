@@ -45,6 +45,13 @@ supabase secrets set \
   LP_SENDER_COUNTRY=LT
 ```
 Switch `LP_API_BASE` to `https://api-manosiuntos.post.lt` for production.
+
+Returns: set `LP_RETURN_TERMINAL_ID` to the id of the LP EXPRESS paštomatas
+BRICKTIME collects returns from (`supabase secrets set LP_RETURN_TERMINAL_ID=<id>`;
+find the id with the `terminals` action). Return labels are then locker → locker
+(T2T), addressed to `LP_SENDER_NAME` / `LP_SENDER_PHONE`, which gets the pickup code.
+While it is unset, returns are locker → BRICKTIME's door (T2H, the pricier service)
+and `createReturnLabel` logs a warning.
 (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` are injected automatically.)
 
 ### 3. Apply the migration & deploy

@@ -13,6 +13,10 @@
 //   LP_SENDER_BUILDING e.g. 16
 //   LP_SENDER_FLAT     e.g. 1 (optional)
 //   LP_SENDER_COUNTRY  default LT
+//   LP_RETURN_TERMINAL_ID  BRICKTIME's own paštomatas id (e.g. 0137). Return
+//                      labels go customer locker → this locker (T2T, cheaper).
+//                      Unset: returns fall back to customer locker → BRICKTIME's
+//                      door (T2H) and a warning is logged.
 //
 // The OAuth token is cached in module scope for the lifetime of the warm
 // isolate (LP tokens live ~1h); a fresh one is fetched when it expires.
@@ -247,23 +251,43 @@ export interface CreateReturnLabelInput {
 }
 
 /**
- * Create a prepaid RETURN label — customer's chosen paštomatas (sender) →
- * BRICKTIME's door (receiver, T2H). Registers it so a trackable barcode is
- * assigned. Mirror of createLabel with the parties reversed.
+ * Create a prepaid RETURN label, the mirror of an outbound locker shipment:
+ * customer's chosen paštomatas (sender) → BRICKTIME's own paštomatas
+ * (receiver, T2T) set by LP_RETURN_TERMINAL_ID. Until that var is set, the
+ * parcel goes to BRICKTIME's door instead (T2H, the pricier service) and a
+ * warning is logged. Registers it so a trackable barcode is assigned.
  */
 export async function createReturnLabel(input: CreateReturnLabelInput): Promise<CreateLabelResult> {
   if (!input.terminalId) throw new Error("terminalId required for return label")
 
+  const returnTerminalId = Deno.env.get("LP_RETURN_TERMINAL_ID")?.trim()
+  if (!returnTerminalId) {
+    console.warn(
+      "createReturnLabel: LP_RETURN_TERMINAL_ID is not set; creating a T2H return to BRICKTIME's door instead of T2T to a BRICKTIME locker",
+    )
+  }
+
   const body = {
     plan: { code: "TERMINAL" },
-    parcel: { type: "T2H", size: input.size ?? "S" },
+    parcel: { type: returnTerminalId ? "T2T" : "T2H", size: input.size ?? "S" },
     services: [],
     sender: {
       name: input.customer.name,
       address: { countryCode: "LT", terminalId: input.terminalId },
       contacts: { phone: ltPhone(input.customer.phone), email: input.customer.email },
     },
-    receiver: bricktimeParty(),
+    // A locker receiver needs name, terminalId and a phone (LP texts the
+    // pickup code to it), like the receiver on outbound T2T labels.
+    receiver: returnTerminalId
+      ? {
+          name: env("LP_SENDER_NAME"),
+          address: { countryCode: Deno.env.get("LP_SENDER_COUNTRY") ?? "LT", terminalId: returnTerminalId },
+          contacts: {
+            phone: ltPhone(env("LP_SENDER_PHONE")),
+            email: Deno.env.get("LP_SENDER_EMAIL") ?? undefined,
+          },
+        }
+      : bricktimeParty(),
   }
 
   const parcel = await lpJson<{ parcelId?: string; id?: string }>(`/api/v2/parcel`, {

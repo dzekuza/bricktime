@@ -34,6 +34,7 @@ Names only. Sources: `.env.example` (names), `import.meta.env` in `src/`, `Deno.
 | `OMNISEND_API_KEY` | server | yes | `omnisend-subscribe`, `stripe-webhook` |
 | `LP_API_BASE`, `LP_USERNAME`, `LP_PASSWORD` | server | yes | `_shared/lpexpress.ts` (`LP_USERNAME`/`LP_PASSWORD` read through the `env()` helper, not a literal `Deno.env.get`) |
 | `LP_SENDER_*` (NAME, EMAIL, PHONE, STREET, BUILDING, LOCALITY, POSTCODE, COUNTRY, FLAT) | server | yes | sender party in `_shared/lpexpress.ts` |
+| `LP_RETURN_TERMINAL_ID` | server | optional; unset = returns go T2H to the door (warning logged) | BRICKTIME's LP EXPRESS locker id; `createReturnLabel` in `_shared/lpexpress.ts` sends returns locker → locker (T2T) to it |
 | `GA4_PROPERTY_ID`, `GSC_SITE_URL`, `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` | server | yes for admin analytics | `get-analytics` |
 | `ADMIN_WHATSAPP_TO` | server | required for WhatsApp alerts | `_shared/whatsapp.ts:24` |
 | `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID` | server | required for the Meta provider | `_shared/whatsapp.ts:33` |

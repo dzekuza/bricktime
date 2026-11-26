@@ -31,6 +31,7 @@ Set on the target project (Dashboard → Edge Functions → Secrets, or
 | `LP_SENDER_EMAIL` | lpexpress |
 | `LP_SENDER_FLAT` | lpexpress |
 | `LP_SENDER_PHONE` | lpexpress |
+| `LP_RETURN_TERMINAL_ID` | lpexpress (optional: BRICKTIME locker for T2T returns; unset = T2H to the door) |
 
 > The LP_* and GOOGLE_* values are **not** in any local `.env` file — they exist
 > only in the source project's function secrets, which are write-only. Read them
