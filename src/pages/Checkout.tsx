@@ -44,8 +44,8 @@ import {
   type PlanChangeQuote,
 } from "@/components/checkout/PlanChangeConfirm"
 import type { Tier } from "@/components/ProductCard"
+import { COURIER_FEE, HOME_DELIVERY_MONTHLY_FEE } from "@/lib/courier"
 
-const HOME_DELIVERY_FEE = 3
 const CANCELLATION_GRACE_DAYS = 14
 
 // ── tier config ──────────────────────────────────────────────────────────────
@@ -166,10 +166,10 @@ export default function Checkout() {
   // one order by paying the fee in Stripe Checkout.
   const isDoorDeliveryInPlan = userSub?.key === "mega" || hasPlanHomeDelivery
   const isCourierFeeDue = homeDelivery && !isDoorDeliveryInPlan
-  const orderTotal = isCourierFeeDue ? HOME_DELIVERY_FEE : 0
+  const orderTotal = isCourierFeeDue ? COURIER_FEE : 0
   const homeDeliveryLabel = isDoorDeliveryInPlan
     ? "Įskaičiuota"
-    : `+€${HOME_DELIVERY_FEE}`
+    : `+€${COURIER_FEE}`
   const paidCourierState = usePaidCourierReturn(
     user?.id,
     params.get("courier_paid") === "true" ? params.get("session_id") : null
@@ -1696,7 +1696,7 @@ export default function Checkout() {
                     isAnnual={billing === "annual"}
                     deliveryFee={
                       homeDelivery && requiredTier.key !== "mega"
-                        ? HOME_DELIVERY_FEE
+                        ? HOME_DELIVERY_MONTHLY_FEE
                         : 0
                     }
                     isSwap={userSub != null}
@@ -1722,7 +1722,7 @@ export default function Checkout() {
                           note:
                             requiredTier.key === "mega"
                               ? "Nemokamas"
-                              : `+€${HOME_DELIVERY_FEE}/mėn.`,
+                              : `+€${HOME_DELIVERY_MONTHLY_FEE}/mėn.`,
                         },
                       ].map(({ value, label, note }) => (
                         <button
@@ -2136,7 +2136,7 @@ export default function Checkout() {
             </DialogTitle>
             <DialogDescription className="mt-2 text-[13px] leading-[1.6] text-ink/50">
               {isCourierFeeDue
-                ? `Sumokėsi €${HOME_DELIVERY_FEE} už pristatymą kurjeriu, o produktas bus pridėtas į tavo dėžutę ir išsiųstas su kita siunta.`
+                ? `Sumokėsi €${COURIER_FEE} už pristatymą kurjeriu, o produktas bus pridėtas į tavo dėžutę ir išsiųstas su kita siunta.`
                 : "Produktas bus pridėtas į tavo dėžutę ir išsiųstas su kita siunta."}
             </DialogDescription>
 
@@ -2177,7 +2177,7 @@ export default function Checkout() {
                 {confirming
                   ? "Apdorojama…"
                   : isCourierFeeDue
-                    ? `Apmokėti €${HOME_DELIVERY_FEE} →`
+                    ? `Apmokėti €${COURIER_FEE} →`
                     : "Taip, patvirtinti →"}
               </Button>
               {confirmError && (
